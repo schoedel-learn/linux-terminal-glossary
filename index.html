@@ -429,20 +429,24 @@ a:hover{color:var(--color-primary-hover)}
 
 /* ─── SCROLL TO TOP ─────────────────────────────────────── */
 .scroll-top{
-  position:fixed;bottom:var(--space-4);right:var(--space-4);
-  width:44px;height:44px;
+  position:fixed;bottom:var(--space-5);right:var(--space-4);
+  display:flex;align-items:center;gap:6px;
+  height:40px;
+  padding:0 var(--space-4) 0 var(--space-3);
   background:var(--color-primary);
   color:#fff;
   border-radius:var(--radius-full);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:var(--shadow-md);
+  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  font-size:var(--text-xs);font-weight:600;letter-spacing:.02em;
   opacity:0;pointer-events:none;
-  transform:translateY(8px);
-  transition:all var(--transition);
+  transform:translateY(12px);
+  transition:opacity .2s ease,transform .2s ease,background .15s;
   z-index:200;
+  white-space:nowrap;
 }
 .scroll-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
-.scroll-top:hover{background:var(--color-primary-hover)}
+.scroll-top:hover{background:var(--color-primary-hover);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.scroll-top:active{transform:translateY(2px)}
 
 /* ─── DESKTOP BREAKPOINT (min-width → mobile-first) ──────── */
 @media(min-width:769px){
@@ -869,7 +873,8 @@ a:hover{color:var(--color-primary-hover)}
 
 <!-- Scroll to top -->
 <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  <span>Top</span>
 </button>
 
 <script>
@@ -1636,7 +1641,7 @@ document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar
 // ─── SCROLL TO TOP ────────────────────────────────────────────────
 const scrollTopBtn = document.getElementById('scrollTop');
 window.addEventListener('scroll', () => {
-  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
 });
 scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
