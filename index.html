@@ -115,7 +115,9 @@ a:hover{color:var(--color-primary-hover)}
   border-bottom:1px solid var(--color-border);
   flex-shrink:0;
 }
-.logo{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)}
+.logo{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);background:none;border:none;padding:0;cursor:pointer;text-align:left;border-radius:var(--radius);transition:opacity .15s;-webkit-tap-highlight-color:transparent;width:100%}
+.logo:hover{opacity:.8}
+.logo:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
 .logo-icon{width:28px;height:28px;flex-shrink:0}
 .logo-text{font-size:var(--text-sm);font-weight:700;letter-spacing:-0.02em;line-height:1.2}
 .logo-text span{color:var(--color-primary)}
@@ -747,7 +749,7 @@ a:hover{color:var(--color-primary-hover)}
   <!-- ── SIDEBAR ── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="logo">
+      <button class="logo" id="logoHomeBtn" title="Back to Home" aria-label="Go to Home">
         <svg class="logo-icon" viewBox="0 0 28 28" fill="none" aria-label="Linux Terminal Glossary">
           <rect width="28" height="28" rx="6" fill="#1c2128"/>
           <rect x="1" y="1" width="26" height="26" rx="5" stroke="#30363d" stroke-width="1"/>
@@ -755,7 +757,7 @@ a:hover{color:var(--color-primary-hover)}
           <path d="M14 19h8" stroke="#3fb950" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
         <div class="logo-text">Linux <span>Terminal</span><br>Glossary</div>
-      </div>
+      </button>
       <div class="stats-row">
         <span class="stat-chip" id="totalCount">…</span>
         <span class="stat-chip" id="catCount">…</span>
@@ -1140,6 +1142,14 @@ async function loadData() {
   buildSidebar();
   buildFilterBar();
   renderAll();
+
+  // Logo → Home
+  document.getElementById('logoHomeBtn').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    selectCategory('All');
+    closeSidebar();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
 }
 
 // ─── SIDEBAR ──────────────────────────────────────────────────────
