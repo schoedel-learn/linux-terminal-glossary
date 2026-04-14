@@ -1608,7 +1608,7 @@ async function loadData() {
   const idxData = await idxRes.json();
 
   COMMANDS = cmdData.commands;
-  CATEGORIES = cmdData.categories;
+  CATEGORIES = [...cmdData.categories].sort((a, b) => a.localeCompare(b));
   SEARCH_INDEX = idxData.index;
   IDF = idxData.idf;
   SYNONYMS = idxData.synonyms;
@@ -1694,28 +1694,23 @@ function buildFilterBar() {
   allChip.addEventListener('click', () => selectCategory('All'));
   bar.appendChild(allChip);
 
-  const shortcuts = [
-    'Self-Hosting',
-    'Dokploy',
-    'VPS Management',
-    'Docker',
-    'Node.js & npm/yarn',
-    'Git - Core','Git - Advanced','GitHub CLI',
-    'Python & pip','Gemini CLI',
-    'tmux','Vim/Neovim','Networking','SSH & Remote',
-    'System Services & Systemd','Process Management',
-    'Text Processing','Bash Scripting','File Operations',
-    'Package Management - APT/Ubuntu'
-  ];
+  // Use the already-sorted CATEGORIES array so chips always match sidebar order
   const shortLabels = {
     'Node.js & npm/yarn': 'Node/npm',
     'Package Management - APT/Ubuntu': 'APT',
     'System Services & Systemd': 'Systemd',
     'Python & pip': 'Python',
     'VPS Management': 'VPS',
+    'Archiving & Compression': 'Archiving',
+    'I/O Redirection & Pipes': 'I/O & Pipes',
+    'Productivity & Search': 'Productivity',
+    'Navigation & Directory': 'Navigation',
+    'File Viewing & Editing': 'File Viewing',
+    'Permissions & Ownership': 'Permissions',
+    'User & Group Management': 'User/Groups',
+    'Cron & Scheduling': 'Cron',
   };
-  shortcuts.forEach(cat => {
-    if (!CATEGORIES.includes(cat)) return; // skip if category doesn't exist
+  CATEGORIES.forEach(cat => {
     const chip = document.createElement('button');
     chip.className = 'filter-chip';
     chip.dataset.cat = cat;
