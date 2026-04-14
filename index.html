@@ -469,6 +469,64 @@ a:hover{color:var(--color-primary-hover)}
 /* ─── HIGHLIGHT ─────────────────────────────────────────── */
 .hl{background:rgba(255,200,0,0.25);border-radius:2px;padding:0 1px}
 
+/* ─── TOOLTIP ────────────────────────────────────────────── */
+.cmd-info{
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-sm);
+  color:var(--color-text-faint);
+  transition:all var(--transition);
+  -webkit-tap-highlight-color:transparent;
+}
+.cmd-info:hover,.cmd-info.active{color:var(--color-primary);background:var(--color-primary-dim)}
+/* on mobile info is always visible; on desktop appears on hover */
+.cmd-info{opacity:1}
+@media(min-width:769px){
+  .cmd-info{opacity:0}
+  .cmd-card:hover .cmd-info{opacity:1}
+}
+
+.tip-popover{
+  position:fixed;
+  z-index:500;
+  width:min(320px, calc(100vw - 32px));
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:var(--space-4);
+  display:none;
+  flex-direction:column;
+  gap:var(--space-2);
+  animation:tipIn 130ms cubic-bezier(0.16,1,0.3,1);
+}
+.tip-popover.open{display:flex}
+@keyframes tipIn{
+  from{opacity:0;transform:scale(0.95) translateY(4px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.tip-header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-2);
+}
+.tip-cmd{
+  font-family:var(--font-mono);font-size:var(--text-sm);font-weight:600;
+  color:var(--color-primary);word-break:break-all;flex:1;
+}
+.tip-close{
+  width:24px;height:24px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-sm);color:var(--color-text-faint);
+  transition:all var(--transition);
+}
+.tip-close:hover{background:var(--color-surface-2);color:var(--color-text)}
+.tip-label{
+  font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--color-text-faint);margin-top:var(--space-1);
+}
+.tip-text{
+  font-size:var(--text-sm);color:var(--color-text);line-height:1.65;
+}
+
 /* ─── LEADERBOARD PANEL ─────────────────────────────────── */
 .leaderboard-overlay{
   display:none;position:fixed;inset:0;
@@ -787,6 +845,18 @@ a:hover{color:var(--color-primary-hover)}
       <button class="lb-clear-all" id="lbClearAll">Clear history</button>
     </div>
   </div>
+</div>
+
+<!-- Tooltip popover (singleton, repositioned per button click) -->
+<div class="tip-popover" id="tipPopover" role="tooltip" aria-live="polite">
+  <div class="tip-header">
+    <span class="tip-cmd" id="tipCmd"></span>
+    <button class="tip-close" id="tipClose" aria-label="Close explanation">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="tip-label">What this does</div>
+  <p class="tip-text" id="tipText"></p>
 </div>
 
 <!-- Scroll to top -->
@@ -1360,13 +1430,19 @@ function renderSection(cat, cmds, hlTokens) {
   for (const cmd of cmds) {
     const cmdHL = hlTokens.length > 0 ? highlight(cmd.cmd, hlTokens) : escapeHtml(cmd.cmd);
     const descHL = hlTokens.length > 0 ? highlight(cmd.desc, hlTokens) : escapeHtml(cmd.desc);
+    const hasTip = cmd.tooltip && cmd.tooltip.trim().length > 0;
     cards += `
       <div class="cmd-card" id="cmd-${cmd.id}">
         <div class="cmd-top">
           <code class="cmd-code">${cmdHL}</code>
-          <button class="cmd-copy" data-copy="${escapeHtml(cmd.cmd)}" title="Copy command" aria-label="Copy ${escapeHtml(cmd.cmd)}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          </button>
+          <div style="display:flex;gap:4px;flex-shrink:0;align-items:center">
+            ${hasTip ? `<button class="cmd-info" data-id="${cmd.id}" aria-label="Explain ${escapeHtml(cmd.cmd)}" title="Explain this command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </button>` : ''}
+            <button class="cmd-copy" data-copy="${escapeHtml(cmd.cmd)}" title="Copy command" aria-label="Copy ${escapeHtml(cmd.cmd)}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
         </div>
         <div class="cmd-desc">${descHL}</div>
         ${hlTokens.length > 0 ? `<span class="cmd-cat-tag">${escapeHtml(cmd.category)}</span>` : ''}
@@ -1381,6 +1457,87 @@ function renderSection(cat, cmds, hlTokens) {
       <div class="cmd-grid">${cards}</div>
     </section>`;
 }
+
+// ─── TOOLTIP POPOVER ─────────────────────────────────────────────
+const tipPopover = document.getElementById('tipPopover');
+const tipCmd     = document.getElementById('tipCmd');
+const tipText    = document.getElementById('tipText');
+let   activeTipBtn = null;
+
+function openTip(btn) {
+  const id = parseInt(btn.dataset.id, 10);
+  const cmd = COMMANDS.find(c => c.id === id);
+  if (!cmd || !cmd.tooltip) return;
+
+  // Close any open tip first
+  if (activeTipBtn && activeTipBtn !== btn) {
+    activeTipBtn.classList.remove('active');
+  }
+  // Toggle off if already open for this button
+  if (activeTipBtn === btn && tipPopover.classList.contains('open')) {
+    closeTip();
+    return;
+  }
+
+  tipCmd.textContent  = cmd.cmd;
+  tipText.textContent = cmd.tooltip;
+  btn.classList.add('active');
+  activeTipBtn = btn;
+
+  // Position the popover
+  tipPopover.classList.remove('open');
+  tipPopover.style.display = 'flex'; // briefly visible to measure
+  const btnRect = btn.getBoundingClientRect();
+  const popW = tipPopover.offsetWidth;
+  const popH = tipPopover.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const MARGIN = 8;
+
+  // Prefer below, fallback to above
+  let top = btnRect.bottom + MARGIN;
+  if (top + popH > vh - MARGIN) top = btnRect.top - popH - MARGIN;
+  if (top < MARGIN) top = MARGIN;
+
+  // Prefer right-aligned to button, keep inside viewport
+  let left = btnRect.right - popW;
+  if (left < MARGIN) left = MARGIN;
+  if (left + popW > vw - MARGIN) left = vw - popW - MARGIN;
+
+  tipPopover.style.top  = top  + 'px';
+  tipPopover.style.left = left + 'px';
+  tipPopover.classList.add('open');
+}
+
+function closeTip() {
+  tipPopover.classList.remove('open');
+  tipPopover.style.display = 'none';
+  if (activeTipBtn) activeTipBtn.classList.remove('active');
+  activeTipBtn = null;
+}
+
+// Delegate info-button clicks from the content area
+document.getElementById('content').addEventListener('click', e => {
+  const btn = e.target.closest('.cmd-info');
+  if (btn) { e.stopPropagation(); openTip(btn); return; }
+  // Click anywhere outside popover closes it
+  if (!tipPopover.contains(e.target)) closeTip();
+});
+document.getElementById('tipClose').addEventListener('click', closeTip);
+// Clicking anywhere outside the popover closes it
+document.addEventListener('click', e => {
+  if (tipPopover.classList.contains('open') &&
+      !tipPopover.contains(e.target) &&
+      !e.target.closest('.cmd-info')) {
+    closeTip();
+  }
+});
+// Escape closes it too
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && tipPopover.classList.contains('open')) closeTip();
+});
+// Re-close on scroll so it doesn't float detached
+window.addEventListener('scroll', () => { if (activeTipBtn) closeTip(); }, { passive: true });
 
 // ─── COPY ─────────────────────────────────────────────────────────
 async function copyCmd(btn) {
