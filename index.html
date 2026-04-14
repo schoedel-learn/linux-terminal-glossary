@@ -137,12 +137,12 @@ a:hover{color:var(--color-primary-hover)}
 .cat-btn{
   display:flex;align-items:center;justify-content:space-between;
   width:100%;padding:var(--space-3) var(--space-4);
-  font-size:var(--text-xs);font-weight:500;
+  font-size:var(--text-sm);font-weight:500; /* readable on mobile */
   color:var(--color-text-muted);
   transition:all var(--transition);
   border-radius:0;text-align:left;gap:var(--space-2);
   border-left:2px solid transparent;
-  min-height:44px; /* mobile touch target */
+  min-height:44px;
   -webkit-tap-highlight-color:transparent;
 }
 .cat-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
@@ -151,7 +151,7 @@ a:hover{color:var(--color-primary-hover)}
   border-left-color:var(--color-primary);
 }
 .cat-btn .count{
-  font-size:var(--text-xs);font-family:var(--font-mono);
+  font-size:var(--text-sm);font-family:var(--font-mono);
   color:var(--color-text-faint);flex-shrink:0;font-weight:400;
 }
 .cat-btn.active .count{color:var(--color-primary);opacity:0.7}
@@ -455,6 +455,8 @@ a:hover{color:var(--color-primary-hover)}
   .cmd-copy{width:28px;height:28px;opacity:0}
   .cmd-card:hover .cmd-copy{opacity:1}
   .filter-chip{padding:var(--space-1) var(--space-3);min-height:auto}
+  .cat-btn{font-size:var(--text-xs)} /* compact on desktop */
+  .cat-btn .count{font-size:var(--text-xs)}
 }
 
 /* ─── SMALL MOBILE ───────────────────────────────────────── */
