@@ -13,6 +13,7 @@
     "Git - Advanced",
     "Git - Core",
     "GitHub CLI",
+    "GitHub Copilot",
     "I/O Redirection & Pipes",
     "Navigation & Directory",
     "Networking",
@@ -19353,7 +19354,553 @@
       "desc": "Create a new named network namespace",
       "category": "Networking",
       "tooltip": "Creates an isolated network namespace. The new namespace has only a loopback interface. You then add virtual ethernet pairs (veth) to connect it to the host network. Foundation of how Docker's bridged networking works."
+    },
+    {
+      "id": 2761,
+      "cmd": "gh extension install github/gh-copilot",
+      "desc": "Install the GitHub Copilot CLI extension for gh",
+      "category": "GitHub Copilot",
+      "tooltip": "Adds the `gh copilot` subcommand to your GitHub CLI installation. Requires gh 2.x and an active Copilot subscription. After installing, run `gh auth refresh -h github.com -s copilot` to grant the required OAuth scope."
+    },
+    {
+      "id": 2762,
+      "cmd": "gh auth refresh -h github.com -s copilot",
+      "desc": "Grant Copilot scope to your existing gh auth token",
+      "category": "GitHub Copilot",
+      "tooltip": "The Copilot CLI extension needs a specific OAuth scope ('copilot') that may not be in your existing token. This command re-authenticates and adds that scope without requiring a full logout/login cycle."
+    },
+    {
+      "id": 2763,
+      "cmd": "gh extension upgrade gh-copilot",
+      "desc": "Upgrade the Copilot CLI extension to the latest version",
+      "category": "GitHub Copilot",
+      "tooltip": "GitHub ships Copilot CLI updates frequently. Run this to get the latest features and bug fixes. The gh extension system handles downloading and replacing the binary."
+    },
+    {
+      "id": 2764,
+      "cmd": "gh copilot --version",
+      "desc": "Show installed Copilot CLI extension version",
+      "category": "GitHub Copilot",
+      "tooltip": "Prints the version number of the gh-copilot extension. Cross-reference with the GitHub releases page to check if you're running the latest version."
+    },
+    {
+      "id": 2765,
+      "cmd": "gh copilot explain 'sudo apt-get update'",
+      "desc": "Ask Copilot to explain what a shell command does",
+      "category": "GitHub Copilot",
+      "tooltip": "Sends the quoted command to GitHub Copilot and returns a plain-English explanation of what it does, flag by flag. Invaluable when you encounter an unfamiliar command in a script or documentation."
+    },
+    {
+      "id": 2766,
+      "cmd": "gh copilot explain 'tar -xzvf archive.tar.gz'",
+      "desc": "Explain a complex tar command with all its flags",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot will break down each flag: -x (extract), -z (gunzip), -v (verbose), -f (file). The explain subcommand is especially useful for commands with many single-letter flags whose meanings aren't obvious."
+    },
+    {
+      "id": 2767,
+      "cmd": "gh copilot explain 'awk \\'NR%2==0\\' file.txt'",
+      "desc": "Get an explanation of an awk one-liner",
+      "category": "GitHub Copilot",
+      "tooltip": "awk scripts can be cryptic. Copilot will explain the NR (record number) variable, the modulo operator, and what printing every 2nd line means in context. Wrap the command in single quotes to prevent shell interpolation."
+    },
+    {
+      "id": 2768,
+      "cmd": "gh copilot explain 'docker run -d -p 80:8080 --restart unless-stopped myimage'",
+      "desc": "Explain a Docker run command with all options",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot explains -d (detached mode), -p (port mapping host:container), and --restart unless-stopped (auto-restart policy). Great for onboarding team members to complex Docker setups."
+    },
+    {
+      "id": 2769,
+      "cmd": "gh copilot explain 'curl -fsSL https://example.com | bash'",
+      "desc": "Understand what a curl-pipe-bash install script does",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot explains -f (fail silently), -s (silent), -S (show errors), -L (follow redirects), and warns about the security implications of piping curl output directly to bash."
+    },
+    {
+      "id": 2770,
+      "cmd": "gh copilot suggest 'list all running docker containers'",
+      "desc": "Ask Copilot to suggest a shell command for a task",
+      "category": "GitHub Copilot",
+      "tooltip": "Describe what you want to accomplish in plain English and Copilot returns the appropriate shell command. After viewing the suggestion, you can copy it directly to your clipboard or execute it immediately."
+    },
+    {
+      "id": 2771,
+      "cmd": "gh copilot suggest 'find all files larger than 100MB'",
+      "desc": "Get a command suggestion for finding large files",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot will suggest `find / -size +100M -type f` with appropriate options. The suggest workflow includes an interactive prompt: 'Copy to clipboard', 'Execute command', or 'Revise command'."
+    },
+    {
+      "id": 2772,
+      "cmd": "gh copilot suggest 'compress a folder excluding .git directory'",
+      "desc": "Suggest a tar command with exclusion patterns",
+      "category": "GitHub Copilot",
+      "tooltip": "Natural language requests that include constraints (like 'excluding .git') are handled well by Copilot. It will suggest the --exclude flag for tar."
+    },
+    {
+      "id": 2773,
+      "cmd": "gh copilot suggest 'show top 10 processes by memory usage'",
+      "desc": "Get a ps or top command suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot typically suggests `ps aux --sort=-%mem | head -11` or a similar command. The suggest subcommand targets three command types: shell (sh), gh CLI (gh), and git commands (git)."
+    },
+    {
+      "id": 2774,
+      "cmd": "gh copilot suggest -t git 'undo last commit but keep changes staged'",
+      "desc": "Get a git-specific command suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "-t git (or --target git) tells Copilot to scope its suggestion to git commands only. Copilot will suggest `git reset --soft HEAD~1`. Scoping improves suggestion accuracy for domain-specific tasks."
+    },
+    {
+      "id": 2775,
+      "cmd": "gh copilot suggest -t gh 'create a pull request to main with draft status'",
+      "desc": "Get a gh CLI command suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "-t gh scopes suggestions to GitHub CLI commands. Copilot will suggest `gh pr create --base main --draft`. Useful when you know you want a gh command but can't remember the exact syntax."
+    },
+    {
+      "id": 2776,
+      "cmd": "gh copilot suggest -t shell 'kill process listening on port 3000'",
+      "desc": "Get a shell command to free up a port",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot typically suggests `lsof -ti:3000 | xargs kill -9` or the fuser equivalent. The -t shell target ensures suggestions are pure shell commands, not git or gh subcommands."
+    },
+    {
+      "id": 2777,
+      "cmd": "gh copilot suggest 'recursively change file permissions to 644 and directories to 755'",
+      "desc": "Get a chmod command for mixed file/directory permissions",
+      "category": "GitHub Copilot",
+      "tooltip": "This is a classic tricky task. Copilot will suggest using find with two separate -exec chmod commands: one for files (-type f, chmod 644) and one for directories (-type d, chmod 755)."
+    },
+    {
+      "id": 2778,
+      "cmd": "Tab",
+      "desc": "Accept Copilot's inline code suggestion (VS Code)",
+      "category": "GitHub Copilot",
+      "tooltip": "When Copilot shows a grey 'ghost text' suggestion, pressing Tab accepts it entirely. This is the core Copilot interaction. If the suggestion isn't what you want, press Escape to dismiss it, or keep typing to refine."
+    },
+    {
+      "id": 2779,
+      "cmd": "Escape",
+      "desc": "Dismiss the current Copilot suggestion without accepting",
+      "category": "GitHub Copilot",
+      "tooltip": "Pressing Escape hides the current ghost text suggestion. Copilot will show a new suggestion as you continue typing. Use this when the suggestion is completely wrong rather than partially right."
+    },
+    {
+      "id": 2780,
+      "cmd": "Alt+]  (Option+] on Mac)",
+      "desc": "Cycle to the next Copilot suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot often generates multiple alternative suggestions for the same context. Alt+] (or Option+] on Mac) cycles forward through them without accepting any. Alt+[ cycles backward. Review alternatives before accepting."
+    },
+    {
+      "id": 2781,
+      "cmd": "Alt+[  (Option+[ on Mac)",
+      "desc": "Cycle to the previous Copilot suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "Cycles backward through available completions. Copilot generates several alternatives \u2014 the first shown isn't always the best. Browsing alternatives often reveals a more accurate or idiomatic option."
+    },
+    {
+      "id": 2782,
+      "cmd": "Ctrl+Enter  (Cmd+Enter on Mac)",
+      "desc": "Open Copilot completions panel with 10 suggestions",
+      "category": "GitHub Copilot",
+      "tooltip": "Opens a dedicated panel showing up to 10 alternative completions side by side. More useful than cycling one-by-one when you want to compare multiple approaches to the same problem. Click 'Accept Solution' on your preferred option."
+    },
+    {
+      "id": 2783,
+      "cmd": "Alt+\\  (Option+\\ on Mac)",
+      "desc": "Manually trigger a Copilot suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "Forces Copilot to generate a suggestion at the current cursor position even if it hasn't appeared automatically. Useful when suggestions are delayed or you've just moved the cursor to a new location."
+    },
+    {
+      "id": 2784,
+      "cmd": "Ctrl+Right (partial accept \u2014 word)",
+      "desc": "Accept the next word of a Copilot suggestion",
+      "category": "GitHub Copilot",
+      "tooltip": "Instead of accepting the entire suggestion with Tab, Ctrl+Right accepts only the next word. This lets you cherry-pick parts of a suggestion \u2014 accept the method name but not the arguments, for example."
+    },
+    {
+      "id": 2785,
+      "cmd": "Ctrl+Shift+I  (Cmd+Shift+I on Mac)",
+      "desc": "Open GitHub Copilot Chat panel in VS Code",
+      "category": "GitHub Copilot",
+      "tooltip": "Opens the Copilot Chat sidebar where you can have a multi-turn conversation with Copilot about your code. Unlike inline completions, Chat lets you ask questions, request refactors, debug errors, and get explanations with full context."
+    },
+    {
+      "id": 2786,
+      "cmd": "Ctrl+I  (Cmd+I on Mac)",
+      "desc": "Open Copilot inline chat at current cursor position",
+      "category": "GitHub Copilot",
+      "tooltip": "Opens a floating chat input directly in the editor at your cursor. Type a request (e.g., 'add error handling') and Copilot will propose changes inline with a diff view. Accept with Enter or discard with Escape."
+    },
+    {
+      "id": 2787,
+      "cmd": "/explain",
+      "desc": "Chat slash command: explain selected code",
+      "category": "GitHub Copilot",
+      "tooltip": "Type /explain in the Copilot Chat input to get a detailed explanation of your selected code. Copilot describes what the code does, identifies patterns used, and highlights any potential issues."
+    },
+    {
+      "id": 2788,
+      "cmd": "/fix",
+      "desc": "Chat slash command: fix a bug in selected code",
+      "category": "GitHub Copilot",
+      "tooltip": "Type /fix to ask Copilot to identify and fix bugs in your selection. Copilot will describe what it found wrong and propose corrected code. Works well with compiler/linter error messages pasted in as context."
+    },
+    {
+      "id": 2789,
+      "cmd": "/tests",
+      "desc": "Chat slash command: generate unit tests for selected code",
+      "category": "GitHub Copilot",
+      "tooltip": "Type /tests to generate a test suite for your selected function or class. Copilot infers the testing framework from your project (Jest, pytest, JUnit, etc.) and creates tests covering the main cases and edge cases."
+    },
+    {
+      "id": 2790,
+      "cmd": "/doc",
+      "desc": "Chat slash command: generate documentation for selected code",
+      "category": "GitHub Copilot",
+      "tooltip": "Type /doc to add JSDoc, docstrings, or inline comments to your selected code. Copilot describes parameters, return values, and behavior. Useful for quickly documenting existing code before a PR review."
+    },
+    {
+      "id": 2791,
+      "cmd": "/simplify",
+      "desc": "Chat slash command: simplify complex selected code",
+      "category": "GitHub Copilot",
+      "tooltip": "Asks Copilot to refactor your selection to be more readable or concise without changing behavior. Often suggests built-in language features, standard library functions, or cleaner patterns you may not have been aware of."
+    },
+    {
+      "id": 2792,
+      "cmd": "/new",
+      "desc": "Chat slash command: scaffold a new file or project",
+      "category": "GitHub Copilot",
+      "tooltip": "Type /new followed by a description (e.g., '/new Express REST API with auth middleware') to scaffold a new file. Copilot generates the boilerplate structure based on your description and detected project context."
+    },
+    {
+      "id": 2793,
+      "cmd": "@workspace",
+      "desc": "Chat participant: ask about your entire codebase",
+      "category": "GitHub Copilot",
+      "tooltip": "@workspace tells Copilot Chat to index and reason about your entire VS Code workspace, not just the open file. Use it for questions like '@workspace where is the authentication logic?' or '@workspace explain the data flow'."
+    },
+    {
+      "id": 2794,
+      "cmd": "@terminal",
+      "desc": "Chat participant: ask about terminal output or commands",
+      "category": "GitHub Copilot",
+      "tooltip": "@terminal gives Copilot context from your VS Code integrated terminal. Ask '@terminal why did that command fail?' and Copilot reads your terminal output to diagnose the problem."
+    },
+    {
+      "id": 2795,
+      "cmd": "@vscode",
+      "desc": "Chat participant: ask about VS Code settings and features",
+      "category": "GitHub Copilot",
+      "tooltip": "@vscode scopes questions to VS Code itself. Ask '@vscode how do I enable word wrap?' or '@vscode what keybinding opens the terminal?' Copilot answers with VS Code-specific guidance."
+    },
+    {
+      "id": 2796,
+      "cmd": "#file",
+      "desc": "Chat variable: reference a specific file in Chat",
+      "category": "GitHub Copilot",
+      "tooltip": "Type #file in Chat to attach a specific file as context. Copilot will prompt you to pick a file from your workspace. Use this to ask 'refactor #file to use async/await' when the file isn't currently open."
+    },
+    {
+      "id": 2797,
+      "cmd": "#selection",
+      "desc": "Chat variable: reference current editor selection",
+      "category": "GitHub Copilot",
+      "tooltip": "#selection tells Copilot Chat to focus on whatever text you currently have selected in the editor. Equivalent to having selected code when you open Chat, but useful when adding context mid-conversation."
+    },
+    {
+      "id": 2798,
+      "cmd": "#editor",
+      "desc": "Chat variable: send current open file as context",
+      "category": "GitHub Copilot",
+      "tooltip": "#editor includes the entire content of your currently active editor file as context in the Chat message. Useful for questions like 'are there any security issues in #editor?'"
+    },
+    {
+      "id": 2799,
+      "cmd": "gh copilot config",
+      "desc": "Open interactive Copilot CLI configuration",
+      "category": "GitHub Copilot",
+      "tooltip": "Launches an interactive menu to configure gh copilot behavior \u2014 including whether to send optional usage data to GitHub. Settings are stored in your gh config directory (~/.config/gh/)."
+    },
+    {
+      "id": 2800,
+      "cmd": "# VS Code: Copilot > Enable / Disable",
+      "desc": "Toggle Copilot on/off globally in VS Code settings",
+      "category": "GitHub Copilot",
+      "tooltip": "In VS Code, open Settings (Ctrl+,), search 'Copilot', and toggle 'GitHub Copilot: Enable'. You can also click the Copilot icon in the status bar for quick access. Disabling globally is useful when working with sensitive/proprietary code."
+    },
+    {
+      "id": 2801,
+      "cmd": "# .copilotignore",
+      "desc": "Create a .copilotignore file to exclude files from Copilot context",
+      "category": "GitHub Copilot",
+      "tooltip": "A .copilotignore file (same syntax as .gitignore) tells Copilot not to use matching files as context for suggestions. Critical for excluding files with secrets, API keys, or proprietary algorithms from Copilot's training context."
+    },
+    {
+      "id": 2802,
+      "cmd": "# VS Code: github.copilot.enable per language",
+      "desc": "Enable or disable Copilot for specific programming languages",
+      "category": "GitHub Copilot",
+      "tooltip": "In settings.json, add: `\"github.copilot.enable\": {\"*\": true, \"markdown\": false, \"plaintext\": false}`. The '*' wildcard sets the default; individual languages override it. Useful for disabling in config/secrets files."
+    },
+    {
+      "id": 2803,
+      "cmd": "# VS Code: github.copilot.editor.enableAutoCompletions",
+      "desc": "Toggle automatic suggestion display (vs manual trigger only)",
+      "category": "GitHub Copilot",
+      "tooltip": "When set to false, Copilot won't show ghost text automatically \u2014 you must press Alt+\\ to request a suggestion. Useful if you find automatic suggestions distracting or want to retain full control over when Copilot activates."
+    },
+    {
+      "id": 2804,
+      "cmd": "# VS Code: github.copilot.chat.localeOverride",
+      "desc": "Force Copilot Chat to respond in a specific language",
+      "category": "GitHub Copilot",
+      "tooltip": "Set to a locale like 'en', 'ja', or 'fr' to force Copilot Chat responses in that language regardless of your VS Code display language. Useful for multilingual teams or language-learning contexts."
+    },
+    {
+      "id": 2805,
+      "cmd": "Ctrl+I  (in VS Code terminal)",
+      "desc": "Open Copilot inline chat in the VS Code terminal",
+      "category": "GitHub Copilot",
+      "tooltip": "When your cursor is in the VS Code integrated terminal, Ctrl+I opens a Copilot chat overlay for the terminal context. Ask it to suggest commands, explain errors, or fix failed commands \u2014 it reads your terminal history as context."
+    },
+    {
+      "id": 2806,
+      "cmd": "# Click Copilot sparkle icon in terminal",
+      "desc": "Use the terminal Copilot button for command suggestions",
+      "category": "GitHub Copilot",
+      "tooltip": "VS Code 1.90+ shows a sparkle (\u2728) icon in the terminal toolbar. Clicking it opens Copilot Chat pre-populated with your last terminal command and its output \u2014 ideal for quickly diagnosing errors without switching context."
+    },
+    {
+      "id": 2807,
+      "cmd": "# Write descriptive function/variable names",
+      "desc": "Use clear naming to give Copilot better context",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot's suggestions are heavily influenced by the names in your code. A function named `getUserAuthTokenFromCookie` will generate much better suggestions than one named `getToken`. Naming is the cheapest way to improve Copilot quality."
+    },
+    {
+      "id": 2808,
+      "cmd": "# Add a comment describing what the next function does",
+      "desc": "Use comments as prompts to guide Copilot",
+      "category": "GitHub Copilot",
+      "tooltip": "Write a natural language comment above an empty function body, then press Enter. Copilot treats the comment as a prompt and generates the implementation. E.g., `// Fetch paginated users from the API and cache the result for 5 minutes`."
+    },
+    {
+      "id": 2809,
+      "cmd": "# Keep related code in open tabs",
+      "desc": "Open relevant files to give Copilot more context",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot uses your open editor tabs as context windows, not just the current file. If you want it to match an existing pattern (e.g., how you format API responses), open a file that shows that pattern before asking for suggestions."
+    },
+    {
+      "id": 2810,
+      "cmd": "# Provide example input/output in a comment",
+      "desc": "Show Copilot an example to generate better implementations",
+      "category": "GitHub Copilot",
+      "tooltip": "Write a comment like `// input: [3,1,2] -> output: [1,2,3]` before a sorting function. Copilot uses examples as specification \u2014 especially useful for data transformation functions where the logic isn't obvious from the name alone."
+    },
+    {
+      "id": 2811,
+      "cmd": "# Type the function signature first",
+      "desc": "Write the full function signature before the body",
+      "category": "GitHub Copilot",
+      "tooltip": "Defining the function name, parameter types, and return type gives Copilot a precise specification to implement. In TypeScript, a fully-typed signature almost always produces a more accurate body than an untyped one."
+    },
+    {
+      "id": 2812,
+      "cmd": "# Use Copilot to generate regex patterns",
+      "desc": "Describe a regex in plain English and let Copilot write it",
+      "category": "GitHub Copilot",
+      "tooltip": "Write a comment like `// regex to match ISO 8601 date strings` and Copilot will generate the pattern. This is one of Copilot's strongest use cases \u2014 regex is notoriously difficult to write from scratch and Copilot handles it well."
+    },
+    {
+      "id": 2813,
+      "cmd": "# Ask Copilot Chat to review a PR diff",
+      "desc": "Paste a diff into Chat and ask for a code review",
+      "category": "GitHub Copilot",
+      "tooltip": "Copy a git diff output and paste it into Copilot Chat with a prompt like 'review this diff for bugs and security issues'. Copilot will analyze the changes and suggest improvements \u2014 a lightweight alternative to waiting for a human reviewer."
+    },
+    {
+      "id": 2814,
+      "cmd": "# Use /fix with a stack trace",
+      "desc": "Paste an error stack trace into Chat and use /fix",
+      "category": "GitHub Copilot",
+      "tooltip": "Copy a full stack trace, paste it into Copilot Chat, and prefix with /fix. Copilot identifies the likely error location, explains the root cause, and proposes a fix. Works well for NullPointerExceptions, TypeErrors, and similar runtime errors."
+    },
+    {
+      "id": 2815,
+      "cmd": "# Use Copilot to translate between languages",
+      "desc": "Ask Chat to convert a function from Python to TypeScript",
+      "category": "GitHub Copilot",
+      "tooltip": "Select a function in one language, open Chat, and type 'convert this to TypeScript'. Copilot handles idiomatic translation \u2014 not just syntax conversion \u2014 adapting Python's list comprehensions to JS array methods, for example."
+    },
+    {
+      "id": 2816,
+      "cmd": "# Ask Copilot to explain a git conflict",
+      "desc": "Paste a merge conflict into Chat for explanation and resolution",
+      "category": "GitHub Copilot",
+      "tooltip": "Copy the conflicting section (with <<<<<<, =======, >>>>>>>) into Chat and ask 'explain this conflict and suggest how to resolve it'. Copilot examines both sides, explains what changed, and recommends the appropriate merge strategy."
+    },
+    {
+      "id": 2817,
+      "cmd": "# Ask for performance optimization suggestions",
+      "desc": "Select slow code and ask Chat to optimize it",
+      "category": "GitHub Copilot",
+      "tooltip": "Select a function you suspect is slow, open Chat, and ask 'optimize this for performance'. Copilot identifies O(n\u00b2) loops, unnecessary re-renders, redundant API calls, and other common bottlenecks, suggesting faster alternatives."
+    },
+    {
+      "id": 2818,
+      "cmd": "# Use Copilot for SQL query generation",
+      "desc": "Describe a database query in English and get the SQL",
+      "category": "GitHub Copilot",
+      "tooltip": "Write a comment like `-- Get the top 5 users by total order value in the last 30 days` and Copilot will generate the SQL. Works best when your schema is visible in the same file or an open tab."
+    },
+    {
+      "id": 2819,
+      "cmd": "# Generate commit messages with Copilot",
+      "desc": "Ask Copilot Chat to write a commit message from a diff",
+      "category": "GitHub Copilot",
+      "tooltip": "Run `git diff --staged` in the terminal, copy the output, and paste into Chat with 'write a conventional commit message for this diff'. Copilot follows the conventional commits format (feat/fix/refactor/chore) and summarizes the changes accurately."
+    },
+    {
+      "id": 2820,
+      "cmd": "# Use Copilot for boilerplate elimination",
+      "desc": "Let Copilot generate repetitive patterns automatically",
+      "category": "GitHub Copilot",
+      "tooltip": "Copilot excels at repetitive code \u2014 CRUD endpoints, test setup/teardown, serialization methods. Write the first one fully, then start the second with just the function signature. Copilot infers the pattern and fills in the rest."
+    },
+    {
+      "id": 2821,
+      "cmd": "# Use Copilot to write shell scripts",
+      "desc": "Describe what a script should do in a comment block",
+      "category": "GitHub Copilot",
+      "tooltip": "Create a new .sh file, write a multi-line comment describing what the script should do, then let Copilot generate the implementation. Copilot handles argument parsing, error checking (set -euo pipefail), and common patterns like checking if a command exists."
+    },
+    {
+      "id": 2822,
+      "cmd": "# Copilot on GitHub.com: press . (period) to open web editor",
+      "desc": "Open any GitHub repo in a web editor with Copilot Chat",
+      "category": "GitHub Copilot",
+      "tooltip": "On any GitHub repository page, press the period key (.) to open github.dev \u2014 VS Code in your browser. Copilot Chat is available there, giving you AI assistance without installing anything locally."
+    },
+    {
+      "id": 2823,
+      "cmd": "# Copilot PR review summaries",
+      "desc": "Use Copilot to auto-summarize a pull request on GitHub",
+      "category": "GitHub Copilot",
+      "tooltip": "On a GitHub pull request, click the Copilot icon to generate a plain-English summary of the changes. Copilot reads the diff and writes a structured summary covering what changed, why, and potential areas of concern."
+    },
+    {
+      "id": 2824,
+      "cmd": "# Copilot Autofix for security alerts",
+      "desc": "Let Copilot automatically fix CodeQL security findings",
+      "category": "GitHub Copilot",
+      "tooltip": "When GitHub Advanced Security / CodeQL identifies a vulnerability in your code, Copilot Autofix proposes a specific code change to fix it \u2014 directly in the GitHub UI. Available on the Security tab of your repository."
+    },
+    {
+      "id": 2825,
+      "cmd": "# Copilot knowledge bases (Enterprise)",
+      "desc": "Connect internal documentation as Copilot Chat context",
+      "category": "GitHub Copilot",
+      "tooltip": "GitHub Copilot Enterprise lets admins create knowledge bases from internal wikis, runbooks, and documentation. Developers can then ask Copilot Chat questions grounded in company-specific content using the @docs participant."
+    },
+    {
+      "id": 2826,
+      "cmd": "# Copilot custom instructions",
+      "desc": "Set persistent Chat instructions in .github/copilot-instructions.md",
+      "category": "GitHub Copilot",
+      "tooltip": "Create .github/copilot-instructions.md in your repo with instructions like 'Always use TypeScript strict mode' or 'Follow the error handling pattern in src/utils/errors.ts'. Copilot reads this file and applies the instructions to every Chat response in that workspace."
+    },
+    {
+      "id": 2827,
+      "cmd": "gh copilot suggest --help",
+      "desc": "Show help and available flags for copilot suggest",
+      "category": "GitHub Copilot",
+      "tooltip": "Prints usage information, all available flags (-t/--target, --hostname), and examples. Run this when you're unsure about flag syntax or want to see what options are available."
+    },
+    {
+      "id": 2828,
+      "cmd": "gh copilot explain --help",
+      "desc": "Show help and available flags for copilot explain",
+      "category": "GitHub Copilot",
+      "tooltip": "Prints usage for the explain subcommand including --hostname for GitHub Enterprise Server users. Copilot CLI routes to github.com by default; enterprise users must specify their GHE host."
+    },
+    {
+      "id": 2829,
+      "cmd": "gh copilot feedback",
+      "desc": "Open GitHub Copilot CLI feedback form in the browser",
+      "category": "GitHub Copilot",
+      "tooltip": "Opens the GitHub feedback page for the Copilot CLI extension. Use this to report incorrect suggestions, missing features, or bugs \u2014 GitHub uses this feedback to improve the model."
+    },
+    {
+      "id": 2830,
+      "cmd": "# Check Copilot status: github.com/features/copilot",
+      "desc": "Check if GitHub Copilot is experiencing an outage",
+      "category": "GitHub Copilot",
+      "tooltip": "If Copilot suggestions stop appearing or Chat becomes unresponsive, check githubstatus.com. Copilot relies on GitHub's AI infrastructure \u2014 outages are uncommon but do happen. Also check your network can reach api.github.com on port 443."
+    },
+    {
+      "id": 2831,
+      "cmd": "# VS Code: Developer: Show Logs > GitHub Copilot",
+      "desc": "View Copilot extension logs in VS Code for debugging",
+      "category": "GitHub Copilot",
+      "tooltip": "Open the Command Palette (Ctrl+Shift+P), run 'Developer: Show Logs', and select 'GitHub Copilot'. The log shows authentication status, API calls, and any errors. Share this log when filing a support issue."
+    },
+    {
+      "id": 2832,
+      "cmd": "# VS Code: GitHub Copilot: Reset Authentication",
+      "desc": "Clear and refresh Copilot's GitHub auth token in VS Code",
+      "category": "GitHub Copilot",
+      "tooltip": "Open Command Palette and run 'GitHub Copilot: Reset Authentication' if suggestions stop working after a password change or permission update. This clears the cached token and prompts you to re-authenticate."
+    },
+    {
+      "id": 2833,
+      "cmd": "# VS Code status bar: Copilot icon",
+      "desc": "Check Copilot connection status via the status bar icon",
+      "category": "GitHub Copilot",
+      "tooltip": "The Copilot icon in the VS Code status bar (bottom bar) shows connection state. A spinning icon means it's loading; a yellow warning means a problem. Click the icon for quick enable/disable and status details."
+    },
+    {
+      "id": 2834,
+      "cmd": "# :Copilot setup (Neovim, github/copilot.vim)",
+      "desc": "Authenticate Copilot in Neovim after installing the plugin",
+      "category": "GitHub Copilot",
+      "tooltip": "After installing github/copilot.vim via your Neovim plugin manager, run :Copilot setup. It displays a one-time code \u2014 enter it at github.com/login/device to link your account. Run :Copilot status to confirm it's working."
+    },
+    {
+      "id": 2835,
+      "cmd": "# :Copilot enable / :Copilot disable (Neovim)",
+      "desc": "Toggle Copilot on or off in the current Neovim session",
+      "category": "GitHub Copilot",
+      "tooltip": "These Neovim commands temporarily enable or disable Copilot for the session without changing configuration. :Copilot disable is useful when editing files with sensitive content in your current session."
+    },
+    {
+      "id": 2836,
+      "cmd": "# Tab to accept suggestion (Neovim copilot.vim)",
+      "desc": "Accept Copilot inline suggestion in Neovim with Tab",
+      "category": "GitHub Copilot",
+      "tooltip": "Same as VS Code \u2014 Tab accepts the current ghost text suggestion. If Tab conflicts with your autocomplete plugin (like nvim-cmp), remap it in your config: `imap <silent><script><expr> <C-J> copilot#Accept()`."
+    },
+    {
+      "id": 2837,
+      "cmd": "# Alt+] / Alt+[ to cycle suggestions (Neovim)",
+      "desc": "Cycle through Copilot suggestions in Neovim",
+      "category": "GitHub Copilot",
+      "tooltip": "In Neovim with copilot.vim, Alt+] (next) and Alt+[ (previous) cycle through alternative completions, mirroring the VS Code behavior. You can remap these in your init.lua or init.vim to keys that fit your workflow."
+    },
+    {
+      "id": 2838,
+      "cmd": "# Settings > Copilot (JetBrains IDEs)",
+      "desc": "Configure Copilot in IntelliJ / PyCharm / WebStorm",
+      "category": "GitHub Copilot",
+      "tooltip": "GitHub Copilot is available as a plugin for all JetBrains IDEs. After installing from the Marketplace, go to Settings > GitHub Copilot to sign in and configure suggestion behavior. Tab accepts, Alt+[ / Alt+] cycle alternatives \u2014 same as VS Code."
     }
   ],
-  "total": 2760
+  "total": 2838
 }
