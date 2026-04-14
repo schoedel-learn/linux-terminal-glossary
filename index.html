@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Terminal Glossary — 1,232 Commands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN TOKENS ──────────────────────────────────────────── */
+:root, [data-theme="light"] {
+  --color-bg: #0d1117;
+  --color-surface: #161b22;
+  --color-surface-2: #1c2128;
+  --color-surface-3: #21262d;
+  --color-border: #30363d;
+  --color-divider: #21262d;
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-text-faint: #484f58;
+  --color-primary: #58a6ff;
+  --color-primary-hover: #79b8ff;
+  --color-primary-dim: rgba(88,166,255,0.12);
+  --color-primary-dim2: rgba(88,166,255,0.06);
+  --color-accent: #3fb950;
+  --color-accent-dim: rgba(63,185,80,0.12);
+  --color-warn: #d29922;
+  --color-warn-dim: rgba(210,153,34,0.12);
+  --color-tag-bg: #1f2937;
+  --color-tag-text: #79b8ff;
+  --color-cmd-bg: #0d1117;
+  --color-cmd-text: #79c0ff;
+  --color-copy-bg: #21262d;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.8rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.9rem);
+  --text-base: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
+  --text-lg: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
+  --text-xl: clamp(1.2rem, 1rem + 1vw, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  --space-16: 4rem; --space-20: 5rem;
+  --transition: 150ms cubic-bezier(0.16,1,0.3,1);
+  --sidebar-w: 240px;
+}
+[data-theme="light"] {
+  --color-bg: #f6f8fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f3f6;
+  --color-surface-3: #e8edf2;
+  --color-border: #d0d7de;
+  --color-divider: #e8edf2;
+  --color-text: #1f2328;
+  --color-text-muted: #57606a;
+  --color-text-faint: #b0bac3;
+  --color-primary: #0969da;
+  --color-primary-hover: #0550ae;
+  --color-primary-dim: rgba(9,105,218,0.1);
+  --color-primary-dim2: rgba(9,105,218,0.05);
+  --color-accent: #1a7f37;
+  --color-accent-dim: rgba(26,127,55,0.1);
+  --color-warn: #9a6700;
+  --color-warn-dim: rgba(154,103,0,0.1);
+  --color-tag-bg: #ddf4ff;
+  --color-tag-text: #0550ae;
+  --color-cmd-bg: #f6f8fa;
+  --color-cmd-text: #0550ae;
+  --color-copy-bg: #f0f3f6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+/* ─── RESET ──────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+img,svg{display:block;max-width:100%}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+input,select{font:inherit;color:inherit}
+a{color:var(--color-primary);text-decoration:none}
+a:hover{color:var(--color-primary-hover)}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────── */
+.app{display:flex;min-height:100dvh}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--color-surface);
+  border-right:1px solid var(--color-border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100dvh;
+  overflow:hidden;
+  transition:transform var(--transition);
+  z-index:100;
+}
+.sidebar-header{
+  padding:var(--space-4) var(--space-4) var(--space-3);
+  border-bottom:1px solid var(--color-border);
+  flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)}
+.logo-icon{width:28px;height:28px;flex-shrink:0}
+.logo-text{font-size:var(--text-sm);font-weight:700;letter-spacing:-0.02em;line-height:1.2}
+.logo-text span{color:var(--color-primary)}
+.stats-row{
+  display:flex;gap:var(--space-2);flex-wrap:wrap;
+}
+.stat-chip{
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  background:var(--color-primary-dim);color:var(--color-primary);
+  border-radius:var(--radius-full);padding:2px var(--space-2);
+  font-weight:500;
+}
+.sidebar-cats{
+  flex:1;overflow-y:auto;padding:var(--space-2) 0;
+}
+.sidebar-cats::-webkit-scrollbar{width:4px}
+.sidebar-cats::-webkit-scrollbar-track{background:transparent}
+.sidebar-cats::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:2px}
+.cat-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:var(--space-2) var(--space-4);
+  font-size:var(--text-xs);font-weight:500;
+  color:var(--color-text-muted);
+  transition:all var(--transition);
+  border-radius:0;text-align:left;gap:var(--space-2);
+  border-left:2px solid transparent;
+}
+.cat-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
+.cat-btn.active{
+  background:var(--color-primary-dim2);color:var(--color-primary);
+  border-left-color:var(--color-primary);
+}
+.cat-btn .count{
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  color:var(--color-text-faint);flex-shrink:0;font-weight:400;
+}
+.cat-btn.active .count{color:var(--color-primary);opacity:0.7}
+.sidebar-footer{
+  padding:var(--space-3) var(--space-4);
+  border-top:1px solid var(--color-border);flex-shrink:0;
+}
+.theme-btn{
+  display:flex;align-items:center;gap:var(--space-2);
+  font-size:var(--text-xs);color:var(--color-text-muted);
+  width:100%;padding:var(--space-2) var(--space-2);
+  border-radius:var(--radius-md);
+  transition:all var(--transition);
+}
+.theme-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
+
+/* ─── MAIN ─────────────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+
+/* ─── TOPBAR ─────────────────────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--color-surface);
+  border-bottom:1px solid var(--color-border);
+  padding:var(--space-3) var(--space-6);
+  display:flex;align-items:center;gap:var(--space-4);
+  box-shadow:var(--shadow-sm);
+}
+.menu-btn{
+  display:none;
+  align-items:center;justify-content:center;
+  width:36px;height:36px;
+  border-radius:var(--radius-md);
+  color:var(--color-text-muted);
+  flex-shrink:0;
+}
+.menu-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
+.search-wrap{
+  flex:1;position:relative;
+  display:flex;align-items:center;
+}
+.search-icon{
+  position:absolute;left:var(--space-3);
+  color:var(--color-text-muted);pointer-events:none;flex-shrink:0;
+}
+.search-input{
+  width:100%;
+  background:var(--color-bg);
+  border:1.5px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-2) var(--space-10) var(--space-2) var(--space-8);
+  font-size:var(--text-base);
+  color:var(--color-text);
+  transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  outline:none;
+}
+.search-input::placeholder{color:var(--color-text-faint)}
+.search-input:focus{
+  border-color:var(--color-primary);
+  box-shadow:0 0 0 3px var(--color-primary-dim);
+  background:var(--color-surface);
+}
+.search-mode-badge{
+  position:absolute;right:var(--space-3);
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  background:var(--color-surface-3);color:var(--color-text-muted);
+  border-radius:var(--radius-sm);padding:1px 6px;pointer-events:none;
+  opacity:0;transition:opacity var(--transition);
+}
+.search-input:not(:placeholder-shown) ~ .search-mode-badge{opacity:1}
+.search-meta{
+  font-size:var(--text-xs);color:var(--color-text-muted);
+  white-space:nowrap;flex-shrink:0;
+  font-family:var(--font-mono);
+  min-width:80px;text-align:right;
+}
+
+/* ─── FILTER BAR ─────────────────────────────────────────────── */
+.filter-bar{
+  padding:var(--space-3) var(--space-6);
+  border-bottom:1px solid var(--color-divider);
+  display:flex;align-items:center;gap:var(--space-2);
+  overflow-x:auto;
+  scrollbar-width:none;
+  background:var(--color-surface);
+}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{
+  display:inline-flex;align-items:center;
+  font-size:var(--text-xs);font-weight:500;
+  padding:var(--space-1) var(--space-3);
+  border-radius:var(--radius-full);
+  border:1.5px solid var(--color-border);
+  color:var(--color-text-muted);
+  background:transparent;
+  white-space:nowrap;
+  transition:all var(--transition);
+  cursor:pointer;
+}
+.filter-chip:hover{border-color:var(--color-text-muted);color:var(--color-text)}
+.filter-chip.active{
+  background:var(--color-primary);border-color:var(--color-primary);
+  color:#fff;
+}
+
+/* ─── CONTENT ─────────────────────────────────────────────────── */
+.content{flex:1;padding:var(--space-4) var(--space-6) var(--space-16);max-width:1100px}
+
+/* Category headers */
+.cat-section{margin-bottom:var(--space-10)}
+.cat-section:last-child{margin-bottom:0}
+.cat-header{
+  display:flex;align-items:center;gap:var(--space-3);
+  margin-bottom:var(--space-4);
+  padding-bottom:var(--space-3);
+  border-bottom:1px solid var(--color-divider);
+}
+.cat-title{
+  font-size:var(--text-lg);font-weight:700;
+  letter-spacing:-0.02em;
+}
+.cat-count{
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  color:var(--color-text-muted);
+  background:var(--color-surface-2);
+  border-radius:var(--radius-full);
+  padding:2px 8px;
+}
+
+/* Command grid */
+.cmd-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+  gap:var(--space-3);
+}
+
+/* Command card */
+.cmd-card{
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-4);
+  position:relative;
+  transition:all var(--transition);
+  overflow:hidden;
+  display:flex;flex-direction:column;gap:var(--space-2);
+  cursor:default;
+}
+.cmd-card::before{
+  content:'';position:absolute;inset:0;
+  border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--color-primary-dim2), transparent 60%);
+  opacity:0;transition:opacity var(--transition);
+  pointer-events:none;
+}
+.cmd-card:hover{
+  border-color:var(--color-primary);
+  box-shadow:var(--shadow-md);
+  transform:translateY(-1px);
+}
+.cmd-card:hover::before{opacity:1}
+.cmd-card.highlighted{
+  border-color:var(--color-primary);
+  background:var(--color-primary-dim2);
+}
+.cmd-card.highlighted::before{opacity:1}
+
+/* Command top row */
+.cmd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-2)}
+.cmd-code{
+  font-family:var(--font-mono);font-size:var(--text-sm);font-weight:600;
+  color:var(--color-cmd-text);
+  background:var(--color-cmd-bg);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-sm);
+  padding:var(--space-1) var(--space-2);
+  line-height:1.4;
+  word-break:break-all;flex:1;
+  user-select:all;
+}
+.cmd-copy{
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-sm);
+  background:var(--color-copy-bg);
+  color:var(--color-text-muted);
+  transition:all var(--transition);
+  opacity:0;
+  border:1px solid transparent;
+}
+.cmd-card:hover .cmd-copy{opacity:1}
+.cmd-copy:hover{
+  background:var(--color-primary-dim);
+  color:var(--color-primary);
+  border-color:var(--color-primary);
+}
+.cmd-copy.copied{
+  color:var(--color-accent);
+  background:var(--color-accent-dim);
+  border-color:var(--color-accent);
+  opacity:1;
+}
+
+/* Desc */
+.cmd-desc{
+  font-size:var(--text-sm);
+  color:var(--color-text-muted);
+  line-height:1.55;
+}
+.cmd-desc mark{
+  background:var(--color-warn-dim);
+  color:var(--color-warn);
+  border-radius:2px;padding:0 2px;
+  font-style:normal;
+}
+
+/* Category tag */
+.cmd-cat-tag{
+  display:inline-flex;align-items:center;
+  font-size:var(--text-xs);font-weight:500;
+  color:var(--color-tag-text);
+  background:var(--color-tag-bg);
+  border-radius:var(--radius-sm);
+  padding:2px 6px;
+  margin-top:auto;
+  width:fit-content;
+}
+
+/* ─── EMPTY STATE ───────────────────────────────────────────── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;
+  padding:var(--space-20) var(--space-8);
+  text-align:center;gap:var(--space-4);
+}
+.empty-icon{color:var(--color-text-faint);opacity:0.5}
+.empty-title{font-size:var(--text-lg);font-weight:600;color:var(--color-text-muted)}
+.empty-sub{font-size:var(--text-sm);color:var(--color-text-faint);max-width:36ch}
+
+/* ─── LOADING ─────────────────────────────────────────────── */
+.loading-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:var(--space-20) var(--space-8);
+  gap:var(--space-4);
+}
+.spinner{
+  width:32px;height:32px;
+  border:3px solid var(--color-border);
+  border-top-color:var(--color-primary);
+  border-radius:50%;
+  animation:spin 0.6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── MOBILE OVERLAY ────────────────────────────────────── */
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);z-index:99;
+  opacity:0;pointer-events:none;
+  transition:opacity var(--transition);
+}
+
+/* ─── SCROLL TO TOP ─────────────────────────────────────── */
+.scroll-top{
+  position:fixed;bottom:var(--space-6);right:var(--space-6);
+  width:40px;height:40px;
+  background:var(--color-primary);
+  color:#fff;
+  border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-md);
+  opacity:0;pointer-events:none;
+  transform:translateY(8px);
+  transition:all var(--transition);
+  z-index:200;
+}
+.scroll-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.scroll-top:hover{background:var(--color-primary-hover)}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;left:0;top:0;
+    transform:translateX(-100%);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block;opacity:1;pointer-events:auto}
+  .menu-btn{display:flex}
+  .topbar{padding:var(--space-3) var(--space-4)}
+  .filter-bar{padding:var(--space-2) var(--space-4)}
+  .content{padding:var(--space-4) var(--space-4) var(--space-16)}
+  .cmd-grid{grid-template-columns:1fr}
+  .search-meta{display:none}
+}
+@media(max-width:480px){
+  :root{--sidebar-w:280px}
+}
+
+/* ─── HIGHLIGHT ─────────────────────────────────────────── */
+.hl{background:rgba(255,200,0,0.25);border-radius:2px;padding:0 1px}
+</style>
+</head>
+<body>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 28 28" fill="none" aria-label="Linux Terminal Glossary">
+          <rect width="28" height="28" rx="6" fill="#1c2128"/>
+          <rect x="1" y="1" width="26" height="26" rx="5" stroke="#30363d" stroke-width="1"/>
+          <path d="M6 9l4 5-4 5" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 19h8" stroke="#3fb950" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-text">Linux <span>Terminal</span><br>Glossary</div>
+      </div>
+      <div class="stats-row">
+        <span class="stat-chip" id="totalCount">…</span>
+        <span class="stat-chip">28 categories</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-cats" id="sidebarCats">
+      <!-- populated by JS -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Toggle theme
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="search"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search commands, descriptions, or concepts… (e.g. 'find files', 'kill process', 'docker run')"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <span class="search-mode-badge" id="searchModeBadge">keyword</span>
+      </div>
+      <div class="search-meta" id="searchMeta"></div>
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 1,232 commands…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────
+let COMMANDS = [];
+let CATEGORIES = [];
+let SEARCH_INDEX = null;
+let IDF = {};
+let SYNONYMS = {};
+
+let activeCategory = 'All';
+let searchQuery = '';
+let searchTimeout = null;
+
+// ─── THEME TOGGLE ─────────────────────────────────────────────────
+(function(){
+  const r = document.documentElement;
+  let d = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Default to dark for terminal aesthetic
+  d = 'dark';
+  r.setAttribute('data-theme', d);
+  const btn = document.querySelector('[data-theme-toggle]');
+  if(btn) {
+    btn.addEventListener('click', () => {
+      d = d === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', d);
+    });
+  }
+})();
+
+// ─── LOAD DATA ────────────────────────────────────────────────────
+async function loadData() {
+  const [cmdRes, idxRes] = await Promise.all([
+    fetch('commands.json'),
+    fetch('search_index.json')
+  ]);
+  const cmdData = await cmdRes.json();
+  const idxData = await idxRes.json();
+
+  COMMANDS = cmdData.commands;
+  CATEGORIES = cmdData.categories;
+  SEARCH_INDEX = idxData.index;
+  IDF = idxData.idf;
+  SYNONYMS = idxData.synonyms;
+
+  document.getElementById('totalCount').textContent = `${COMMANDS.length} commands`;
+  buildSidebar();
+  buildFilterBar();
+  renderAll();
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────
+function buildSidebar() {
+  const nav = document.getElementById('sidebarCats');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-btn active';
+  allBtn.dataset.cat = 'All';
+  allBtn.innerHTML = `<span>All Commands</span><span class="count">${COMMANDS.length}</span>`;
+  allBtn.addEventListener('click', () => selectCategory('All'));
+  nav.appendChild(allBtn);
+
+  CATEGORIES.forEach(cat => {
+    const count = COMMANDS.filter(c => c.category === cat).length;
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.dataset.cat = cat;
+    // Shorten long category names
+    const short = cat.replace('Package Management - APT/Ubuntu','APT Package Mgmt')
+                     .replace('GitHub CLI (gh)','GitHub CLI (gh)')
+                     .replace('System Services & Systemd','Systemd Services')
+                     .replace('Archiving & Compression','Archive & Compress')
+                     .replace('Productivity & Search','Productivity & Search');
+    btn.innerHTML = `<span>${short}</span><span class="count">${count}</span>`;
+    btn.addEventListener('click', () => selectCategory(cat));
+    nav.appendChild(btn);
+  });
+}
+
+function selectCategory(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  // Sync filter chips
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.cat === cat);
+  });
+  renderAll();
+}
+
+// ─── FILTER BAR ───────────────────────────────────────────────────
+function buildFilterBar() {
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className = 'filter-chip active';
+  allChip.dataset.cat = 'All';
+  allChip.textContent = 'All';
+  allChip.addEventListener('click', () => selectCategory('All'));
+  bar.appendChild(allChip);
+
+  const shortcuts = [
+    'Git - Core','Git - Advanced','GitHub CLI (gh)','Docker','tmux','Vim/Neovim',
+    'Networking','SSH & Remote','System Services & Systemd','Process Management',
+    'Text Processing','Bash Scripting','File Operations','Package Management - APT/Ubuntu'
+  ];
+  shortcuts.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'filter-chip';
+    chip.dataset.cat = cat;
+    chip.textContent = cat.replace('Package Management - APT/Ubuntu','APT').replace('System Services & Systemd','Systemd').replace('GitHub CLI (gh)','gh CLI');
+    chip.addEventListener('click', () => selectCategory(cat));
+    bar.appendChild(chip);
+  });
+}
+
+// ─── TOKENIZE ─────────────────────────────────────────────────────
+function tokenize(text) {
+  return text.toLowerCase().match(/[a-z0-9][a-z0-9\-\.]*[a-z0-9]|[a-z0-9]/g) || [];
+}
+
+// ─── SEARCH ENGINE ────────────────────────────────────────────────
+// Hybrid: keyword match + TF-IDF cosine similarity + synonym expansion
+function scoreCommand(cmd, queryTokens, expandedTokens) {
+  let score = 0;
+  const cmdLower = cmd.cmd.toLowerCase();
+  const descLower = cmd.desc.toLowerCase();
+  const catLower = cmd.category.toLowerCase();
+  const fullText = cmdLower + ' ' + descLower + ' ' + catLower;
+
+  const rawQuery = searchQuery.toLowerCase().trim();
+
+  // ── Exact & prefix match bonuses
+  if (cmdLower === rawQuery) score += 200;
+  else if (cmdLower.startsWith(rawQuery)) score += 80;
+  else if (cmdLower.includes(rawQuery)) score += 40;
+  if (descLower.includes(rawQuery)) score += 20;
+
+  // ── Token keyword scoring
+  for (const qt of queryTokens) {
+    if (cmdLower === qt) score += 100;
+    else if (cmdLower.startsWith(qt + ' ') || cmdLower.endsWith(' ' + qt)) score += 50;
+    else if (cmdLower.includes(qt)) score += 30;
+    if (descLower.includes(qt)) score += 15;
+    if (catLower.includes(qt)) score += 8;
+  }
+
+  // ── Synonym / semantic expansion
+  for (const et of expandedTokens) {
+    if (cmdLower.includes(et)) score += 10;
+    if (descLower.includes(et)) score += 6;
+  }
+
+  // ── TF-IDF cosine similarity
+  if (SEARCH_INDEX && score > 0) {
+    const indexEntry = SEARCH_INDEX[cmd.id];
+    if (indexEntry) {
+      let dot = 0;
+      for (const qt of [...queryTokens, ...expandedTokens]) {
+        const qIdf = IDF[qt] || 0;
+        const docW = indexEntry.tokens[qt] || 0;
+        dot += qIdf * docW;
+      }
+      score += dot * 30;
+    }
+  }
+
+  return score;
+}
+
+function getExpanded(queryTokens) {
+  const expanded = new Set();
+  const rawQuery = searchQuery.toLowerCase().trim();
+  // Check synonyms for full query
+  if (SYNONYMS[rawQuery]) {
+    SYNONYMS[rawQuery].forEach(s => tokenize(s).forEach(t => expanded.add(t)));
+  }
+  // Check synonyms for individual tokens
+  for (const qt of queryTokens) {
+    if (SYNONYMS[qt]) {
+      SYNONYMS[qt].forEach(s => tokenize(s).forEach(t => expanded.add(t)));
+    }
+  }
+  // Remove tokens already in query
+  queryTokens.forEach(t => expanded.delete(t));
+  return [...expanded];
+}
+
+function search(query) {
+  const qTokens = tokenize(query);
+  if (qTokens.length === 0) return null; // show all
+
+  const expanded = getExpanded(qTokens);
+  let results = COMMANDS
+    .filter(c => activeCategory === 'All' || c.category === activeCategory)
+    .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  // Determine mode
+  const isSemantic = expanded.length > 0 && results.some(r => {
+    const tokens = tokenize(r.cmd.cmd + ' ' + r.cmd.desc);
+    return qTokens.every(qt => !tokens.includes(qt)) && r.score > 0;
+  });
+
+  return { results: results.map(r => r.cmd), mode: isSemantic ? 'semantic' : 'keyword', expanded };
+}
+
+// ─── HIGHLIGHT ────────────────────────────────────────────────────
+function highlight(text, tokens) {
+  if (!tokens || tokens.length === 0) return escapeHtml(text);
+  let result = escapeHtml(text);
+  // Sort by length desc to match longer patterns first
+  const sorted = [...tokens].sort((a, b) => b.length - a.length);
+  for (const token of sorted) {
+    if (!token || token.length < 2) continue;
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(escaped, 'gi'), m => `<mark>${m}</mark>`);
+  }
+  return result;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────
+function renderAll() {
+  const content = document.getElementById('content');
+  const meta = document.getElementById('searchMeta');
+  const badge = document.getElementById('searchModeBadge');
+
+  let displayCommands;
+  let searchResult = null;
+  let highlightTokens = [];
+
+  if (searchQuery.trim().length > 0) {
+    searchResult = search(searchQuery);
+    displayCommands = searchResult ? searchResult.results : [];
+    highlightTokens = tokenize(searchQuery);
+    badge.textContent = searchResult?.mode || 'keyword';
+    badge.style.background = searchResult?.mode === 'semantic'
+      ? 'var(--color-warn-dim)' : 'var(--color-surface-3)';
+    badge.style.color = searchResult?.mode === 'semantic'
+      ? 'var(--color-warn)' : 'var(--color-text-muted)';
+  } else {
+    displayCommands = COMMANDS.filter(c =>
+      activeCategory === 'All' || c.category === activeCategory
+    );
+    badge.textContent = 'keyword';
+    badge.style.background = '';
+    badge.style.color = '';
+  }
+
+  meta.textContent = `${displayCommands.length} results`;
+
+  if (displayCommands.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M8 11h6M11 8v6" opacity="0.5"/></svg>
+        <div class="empty-title">No commands found</div>
+        <div class="empty-sub">Try a different keyword or concept — e.g. "delete file", "list processes", "set up ssh"</div>
+      </div>`;
+    return;
+  }
+
+  // Group by category
+  if (searchQuery.trim().length > 0) {
+    // Search mode: flat list (sorted by relevance), grouped loosely
+    const grouped = new Map();
+    for (const cmd of displayCommands) {
+      if (!grouped.has(cmd.category)) grouped.set(cmd.category, []);
+      grouped.get(cmd.category).push(cmd);
+    }
+    let html = '';
+    for (const [cat, cmds] of grouped) {
+      html += renderSection(cat, cmds, highlightTokens);
+    }
+    content.innerHTML = html;
+  } else {
+    // Browse mode: by category in order
+    const orderedCats = activeCategory === 'All'
+      ? CATEGORIES
+      : [activeCategory];
+    let html = '';
+    for (const cat of orderedCats) {
+      const cmds = displayCommands.filter(c => c.category === cat);
+      if (cmds.length > 0) html += renderSection(cat, cmds, []);
+    }
+    content.innerHTML = html;
+  }
+
+  // Bind copy buttons
+  content.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', () => copyCmd(btn));
+  });
+}
+
+function renderSection(cat, cmds, hlTokens) {
+  let cards = '';
+  for (const cmd of cmds) {
+    const cmdHL = hlTokens.length > 0 ? highlight(cmd.cmd, hlTokens) : escapeHtml(cmd.cmd);
+    const descHL = hlTokens.length > 0 ? highlight(cmd.desc, hlTokens) : escapeHtml(cmd.desc);
+    cards += `
+      <div class="cmd-card" id="cmd-${cmd.id}">
+        <div class="cmd-top">
+          <code class="cmd-code">${cmdHL}</code>
+          <button class="cmd-copy" data-copy="${escapeHtml(cmd.cmd)}" title="Copy command" aria-label="Copy ${escapeHtml(cmd.cmd)}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="cmd-desc">${descHL}</div>
+        ${hlTokens.length > 0 ? `<span class="cmd-cat-tag">${escapeHtml(cmd.category)}</span>` : ''}
+      </div>`;
+  }
+  return `
+    <section class="cat-section" id="cat-${cat.replace(/[^a-z0-9]/gi,'-')}">
+      <div class="cat-header">
+        <h2 class="cat-title">${escapeHtml(cat)}</h2>
+        <span class="cat-count">${cmds.length}</span>
+      </div>
+      <div class="cmd-grid">${cards}</div>
+    </section>`;
+}
+
+// ─── COPY ─────────────────────────────────────────────────────────
+async function copyCmd(btn) {
+  const text = btn.dataset.copy;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  btn.classList.add('copied');
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  }, 1500);
+}
+
+// ─── SEARCH INPUT ─────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchQuery = this.value;
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(renderAll, 120);
+});
+
+// ─── MOBILE MENU ──────────────────────────────────────────────────
+document.getElementById('menuBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+});
+document.getElementById('sidebarOverlay').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+});
+
+// ─── SCROLL TO TOP ────────────────────────────────────────────────
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ─── KEYBOARD SHORTCUT ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.key === '/' || (e.key === 'k' && (e.metaKey || e.ctrlKey))) && !e.target.matches('input')) {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+    document.getElementById('searchInput').select();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('searchInput').blur();
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  }
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────
+loadData().catch(err => {
+  document.getElementById('content').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-title">Failed to load data</div>
+      <div class="empty-sub">${err.message}</div>
+    </div>`;
+});
+</script>
+</body>
+</html>
