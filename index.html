@@ -625,6 +625,7 @@ a:hover{color:var(--color-primary-hover)}
 .qs-step.collapsed .qs-step-toggle{transform:rotate(-90deg)}
 .qs-cmds{display:flex;flex-direction:column;gap:var(--space-2);padding-left:40px}
 .qs-step.collapsed .qs-cmds{display:none}
+.qs-step.collapsed .qs-tip{display:none}
 .qs-cmd-btn{
   display:flex;align-items:flex-start;gap:var(--space-3);
   padding:var(--space-3) var(--space-3);
@@ -648,6 +649,28 @@ a:hover{color:var(--color-primary-hover)}
 .qs-cmd-label{
   font-size:var(--text-xs);color:var(--color-text-muted);
   line-height:1.5;flex:1;
+}
+.qs-cmd-why{
+  font-size:10px;color:var(--color-text-faint);line-height:1.5;
+  margin-top:2px;font-style:italic;
+  display:block;
+}
+.qs-tip{
+  margin:var(--space-2) 0 var(--space-3) 40px;
+  padding:var(--space-3) var(--space-4);
+  background:rgba(99,102,241,0.08);
+  border-left:3px solid var(--color-primary);
+  border-radius:0 var(--radius-md) var(--radius-md) 0;
+  font-size:var(--text-xs);line-height:1.65;
+  color:var(--color-text-muted);
+}
+@media(max-width:640px){
+  .qs-tip{margin-left:0;}
+}
+.qs-tip strong{color:var(--color-text);font-weight:600;}
+.qs-tip-label{
+  display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--color-primary);margin-bottom:var(--space-1);
 }
 .qs-divider{
   height:1px;background:var(--color-border);
@@ -1196,99 +1219,107 @@ const QS_STEPS = [
   {
     title: '1. Provision the Server',
     desc: 'Create a non-root user, set the hostname & timezone, and generate SSH keys',
+    tip: '<strong>Why not just use root?</strong> The root account has unlimited power — one typo can delete your entire system. A dedicated user like <code>deploy</code> limits the blast radius. <code>sudo</code> lets you escalate only when you explicitly need to. Think of root as a master key: use it as little as possible. <strong>Ed25519 SSH keys</strong> replace passwords with cryptographic proof — much harder to brute-force.',
     commands: [
-      { cmd: 'sudo adduser deploy',            label: 'Create a dedicated non-root user' },
-      { cmd: 'sudo usermod -aG sudo deploy',   label: 'Grant sudo privileges' },
-      { cmd: 'sudo usermod -aG docker deploy', label: 'Add user to docker group' },
-      { cmd: 'sudo hostnamectl set-hostname myserver', label: 'Set the server hostname' },
-      { cmd: 'timedatectl set-timezone America/Chicago', label: 'Set server timezone' },
-      { cmd: "ssh-keygen -t ed25519 -C 'server@example.com'", label: 'Generate Ed25519 SSH key pair' },
-      { cmd: 'ssh-copy-id user@server-ip',     label: 'Copy public key to server for passwordless login' },
+      { cmd: 'sudo adduser deploy',            label: 'Create a dedicated non-root user', why: 'Never run your apps as root. A separate user isolates permissions and limits damage if something is compromised.' },
+      { cmd: 'sudo usermod -aG sudo deploy',   label: 'Grant sudo privileges', why: 'The sudo group lets a user run commands as root only when prefixed with sudo — giving you controlled elevation.' },
+      { cmd: 'sudo usermod -aG docker deploy', label: 'Add user to docker group', why: 'Without this, every docker command requires sudo. The docker group grants access to the Docker daemon socket.' },
+      { cmd: 'sudo hostnamectl set-hostname myserver', label: 'Set the server hostname', why: 'A clear hostname makes it easy to identify this machine in logs, SSH sessions, and monitoring dashboards.' },
+      { cmd: 'timedatectl set-timezone America/Chicago', label: 'Set server timezone', why: 'Consistent timezone keeps log timestamps meaningful and prevents confusion when correlating events across systems.' },
+      { cmd: "ssh-keygen -t ed25519 -C 'server@example.com'", label: 'Generate Ed25519 SSH key pair', why: 'Ed25519 is a modern elliptic-curve algorithm — shorter keys, faster auth, and more secure than RSA-2048. The -C flag adds a comment to identify the key.' },
+      { cmd: 'ssh-copy-id user@server-ip',     label: 'Copy public key to server for passwordless login', why: 'This appends your public key to ~/.ssh/authorized_keys on the server, enabling key-based login. After this, you can disable password authentication entirely.' },
     ]
   },
   {
     title: '2. Firewall (UFW)',
     desc: 'Lock down the server — only allow SSH, HTTP, and HTTPS',
+    tip: '<strong>Critical order:</strong> Always allow SSH <em>before</em> enabling the firewall — if you enable it first with no rules, you will lock yourself out instantly. UFW (Uncomplicated Firewall) wraps iptables in plain English. The rule of thumb: <strong>deny everything by default, allow only what you need.</strong> Ports 80 (HTTP) and 443 (HTTPS) are needed for web traffic; everything else should stay closed unless explicitly required.',
     commands: [
-      { cmd: 'sudo ufw allow ssh',         label: 'Allow SSH (do this first!)' },
-      { cmd: 'sudo ufw allow 80/tcp',      label: 'Allow HTTP' },
-      { cmd: 'sudo ufw allow 443/tcp',     label: 'Allow HTTPS' },
-      { cmd: 'sudo ufw enable',            label: 'Enable the firewall' },
-      { cmd: 'sudo ufw status verbose',    label: 'Verify rules are active' },
-      { cmd: 'sudo ufw limit ssh',         label: 'Rate-limit SSH to block brute-force' },
+      { cmd: 'sudo ufw allow ssh',         label: 'Allow SSH (do this first!)', why: 'SSH runs on port 22. If you skip this and enable UFW, you will be locked out of your server immediately — with no way back in.' },
+      { cmd: 'sudo ufw allow 80/tcp',      label: 'Allow HTTP', why: 'Port 80 serves unencrypted web traffic. Certbot also needs it open to verify domain ownership via HTTP challenge.' },
+      { cmd: 'sudo ufw allow 443/tcp',     label: 'Allow HTTPS', why: 'Port 443 serves encrypted TLS traffic. After getting your SSL certificate, all production traffic should use this port.' },
+      { cmd: 'sudo ufw enable',            label: 'Enable the firewall', why: 'Activates UFW and sets it to start automatically at boot. All traffic not matching an allow rule will be silently dropped.' },
+      { cmd: 'sudo ufw status verbose',    label: 'Verify rules are active', why: 'Confirms your rules are loaded and active. Always run this after enabling to make sure nothing is missing.' },
+      { cmd: 'sudo ufw limit ssh',         label: 'Rate-limit SSH to block brute-force', why: 'Limits SSH connection attempts to 6 per 30 seconds per IP. Silently blocks IPs that exceed this — a lightweight defense against automated password scanners.' },
     ]
   },
   {
     title: '3. Install Nginx',
     desc: 'Set up the reverse proxy that routes traffic to your apps',
+    tip: '<strong>What is a reverse proxy?</strong> Your Docker app runs on an internal port like 3000 — not exposed to the internet. Nginx sits in front, accepts connections on port 80/443, and forwards them to your app. This lets you run <em>multiple apps on one server</em>, handle SSL termination in one place, and add caching or rate limiting without changing your app code. The <code>sites-available / sites-enabled</code> pattern lets you stage configs before activating them.',
     commands: [
-      { cmd: 'sudo apt install nginx',                          label: 'Install Nginx' },
-      { cmd: 'sudo systemctl enable nginx',                     label: 'Enable auto-start on boot' },
-      { cmd: 'sudo nginx -t',                                   label: 'Test config before reload' },
-      { cmd: 'sudo nano /etc/nginx/sites-available/myapp',      label: 'Create a virtual host config' },
-      { cmd: 'sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/', label: 'Enable the site' },
-      { cmd: 'sudo systemctl reload nginx',                     label: 'Apply config without downtime' },
+      { cmd: 'sudo apt install nginx',                          label: 'Install Nginx', why: 'Installs the Nginx web server and reverse proxy. It starts automatically after install and listens on port 80.' },
+      { cmd: 'sudo systemctl enable nginx',                     label: 'Enable auto-start on boot', why: 'Tells systemd to start Nginx when the server boots. Without this, Nginx won\'t restart after a reboot.' },
+      { cmd: 'sudo nginx -t',                                   label: 'Test config before reload', why: 'Validates your Nginx config syntax without restarting. Always run this — a syntax error will crash Nginx if you reload without checking.' },
+      { cmd: 'sudo nano /etc/nginx/sites-available/myapp',      label: 'Create a virtual host config', why: 'Each app gets its own config file here. A basic config sets server_name (your domain), listens on port 80, and proxy_pass to your app\'s internal port.' },
+      { cmd: 'sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/', label: 'Enable the site', why: 'Creates a symbolic link (shortcut) so Nginx loads this config. Separating available from enabled means you can disable a site by removing the link without deleting the config.' },
+      { cmd: 'sudo systemctl reload nginx',                     label: 'Apply config without downtime', why: 'reload re-reads config files without dropping existing connections — unlike restart, which would briefly interrupt live traffic.' },
     ]
   },
   {
     title: '4. SSL / HTTPS (Certbot)',
     desc: 'Get a free Let\u2019s Encrypt certificate and auto-renew it',
+    tip: '<strong>Why HTTPS matters:</strong> Without TLS, all traffic between your users and server is sent in plaintext — passwords, cookies, everything. Let\u2019s Encrypt is a free Certificate Authority. Certbot automates issuing, installing, and renewing certificates. <strong>Prerequisites:</strong> your domain must already point to this server\'s IP (DNS A record), and port 80 must be open so Let\'s Encrypt can verify you own the domain.',
     commands: [
-      { cmd: 'sudo apt install certbot python3-certbot-nginx', label: 'Install Certbot + Nginx plugin' },
-      { cmd: 'sudo certbot --nginx -d example.com -d www.example.com', label: 'Issue certificate and configure Nginx' },
-      { cmd: 'sudo certbot renew --dry-run',  label: 'Test auto-renewal works' },
-      { cmd: 'sudo certbot certificates',     label: 'List managed certificates & expiry' },
-      { cmd: 'openssl x509 -enddate -noout -in /etc/letsencrypt/live/example.com/cert.pem', label: 'Check certificate expiry date' },
+      { cmd: 'sudo apt install certbot python3-certbot-nginx', label: 'Install Certbot + Nginx plugin', why: 'The Nginx plugin lets Certbot automatically modify your Nginx config to enable HTTPS and set up redirects — no manual editing needed.' },
+      { cmd: 'sudo certbot --nginx -d example.com -d www.example.com', label: 'Issue certificate and configure Nginx', why: 'Requests a certificate for your domain(s), passes the HTTP-01 challenge to prove ownership, then edits your Nginx config to use the cert. Replace example.com with your actual domain.' },
+      { cmd: 'sudo certbot renew --dry-run',  label: 'Test auto-renewal works', why: 'Simulates the renewal process without actually changing anything. Run this immediately after setup to confirm auto-renewal will work — Let\'s Encrypt certs expire every 90 days.' },
+      { cmd: 'sudo certbot certificates',     label: 'List managed certificates & expiry', why: 'Shows all certificates Certbot manages, their domains, expiry dates, and paths. Check this periodically to catch anything not auto-renewing.' },
+      { cmd: 'openssl x509 -enddate -noout -in /etc/letsencrypt/live/example.com/cert.pem', label: 'Check certificate expiry date', why: 'Directly reads the certificate file and prints the expiry date. Useful in scripts or monitoring — doesn\'t require Certbot to be installed.' },
     ]
   },
   {
     title: '5. Deploy an App (Docker Compose)',
     desc: 'Run your self-hosted app as a managed Docker stack',
+    tip: '<strong>What is Docker Compose?</strong> Your app likely has multiple pieces: a web server, a database, maybe a cache. Compose lets you define all of them in a single <code>docker-compose.yml</code> file and start them together. Each piece runs in an isolated <strong>container</strong> — its own filesystem, network, and process space. <code>-d</code> (detached) means they keep running after you close your terminal. Data you want to persist (databases, uploads) must be stored in <strong>volumes</strong>, not inside the container.',
     commands: [
-      { cmd: 'docker compose up -d',               label: 'Start all services in detached mode' },
-      { cmd: 'docker compose ps',                  label: 'Check service status' },
-      { cmd: 'docker compose logs -f',             label: 'Stream live logs from all services' },
-      { cmd: 'docker compose up -d --pull always', label: 'Update: pull latest images & restart' },
-      { cmd: 'docker compose down',                label: 'Stop and remove containers' },
-      { cmd: 'docker system prune -a --volumes',   label: 'Clean up unused images and volumes' },
+      { cmd: 'docker compose up -d',               label: 'Start all services in detached mode', why: 'Reads docker-compose.yml, creates containers for each service, and starts them in the background. First run also pulls images from Docker Hub if not cached locally.' },
+      { cmd: 'docker compose ps',                  label: 'Check service status', why: 'Lists each container defined in your Compose file with its current state (running, exited), health status, and exposed ports. Your first health check after deployment.' },
+      { cmd: 'docker compose logs -f',             label: 'Stream live logs from all services', why: '-f follows (tails) the log stream in real time — like tail -f but for all containers simultaneously. Press Ctrl+C to stop following without stopping the containers.' },
+      { cmd: 'docker compose up -d --pull always', label: 'Update: pull latest images & restart', why: '--pull always forces Docker to check for newer image versions before starting. The safest way to update a self-hosted app to the latest release.' },
+      { cmd: 'docker compose down',                label: 'Stop and remove containers', why: 'Stops and removes containers and networks, but preserves volumes (your data). Safe to run before reconfiguring — your database won\'t be deleted.' },
+      { cmd: 'docker system prune -a --volumes',   label: 'Clean up unused images and volumes', why: 'Frees disk space by removing all stopped containers, unused networks, dangling images, and optionally volumes. Run periodically — Docker images accumulate fast.' },
     ]
   },
   {
     title: '6. Secure SSH & Fail2ban',
     desc: 'Harden SSH and ban brute-force attackers automatically',
+    tip: '<strong>SSH hardening essentials:</strong> In <code>sshd_config</code>, set <code>PermitRootLogin no</code> (force use of your deploy user) and <code>PasswordAuthentication no</code> (keys only — passwords can be guessed). <strong>Fail2ban</strong> watches auth logs and automatically bans IPs that fail login too many times. Without it, bots will attempt thousands of password guesses per hour. Always test your config with <code>sshd -t</code> before restarting — a syntax error will lock you out.',
     commands: [
-      { cmd: 'sudo nano /etc/ssh/sshd_config',          label: 'Edit SSH config (disable root login, set key-only auth)' },
-      { cmd: 'sudo sshd -t',                            label: 'Test sshd_config for errors before restart' },
-      { cmd: 'sudo systemctl restart sshd',             label: 'Apply SSH changes' },
-      { cmd: 'sudo apt install fail2ban',               label: 'Install Fail2ban brute-force protection' },
-      { cmd: 'sudo fail2ban-client status sshd',        label: 'Check SSH jail — see banned IPs' },
-      { cmd: 'sudo nano /etc/fail2ban/jail.local',      label: 'Configure ban duration and thresholds' },
+      { cmd: 'sudo nano /etc/ssh/sshd_config',          label: 'Edit SSH config (disable root login, set key-only auth)', why: 'Key settings to change: PermitRootLogin no, PasswordAuthentication no, PubkeyAuthentication yes. Make sure your SSH key is on the server before disabling password auth or you\'ll be locked out.' },
+      { cmd: 'sudo sshd -t',                            label: 'Test sshd_config for errors before restart', why: 'Validates the config file syntax without restarting the service. A config error here is caught safely; the same error after a restart would make SSH refuse all connections.' },
+      { cmd: 'sudo systemctl restart sshd',             label: 'Apply SSH changes', why: 'Restarts the SSH daemon to load your new config. Your current session stays connected — the new rules apply to the next login attempt.' },
+      { cmd: 'sudo apt install fail2ban',               label: 'Install Fail2ban brute-force protection', why: 'Fail2ban monitors /var/log/auth.log and uses iptables/nftables to block IPs that exceed a threshold of failed logins. Starts automatically after install.' },
+      { cmd: 'sudo fail2ban-client status sshd',        label: 'Check SSH jail — see banned IPs', why: 'Shows the SSH jail status: currently banned IPs and total ban count. A large number means your server is actively being targeted — which is normal for any public IP.' },
+      { cmd: 'sudo nano /etc/fail2ban/jail.local',      label: 'Configure ban duration and thresholds', why: 'jail.local overrides defaults without editing jail.conf (which gets overwritten on updates). Key settings: bantime (how long to ban), findtime (window to count failures), maxretry (failures before ban).' },
     ]
   },
   {
     title: '7. Automated Backups',
     desc: 'Schedule encrypted incremental backups with rsync or Borg',
+    tip: '<strong>The 3-2-1 rule:</strong> 3 copies of your data, on 2 different media, with 1 offsite. Your server\'s drive is not a backup — if it fails, you lose everything. <strong>BorgBackup</strong> is preferred for databases and important data: it deduplicates (stores only changed blocks), compresses, and encrypts. <strong>rsync</strong> is simpler but stores full file copies. Most critically: <em>test your restores</em> — a backup you\'ve never restored from is untested and may not work when you actually need it.',
     commands: [
-      { cmd: 'sudo apt install borgbackup',       label: 'Install BorgBackup (deduplicating encrypted backups)' },
-      { cmd: 'borg init --encryption=repokey user@remote:/backup/borg-repo', label: 'Initialize encrypted backup repo' },
-      { cmd: "borg create user@remote:/backup/borg-repo::'{hostname}-{now}' /data", label: 'Create a timestamped backup snapshot' },
-      { cmd: 'borg prune --keep-daily=7 --keep-weekly=4 user@remote:/backup/borg-repo', label: 'Prune old backups by retention policy' },
-      { cmd: 'rsync -avz /data/ user@remote:/backup/data/', label: 'Alternative: incremental rsync to remote' },
-      { cmd: 'crontab -e',                        label: 'Schedule backups to run nightly via cron' },
+      { cmd: 'sudo apt install borgbackup',       label: 'Install BorgBackup (deduplicating encrypted backups)', why: 'BorgBackup stores backups as content-addressed chunks — identical data is stored only once. A week of daily backups might use only 1.1× the size of one backup.' },
+      { cmd: 'borg init --encryption=repokey user@remote:/backup/borg-repo', label: 'Initialize encrypted backup repo', why: 'Creates a new Borg repository on a remote server. repokey stores the encryption key in the repo (protected by a passphrase) — save this passphrase somewhere safe, it\'s the only way to decrypt your backups.' },
+      { cmd: "borg create user@remote:/backup/borg-repo::'{hostname}-{now}' /data", label: 'Create a timestamped backup snapshot', why: 'Creates a new archive named with hostname and timestamp. Only changed data since the last backup is transferred — fast and bandwidth-efficient after the first run.' },
+      { cmd: 'borg prune --keep-daily=7 --keep-weekly=4 user@remote:/backup/borg-repo', label: 'Prune old backups by retention policy', why: 'Automatically removes old archives beyond your retention window. This example keeps 7 daily and 4 weekly backups. Without pruning, your backup storage grows forever.' },
+      { cmd: 'rsync -avz /data/ user@remote:/backup/data/', label: 'Alternative: incremental rsync to remote', why: '-a preserves permissions/timestamps, -v is verbose, -z compresses data in transit. rsync only transfers changed parts of files. Simpler than Borg but no encryption or deduplication built in.' },
+      { cmd: 'crontab -e',                        label: 'Schedule backups to run nightly via cron', why: 'Opens the cron editor. Add a line like: 0 2 * * * /usr/local/bin/backup.sh to run your backup script at 2 AM daily. Cron runs in the background — your terminal doesn\'t need to be open.' },
     ]
   },
   {
     title: '8. Monitoring & Health',
     desc: 'Keep an eye on the server and get alerted before things break',
+    tip: '<strong>Don\'t wait for users to report problems.</strong> Disk full, a crashed service, an expiring SSL cert — these all have early warning signs if you\'re watching. Build a habit of checking these commands regularly, or better yet, set up automated alerting (Prometheus + Grafana, Uptime Kuma, or even a simple cron that emails you when disk > 80%). The commands in this step answer: <em>Is my server healthy? Is everything running? Are there errors I should know about?</em>',
     commands: [
-      { cmd: 'htop',                              label: 'Interactive CPU / memory dashboard' },
-      { cmd: 'df -h',                             label: 'Check disk space on all filesystems' },
-      { cmd: 'sudo journalctl -xe',               label: 'Read system logs for recent errors' },
-      { cmd: 'systemctl list-units --type=service --state=failed', label: 'List all failed services' },
-      { cmd: 'docker compose logs -f servicename', label: 'Stream logs from a specific app' },
-      { cmd: 'sudo fail2ban-client status',       label: 'Check Fail2ban jails and ban counts' },
-      { cmd: 'sudo certbot certificates',         label: 'Check SSL certificate expiry dates' },
-      { cmd: 'uptime',                            label: 'Server uptime and load averages' },
+      { cmd: 'htop',                              label: 'Interactive CPU / memory dashboard', why: 'Real-time view of all processes sorted by CPU/memory usage. Press F6 to sort, F9 to kill a process. High CPU from an unexpected process is often the first sign of a problem.' },
+      { cmd: 'df -h',                             label: 'Check disk space on all filesystems', why: '-h formats sizes as human-readable (GB, MB). A filesystem at 100% Use% will cause mysterious failures across your entire server — check this weekly.' },
+      { cmd: 'sudo journalctl -xe',               label: 'Read system logs for recent errors', why: 'journalctl reads systemd\'s structured log. -x adds explanatory text, -e jumps to the end. First place to look when a service has crashed or behaved unexpectedly.' },
+      { cmd: 'systemctl list-units --type=service --state=failed', label: 'List all failed services', why: 'Shows every systemd service that has crashed and not recovered. A clean server shows nothing here. Any output means something needs attention.' },
+      { cmd: 'docker compose logs -f servicename', label: 'Stream logs from a specific app', why: 'Replace servicename with the container name from your docker-compose.yml. App-level errors (500s, DB connection failures) appear here — not in the system journal.' },
+      { cmd: 'sudo fail2ban-client status',       label: 'Check Fail2ban jails and ban counts', why: 'Lists all active jails and how many IPs are currently banned. A spike in bans means your server is under active attack — worth investigating.' },
+      { cmd: 'sudo certbot certificates',         label: 'Check SSL certificate expiry dates', why: 'Even with auto-renewal, occasionally something goes wrong (DNS change, port 80 blocked). Check this monthly and set a calendar reminder 2 weeks before any cert expires.' },
+      { cmd: 'uptime',                            label: 'Server uptime and load averages', why: 'Shows how long the server has been running and the 1/5/15 minute load averages. Load average above your CPU core count sustained over 15 minutes means the server is overloaded.' },
     ]
   },
 ];
@@ -1333,13 +1364,23 @@ function qsBuildSteps() {
       <div class="qs-step-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
     `;
 
+    // Step tip (beginner guidance callout)
+    if (step.tip) {
+      const tipDiv = document.createElement('div');
+      tipDiv.className = 'qs-tip';
+      tipDiv.innerHTML = `<span class="qs-tip-label">&#128161; Beginner Tip</span>${step.tip}`;
+      // insert after header, before cmds — we append to div after header is added
+      div._tipEl = tipDiv;
+    }
+
     const cmdsDiv = document.createElement('div');
     cmdsDiv.className = 'qs-cmds';
 
     step.commands.forEach(c => {
       const btn = document.createElement('button');
       btn.className = 'qs-cmd-btn';
-      btn.innerHTML = `<span class="qs-cmd-code">${c.cmd.replace(/</g,'&lt;')}</span><span class="qs-cmd-label">${c.label}</span>`;
+      const whyHtml = c.why ? `<span class="qs-cmd-why">${c.why}</span>` : '';
+      btn.innerHTML = `<span class="qs-cmd-code">${c.cmd.replace(/</g,'&lt;')}</span><div style="flex:1"><span class="qs-cmd-label">${c.label}</span>${whyHtml}</div>`;
       btn.addEventListener('click', () => {
         // run the search
         const si = document.getElementById('searchInput');
@@ -1370,6 +1411,7 @@ function qsBuildSteps() {
     header.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStep(); } });
 
     div.appendChild(header);
+    if (div._tipEl) div.appendChild(div._tipEl);
     div.appendChild(cmdsDiv);
 
     if (idx < QS_STEPS.length - 1) {
