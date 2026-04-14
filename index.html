@@ -1079,7 +1079,7 @@ function buildSidebar() {
   allBtn.className = 'cat-btn active';
   allBtn.dataset.cat = 'All';
   allBtn.innerHTML = `<span>All Commands</span><span class="count">${COMMANDS.length}</span>`;
-  allBtn.addEventListener('click', () => selectCategory('All'));
+  allBtn.addEventListener('click', () => handleCatTap('All'));
   nav.appendChild(allBtn);
 
   CATEGORIES.forEach(cat => {
@@ -1094,9 +1094,23 @@ function buildSidebar() {
                      .replace('Archiving & Compression','Archive & Compress')
                      .replace('Productivity & Search','Productivity & Search');
     btn.innerHTML = `<span>${short}</span><span class="count">${count}</span>`;
-    btn.addEventListener('click', () => selectCategory(cat));
+    btn.addEventListener('click', () => handleCatTap(cat));
     nav.appendChild(btn);
   });
+}
+
+// Tap logic: first tap on a new item → navigate; tap on already-active item → close drawer
+function handleCatTap(cat) {
+  const isMobile = window.innerWidth < 769;
+  const alreadyActive = activeCategory === cat;
+  selectCategory(cat);
+  if (isMobile) {
+    if (alreadyActive) {
+      closeSidebar(); // second tap on same item dismisses drawer
+    }
+    // first tap: drawer stays open so user can see it highlighted
+    // (auto-close happens on second tap or via overlay/Esc)
+  }
 }
 
 function selectCategory(cat) {
@@ -1109,8 +1123,8 @@ function selectCategory(cat) {
     c.classList.toggle('active', c.dataset.cat === cat);
   });
   renderAll();
-  // Close the sidebar drawer on mobile after a selection
-  closeSidebar();
+  // Note: drawer closing is handled by handleCatTap() for sidebar,
+  // and directly for filter chips (which are always visible, no drawer needed)
 }
 
 // ─── FILTER BAR ───────────────────────────────────────────────────
