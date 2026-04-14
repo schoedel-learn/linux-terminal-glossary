@@ -136,13 +136,13 @@ a:hover{color:var(--color-primary-hover)}
 .sidebar-cats::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:2px}
 .cat-btn{
   display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:var(--space-3) var(--space-4);
-  font-size:var(--text-sm);font-weight:500; /* readable on mobile */
+  width:100%;padding:var(--space-4) var(--space-4);
+  font-size:var(--text-sm);font-weight:500;
   color:var(--color-text-muted);
   transition:all var(--transition);
   border-radius:0;text-align:left;gap:var(--space-2);
   border-left:2px solid transparent;
-  min-height:44px;
+  min-height:52px;
   -webkit-tap-highlight-color:transparent;
 }
 .cat-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
@@ -246,7 +246,7 @@ a:hover{color:var(--color-primary-hover)}
 .filter-chip{
   display:inline-flex;align-items:center;
   font-size:var(--text-xs);font-weight:500;
-  padding:var(--space-2) var(--space-3);
+  padding:var(--space-3) var(--space-4);
   border-radius:var(--radius-full);
   border:1.5px solid var(--color-border);
   color:var(--color-text-muted);
@@ -255,7 +255,7 @@ a:hover{color:var(--color-primary-hover)}
   transition:all var(--transition);
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
-  min-height:36px; /* touch target */
+  min-height:48px;
 }
 .filter-chip:hover{border-color:var(--color-text-muted);color:var(--color-text)}
 .filter-chip.active{
@@ -455,7 +455,7 @@ a:hover{color:var(--color-primary-hover)}
   .cmd-copy{width:28px;height:28px;opacity:0}
   .cmd-card:hover .cmd-copy{opacity:1}
   .filter-chip{padding:var(--space-1) var(--space-3);min-height:auto}
-  .cat-btn{font-size:var(--text-xs)} /* compact on desktop */
+  .cat-btn{font-size:var(--text-xs);padding:var(--space-2) var(--space-4);min-height:44px}
   .cat-btn .count{font-size:var(--text-xs)}
 }
 
