@@ -1230,9 +1230,11 @@ function buildFilterBar() {
   bar.appendChild(allChip);
 
   const shortcuts = [
+    'Self-Hosting',
+    'Docker',
     'Node.js & npm/yarn',
-    'Git - Core','Git - Advanced','GitHub CLI (gh)','GitHub CLI Extra',
-    'Docker','Docker Advanced','Python CLI','Gemini CLI',
+    'Git - Core','Git - Advanced','GitHub CLI',
+    'Python & pip','Gemini CLI',
     'tmux','Vim/Neovim','Networking','SSH & Remote',
     'System Services & Systemd','Process Management',
     'Text Processing','Bash Scripting','File Operations',
@@ -1242,9 +1244,7 @@ function buildFilterBar() {
     'Node.js & npm/yarn': 'Node/npm',
     'Package Management - APT/Ubuntu': 'APT',
     'System Services & Systemd': 'Systemd',
-    'GitHub CLI (gh)': 'gh CLI',
-    'GitHub CLI Extra': 'gh CLI Extra',
-    'Docker Advanced': 'Docker+',
+    'Python & pip': 'Python',
   };
   shortcuts.forEach(cat => {
     if (!CATEGORIES.includes(cat)) return; // skip if category doesn't exist
