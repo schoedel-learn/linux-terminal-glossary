@@ -1,0 +1,33 @@
+name: Command Report
+description: Report an inaccurate, missing, or miscategorised command
+title: "[Report] "
+labels: ["feedback"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Issue Type
+      options:
+        - Inaccurate command — the command is wrong or outdated
+        - Missing command — a command I need isn't here
+        - Tooltip unclear — the explanation is confusing or incorrect
+        - Wrong category — a command is in the wrong section
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: The exact command string (if applicable)
+      placeholder: "e.g. docker compose up -d"
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Describe the problem or what's missing
+      placeholder: "What's wrong, what should it be, or what command should be added?"
+    validations:
+      required: true
