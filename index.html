@@ -1107,6 +1107,8 @@ function selectCategory(cat) {
     c.classList.toggle('active', c.dataset.cat === cat);
   });
   renderAll();
+  // Close the sidebar drawer on mobile after a selection
+  closeSidebar();
 }
 
 // ─── FILTER BAR ───────────────────────────────────────────────────
@@ -1425,14 +1427,20 @@ document.getElementById('historyClear').addEventListener('click', () => {
 });
 
 // ─── MOBILE MENU ──────────────────────────────────────────────────
-document.getElementById('menuBtn').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-});
-document.getElementById('sidebarOverlay').addEventListener('click', () => {
+function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').classList.remove('open');
+}
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+}
+
+document.getElementById('menuBtn').addEventListener('click', () => {
+  const isOpen = document.getElementById('sidebar').classList.contains('open');
+  isOpen ? closeSidebar() : openSidebar();
 });
+document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
 
 // ─── SCROLL TO TOP ────────────────────────────────────────────────
 const scrollTopBtn = document.getElementById('scrollTop');
@@ -1456,8 +1464,7 @@ document.addEventListener('keydown', e => {
     } else {
       input.blur();
     }
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('open');
+    closeSidebar();
   }
 });
 
