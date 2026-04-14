@@ -1649,6 +1649,8 @@ function buildFilterBar() {
 
   const shortcuts = [
     'Self-Hosting',
+    'Dokploy',
+    'VPS Management',
     'Docker',
     'Node.js & npm/yarn',
     'Git - Core','Git - Advanced','GitHub CLI',
@@ -1663,6 +1665,7 @@ function buildFilterBar() {
     'Package Management - APT/Ubuntu': 'APT',
     'System Services & Systemd': 'Systemd',
     'Python & pip': 'Python',
+    'VPS Management': 'VPS',
   };
   shortcuts.forEach(cat => {
     if (!CATEGORIES.includes(cat)) return; // skip if category doesn't exist
