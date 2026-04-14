@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Terminal Glossary — 1,232 Commands</title>
+<title>Linux Terminal Glossary — 2,086 Commands</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -470,7 +470,7 @@ a:hover{color:var(--color-primary-hover)}
       </div>
       <div class="stats-row">
         <span class="stat-chip" id="totalCount">…</span>
-        <span class="stat-chip">28 categories</span>
+        <span class="stat-chip" id="catCount">…</span>
       </div>
     </div>
 
@@ -498,7 +498,7 @@ a:hover{color:var(--color-primary-hover)}
           type="search"
           class="search-input"
           id="searchInput"
-          placeholder="Search commands, descriptions, or concepts… (e.g. 'find files', 'kill process', 'docker run')"
+          placeholder="Search by command, description, or concept… (e.g. 'list running processes', 'copy files remotely', 'docker run')"
           autocomplete="off"
           spellcheck="false"
         >
@@ -514,7 +514,7 @@ a:hover{color:var(--color-primary-hover)}
     <div class="content" id="content">
       <div class="loading-state">
         <div class="spinner"></div>
-        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 1,232 commands…</div>
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 2,086 commands…</div>
       </div>
     </div>
   </main>
@@ -569,6 +569,7 @@ async function loadData() {
   SYNONYMS = idxData.synonyms;
 
   document.getElementById('totalCount').textContent = `${COMMANDS.length} commands`;
+  document.getElementById('catCount').textContent = `${CATEGORIES.length} categories`;
   buildSidebar();
   buildFilterBar();
   renderAll();
@@ -625,15 +626,26 @@ function buildFilterBar() {
   bar.appendChild(allChip);
 
   const shortcuts = [
-    'Git - Core','Git - Advanced','GitHub CLI (gh)','Docker','tmux','Vim/Neovim',
-    'Networking','SSH & Remote','System Services & Systemd','Process Management',
-    'Text Processing','Bash Scripting','File Operations','Package Management - APT/Ubuntu'
+    'Git - Core','Git - Advanced','GitHub CLI (gh)','GitHub CLI Extra',
+    'Docker','Docker Advanced','Python CLI','Gemini CLI',
+    'tmux','Vim/Neovim','Networking','SSH & Remote',
+    'System Services & Systemd','Process Management',
+    'Text Processing','Bash Scripting','File Operations',
+    'Package Management - APT/Ubuntu'
   ];
+  const shortLabels = {
+    'Package Management - APT/Ubuntu': 'APT',
+    'System Services & Systemd': 'Systemd',
+    'GitHub CLI (gh)': 'gh CLI',
+    'GitHub CLI Extra': 'gh CLI Extra',
+    'Docker Advanced': 'Docker+',
+  };
   shortcuts.forEach(cat => {
+    if (!CATEGORIES.includes(cat)) return; // skip if category doesn't exist
     const chip = document.createElement('button');
     chip.className = 'filter-chip';
     chip.dataset.cat = cat;
-    chip.textContent = cat.replace('Package Management - APT/Ubuntu','APT').replace('System Services & Systemd','Systemd').replace('GitHub CLI (gh)','gh CLI');
+    chip.textContent = shortLabels[cat] || cat;
     chip.addEventListener('click', () => selectCategory(cat));
     bar.appendChild(chip);
   });
@@ -646,38 +658,47 @@ function tokenize(text) {
 
 // ─── SEARCH ENGINE ────────────────────────────────────────────────
 // Hybrid: keyword match + TF-IDF cosine similarity + synonym expansion
+// Description-first: all token matching weighted across cmd + desc + category
 function scoreCommand(cmd, queryTokens, expandedTokens) {
   let score = 0;
   const cmdLower = cmd.cmd.toLowerCase();
   const descLower = cmd.desc.toLowerCase();
   const catLower = cmd.category.toLowerCase();
-  const fullText = cmdLower + ' ' + descLower + ' ' + catLower;
 
   const rawQuery = searchQuery.toLowerCase().trim();
 
-  // ── Exact & prefix match bonuses
+  // ── Exact & prefix match bonuses on command string
   if (cmdLower === rawQuery) score += 200;
   else if (cmdLower.startsWith(rawQuery)) score += 80;
   else if (cmdLower.includes(rawQuery)) score += 40;
-  if (descLower.includes(rawQuery)) score += 20;
 
-  // ── Token keyword scoring
+  // ── Raw query phrase match on description (strong signal)
+  if (descLower === rawQuery) score += 120;
+  else if (descLower.startsWith(rawQuery)) score += 60;
+  else if (descLower.includes(rawQuery)) score += 35;
+
+  // ── Token keyword scoring — balanced between cmd and desc
   for (const qt of queryTokens) {
+    if (qt.length < 2) continue;
+    // Command string matches
     if (cmdLower === qt) score += 100;
     else if (cmdLower.startsWith(qt + ' ') || cmdLower.endsWith(' ' + qt)) score += 50;
     else if (cmdLower.includes(qt)) score += 30;
-    if (descLower.includes(qt)) score += 15;
+    // Description matches — now equally weighted, not second-class
+    if (descLower.includes(qt)) score += 28;
+    // Category matches
     if (catLower.includes(qt)) score += 8;
   }
 
   // ── Synonym / semantic expansion
   for (const et of expandedTokens) {
     if (cmdLower.includes(et)) score += 10;
-    if (descLower.includes(et)) score += 6;
+    if (descLower.includes(et)) score += 8;
   }
 
-  // ── TF-IDF cosine similarity
-  if (SEARCH_INDEX && score > 0) {
+  // ── TF-IDF cosine similarity — always applied (not gated on score > 0)
+  // This ensures description-only matches are surfaced even with no keyword hit
+  if (SEARCH_INDEX) {
     const indexEntry = SEARCH_INDEX[cmd.id];
     if (indexEntry) {
       let dot = 0;
@@ -686,7 +707,7 @@ function scoreCommand(cmd, queryTokens, expandedTokens) {
         const docW = indexEntry.tokens[qt] || 0;
         dot += qIdf * docW;
       }
-      score += dot * 30;
+      score += dot * 40;
     }
   }
 
@@ -719,7 +740,7 @@ function search(query) {
   let results = COMMANDS
     .filter(c => activeCategory === 'All' || c.category === activeCategory)
     .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
-    .filter(r => r.score > 0)
+    .filter(r => r.score > 2)  // tiny threshold filters noise but allows desc-only TF-IDF hits
     .sort((a, b) => b.score - a.score);
 
   // Determine mode
