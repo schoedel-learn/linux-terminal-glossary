@@ -449,6 +449,137 @@ a:hover{color:var(--color-primary-hover)}
 /* ─── HIGHLIGHT ─────────────────────────────────────────── */
 .hl{background:rgba(255,200,0,0.25);border-radius:2px;padding:0 1px}
 
+/* ─── LEADERBOARD PANEL ─────────────────────────────────── */
+.leaderboard-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.55);z-index:400;
+  opacity:0;pointer-events:none;
+  transition:opacity 180ms ease;
+}
+.leaderboard-overlay.open{
+  display:block;opacity:1;pointer-events:auto;
+}
+.leaderboard-drawer{
+  position:fixed;top:0;right:0;bottom:0;
+  width:min(420px, 100vw);
+  background:var(--color-surface);
+  border-left:1px solid var(--color-border);
+  box-shadow:var(--shadow-lg);
+  display:flex;flex-direction:column;
+  z-index:401;
+  transform:translateX(100%);
+  transition:transform 220ms cubic-bezier(0.16,1,0.3,1);
+}
+.leaderboard-overlay.open .leaderboard-drawer{
+  transform:translateX(0);
+}
+.lb-header{
+  padding:var(--space-4) var(--space-5);
+  border-bottom:1px solid var(--color-border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  gap:var(--space-3);
+}
+.lb-title-group{display:flex;align-items:center;gap:var(--space-3)}
+.lb-icon{
+  width:32px;height:32px;flex-shrink:0;
+  background:var(--color-warn-dim);
+  border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--color-warn);
+}
+.lb-title{font-size:var(--text-base);font-weight:700;letter-spacing:-0.01em}
+.lb-subtitle{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:1px}
+.lb-close{
+  width:32px;height:32px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-md);
+  color:var(--color-text-muted);
+  transition:all var(--transition);
+}
+.lb-close:hover{background:var(--color-surface-2);color:var(--color-text)}
+.lb-body{flex:1;overflow-y:auto;padding:var(--space-4) var(--space-5)}
+.lb-body::-webkit-scrollbar{width:4px}
+.lb-body::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:2px}
+.lb-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:var(--space-4);text-align:center;
+  padding:var(--space-12) var(--space-6);
+}
+.lb-empty-icon{color:var(--color-text-faint);opacity:0.4}
+.lb-empty-title{font-size:var(--text-base);font-weight:600;color:var(--color-text-muted)}
+.lb-empty-sub{font-size:var(--text-sm);color:var(--color-text-faint);max-width:28ch;line-height:1.6}
+.lb-row{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) var(--space-3);
+  border-radius:var(--radius-md);
+  cursor:pointer;
+  transition:background var(--transition);
+  position:relative;
+  margin-bottom:var(--space-1);
+}
+.lb-row:hover{background:var(--color-surface-2)}
+/* bar track behind each row */
+.lb-row::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;
+  border-radius:var(--radius-md);
+  background:var(--color-warn-dim);
+  width:var(--lb-pct,0%);
+  transition:width 600ms cubic-bezier(0.16,1,0.3,1);
+  pointer-events:none;
+  z-index:0;
+}
+.lb-row > *{position:relative;z-index:1}
+.lb-rank{
+  font-size:var(--text-xs);font-family:var(--font-mono);font-weight:700;
+  color:var(--color-text-faint);flex-shrink:0;
+  width:20px;text-align:center;
+}
+.lb-rank.gold{color:#f5a623}
+.lb-rank.silver{color:#8b949e}
+.lb-rank.bronze{color:#c0703e}
+.lb-query{
+  flex:1;font-size:var(--text-sm);color:var(--color-text);
+  font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lb-count{
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  font-weight:600;color:var(--color-warn);flex-shrink:0;
+  background:var(--color-warn-dim);border-radius:var(--radius-sm);
+  padding:2px 7px;
+}
+.lb-footer{
+  padding:var(--space-3) var(--space-5);
+  border-top:1px solid var(--color-border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.lb-footer-label{font-size:var(--text-xs);color:var(--color-text-faint)}
+.lb-clear-all{
+  font-size:var(--text-xs);color:var(--color-text-faint);
+  padding:3px var(--space-2);border-radius:var(--radius-sm);
+  transition:all var(--transition);
+}
+.lb-clear-all:hover{color:var(--color-text);background:var(--color-surface-2)}
+/* leaderboard trigger button in sidebar */
+.lb-trigger{
+  display:flex;align-items:center;gap:var(--space-2);
+  width:100%;padding:var(--space-2) var(--space-2);
+  border-radius:var(--radius-md);
+  font-size:var(--text-xs);color:var(--color-text-muted);
+  transition:all var(--transition);
+  margin-bottom:var(--space-1);
+}
+.lb-trigger:hover{background:var(--color-surface-2);color:var(--color-text)}
+.lb-trigger-badge{
+  margin-left:auto;
+  font-family:var(--font-mono);font-size:var(--text-xs);font-weight:600;
+  background:var(--color-warn-dim);color:var(--color-warn);
+  border-radius:var(--radius-sm);padding:1px 6px;
+  min-width:20px;text-align:center;
+}
+
 /* ─── HISTORY PANEL ─────────────────────────────────────── */
 .history-panel{
   position:absolute;top:calc(100% + 6px);left:0;right:0;
@@ -552,6 +683,12 @@ a:hover{color:var(--color-primary-hover)}
     </nav>
 
     <div class="sidebar-footer">
+      <!-- Most Searched leaderboard trigger -->
+      <button class="lb-trigger" id="lbTrigger" aria-label="Open most searched leaderboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Most Searched
+        <span class="lb-trigger-badge" id="lbTriggerBadge">—</span>
+      </button>
       <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         Toggle theme
@@ -599,6 +736,31 @@ a:hover{color:var(--color-primary-hover)}
       </div>
     </div>
   </main>
+</div>
+
+<!-- Leaderboard drawer -->
+<div class="leaderboard-overlay" id="lbOverlay">
+  <div class="leaderboard-drawer" id="lbDrawer">
+    <div class="lb-header">
+      <div class="lb-title-group">
+        <div class="lb-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div>
+          <div class="lb-title">Most Searched</div>
+          <div class="lb-subtitle">Your top 10 lookups by repeat count</div>
+        </div>
+      </div>
+      <button class="lb-close" id="lbClose" aria-label="Close leaderboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="lb-body" id="lbBody"></div>
+    <div class="lb-footer">
+      <span class="lb-footer-label" id="lbFooterLabel"></span>
+      <button class="lb-clear-all" id="lbClearAll">Clear history</button>
+    </div>
+  </div>
 </div>
 
 <!-- Scroll to top -->
@@ -718,6 +880,132 @@ function renderHistoryPanel() {
 
 function escapeAttr(str) {
   return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ─── LEADERBOARD ──────────────────────────────────────────────────
+const LEADERBOARD_TOP = 10;
+
+function lbGetTopN() {
+  // Sort all history entries by count descending, take top N
+  return historyLoad()
+    .filter(e => e.count >= 1)
+    .sort((a, b) => (b.count || 1) - (a.count || 1))
+    .slice(0, LEADERBOARD_TOP);
+}
+
+function lbUpdateTriggerBadge() {
+  const badge = document.getElementById('lbTriggerBadge');
+  if (!badge) return;
+  const top = lbGetTopN();
+  if (top.length === 0) {
+    badge.textContent = '—';
+  } else {
+    badge.textContent = `#${top.length}`;
+  }
+}
+
+function openLeaderboard() {
+  renderLeaderboard();
+  document.getElementById('lbOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLeaderboard() {
+  document.getElementById('lbOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderLeaderboard() {
+  const body = document.getElementById('lbBody');
+  const footerLabel = document.getElementById('lbFooterLabel');
+  const top = lbGetTopN();
+  const all = historyLoad();
+  const totalSearches = all.reduce((s, e) => s + (e.count || 1), 0);
+
+  footerLabel.textContent = all.length
+    ? `${all.length} unique ${all.length === 1 ? 'query' : 'queries'} · ${totalSearches} total searches`
+    : '';
+
+  if (top.length === 0) {
+    body.innerHTML = `
+      <div class="lb-empty">
+        <svg class="lb-empty-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <div class="lb-empty-title">No data yet</div>
+        <div class="lb-empty-sub">Search for commands to start building your leaderboard.</div>
+      </div>`;
+    return;
+  }
+
+  // Max count for bar width calculation
+  const maxCount = top[0].count || 1;
+  const rankLabel = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+  const medal = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+
+  body.innerHTML = top.map((e, i) => {
+    const pct = Math.round((e.count / maxCount) * 85); // max 85% so text always readable
+    return `
+    <div class="lb-row" style="--lb-pct:${pct}%" data-q="${escapeAttr(e.q)}" title="Click to search again">
+      <span class="lb-rank ${rankLabel(i)}">${medal(i)}</span>
+      <span class="lb-query">${escapeHtml(e.q)}</span>
+      <span class="lb-count">${e.count}×</span>
+    </div>`;
+  }).join('');
+
+  // Click rows to run the search again
+  body.querySelectorAll('.lb-row').forEach(row => {
+    row.addEventListener('click', () => {
+      closeLeaderboard();
+      setTimeout(() => historyApply(row.dataset.q), 80); // let drawer close first
+    });
+  });
+
+  // Animate bars in after paint
+  requestAnimationFrame(() => {
+    body.querySelectorAll('.lb-row').forEach((row, i) => {
+      row.style.setProperty('--lb-pct', '0%');
+      setTimeout(() => {
+        const pct = Math.round(((top[i]?.count || 0) / maxCount) * 85);
+        row.style.setProperty('--lb-pct', pct + '%');
+      }, 60 + i * 40);
+    });
+  });
+}
+
+// Bind leaderboard open/close
+document.getElementById('lbTrigger').addEventListener('click', openLeaderboard);
+document.getElementById('lbClose').addEventListener('click', closeLeaderboard);
+document.getElementById('lbOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('lbOverlay')) closeLeaderboard();
+});
+document.getElementById('lbClearAll').addEventListener('mousedown', e => {
+  e.preventDefault();
+  historyClear();
+  lbUpdateTriggerBadge();
+  renderLeaderboard();
+});
+
+// Update badge on init and after each history commit
+const _origHistoryCommit = historyCommit;
+window._historyCommitWrapped = true;
+const _historyCommitOrig = historyCommit;
+function historyCommitAndBadge(query) {
+  const q = query.trim();
+  if (q.length < 2) return;
+  let arr = historyLoad();
+  const idx = arr.findIndex(e => e.q.toLowerCase() === q.toLowerCase());
+  if (idx !== -1) {
+    arr[idx].count = (arr[idx].count || 1) + 1;
+    arr[idx].ts = Date.now();
+    const entry = arr.splice(idx, 1)[0];
+    arr.unshift(entry);
+  } else {
+    arr.unshift({ q, count: 1, ts: Date.now() });
+  }
+  if (arr.length > HISTORY_MAX) arr = arr.slice(0, HISTORY_MAX);
+  historySave(arr);
+  lbUpdateTriggerBadge();
 }
 
 // ─── THEME TOGGLE ─────────────────────────────────────────────────
@@ -1090,7 +1378,7 @@ searchInput.addEventListener('input', function() {
   searchTimeout = setTimeout(renderAll, 120);
   // Commit to history 800ms after user stops typing (if meaningful)
   if (this.value.trim().length >= 2) {
-    historyCommitTimeout = setTimeout(() => historyCommit(this.value.trim()), 800);
+    historyCommitTimeout = setTimeout(() => historyCommitAndBadge(this.value.trim()), 800);
   }
 });
 
@@ -1149,7 +1437,15 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// Close leaderboard on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('lbOverlay').classList.contains('open')) {
+    closeLeaderboard();
+  }
+});
+
 // ─── INIT ─────────────────────────────────────────────────────────
+lbUpdateTriggerBadge(); // show badge immediately from existing localStorage
 loadData().catch(err => {
   document.getElementById('content').innerHTML = `
     <div class="empty-state">
