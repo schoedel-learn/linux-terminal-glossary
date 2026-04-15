@@ -28,6 +28,7 @@
     "Shell & Bash",
     "System Information",
     "System Services & Systemd",
+    "Terminal Configuration",
     "Text Processing",
     "User & Group Management",
     "VPS Management",
@@ -19900,7 +19901,637 @@
       "desc": "Configure Copilot in IntelliJ / PyCharm / WebStorm",
       "category": "GitHub Copilot",
       "tooltip": "GitHub Copilot is available as a plugin for all JetBrains IDEs. After installing from the Marketplace, go to Settings > GitHub Copilot to sign in and configure suggestion behavior. Tab accepts, Alt+[ / Alt+] cycle alternatives \u2014 same as VS Code."
+    },
+    {
+      "id": 2839,
+      "cmd": "nano ~/.zshrc",
+      "desc": "Edit your zsh configuration file",
+      "category": "Terminal Configuration",
+      "tooltip": "~/.zshrc is the zsh equivalent of .bashrc \u2014 it runs on every new interactive zsh session. If you use Oh My Zsh or Starship, their configuration lines go here. Zsh also reads ~/.zprofile (login shells) and ~/.zshenv (all shells)."
+    },
+    {
+      "id": 2840,
+      "cmd": "source ~/.zshrc",
+      "desc": "Reload zsh config without restarting the terminal",
+      "category": "Terminal Configuration",
+      "tooltip": "Applies your .zshrc changes to the current shell session instantly. If you get errors after sourcing, check for duplicate PATH entries \u2014 sourcing appends on each run, so paths can accumulate."
+    },
+    {
+      "id": 2841,
+      "cmd": "nano ~/.profile",
+      "desc": "Edit login shell profile (runs once at login)",
+      "category": "Terminal Configuration",
+      "tooltip": "~/.profile runs only for login shells (SSH sessions, first terminal on a desktop). Put PATH modifications and environment variables here rather than .bashrc if you want them set once, not on every subshell. Bash reads this before .bashrc on login shells."
+    },
+    {
+      "id": 2842,
+      "cmd": "nano ~/.bash_profile",
+      "desc": "Edit bash-specific login profile",
+      "category": "Terminal Configuration",
+      "tooltip": "If this file exists, bash reads it instead of ~/.profile on login. A common pattern is to have .bash_profile source .profile (for shared settings) and then .bashrc (for interactive features). Many users just use .bashrc for everything."
+    },
+    {
+      "id": 2843,
+      "cmd": "chsh -s /usr/bin/zsh",
+      "desc": "Change your default shell to zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "chsh (change shell) updates your login shell in /etc/passwd. You must log out and back in for the change to take effect. The shell must be listed in /etc/shells. Install zsh first with `sudo apt install zsh`."
+    },
+    {
+      "id": 2844,
+      "cmd": "cat /etc/shells",
+      "desc": "List all available shells on the system",
+      "category": "Terminal Configuration",
+      "tooltip": "Shows every shell that chsh will accept as a valid login shell. If zsh or fish isn't listed after installation, you may need to add it manually with `sudo echo /usr/bin/zsh >> /etc/shells`."
+    },
+    {
+      "id": 2845,
+      "cmd": "echo $0",
+      "desc": "Show the shell you are currently running",
+      "category": "Terminal Configuration",
+      "tooltip": "Unlike $SHELL (which shows your login shell), $0 shows the actual shell process running right now. Useful when you've typed `zsh` inside a bash session \u2014 $SHELL still says bash but $0 says zsh."
+    },
+    {
+      "id": 2846,
+      "cmd": "echo $PS1",
+      "desc": "Display your current bash prompt format string",
+      "category": "Terminal Configuration",
+      "tooltip": "PS1 (Prompt String 1) defines what your command prompt looks like. Special sequences like \\u (username), \\h (hostname), \\w (working directory), and \\$ (# for root, $ for others) are expanded. Color codes use \\[\\033[...m\\] escapes."
+    },
+    {
+      "id": 2847,
+      "cmd": "export PS1='\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '",
+      "desc": "Set a colored bash prompt (green user@host, blue path)",
+      "category": "Terminal Configuration",
+      "tooltip": "This is Ubuntu's default colored prompt. \\033[01;32m is bold green, \\033[01;34m is bold blue, \\033[00m resets to default. The \\[ and \\] brackets tell bash these are non-printing characters so it calculates line width correctly."
+    },
+    {
+      "id": 2848,
+      "cmd": "export PS1='\\[\\033[38;5;39m\\]\\w \\[\\033[38;5;208m\\]\u276f \\[\\033[0m\\]'",
+      "desc": "Minimal modern prompt \u2014 blue path with orange arrow",
+      "category": "Terminal Configuration",
+      "tooltip": "Uses 256-color escape codes (38;5;N where N is 0\u2013255). This creates a clean, minimal prompt similar to popular modern shells. The \u276f character is a Unicode arrow used by many prompt frameworks. Add this line to ~/.bashrc to make it permanent."
+    },
+    {
+      "id": 2849,
+      "cmd": "export PS1='$(git branch 2>/dev/null | grep \"*\" | sed \"s/* //\") \\w\\$ '",
+      "desc": "Add the current git branch to your bash prompt",
+      "category": "Terminal Configuration",
+      "tooltip": "Runs `git branch` on every prompt render, extracts the active branch name, and displays it before the working directory. This is a basic approach \u2014 for a faster, richer git prompt, consider Starship or __git_ps1 from git's bash completion."
+    },
+    {
+      "id": 2850,
+      "cmd": "PROMPT_COMMAND='echo -ne \"\\033]0;${PWD##*/}\\007\"'",
+      "desc": "Set the terminal tab title to the current directory name",
+      "category": "Terminal Configuration",
+      "tooltip": "PROMPT_COMMAND is a bash variable that runs a command before each prompt. The escape sequence \\033]0;...\\007 sets the terminal window/tab title. ${PWD##*/} strips the path to just the folder name. Useful when you have many tabs open."
+    },
+    {
+      "id": 2851,
+      "cmd": "curl -sS https://starship.rs/install.sh | sh",
+      "desc": "Install Starship cross-shell prompt",
+      "category": "Terminal Configuration",
+      "tooltip": "Starship is a blazing-fast, highly customizable prompt written in Rust. It works with bash, zsh, fish, and others \u2014 one config for all shells. After installing, add `eval \"$(starship init bash)\"` or `eval \"$(starship init zsh)\"` to your shell config."
+    },
+    {
+      "id": 2852,
+      "cmd": "eval \"$(starship init bash)\"",
+      "desc": "Activate Starship prompt in bash",
+      "category": "Terminal Configuration",
+      "tooltip": "Add this line to the end of ~/.bashrc. Starship replaces your PS1 with a feature-rich prompt showing git status, language versions (Node, Python, Rust), command duration, and more \u2014 all with zero configuration out of the box."
+    },
+    {
+      "id": 2853,
+      "cmd": "eval \"$(starship init zsh)\"",
+      "desc": "Activate Starship prompt in zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "Add this line to the end of ~/.zshrc. If you use Oh My Zsh, put it after the `source $ZSH/oh-my-zsh.sh` line so Starship overrides the Oh My Zsh theme."
+    },
+    {
+      "id": 2854,
+      "cmd": "mkdir -p ~/.config && starship preset pure-preset -o ~/.config/starship.toml",
+      "desc": "Apply the 'Pure' minimal Starship preset",
+      "category": "Terminal Configuration",
+      "tooltip": "Starship ships with several presets (pure, nerd-font-symbols, pastel-powerline, etc.). This command exports a preset to your config file. Edit ~/.config/starship.toml to further customize modules, colors, and symbols."
+    },
+    {
+      "id": 2855,
+      "cmd": "nano ~/.config/starship.toml",
+      "desc": "Edit Starship configuration file",
+      "category": "Terminal Configuration",
+      "tooltip": "Starship uses a single TOML file for configuration. Each module (git_branch, nodejs, python, etc.) has its own section. You can disable modules, change symbols, set colors, and control formatting. See starship.rs/config for all options."
+    },
+    {
+      "id": 2856,
+      "cmd": "starship preset nerd-font-symbols -o ~/.config/starship.toml",
+      "desc": "Apply the Nerd Font symbols Starship preset",
+      "category": "Terminal Configuration",
+      "tooltip": "This preset uses special icons from Nerd Fonts (a patched font with thousands of icons). You must install a Nerd Font first (e.g., FiraCode Nerd Font) and set it as your terminal emulator's font \u2014 otherwise you'll see empty boxes instead of icons."
+    },
+    {
+      "id": 2857,
+      "cmd": "sh -c \"$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"",
+      "desc": "Install Oh My Zsh (zsh framework with themes and plugins)",
+      "category": "Terminal Configuration",
+      "tooltip": "Oh My Zsh is the most popular zsh configuration framework. It comes with 150+ themes, 300+ plugins, and a community-driven plugin ecosystem. It modifies your ~/.zshrc to source its framework. Requires zsh to be installed first."
+    },
+    {
+      "id": 2858,
+      "cmd": "nano ~/.zshrc  # set ZSH_THEME=\"robbyrussell\"",
+      "desc": "Change your Oh My Zsh theme",
+      "category": "Terminal Configuration",
+      "tooltip": "The ZSH_THEME variable in ~/.zshrc controls your prompt theme. 'robbyrussell' is the default. Popular alternatives: 'agnoster' (powerline-style, needs Nerd Font), 'af-magic', 'bira'. Set to \"random\" to try a new one each session."
+    },
+    {
+      "id": 2859,
+      "cmd": "# plugins=(git docker zsh-autosuggestions zsh-syntax-highlighting)",
+      "desc": "Enable Oh My Zsh plugins in .zshrc",
+      "category": "Terminal Configuration",
+      "tooltip": "The plugins=() array in ~/.zshrc activates Oh My Zsh plugins. 'git' adds 100+ git aliases (gst, gco, gp). Third-party plugins like zsh-autosuggestions and zsh-syntax-highlighting must be cloned into ~/.oh-my-zsh/custom/plugins/ first."
+    },
+    {
+      "id": 2860,
+      "cmd": "omz update",
+      "desc": "Update Oh My Zsh to the latest version",
+      "category": "Terminal Configuration",
+      "tooltip": "The omz command is Oh My Zsh's built-in CLI. `omz update` pulls the latest changes from the GitHub repository. Oh My Zsh also checks for updates automatically every 2 weeks by default."
+    },
+    {
+      "id": 2861,
+      "cmd": "ls ~/.oh-my-zsh/themes/",
+      "desc": "List all available Oh My Zsh themes",
+      "category": "Terminal Configuration",
+      "tooltip": "Oh My Zsh ships with 150+ themes in this directory. Each .zsh-theme file defines a prompt style. Preview them all at github.com/ohmyzsh/ohmyzsh/wiki/Themes to find one you like without trying each one manually."
+    },
+    {
+      "id": 2862,
+      "cmd": "alias ll='ls -lAh --color=auto'",
+      "desc": "Create a detailed directory listing alias",
+      "category": "Terminal Configuration",
+      "tooltip": "Aliases create shorthand commands in your current session. -l (long format), -A (show hidden files except . and ..), -h (human sizes), --color=auto (colored output). Add to ~/.bashrc or ~/.zshrc to make it permanent."
+    },
+    {
+      "id": 2863,
+      "cmd": "alias gs='git status'",
+      "desc": "Create a short alias for git status",
+      "category": "Terminal Configuration",
+      "tooltip": "Single-letter or two-letter aliases for frequently used commands save enormous time. Common git aliases: gs (status), ga (add), gc (commit), gp (push), gd (diff). Define them in your shell config file."
+    },
+    {
+      "id": 2864,
+      "cmd": "alias ..='cd ..'",
+      "desc": "Navigate up one directory with double-dot",
+      "category": "Terminal Configuration",
+      "tooltip": "Navigation aliases are among the most-used shortcuts. Extend the pattern: ...='cd ../..' or ....='cd ../../..' for going multiple levels up. Some shells (zsh) support this natively with the AUTO_CD option."
+    },
+    {
+      "id": 2865,
+      "cmd": "alias grep='grep --color=auto'",
+      "desc": "Always colorize grep output",
+      "category": "Terminal Configuration",
+      "tooltip": "Makes grep highlight matches in red by default. Ubuntu often sets this in /etc/bash.bashrc, but adding it explicitly ensures it works everywhere. Also set for egrep and fgrep."
+    },
+    {
+      "id": 2866,
+      "cmd": "alias rm='rm -i'",
+      "desc": "Make rm ask for confirmation before deleting",
+      "category": "Terminal Configuration",
+      "tooltip": "-i (interactive) prompts before each deletion. A safety net against accidental `rm important_file`. If you need to override it temporarily, use `\\rm` (backslash escapes the alias) or `command rm`."
+    },
+    {
+      "id": 2867,
+      "cmd": "type ll",
+      "desc": "Check if a command is an alias, function, or binary",
+      "category": "Terminal Configuration",
+      "tooltip": "The `type` builtin tells you what a command name resolves to: alias, shell function, builtin, or external binary path. Essential for debugging when a command behaves unexpectedly \u2014 it might be aliased to something you didn't expect."
+    },
+    {
+      "id": 2868,
+      "cmd": "mkcd() { mkdir -p \"$1\" && cd \"$1\"; }",
+      "desc": "Create a directory and cd into it in one step",
+      "category": "Terminal Configuration",
+      "tooltip": "Shell functions are more powerful than aliases \u2014 they accept arguments ($1, $2, etc.) and can contain logic. This classic function creates a directory (with -p for nested paths) and immediately changes into it. Add to .bashrc/.zshrc."
+    },
+    {
+      "id": 2869,
+      "cmd": "extract() { case \"$1\" in *.tar.gz) tar xzf \"$1\" ;; *.zip) unzip \"$1\" ;; *.gz) gunzip \"$1\" ;; *) echo \"Unknown\" ;; esac; }",
+      "desc": "Universal extract function \u2014 handles tar.gz, zip, gz, etc.",
+      "category": "Terminal Configuration",
+      "tooltip": "Instead of remembering different flags for each archive type, this function detects the extension and runs the right command. Extend the case statement for .bz2, .xz, .7z, .rar as needed."
+    },
+    {
+      "id": 2870,
+      "cmd": "port() { lsof -i :\"$1\"; }",
+      "desc": "Function to check what's using a specific port",
+      "category": "Terminal Configuration",
+      "tooltip": "Type `port 3000` to see which process is listening on port 3000. Saves you from typing the full lsof command each time. Useful during development when port conflicts are frequent."
+    },
+    {
+      "id": 2871,
+      "cmd": "backup() { cp \"$1\" \"$1.bak.$(date +%Y%m%d%H%M%S)\"; }",
+      "desc": "Create a timestamped backup of a file",
+      "category": "Terminal Configuration",
+      "tooltip": "Type `backup important.conf` and it creates `important.conf.bak.20260414190000`. The date format creates a sortable timestamp. Safer than overwriting a single .bak file each time."
+    },
+    {
+      "id": 2872,
+      "cmd": "sudo apt install zsh-syntax-highlighting",
+      "desc": "Install zsh syntax highlighting plugin",
+      "category": "Terminal Configuration",
+      "tooltip": "Highlights commands as you type: valid commands in green, errors in red, strings in yellow. Makes typos instantly visible before you press Enter. After installing, add `source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh` to .zshrc."
+    },
+    {
+      "id": 2873,
+      "cmd": "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+      "desc": "Activate syntax highlighting in your current zsh session",
+      "category": "Terminal Configuration",
+      "tooltip": "This line must go at the end of ~/.zshrc (after all other plugins). If you use Oh My Zsh, clone the plugin to ~/.oh-my-zsh/custom/plugins/ instead and add it to the plugins=() array."
+    },
+    {
+      "id": 2874,
+      "cmd": "git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions",
+      "desc": "Install zsh-autosuggestions for Oh My Zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "zsh-autosuggestions shows faint grey completions based on your command history as you type. Press the right arrow key to accept the full suggestion, or Ctrl+Right to accept one word at a time. One of the most impactful terminal productivity plugins."
+    },
+    {
+      "id": 2875,
+      "cmd": "git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting",
+      "desc": "Install zsh-syntax-highlighting for Oh My Zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "Clones the plugin into Oh My Zsh's custom plugin directory. After cloning, add 'zsh-syntax-highlighting' to the plugins=() array in ~/.zshrc. Must be the last plugin in the array to work correctly."
+    },
+    {
+      "id": 2876,
+      "cmd": "ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'",
+      "desc": "Customize autosuggestion text color",
+      "category": "Terminal Configuration",
+      "tooltip": "Controls the color of the ghost text suggestion. 240 is a medium grey (256-color). Set to a lighter value (245\u2013250) if your terminal background makes 240 hard to see. Add to .zshrc before the plugin is sourced."
+    },
+    {
+      "id": 2877,
+      "cmd": "ZSH_AUTOSUGGEST_STRATEGY=(history completion)",
+      "desc": "Set autosuggestion sources to history first, then completion",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, autosuggestions only use command history. Adding 'completion' as a fallback means you also get tab-completion-style suggestions when no history match exists. Makes the plugin useful even for commands you've never typed."
+    },
+    {
+      "id": 2878,
+      "cmd": "sudo apt install fzf",
+      "desc": "Install fzf \u2014 the command-line fuzzy finder",
+      "category": "Terminal Configuration",
+      "tooltip": "fzf is a general-purpose fuzzy search tool that transforms the terminal experience. It powers Ctrl+R (history search), Ctrl+T (file search), and Alt+C (cd into directory). After installing, source the keybinding scripts in your shell config."
+    },
+    {
+      "id": 2879,
+      "cmd": "eval \"$(fzf --bash)\"",
+      "desc": "Enable fzf keybindings and completion in bash",
+      "category": "Terminal Configuration",
+      "tooltip": "Add to ~/.bashrc. Binds Ctrl+R (search command history interactively), Ctrl+T (insert a file path from fuzzy search), and Alt+C (cd into a directory found by fuzzy search). Transforms how you navigate files and history."
+    },
+    {
+      "id": 2880,
+      "cmd": "source <(fzf --zsh)",
+      "desc": "Enable fzf keybindings and completion in zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "Add to ~/.zshrc. Same keybindings as bash (Ctrl+R, Ctrl+T, Alt+C). If using Oh My Zsh, you can alternatively add 'fzf' to the plugins array which handles sourcing automatically."
+    },
+    {
+      "id": 2881,
+      "cmd": "export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'",
+      "desc": "Customize fzf appearance (inline, reversed, bordered)",
+      "category": "Terminal Configuration",
+      "tooltip": "--height 40% shows fzf inline instead of fullscreen. --layout=reverse puts the search input at the top (more natural). --border draws a box around results. Add to .bashrc/.zshrc. Many users also add --preview for file previews."
+    },
+    {
+      "id": 2882,
+      "cmd": "export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'",
+      "desc": "Use fd instead of find for fzf file search (much faster)",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, fzf uses `find` which is slow on large directories. fd (install with `sudo apt install fd-find`) is 5\u201310x faster, respects .gitignore, and excludes hidden files by default. --hidden includes dotfiles, --exclude .git skips the git directory."
+    },
+    {
+      "id": 2883,
+      "cmd": "export FZF_CTRL_T_OPTS=\"--preview 'bat --style=numbers --color=always {}'\"",
+      "desc": "Show syntax-highlighted file previews in fzf",
+      "category": "Terminal Configuration",
+      "tooltip": "When you press Ctrl+T, fzf shows a preview panel with syntax-highlighted file contents using bat (install with `sudo apt install bat`). This turns fzf into a visual file browser. Press Enter to insert the selected file path."
+    },
+    {
+      "id": 2884,
+      "cmd": "export FZF_ALT_C_OPTS=\"--preview 'ls --color=always {}'\"",
+      "desc": "Preview directory contents when fuzzy-finding with Alt+C",
+      "category": "Terminal Configuration",
+      "tooltip": "Shows the contents of each directory as you scroll through Alt+C results. Lets you see what's inside a folder before cd-ing into it. Combine with eza (modern ls replacement) for even better previews."
+    },
+    {
+      "id": 2885,
+      "cmd": "set -o vi",
+      "desc": "Enable vim keybindings in your shell",
+      "category": "Terminal Configuration",
+      "tooltip": "Switches bash/zsh to vi editing mode. Press Escape to enter normal mode (navigate with h/j/k/l, delete with d, etc.), press i to return to insert mode. Dramatically faster for editing long commands if you know vim. Add to .bashrc/.zshrc."
+    },
+    {
+      "id": 2886,
+      "cmd": "set -o emacs",
+      "desc": "Enable emacs keybindings in your shell (default)",
+      "category": "Terminal Configuration",
+      "tooltip": "Emacs mode is the default for most shells. Ctrl+A (beginning of line), Ctrl+E (end), Ctrl+W (delete word back), Ctrl+K (kill to end). If you've switched to vi mode and want to go back, use this."
+    },
+    {
+      "id": 2887,
+      "cmd": "bindkey -v",
+      "desc": "Enable vim mode in zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "The zsh equivalent of `set -o vi`. Enables vi-style keybindings. Pair with KEYTIMEOUT=1 in .zshrc to reduce the delay when pressing Escape (default is 0.4 seconds, which feels sluggish)."
+    },
+    {
+      "id": 2888,
+      "cmd": "export KEYTIMEOUT=1",
+      "desc": "Reduce zsh vi-mode Escape key delay to 10ms",
+      "category": "Terminal Configuration",
+      "tooltip": "KEYTIMEOUT is measured in hundredths of a second. The default (40 = 400ms) makes Escape feel laggy. Setting to 1 (10ms) makes mode switching feel instant. Essential for a usable vi-mode experience."
+    },
+    {
+      "id": 2889,
+      "cmd": "nano ~/.inputrc",
+      "desc": "Edit readline configuration (bash key bindings)",
+      "category": "Terminal Configuration",
+      "tooltip": "~/.inputrc configures GNU readline, which controls input for bash and many CLI programs (python REPL, mysql, etc.). You can remap keys, enable case-insensitive tab completion, and set editing preferences that apply globally."
+    },
+    {
+      "id": 2890,
+      "cmd": "# ~/.inputrc: set completion-ignore-case On",
+      "desc": "Make tab completion case-insensitive",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, bash tab completion is case-sensitive (typing 'doc' won't complete 'Documents'). Adding this to ~/.inputrc makes it case-insensitive \u2014 a small change that saves constant frustration."
+    },
+    {
+      "id": 2891,
+      "cmd": "# ~/.inputrc: set show-all-if-ambiguous On",
+      "desc": "Show all completions on first Tab press (no double-tap)",
+      "category": "Terminal Configuration",
+      "tooltip": "Normally bash requires you to press Tab twice when there are multiple completions. This setting shows all options on the first press. Faster and more predictable \u2014 you always see what's available immediately."
+    },
+    {
+      "id": 2892,
+      "cmd": "# ~/.inputrc: set colored-stats On",
+      "desc": "Color-code tab completion results by file type",
+      "category": "Terminal Configuration",
+      "tooltip": "Makes tab completion results use the same colors as `ls --color` \u2014 directories in blue, executables in green, symlinks in cyan. Helps you visually distinguish file types without pressing Enter."
+    },
+    {
+      "id": 2893,
+      "cmd": "bind -p | grep -v '^#'",
+      "desc": "List all active readline keybindings in bash",
+      "category": "Terminal Configuration",
+      "tooltip": "Shows every key combination and what it's bound to. Useful for finding available key slots when you want to add custom bindings, or for discovering useful shortcuts you didn't know existed."
+    },
+    {
+      "id": 2894,
+      "cmd": "bindkey '^[[A' history-search-backward",
+      "desc": "Up arrow searches history matching current input (zsh)",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, Up arrow just goes to the previous command. This binding makes it search history for commands starting with what you've already typed. Type 'git' then press Up \u2014 only git commands appear. One of the most productive zsh bindings."
+    },
+    {
+      "id": 2895,
+      "cmd": "bindkey '^[[B' history-search-forward",
+      "desc": "Down arrow searches history forward matching current input (zsh)",
+      "category": "Terminal Configuration",
+      "tooltip": "Pairs with the Up arrow binding above. After searching backward through matching history entries, Down arrow goes forward again. Together they create a type-and-filter history experience similar to fzf."
+    },
+    {
+      "id": 2896,
+      "cmd": "export HISTSIZE=50000",
+      "desc": "Keep 50,000 commands in memory history",
+      "category": "Terminal Configuration",
+      "tooltip": "HISTSIZE controls how many commands are kept in memory during the current session. The default (500\u20131000) is too small for power users. Setting to 50,000+ means you can search months of history. Add to .bashrc/.zshrc."
+    },
+    {
+      "id": 2897,
+      "cmd": "export HISTFILESIZE=100000",
+      "desc": "Save up to 100,000 commands in the history file",
+      "category": "Terminal Configuration",
+      "tooltip": "HISTFILESIZE controls how many lines are written to ~/.bash_history when a session ends. Set it equal to or larger than HISTSIZE. For zsh, use SAVEHIST instead of HISTFILESIZE."
+    },
+    {
+      "id": 2898,
+      "cmd": "export SAVEHIST=100000",
+      "desc": "Save up to 100,000 commands in zsh history file",
+      "category": "Terminal Configuration",
+      "tooltip": "The zsh equivalent of HISTFILESIZE. Zsh writes to ~/.zsh_history. Combined with `setopt SHARE_HISTORY`, all open terminals share the same history file in real time."
+    },
+    {
+      "id": 2899,
+      "cmd": "export HISTCONTROL=ignoreboth:erasedups",
+      "desc": "Ignore duplicates and commands starting with space in history",
+      "category": "Terminal Configuration",
+      "tooltip": "ignoreboth = ignorespace + ignoredups. Commands prefixed with a space aren't saved (useful for commands with passwords). erasedups removes older duplicates when a command is repeated. Keeps history clean and searchable."
+    },
+    {
+      "id": 2900,
+      "cmd": "setopt SHARE_HISTORY",
+      "desc": "Share command history between all open zsh sessions",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, each zsh session has its own history. SHARE_HISTORY writes and reads the history file in real time across all terminals. A command typed in one tab is immediately available via Ctrl+R in another."
+    },
+    {
+      "id": 2901,
+      "cmd": "shopt -s histappend",
+      "desc": "Append to bash history file instead of overwriting",
+      "category": "Terminal Configuration",
+      "tooltip": "By default, bash overwrites ~/.bash_history when a session exits. If you have multiple terminals, only the last one to close wins. histappend makes all sessions append, preserving history from every terminal."
+    },
+    {
+      "id": 2902,
+      "cmd": "sudo snap install alacritty --classic",
+      "desc": "Install Alacritty GPU-accelerated terminal emulator",
+      "category": "Terminal Configuration",
+      "tooltip": "Alacritty renders using your GPU via OpenGL, making it one of the fastest terminals available. It's configured entirely through a TOML file \u2014 no GUI settings. Minimal, no tabs/splits built in (use tmux for that). Written in Rust."
+    },
+    {
+      "id": 2903,
+      "cmd": "mkdir -p ~/.config/alacritty && nano ~/.config/alacritty/alacritty.toml",
+      "desc": "Create and edit the Alacritty config file",
+      "category": "Terminal Configuration",
+      "tooltip": "Alacritty reads from ~/.config/alacritty/alacritty.toml. Changes are applied instantly on save \u2014 no restart needed. The file controls fonts, colors, opacity, padding, scrollback, keybindings, and shell settings."
+    },
+    {
+      "id": 2904,
+      "cmd": "# alacritty.toml: [font]\\nsize = 13.0\\n[font.normal]\\nfamily = \"FiraCode Nerd Font\"",
+      "desc": "Set font family and size in Alacritty",
+      "category": "Terminal Configuration",
+      "tooltip": "Font configuration in the [font] section. Use a Nerd Font for icon support in Starship and other tools. Install fonts with `sudo apt install fonts-firacode` or download Nerd Font versions from nerdfonts.com."
+    },
+    {
+      "id": 2905,
+      "cmd": "# alacritty.toml: [window]\\nopacity = 0.92\\nblur = true",
+      "desc": "Set Alacritty window transparency and blur",
+      "category": "Terminal Configuration",
+      "tooltip": "opacity ranges from 0.0 (fully transparent) to 1.0 (opaque). blur applies a Gaussian blur to the content behind the window. Requires a compositor (most modern Ubuntu desktops have one). Set to ~0.90\u20130.95 for a subtle see-through effect."
+    },
+    {
+      "id": 2906,
+      "cmd": "sudo apt install kitty",
+      "desc": "Install Kitty GPU-accelerated terminal emulator",
+      "category": "Terminal Configuration",
+      "tooltip": "Kitty is a fast, feature-rich terminal with built-in tabs, splits, image rendering, and ligature support. GPU-accelerated via OpenGL. Configured through ~/.config/kitty/kitty.conf. Has a built-in kitten framework for extensions."
+    },
+    {
+      "id": 2907,
+      "cmd": "nano ~/.config/kitty/kitty.conf",
+      "desc": "Edit Kitty configuration file",
+      "category": "Terminal Configuration",
+      "tooltip": "kitty.conf uses simple key=value syntax. Hundreds of options: fonts, colors, transparency, keybindings, tab layout, cursor style, and more. Run `kitty +kitten themes` for an interactive theme selector."
+    },
+    {
+      "id": 2908,
+      "cmd": "kitty +kitten themes",
+      "desc": "Browse and apply Kitty color themes interactively",
+      "category": "Terminal Configuration",
+      "tooltip": "Opens a built-in theme browser with live preview. Scroll through themes with arrow keys and press Enter to apply. Includes hundreds of themes (Dracula, Nord, Catppuccin, etc.). Selected theme is written to kitty.conf automatically."
+    },
+    {
+      "id": 2909,
+      "cmd": "# kitty.conf: font_family FiraCode Nerd Font",
+      "desc": "Set the font in Kitty",
+      "category": "Terminal Configuration",
+      "tooltip": "Kitty supports font ligatures out of the box \u2014 coding ligatures like -> => != render as single glyphs if your font supports them. Set bold_font, italic_font, and bold_italic_font separately for precise control."
+    },
+    {
+      "id": 2910,
+      "cmd": "# kitty.conf: background_opacity 0.9",
+      "desc": "Set window transparency in Kitty",
+      "category": "Terminal Configuration",
+      "tooltip": "Values from 0.0 (fully transparent) to 1.0 (opaque). Unlike Alacritty, Kitty also supports per-tab transparency and can dim inactive tabs. Requires a compositor. Set dynamic_background_opacity yes to toggle at runtime."
+    },
+    {
+      "id": 2911,
+      "cmd": "kitty +kitten ssh user@server",
+      "desc": "SSH with Kitty's terminal features forwarded to remote",
+      "category": "Terminal Configuration",
+      "tooltip": "Kitty's SSH kitten forwards Kitty's terminfo to the remote server so features like undercurl, colored underlines, and image rendering work over SSH. Avoids the common problem of missing terminfo entries on remote machines."
+    },
+    {
+      "id": 2912,
+      "cmd": "# Install WezTerm from wezfurlong.org/wezterm/install",
+      "desc": "Install WezTerm GPU-accelerated terminal with Lua config",
+      "category": "Terminal Configuration",
+      "tooltip": "WezTerm is a GPU-accelerated terminal configured with Lua scripts. It has built-in multiplexing (tabs, splits, workspaces), image support, and ligatures. Its Lua config is extremely flexible \u2014 you can script dynamic behavior that other terminals can't do."
+    },
+    {
+      "id": 2913,
+      "cmd": "nano ~/.wezterm.lua",
+      "desc": "Edit WezTerm configuration file",
+      "category": "Terminal Configuration",
+      "tooltip": "WezTerm uses a Lua script for configuration \u2014 more powerful than TOML/ini files because you can use variables, conditionals, and functions. The file returns a config table. Changes apply on save."
+    },
+    {
+      "id": 2914,
+      "cmd": "# .wezterm.lua: config.font = wezterm.font('FiraCode Nerd Font')",
+      "desc": "Set the font in WezTerm via Lua config",
+      "category": "Terminal Configuration",
+      "tooltip": "WezTerm has excellent font rendering with ligature support. Use wezterm.font('Name', {weight='Bold'}) for specific weights. You can also set config.font_size and config.line_height."
+    },
+    {
+      "id": 2915,
+      "cmd": "# .wezterm.lua: config.color_scheme = 'Catppuccin Mocha'",
+      "desc": "Set a color scheme in WezTerm",
+      "category": "Terminal Configuration",
+      "tooltip": "WezTerm ships with 700+ built-in color schemes. Set config.color_scheme to any scheme name. Run `wezterm ls-fonts --list-system` to see available fonts and schemes. Popular: 'Catppuccin Mocha', 'Tokyo Night', 'Dracula'."
+    },
+    {
+      "id": 2916,
+      "cmd": "# .wezterm.lua: config.window_background_opacity = 0.9",
+      "desc": "Set window transparency in WezTerm",
+      "category": "Terminal Configuration",
+      "tooltip": "Like other GPU-accelerated terminals, WezTerm supports background transparency. Pair with config.macos_window_background_blur (macOS) or a compositor on Linux for blur effects behind the window."
+    },
+    {
+      "id": 2917,
+      "cmd": "sudo apt install fonts-firacode",
+      "desc": "Install FiraCode font with programming ligatures",
+      "category": "Terminal Configuration",
+      "tooltip": "FiraCode is a monospaced font designed for code. Ligatures combine character sequences like ->, =>, !=, and === into single glyphs. After installing, set it as your terminal emulator's font. For Nerd Font icons, download FiraCode Nerd Font from nerdfonts.com."
+    },
+    {
+      "id": 2918,
+      "cmd": "# Install a Nerd Font for icons in Starship, powerlevel10k, etc.",
+      "desc": "Download and install a Nerd Font (nerdfonts.com)",
+      "category": "Terminal Configuration",
+      "tooltip": "Nerd Fonts are patched versions of popular fonts with 3,000+ icons added (git symbols, language logos, file type icons). Required for many prompt themes. Download the Nerd Font version of your preferred font, extract, and install with `fc-cache -fv`."
+    },
+    {
+      "id": 2919,
+      "cmd": "fc-cache -fv",
+      "desc": "Rebuild the system font cache after installing fonts",
+      "category": "Terminal Configuration",
+      "tooltip": "After placing .ttf or .otf files in ~/.local/share/fonts/ (user) or /usr/share/fonts/ (system), run this to update the font cache. -f forces a rebuild even if timestamps haven't changed, -v shows verbose output so you can verify your font was found."
+    },
+    {
+      "id": 2920,
+      "cmd": "fc-list | grep -i 'fira'",
+      "desc": "Check if a specific font is installed",
+      "category": "Terminal Configuration",
+      "tooltip": "fc-list shows all fonts the system knows about. Pipe to grep to search for a specific name. If your font doesn't appear after installing, run fc-cache -fv to rebuild the cache. The output shows the file path, family name, and style."
+    },
+    {
+      "id": 2921,
+      "cmd": "sudo apt install bat",
+      "desc": "Install bat \u2014 syntax-highlighted cat replacement",
+      "category": "Terminal Configuration",
+      "tooltip": "bat is like cat but with syntax highlighting, line numbers, git diff integration, and automatic paging. On Ubuntu the binary is called `batcat` (to avoid conflict with another package). Create an alias: `alias bat='batcat'`."
+    },
+    {
+      "id": 2922,
+      "cmd": "sudo apt install exa",
+      "desc": "Install exa \u2014 modern ls replacement with git integration",
+      "category": "Terminal Configuration",
+      "tooltip": "exa (or its maintained fork 'eza') shows colored output, file icons (with Nerd Fonts), git status per file, and tree views. Common aliases: `alias ls='exa --icons'`, `alias ll='exa -lah --icons --git'`, `alias tree='exa --tree'`."
+    },
+    {
+      "id": 2923,
+      "cmd": "sudo apt install fd-find",
+      "desc": "Install fd \u2014 fast, user-friendly find replacement",
+      "category": "Terminal Configuration",
+      "tooltip": "fd is 5\u201310x faster than find, has simpler syntax (`fd pattern` instead of `find . -name 'pattern'`), respects .gitignore by default, and uses smart case matching. On Ubuntu the binary is called `fdfind` \u2014 alias it: `alias fd='fdfind'`."
+    },
+    {
+      "id": 2924,
+      "cmd": "sudo apt install ripgrep",
+      "desc": "Install ripgrep (rg) \u2014 fast grep replacement",
+      "category": "Terminal Configuration",
+      "tooltip": "ripgrep searches file contents 2\u20135x faster than grep by searching in parallel and skipping binary/gitignored files automatically. Syntax: `rg pattern` (recursive by default). Supports regex, file type filters, and context lines."
+    },
+    {
+      "id": 2925,
+      "cmd": "sudo apt install zoxide",
+      "desc": "Install zoxide \u2014 smarter cd that learns your habits",
+      "category": "Terminal Configuration",
+      "tooltip": "zoxide tracks which directories you visit and ranks them by frequency. After installing, `eval \"$(zoxide init bash)\"` replaces cd with z. Type `z proj` and it jumps to /home/user/workspace/my-project if that's where you go most often."
+    },
+    {
+      "id": 2926,
+      "cmd": "eval \"$(zoxide init bash)\"",
+      "desc": "Activate zoxide in bash (replaces cd with z)",
+      "category": "Terminal Configuration",
+      "tooltip": "Add to ~/.bashrc. After a few days of use, zoxide builds a database of your directory visits. Then `z` followed by any partial path fragment takes you to the best match. `zi` opens an interactive fzf-powered selector."
+    },
+    {
+      "id": 2927,
+      "cmd": "eval \"$(zoxide init zsh)\"",
+      "desc": "Activate zoxide in zsh",
+      "category": "Terminal Configuration",
+      "tooltip": "Add to ~/.zshrc. Works the same as in bash. Zoxide stores its database in ~/.local/share/zoxide/db.zo. The algorithm considers both frequency (how often) and recency (how recently) you visited a directory."
+    },
+    {
+      "id": 2928,
+      "cmd": "sudo apt install tldr",
+      "desc": "Install tldr \u2014 simplified man pages with examples",
+      "category": "Terminal Configuration",
+      "tooltip": "tldr shows practical examples for a command instead of the full manual. Type `tldr tar` to see the 5 most common tar recipes. Community-maintained and available for almost every common command. Much faster than reading man pages."
     }
   ],
-  "total": 2838
+  "total": 2928
 }
