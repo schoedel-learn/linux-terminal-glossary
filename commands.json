@@ -20531,7 +20531,21 @@
       "desc": "Install tldr \u2014 simplified man pages with examples",
       "category": "Terminal Configuration",
       "tooltip": "tldr shows practical examples for a command instead of the full manual. Type `tldr tar` to see the 5 most common tar recipes. Community-maintained and available for almost every common command. Much faster than reading man pages."
+    },
+    {
+      "id": 2929,
+      "cmd": "gemini auth login",
+      "desc": "Sign in to Gemini CLI with your Google account",
+      "category": "Gemini CLI",
+      "tooltip": "Starts the Gemini CLI login flow in your browser so the tool can access your Google account with OAuth. After you approve it, Gemini stores the credential locally so you do not need to paste an API key for normal interactive use. Use `gemini auth logout` if you need to switch accounts later."
+    },
+    {
+      "id": 2930,
+      "cmd": "gh copilot",
+      "desc": "Show help and available subcommands for the Copilot CLI extension",
+      "category": "GitHub Copilot",
+      "tooltip": "Prints the top-level `gh copilot` help screen so you can see commands like `suggest`, `explain`, `alias`, and `config`. Run this first after installing the extension if you are not sure what it can do. It does not start an interactive chat session by itself \u2014 it only shows usage information."
     }
   ],
-  "total": 2928
+  "total": 2930
 }

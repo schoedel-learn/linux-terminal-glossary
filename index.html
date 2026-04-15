@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Terminal Glossary — 2,928 Commands</title>
+<title>Linux Terminal Glossary — 2,930 Commands</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1097,7 +1097,7 @@ a:hover{color:var(--color-primary-hover)}
     <div class="content" id="content">
       <div class="loading-state">
         <div class="spinner"></div>
-        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 2,928 commands…</div>
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 2,930 commands…</div>
       </div>
     </div>
   </main>
@@ -1286,7 +1286,7 @@ function renderHistoryPanel() {
   const list = document.getElementById('historyList');
   const arr = historyLoad();
   if (arr.length === 0) {
-    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search 2,928 commands.</div>`;
+    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search 2,930 commands.</div>`;
     return;
   }
   list.innerHTML = arr.map(e => `
@@ -1829,6 +1829,18 @@ function tokenize(text) {
   return text.toLowerCase().match(/[a-z0-9][a-z0-9\-\.]*[a-z0-9]|[a-z0-9]/g) || [];
 }
 
+function getSearchIndexEntry(id) {
+  if (!SEARCH_INDEX) return null;
+  if (Array.isArray(SEARCH_INDEX)) {
+    const direct = SEARCH_INDEX[id];
+    if (direct && direct.id === id) return direct;
+    const zeroBased = SEARCH_INDEX[id - 1];
+    if (zeroBased && zeroBased.id === id) return zeroBased;
+    return null;
+  }
+  return SEARCH_INDEX[id] || null;
+}
+
 // ─── SEARCH ENGINE ────────────────────────────────────────────────
 // Hybrid: keyword match + TF-IDF cosine similarity + synonym expansion
 // Description-first: all token matching weighted across cmd + desc + category
@@ -1872,7 +1884,7 @@ function scoreCommand(cmd, queryTokens, expandedTokens) {
   // ── TF-IDF cosine similarity — always applied (not gated on score > 0)
   // This ensures description-only matches are surfaced even with no keyword hit
   if (SEARCH_INDEX) {
-    const indexEntry = SEARCH_INDEX[cmd.id];
+    const indexEntry = getSearchIndexEntry(cmd.id);
     if (indexEntry) {
       let dot = 0;
       for (const qt of [...queryTokens, ...expandedTokens]) {
