@@ -328,6 +328,29 @@ EXTRA_COMMANDS = [
     entry("VPS Management", "virt-install --name web01 --memory 2048 --vcpus 2 --disk size=20 --cdrom image.iso", "create a VM with virt-install"),
     entry("VPS Management", "qemu-img info disk.qcow2", "show metadata about a disk image"),
     entry("VPS Management", "qemu-img create -f qcow2 disk.qcow2 20G", "create a new QCOW2 disk image"),
+    # Additional Python & pip commands
+    entry("Python & pip", "ruff check .", "lint python files in the current directory using Ruff"),
+    entry("Python & pip", "ruff check . --fix", "lint python files and automatically fix safe errors using Ruff"),
+    entry("Python & pip", "ruff format .", "format python files in the current directory using Ruff"),
+    entry("Python & pip", "pip-compile requirements.in", "compile high-level dependencies into a pinned requirements.txt file"),
+    entry("Python & pip", "python3 -m unittest discover -s tests", "discover and run unit tests inside the tests directory"),
+    entry("Python & pip", "python3 -m cProfile -s cumulative script.py", "profile python script performance, sorting by cumulative execution time"),
+    entry("Python & pip", "python3 -m pip install -e .", "install a package in editable mode for local development"),
+    entry("Python & pip", "python3 -m pydoc -b", "start a local web server to browse Python documentation"),
+    entry("Python & pip", "uv venv --python 3.12", "create a virtual environment with a specific Python version using uv"),
+    entry("Python & pip", "uv pip compile requirements.in -o requirements.txt", "compile python dependencies fast using uv"),
+
+    # Additional SysAdmin and Ubuntu commands
+    entry("Administration", "sysctl -a", "display all kernel sysctl parameters and their current values"),
+    entry("Administration", "sudo update-alternatives --config python3", "configure the default version of Python 3"),
+    entry("Administration", "sudo do-release-upgrade", "upgrade the system to the latest available Ubuntu release"),
+    entry("Administration", "sudo ubuntu-drivers install", "automatically install recommended proprietary hardware drivers on Ubuntu"),
+    entry("System Services & Systemd", "sudo systemctl list-units --failed", "list all systemd services that failed to start on this boot"),
+    entry("Networking", "ip neigh show", "display the neighbor cache/ARP table with MAC and IP addresses"),
+    entry("SSH & Remote", "ssh -R 8080:localhost:80 user@remote-host", "create a reverse SSH tunnel to forward remote traffic to a local port"),
+    entry("Process Management", "sudo fuser -k 80/tcp", "kill any process listening on TCP port 80 to free it up"),
+    entry("Productivity & Search", "find . -type f -size +100M", "find files in the current directory larger than 100 megabytes"),
+    entry("Shell & Bash", "history | grep nginx", "search terminal command history for previously executed nginx commands"),
 ]
 
 
@@ -528,6 +551,44 @@ def build_tfidf_index(commands: list[dict[str, object]]) -> tuple[dict[str, floa
     return idf, index
 
 
+def tag_important_commands(commands: list[dict[str, object]]) -> None:
+    important_prefixes = {
+        "ls", "cd", "pwd", "mkdir", "rm ", "cp ", "mv ",
+        "grep ", "find ", "cat ", "nano ", "vim ", "less ", "tail ",
+        "sudo ", "chmod ", "chown ", "ps ", "top", "htop", "kill ",
+        "df ", "du ", "free ", "uptime", "ip ", "ping ", "curl ",
+        "ssh ", "scp ", "rsync ", "systemctl ", "journalctl ",
+        "docker run", "docker compose up", "git status", "git add",
+        "git commit", "git push", "git pull", "python3 ", "pip install",
+        "npm install", "git "
+    }
+    important_exact = {
+        "rm", "cp", "mv", "grep", "find", "cat", "nano", "vim", "less", "tail",
+        "ps", "kill", "df", "du", "free", "ip", "ping", "curl", "ssh", "scp",
+        "rsync", "systemctl", "journalctl", "python3", "pip", "npm", "git"
+    }
+    
+    for cmd in commands:
+        c_str = str(cmd["cmd"]).strip()
+        is_imp = False
+        if c_str in important_exact:
+            is_imp = True
+        else:
+            for pref in important_prefixes:
+                if c_str.startswith(pref):
+                    is_imp = True
+                    break
+        # Also mark our newly added ones
+        if c_str in {
+            "sysctl -a", "sudo systemctl list-units --failed", "history | grep nginx",
+            "ruff check .", "ruff format .", "uv venv", "uv pip install",
+            "python3 -m unittest discover -s tests", "pip-compile requirements.in"
+        }:
+            is_imp = True
+        
+        cmd["important"] = is_imp
+
+
 def write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
 
@@ -539,6 +600,7 @@ def main() -> None:
 
     fixed = fix_known_data_issue(commands)
     added = add_missing_commands(data)
+    tag_important_commands(commands)
     synonyms = merge_synonyms(load_existing_synonyms(), SEARCH_SYNONYMS)
     idf, index = build_tfidf_index(commands)
 

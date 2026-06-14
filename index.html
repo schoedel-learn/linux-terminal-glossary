@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Terminal Glossary — 3,010 Commands</title>
+<title>Linux Terminal Glossary — 3,283 Commands</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -267,6 +267,30 @@ a:hover{color:var(--color-primary-hover)}
 .filter-chip.active{
   background:var(--color-primary);border-color:var(--color-primary);
   color:#fff;
+}
+.filter-chip.imp-toggle-chip {
+  border-color: var(--color-warn);
+  color: var(--color-warn);
+}
+.filter-chip.imp-toggle-chip:hover {
+  border-color: var(--color-warn);
+  background: var(--color-warn-dim);
+}
+.filter-chip.imp-toggle-chip.active {
+  background: var(--color-warn);
+  border-color: var(--color-warn);
+  color: #000;
+}
+.cmd-card.important-cmd {
+  border-left: 3px solid var(--color-warn);
+}
+.cmd-star-badge {
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  margin-right: var(--space-1);
 }
 
 /* ─── CONTENT (mobile-first: compact padding) ─────────────────── */
@@ -1132,7 +1156,7 @@ a:hover{color:var(--color-primary-hover)}
     <div class="content" id="content">
       <div class="loading-state">
         <div class="spinner"></div>
-        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 3,010 commands…</div>
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 3,283 commands…</div>
       </div>
     </div>
   </main>
@@ -1251,6 +1275,7 @@ let IDF = {};
 let SYNONYMS = {};
 
 let activeCategory = 'All';
+let showImportantOnly = false;
 let searchQuery = '';
 let searchTimeout = null;
 let historyCommitTimeout = null;
@@ -1321,7 +1346,7 @@ function renderHistoryPanel() {
   const list = document.getElementById('historyList');
   const arr = historyLoad();
   if (arr.length === 0) {
-    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search 3,010 commands.</div>`;
+    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search 3,283 commands.</div>`;
     return;
   }
   list.innerHTML = arr.map(e => `
@@ -1813,8 +1838,8 @@ function selectCategory(cat) {
   document.querySelectorAll('.cat-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.cat === cat);
   });
-  // Sync filter chips
-  document.querySelectorAll('.filter-chip').forEach(c => {
+  // Sync filter chips with data-cat only
+  document.querySelectorAll('.filter-chip[data-cat]').forEach(c => {
     c.classList.toggle('active', c.dataset.cat === cat);
   });
   renderAll();
@@ -1832,6 +1857,20 @@ function buildFilterBar() {
   allChip.textContent = 'All';
   allChip.addEventListener('click', () => selectCategory('All'));
   bar.appendChild(allChip);
+
+  const impChip = document.createElement('button');
+  impChip.className = 'filter-chip imp-toggle-chip';
+  if (showImportantOnly) {
+    impChip.classList.add('active');
+  }
+  impChip.innerHTML = '⭐ Essential Only';
+  impChip.title = 'Show only essential terminal commands';
+  impChip.addEventListener('click', () => {
+    showImportantOnly = !showImportantOnly;
+    impChip.classList.toggle('active', showImportantOnly);
+    renderAll();
+  });
+  bar.appendChild(impChip);
 
   // Use the already-sorted CATEGORIES array so chips always match sidebar order
   const shortLabels = {
@@ -1990,7 +2029,11 @@ function renderAll() {
 
   if (searchQuery.trim().length > 0) {
     searchResult = search(searchQuery);
-    displayCommands = searchResult ? searchResult.results : [];
+    let results = searchResult ? searchResult.results : [];
+    if (showImportantOnly) {
+      results = results.filter(c => c.important === true || c.important === "true");
+    }
+    displayCommands = results;
     highlightTokens = tokenize(searchQuery);
     badge.textContent = searchResult?.mode || 'keyword';
     badge.style.background = searchResult?.mode === 'semantic'
@@ -1999,7 +2042,8 @@ function renderAll() {
       ? 'var(--color-warn)' : 'var(--color-text-muted)';
   } else {
     displayCommands = COMMANDS.filter(c =>
-      activeCategory === 'All' || c.category === activeCategory
+      (activeCategory === 'All' || c.category === activeCategory) &&
+      (!showImportantOnly || c.important === true || c.important === "true")
     );
     badge.textContent = 'keyword';
     badge.style.background = '';
@@ -2020,19 +2064,20 @@ function renderAll() {
 
   // Group by category
   if (searchQuery.trim().length > 0) {
-    // Search mode: flat list (sorted by relevance), grouped loosely
+    // Search mode: flat list (sorted by relevance), grouped loosely and sorted alphabetically by category name
     const grouped = new Map();
     for (const cmd of displayCommands) {
       if (!grouped.has(cmd.category)) grouped.set(cmd.category, []);
       grouped.get(cmd.category).push(cmd);
     }
     let html = '';
-    for (const [cat, cmds] of grouped) {
-      html += renderSection(cat, cmds, highlightTokens);
+    const sortedCats = Array.from(grouped.keys()).sort((a, b) => a.localeCompare(b));
+    for (const cat of sortedCats) {
+      html += renderSection(cat, grouped.get(cat), highlightTokens);
     }
     content.innerHTML = html;
   } else {
-    // Browse mode: by category in order
+    // Browse mode: by category in alphabetical order
     const orderedCats = activeCategory === 'All'
       ? CATEGORIES
       : [activeCategory];
@@ -2052,15 +2097,19 @@ function renderAll() {
 
 function renderSection(cat, cmds, hlTokens) {
   let cards = '';
-  for (const cmd of cmds) {
+  // Sort commands within the section alphabetically by command string
+  const sortedCmds = [...cmds].sort((a, b) => a.cmd.localeCompare(b.cmd, undefined, { sensitivity: 'base', numeric: true }));
+  for (const cmd of sortedCmds) {
     const cmdHL = hlTokens.length > 0 ? highlight(cmd.cmd, hlTokens) : escapeHtml(cmd.cmd);
     const descHL = hlTokens.length > 0 ? highlight(cmd.desc, hlTokens) : escapeHtml(cmd.desc);
     const hasTip = cmd.tooltip && cmd.tooltip.trim().length > 0;
+    const isImportant = cmd.important === true || cmd.important === "true";
     cards += `
-      <div class="cmd-card" id="cmd-${cmd.id}">
+      <div class="cmd-card ${isImportant ? 'important-cmd' : ''}" id="cmd-${cmd.id}">
         <div class="cmd-top">
           <code class="cmd-code">${cmdHL}</code>
           <div class="cmd-actions">
+            ${isImportant ? `<span class="cmd-star-badge" title="Essential Command">⭐</span>` : ''}
             ${hasTip ? `<button class="cmd-info" data-id="${cmd.id}" aria-label="Explain ${escapeHtml(cmd.cmd)}" title="Explain this command">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </button>` : ''}
