@@ -1039,6 +1039,143 @@ a:hover{color:var(--color-primary-hover)}
 @media(max-width:640px){
   .report-modal{padding:var(--space-5);max-width:100%}
 }
+
+/* ── AI gear button (topbar) ─────────────────────────────────── */
+.ai-gear-btn{
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;flex-shrink:0;
+  border-radius:var(--radius-md);
+  color:var(--color-text-muted);
+  transition:all var(--transition);
+  -webkit-tap-highlight-color:transparent;
+}
+.ai-gear-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
+.ai-gear-dot{
+  position:absolute;top:8px;right:8px;
+  width:7px;height:7px;
+  background:var(--color-accent);
+  border-radius:50%;
+  border:1.5px solid var(--color-surface);
+  display:none;
+}
+
+/* ── Ask AI button (inside search bar, right side) ────────────── */
+.ai-ask-btn{
+  position:absolute;right:var(--space-3);
+  display:none;align-items:center;gap:3px;
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  background:var(--color-primary-dim);color:var(--color-primary);
+  border:1px solid var(--color-primary-dim);
+  border-radius:var(--radius-sm);padding:2px 7px;
+  cursor:pointer;transition:all var(--transition);
+  white-space:nowrap;z-index:1;
+  line-height:1.6;
+}
+.ai-ask-btn.visible{display:flex}
+.ai-ask-btn:hover{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+.ai-ask-btn.loading{opacity:0.6;pointer-events:none}
+/* hide mode badge while Ask AI button is visible */
+.search-wrap.ai-active #searchModeBadge{display:none}
+
+/* ── AI settings modal ────────────────────────────────────────── */
+.ai-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:var(--space-4);
+}
+.ai-overlay.open{display:flex}
+.ai-modal{
+  background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);width:100%;max-width:440px;
+  padding:var(--space-6);box-shadow:0 16px 48px rgba(0,0,0,.25);
+}
+.ai-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)}
+.ai-modal-title{font-size:var(--text-lg);font-weight:700}
+.ai-modal-close{
+  background:transparent;border:none;cursor:pointer;padding:var(--space-2);
+  color:var(--color-text-muted);border-radius:var(--radius-sm);transition:background .15s;
+}
+.ai-modal-close:hover{background:var(--color-surface-2);color:var(--color-text)}
+.ai-modal-desc{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.6;margin-bottom:var(--space-5)}
+.ai-modal-desc a{color:var(--color-primary)}
+.ai-key-label{display:block;font-size:var(--text-xs);font-weight:600;margin-bottom:var(--space-1);color:var(--color-text)}
+.ai-key-row{display:flex;gap:var(--space-2)}
+.ai-key-input{
+  flex:1;padding:var(--space-3);
+  background:var(--color-bg);border:1px solid var(--color-border);
+  border-radius:var(--radius-md);color:var(--color-text);
+  font-size:var(--text-xs);font-family:var(--font-mono);
+  transition:border-color .15s;
+}
+.ai-key-input:focus{outline:none;border-color:var(--color-primary)}
+.ai-key-show{
+  flex-shrink:0;padding:0 var(--space-3);
+  background:var(--color-surface-2);border:1px solid var(--color-border);
+  border-radius:var(--radius-md);color:var(--color-text-muted);
+  cursor:pointer;font-size:var(--text-xs);font-family:var(--font-mono);
+  transition:background .15s;
+}
+.ai-key-show:hover{background:var(--color-surface-3);color:var(--color-text)}
+.ai-key-status{font-size:var(--text-xs);min-height:1.1em;margin-top:var(--space-2)}
+.ai-key-status.ok{color:var(--color-accent)}
+.ai-key-status.err{color:#f85149}
+.ai-modal-actions{display:flex;gap:var(--space-3);margin-top:var(--space-5)}
+.ai-save-btn{
+  flex:1;padding:var(--space-3);min-height:44px;
+  background:var(--color-primary);color:#fff;border:none;
+  border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.ai-save-btn:hover{background:var(--color-primary-hover)}
+.ai-clear-btn{
+  padding:var(--space-3) var(--space-4);min-height:44px;
+  background:transparent;color:var(--color-text-muted);
+  border:1px solid var(--color-border);border-radius:var(--radius-md);
+  font-size:var(--text-sm);cursor:pointer;transition:all .15s;
+}
+.ai-clear-btn:hover{background:var(--color-surface-2);color:var(--color-text)}
+
+/* ── AI result banner ─────────────────────────────────────────── */
+.ai-banner{
+  display:none;
+  align-items:center;gap:var(--space-3);
+  background:var(--color-primary-dim);
+  border:1px solid var(--color-primary-dim);
+  border-radius:var(--radius-md);
+  padding:var(--space-3) var(--space-4);
+  margin:var(--space-4) var(--space-3) 0;
+  font-size:var(--text-sm);
+}
+.ai-banner.open{display:flex;animation:aiBannerIn .2s ease}
+@keyframes aiBannerIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ai-banner-text{flex:1;color:var(--color-text)}
+.ai-banner-text code{font-family:var(--font-mono);color:var(--color-primary);font-size:var(--text-xs)}
+.ai-banner-goto{
+  background:var(--color-primary);color:#fff;border:none;
+  border-radius:var(--radius-sm);padding:var(--space-1) var(--space-3);
+  font-size:var(--text-xs);cursor:pointer;white-space:nowrap;
+  transition:background .15s;flex-shrink:0;
+}
+.ai-banner-goto:hover{background:var(--color-primary-hover)}
+.ai-banner-close{
+  background:transparent;border:none;cursor:pointer;
+  color:var(--color-text-muted);padding:var(--space-1);
+  border-radius:var(--radius-sm);transition:background .15s;flex-shrink:0;
+}
+.ai-banner-close:hover{background:var(--color-primary-dim);color:var(--color-text)}
+
+/* ── AI-matched card highlight ────────────────────────────────── */
+.cmd-card.ai-match{
+  border-color:var(--color-primary);
+  box-shadow:0 0 0 3px var(--color-primary-dim),var(--shadow-md);
+  animation:aiMatchPulse .7s ease;
+}
+@keyframes aiMatchPulse{
+  0%{box-shadow:0 0 0 0 var(--color-primary-dim2),var(--shadow-md)}
+  50%{box-shadow:0 0 0 8px var(--color-primary-dim),var(--shadow-md)}
+  100%{box-shadow:0 0 0 3px var(--color-primary-dim),var(--shadow-md)}
+}
 </style>
 </head>
 <body>
@@ -1111,6 +1248,10 @@ a:hover{color:var(--color-primary-hover)}
           autocomplete="off"
           spellcheck="false"
         >
+        <button class="ai-ask-btn" id="aiAskBtn" aria-label="Ask AI to find this command" title="Ask AI">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10.18l-4.45 4.33 1.05 6.11L12 17.77l-4.6 2.85 1.05-6.11L4 10.18l5.91-1.92z"/></svg>
+          <span id="aiAskLabel">AI</span>
+        </button>
         <span class="search-mode-badge" id="searchModeBadge">keyword</span>
         <!-- History panel (shown on focus when input is empty) -->
         <div class="history-panel" id="historyPanel" style="display:none">
@@ -1122,12 +1263,24 @@ a:hover{color:var(--color-primary-hover)}
         </div>
       </div>
       <div class="search-meta" id="searchMeta"></div>
+      <button class="ai-gear-btn" id="aiSettingsBtn" aria-label="AI search settings" title="Configure AI search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="ai-gear-dot" id="aiGearDot"></span>
+      </button>
     </div>
 
     <div class="filter-bar" id="filterBar">
       <!-- populated by JS -->
     </div>
     </div><!-- /.sticky-header -->
+
+    <div class="ai-banner" id="aiBanner" role="status" aria-live="polite">
+      <span class="ai-banner-text" id="aiBannerText"></span>
+      <button class="ai-banner-goto" id="aiBannerGoto" style="display:none" aria-label="Scroll to matched command">Go to command</button>
+      <button class="ai-banner-close" id="aiBannerClose" aria-label="Dismiss AI result">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
 
     <div class="content" id="content">
       <div class="loading-state">
@@ -1242,6 +1395,31 @@ a:hover{color:var(--color-primary-hover)}
   <span>Top</span>
 </button>
 
+<!-- ── AI Settings Modal ── -->
+<div class="ai-overlay" id="aiOverlay">
+  <div class="ai-modal">
+    <div class="ai-modal-header">
+      <h3 class="ai-modal-title">AI Search Settings</h3>
+      <button class="ai-modal-close" id="aiModalClose" aria-label="Close AI settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="ai-modal-desc">
+      Enter your <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google Gemini API key</a> to enable AI-powered search. Your key is stored only in this browser and is never sent anywhere other than Google's own API.
+    </p>
+    <label class="ai-key-label" for="aiKeyInput">Gemini API Key</label>
+    <div class="ai-key-row">
+      <input type="password" class="ai-key-input" id="aiKeyInput" placeholder="AIza…" autocomplete="off" spellcheck="false">
+      <button type="button" class="ai-key-show" id="aiKeyShow">show</button>
+    </div>
+    <div class="ai-key-status" id="aiKeyStatus"></div>
+    <div class="ai-modal-actions">
+      <button type="button" class="ai-save-btn" id="aiSaveBtn">Save Key</button>
+      <button type="button" class="ai-clear-btn" id="aiClearBtn">Remove Key</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ─── STATE ────────────────────────────────────────────────────────
 let COMMANDS = [];
@@ -1304,6 +1482,7 @@ function historyApply(q) {
   input.value = q;
   searchQuery = q;
   hideHistoryPanel();
+  aiUpdateAskBtn();
   renderAll();
 }
 
@@ -2199,6 +2378,7 @@ searchInput.addEventListener('input', function() {
   clearTimeout(historyCommitTimeout);
   // Hide history while actively searching
   hideHistoryPanel();
+  aiUpdateAskBtn();
   searchTimeout = setTimeout(renderAll, 120);
   // Commit to history 800ms after user stops typing (if meaningful)
   if (this.value.trim().length >= 2) {
@@ -2217,6 +2397,7 @@ searchInput.addEventListener('search', function() {
     searchQuery = '';
     renderAll();
     showHistoryPanel();
+    aiUpdateAskBtn();
   }
 });
 
@@ -2269,6 +2450,7 @@ document.addEventListener('keydown', e => {
 // Close leaderboard, quick start, or report modal on Escape
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
+    if (document.getElementById('aiOverlay').classList.contains('open')) { closeAISettings(); return; }
     if (document.getElementById('reportOverlay').classList.contains('open')) closeReport();
     if (document.getElementById('lbOverlay').classList.contains('open')) closeLeaderboard();
     if (document.getElementById('qsOverlay').classList.contains('open')) closeQS();
@@ -2350,7 +2532,285 @@ document.getElementById('reportForm').addEventListener('submit', e => {
   closeReport();
 });
 
+// ─── AI SEARCH ────────────────────────────────────────────────────
+const AI_KEY_STORE = 'ltg_gemini_key';
+let aiMatchId = null;
+let aiBannerTimeout = null;
+
+function aiGetKey() { return localStorage.getItem(AI_KEY_STORE) || ''; }
+function aiHasKey() { return !!aiGetKey(); }
+
+function aiUpdateGearDot() {
+  document.getElementById('aiGearDot').style.display = aiHasKey() ? 'block' : 'none';
+}
+
+function aiUpdateAskBtn() {
+  const btn = document.getElementById('aiAskBtn');
+  const wrap = document.querySelector('.search-wrap');
+  const hasKey = aiHasKey();
+  const hasQuery = searchQuery.trim().length >= 2;
+  if (hasKey && hasQuery) {
+    btn.classList.add('visible');
+    wrap.classList.add('ai-active');
+  } else {
+    btn.classList.remove('visible');
+    wrap.classList.remove('ai-active');
+  }
+}
+
+function openAISettings() {
+  const key = aiGetKey();
+  const inp = document.getElementById('aiKeyInput');
+  inp.type = 'password';
+  document.getElementById('aiKeyShow').textContent = 'show';
+  inp.value = key ? '••••••••' : '';
+  inp.dataset.hasSaved = key ? '1' : '0';
+  const status = document.getElementById('aiKeyStatus');
+  status.textContent = key ? '✓ Key saved' : '';
+  status.className = 'ai-key-status' + (key ? ' ok' : '');
+  document.getElementById('aiOverlay').classList.add('open');
+  if (!key) inp.focus();
+}
+
+function closeAISettings() {
+  document.getElementById('aiOverlay').classList.remove('open');
+}
+
+document.getElementById('aiSettingsBtn').addEventListener('click', openAISettings);
+document.getElementById('aiModalClose').addEventListener('click', closeAISettings);
+document.getElementById('aiOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeAISettings();
+});
+
+document.getElementById('aiKeyShow').addEventListener('click', function() {
+  const inp = document.getElementById('aiKeyInput');
+  const hidden = inp.type === 'password';
+  inp.type = hidden ? 'text' : 'password';
+  this.textContent = hidden ? 'hide' : 'show';
+});
+
+document.getElementById('aiKeyInput').addEventListener('input', function() {
+  this.dataset.hasSaved = '0';
+  document.getElementById('aiKeyStatus').textContent = '';
+  document.getElementById('aiKeyStatus').className = 'ai-key-status';
+});
+
+document.getElementById('aiSaveBtn').addEventListener('click', function() {
+  const inp = document.getElementById('aiKeyInput');
+  const val = inp.value.trim();
+  const status = document.getElementById('aiKeyStatus');
+  if (!val || val === '••••••••') {
+    if (inp.dataset.hasSaved === '1') {
+      status.textContent = '✓ Key already saved';
+      status.className = 'ai-key-status ok';
+    } else {
+      status.textContent = 'Please enter a valid API key';
+      status.className = 'ai-key-status err';
+    }
+    return;
+  }
+  if (!val.startsWith('AIza')) {
+    status.textContent = 'Gemini API keys start with "AIza…" — check your key';
+    status.className = 'ai-key-status err';
+    return;
+  }
+  try { localStorage.setItem(AI_KEY_STORE, val); }
+  catch(e) {
+    status.textContent = 'Could not save — localStorage unavailable';
+    status.className = 'ai-key-status err';
+    return;
+  }
+  status.textContent = '✓ Key saved';
+  status.className = 'ai-key-status ok';
+  inp.value = '••••••••';
+  inp.dataset.hasSaved = '1';
+  aiUpdateGearDot();
+  aiUpdateAskBtn();
+  setTimeout(closeAISettings, 700);
+});
+
+document.getElementById('aiClearBtn').addEventListener('click', function() {
+  localStorage.removeItem(AI_KEY_STORE);
+  document.getElementById('aiKeyInput').value = '';
+  document.getElementById('aiKeyInput').dataset.hasSaved = '0';
+  const status = document.getElementById('aiKeyStatus');
+  status.textContent = 'Key removed';
+  status.className = 'ai-key-status';
+  aiUpdateGearDot();
+  aiUpdateAskBtn();
+});
+
+// AI banner
+function showAIBanner(html, matchId) {
+  clearTimeout(aiBannerTimeout);
+  const banner = document.getElementById('aiBanner');
+  document.getElementById('aiBannerText').innerHTML = html;
+  aiMatchId = matchId || null;
+  const gotoBtn = document.getElementById('aiBannerGoto');
+  gotoBtn.style.display = matchId ? '' : 'none';
+  // Force reflow to re-trigger CSS animation
+  banner.classList.remove('open');
+  void banner.offsetWidth;
+  banner.classList.add('open');
+  aiBannerTimeout = setTimeout(hideAIBanner, 12000);
+}
+
+function hideAIBanner() {
+  clearTimeout(aiBannerTimeout);
+  document.getElementById('aiBanner').classList.remove('open');
+  if (aiMatchId) {
+    const card = document.getElementById('cmd-' + aiMatchId);
+    if (card) card.classList.remove('ai-match');
+    aiMatchId = null;
+  }
+}
+
+document.getElementById('aiBannerClose').addEventListener('click', hideAIBanner);
+document.getElementById('aiBannerGoto').addEventListener('click', () => {
+  if (!aiMatchId) return;
+  const card = document.getElementById('cmd-' + aiMatchId);
+  if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+});
+
+// Core AI ask function
+async function runAskAI() {
+  const key = aiGetKey();
+  if (!key) return openAISettings();
+
+  const query = searchQuery.trim();
+  if (query.length < 2) return;
+
+  const askBtn = document.getElementById('aiAskBtn');
+  const askLabel = document.getElementById('aiAskLabel');
+  askBtn.classList.add('loading');
+  askLabel.textContent = '…';
+
+  try {
+    // Top TF-IDF candidates (what AI will pick from)
+    const qTokens = tokenize(query);
+    const expanded = getExpanded(qTokens);
+    const candidates = COMMANDS
+      .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
+      .filter(r => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 15)
+      .map(r => r.cmd);
+
+    const cats = CATEGORIES.join(', ');
+    let prompt;
+
+    if (candidates.length > 0) {
+      prompt =
+`You are a Linux terminal command lookup assistant. The user searched for: "${query}"
+
+Top candidates from the glossary (id | command | description | category):
+${candidates.map(c => `${c.id} | ${c.cmd} | ${c.desc} | ${c.category}`).join('\n')}
+
+Which candidate BEST answers the user's search?
+- If a good match exists: {"match": <id>}
+- If no candidate fits well: {"match": null, "suggested_cmd": "<command>", "suggested_desc": "<one sentence>", "suggested_category": "<one of: ${cats}>"}
+
+Respond ONLY with valid JSON, no explanation.`;
+    } else {
+      prompt =
+`You are a Linux terminal command lookup assistant. The user searched for: "${query}"
+No matching commands were found in the glossary.
+
+Suggest the most likely Linux command for this search:
+{"match": null, "suggested_cmd": "<command>", "suggested_desc": "<one sentence>", "suggested_category": "<one of: ${cats}>"}
+
+Respond ONLY with valid JSON, no explanation.`;
+    }
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0, maxOutputTokens: 200 }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.error?.message || `HTTP ${res.status}`;
+      if (res.status === 400 || res.status === 403) {
+        showAIBanner(
+          `<strong>Invalid API key.</strong> <a href="#" id="aiBannerFixKey" style="color:var(--color-primary)">Update key →</a>`,
+          null
+        );
+        setTimeout(() => {
+          document.getElementById('aiBannerFixKey')?.addEventListener('click', e => {
+            e.preventDefault(); hideAIBanner(); openAISettings();
+          });
+        }, 0);
+      } else {
+        showAIBanner(`<strong>AI error:</strong> ${escapeHtml(msg)}`, null);
+      }
+      return;
+    }
+
+    const data = await res.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const cleaned = rawText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+
+    let result;
+    try { result = JSON.parse(cleaned); }
+    catch(e) {
+      showAIBanner('<strong>AI returned an unexpected response.</strong> Try rephrasing your search.', null);
+      return;
+    }
+
+    if (result.match != null) {
+      const matched = COMMANDS.find(c => c.id === result.match);
+      if (!matched) {
+        showAIBanner('<strong>AI returned an invalid match ID.</strong>', null);
+        return;
+      }
+      // Ensure card is rendered — if not, switch to All and re-render
+      let card = document.getElementById('cmd-' + matched.id);
+      if (!card) {
+        activeCategory = 'All';
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'All'));
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === 'All'));
+        renderAll();
+        card = document.getElementById('cmd-' + matched.id);
+      }
+      showAIBanner(
+        `★ AI matched: <code>${escapeHtml(matched.cmd)}</code> — ${escapeHtml(matched.desc)}`,
+        matched.id
+      );
+      if (card) {
+        card.classList.add('ai-match');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      // No match — pre-fill issue modal and open it
+      const sugCmd  = (result.suggested_cmd  || '').trim();
+      const sugDesc = (result.suggested_desc || '').trim();
+      hideAIBanner();
+      document.getElementById('reportType').value = 'Missing command';
+      document.getElementById('reportCmd').value  = sugCmd;
+      document.getElementById('reportDetails').value = sugDesc
+        ? `\`${sugCmd}\` is missing from the glossary.\n\nSuggested description: ${sugDesc}`
+        : `\`${sugCmd}\` is missing from the glossary.`;
+      openReport();
+    }
+  } catch(e) {
+    showAIBanner('<strong>AI request failed.</strong> Check your internet connection.', null);
+  } finally {
+    askBtn.classList.remove('loading');
+    askLabel.textContent = 'AI';
+  }
+}
+
+document.getElementById('aiAskBtn').addEventListener('click', runAskAI);
+
 // ─── INIT ─────────────────────────────────────────────────────────
+aiUpdateGearDot(); // show green dot immediately if key already stored
 lbUpdateTriggerBadge(); // show badge immediately from existing localStorage
 loadData().catch(err => {
   document.getElementById('content').innerHTML = `
