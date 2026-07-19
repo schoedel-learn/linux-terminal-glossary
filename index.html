@@ -1478,7 +1478,7 @@ body.chat-mode .main{height:100dvh;overflow:hidden}
         </div>
       </div>
       <div class="search-meta" id="searchMeta"></div>
-      <div class="mode-toggle" role="group" aria-label="Search mode">
+      <div class="mode-toggle" role="group" aria-label="Switch between search and chat modes">
         <button class="mode-btn active" id="searchModeBtn" aria-pressed="true">Search</button>
         <button class="mode-btn" id="chatModeBtn" aria-pressed="false">Chat</button>
       </div>
@@ -3073,6 +3073,10 @@ document.getElementById('aiAskBtn').addEventListener('click', runAskAI);
 let chatMode = false;
 let chatHistory = []; // interleaved {role:'user'|'model', parts:[{text}]} turns
 
+const CHAT_SYSTEM_INSTRUCTION = `You are a Linux terminal assistant for Ubuntu developers. For each query suggest 1–3 ways to accomplish the task, ordered most-to-least common. Always respond with this exact JSON (no markdown fences, no extra text):
+{"intro":"One sentence framing the suggestions","methods":[{"rank":1,"cmd":"command","desc":"what it does","why":"why most common","glossary_id":42},{"rank":2,"cmd":"command","desc":"what it does","why":"alternative","glossary_id":null}],"clarification":"Short question only if user intent is genuinely ambiguous — omit key entirely otherwise"}
+Rules: glossary_id must be an integer id from the provided candidates or null. Max 3 methods. Only include methods that genuinely apply.`;
+
 function chatEmptyHTML() {
   return `<div class="chat-empty" id="chatEmpty">
     <svg class="chat-empty-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -3147,10 +3151,6 @@ async function sendChatMessage(text) {
     ? `User query: "${safeQ}"\n\nGlossary candidates (id | command | description | category):\n${candidates.map(c => `${c.id} | ${c.cmd} | ${c.desc} | ${c.category}`).join('\n')}\n\nSuggest up to 3 Ubuntu/Linux approaches. Set glossary_id to the matching candidate id when the command is an exact match, otherwise null.`
     : `User query: "${safeQ}"\nNo matching commands found in the glossary. Suggest up to 3 common Ubuntu/Linux commands for this task. Set all glossary_id to null.`;
 
-  const systemInstruction = `You are a Linux terminal assistant for Ubuntu developers. For each query suggest 1–3 ways to accomplish the task, ordered most-to-least common. Always respond with this exact JSON (no markdown fences, no extra text):
-{"intro":"One sentence framing the suggestions","methods":[{"rank":1,"cmd":"command","desc":"what it does","why":"why most common","glossary_id":42},{"rank":2,"cmd":"command","desc":"what it does","why":"alternative","glossary_id":null}],"clarification":"Short question only if user intent is genuinely ambiguous — omit key entirely otherwise"}
-Rules: glossary_id must be an integer id from the provided candidates or null. Max 3 methods. Only include methods that genuinely apply.`;
-
   // Typing indicator
   const typingEl = document.createElement('div');
   typingEl.className = 'chat-typing';
@@ -3169,7 +3169,7 @@ Rules: glossary_id must be an integer id from the provided candidates or null. M
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
+          system_instruction: { parts: [{ text: CHAT_SYSTEM_INSTRUCTION }] },
           contents,
           generationConfig: { temperature: 0.1, maxOutputTokens: 700 }
         })
@@ -3296,7 +3296,7 @@ function chatAppendAIResponse(result, thread) {
     const div = document.createElement('div');
     div.className = 'ai-clarify';
     div.innerHTML = `
-      <div class="ai-clarify-text">&#x1F4AC; ${escapeHtml(clarText)}</div>
+      <div class="ai-clarify-text"><span aria-hidden="true">&#x1F4AC;</span> ${escapeHtml(clarText)}</div>
       <button class="ai-quick-reply" type="button">\u21A9 Reply to clarify</button>`;
     div.querySelector('.ai-quick-reply').addEventListener('click', () => {
       const ta = document.getElementById('chatInput');
