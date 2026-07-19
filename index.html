@@ -3077,6 +3077,9 @@ const CHAT_SYSTEM_INSTRUCTION = `You are a Linux terminal assistant for Ubuntu d
 {"intro":"One sentence framing the suggestions","methods":[{"rank":1,"cmd":"command","desc":"what it does","why":"why most common","glossary_id":42},{"rank":2,"cmd":"command","desc":"what it does","why":"alternative","glossary_id":null}],"clarification":"Short question only if user intent is genuinely ambiguous — omit key entirely otherwise"}
 Rules: glossary_id must be an integer id from the provided candidates or null. Max 3 methods. Only include methods that genuinely apply.`;
 
+// Max height for the chat textarea (px) — must match max-height in .chat-textarea CSS
+const CHAT_TEXTAREA_MAX_H = 120;
+
 function chatEmptyHTML() {
   return `<div class="chat-empty" id="chatEmpty">
     <svg class="chat-empty-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -3201,10 +3204,7 @@ async function sendChatMessage(text) {
 
     const data = await res.json();
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const cleaned = rawText.trim()
-      .replace(/^```(?:json)?\r?\n?/i, '')
-      .replace(/\r?\n?```$/i, '')
-      .trim();
+    const cleaned = rawText.trim().replace(/^```(?:json)?\r?\n?|\r?\n?```$/gi, '').trim();
 
     let result;
     try { result = JSON.parse(cleaned); }
@@ -3253,9 +3253,8 @@ function chatAppendAIResponse(result, thread) {
       const card = document.createElement('div');
       card.className = 'ai-method-card';
       const rankClass = m.rank === 2 ? ' r2' : m.rank >= 3 ? ' r3' : '';
-      const numGid = Number(m.glossary_id);
-      const rawGid = (m.glossary_id != null && !isNaN(numGid)) ? numGid : null;
-      const gid = (rawGid !== null && COMMANDS.some(c => c.id === rawGid)) ? rawGid : null;
+      const rawGid = (m.glossary_id != null && Number.isInteger(+m.glossary_id)) ? +m.glossary_id : null;
+      const gid = rawGid !== null ? (COMMANDS.find(c => c.id === rawGid)?.id ?? null) : null;
       const glossaryBtn = gid !== null
         ? `<button class="ai-method-glossary" data-gid="${gid}" type="button">\u2192 See in glossary</button>`
         : '';
@@ -3326,7 +3325,7 @@ function chatAppendAIResponse(result, thread) {
 
   ta.addEventListener('input', function () {
     this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    this.style.height = Math.min(this.scrollHeight, CHAT_TEXTAREA_MAX_H) + 'px';
     sendBtn.disabled = this.value.trim().length < 1;
   });
 
