@@ -1405,7 +1405,7 @@ a:hover{color:var(--color-primary-hover)}
       </button>
     </div>
     <p class="ai-modal-desc">
-      Enter your <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google Gemini API key</a> to enable AI-powered search. Your key is stored only in this browser and is never sent anywhere other than Google's own API.
+      Enter your <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google Gemini API key</a> to enable AI-powered search. Your key is stored only in this browser and is transmitted to Google's API via a secure request header — never as a URL parameter.
     </p>
     <label class="ai-key-label" for="aiKeyInput">Gemini API Key</label>
     <div class="ai-key-row">
@@ -2696,12 +2696,15 @@ async function runAskAI() {
       .slice(0, 15)
       .map(r => r.cmd);
 
+    // Strip control characters and limit length to prevent prompt injection
+    const safeQuery = query.replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, 200);
+
     const cats = CATEGORIES.join(', ');
     let prompt;
 
     if (candidates.length > 0) {
       prompt =
-`You are a Linux terminal command lookup assistant. The user searched for: "${query}"
+`You are a Linux terminal command lookup assistant. The user searched for: "${safeQuery}"
 
 Top candidates from the glossary (id | command | description | category):
 ${candidates.map(c => `${c.id} | ${c.cmd} | ${c.desc} | ${c.category}`).join('\n')}
@@ -2713,7 +2716,7 @@ Which candidate BEST answers the user's search?
 Respond ONLY with valid JSON, no explanation.`;
     } else {
       prompt =
-`You are a Linux terminal command lookup assistant. The user searched for: "${query}"
+`You are a Linux terminal command lookup assistant. The user searched for: "${safeQuery}"
 No matching commands were found in the glossary.
 
 Suggest the most likely Linux command for this search:
@@ -2722,11 +2725,12 @@ Suggest the most likely Linux command for this search:
 Respond ONLY with valid JSON, no explanation.`;
     }
 
+    // API key sent via header to avoid URL/log exposure
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0, maxOutputTokens: 200 }
@@ -2738,15 +2742,15 @@ Respond ONLY with valid JSON, no explanation.`;
       const errData = await res.json().catch(() => ({}));
       const msg = errData.error?.message || `HTTP ${res.status}`;
       if (res.status === 400 || res.status === 403) {
+        // All content is static — safe to use innerHTML here
         showAIBanner(
-          `<strong>Invalid API key.</strong> <a href="#" id="aiBannerFixKey" style="color:var(--color-primary)">Update key →</a>`,
+          `<strong>Invalid API key.</strong> <a href="#" id="aiBannerFixKey" style="color:var(--color-primary)">Update key \u2192</a>`,
           null
         );
-        setTimeout(() => {
-          document.getElementById('aiBannerFixKey')?.addEventListener('click', e => {
-            e.preventDefault(); hideAIBanner(); openAISettings();
-          });
-        }, 0);
+        // Element exists synchronously after innerHTML is set by showAIBanner
+        document.getElementById('aiBannerFixKey')?.addEventListener('click', e => {
+          e.preventDefault(); hideAIBanner(); openAISettings();
+        });
       } else {
         showAIBanner(`<strong>AI error:</strong> ${escapeHtml(msg)}`, null);
       }
@@ -2755,7 +2759,8 @@ Respond ONLY with valid JSON, no explanation.`;
 
     const data = await res.json();
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const cleaned = rawText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    // Strip optional markdown code fences (``` or ```json ... ```)
+    const cleaned = rawText.trim().replace(/^```(?:json)?\r?\n?/i, '').replace(/\r?\n?```$/i, '').trim();
 
     let result;
     try { result = JSON.parse(cleaned); }
