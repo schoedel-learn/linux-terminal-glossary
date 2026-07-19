@@ -2852,7 +2852,12 @@ document.getElementById('aiKeyInput').addEventListener('input', function() {
 
 document.getElementById('aiSaveBtn').addEventListener('click', function() {
   const inp = document.getElementById('aiKeyInput');
-  const val = inp.value.trim();
+  // Strip leading/trailing whitespace and invisible Unicode characters that mobile
+  // keyboards and clipboard managers silently insert (zero-width space, BOM, soft
+  // hyphen, word joiner, etc.) — these cause the prefix check to fail even when
+  // the key looks correct to the user.
+  const val = inp.value.trim().replace(/[\u00ad\u200b\u200c\u200d\u2060\ufeff\u034f\u115f\u1160\u17b4\u17b5\u3164\uffa0]/g, '');
+  inp.value = val;
   const status = document.getElementById('aiKeyStatus');
   if (!val || val === '••••••••') {
     if (inp.dataset.hasSaved === '1') {
