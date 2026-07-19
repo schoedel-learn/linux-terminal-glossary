@@ -1479,8 +1479,8 @@ body.chat-mode .main{height:100dvh;overflow:hidden}
       </div>
       <div class="search-meta" id="searchMeta"></div>
       <div class="mode-toggle" role="radiogroup" aria-label="Switch between search and chat modes">
-        <button class="mode-btn active" id="searchModeBtn" role="radio" aria-checked="true">Search</button>
-        <button class="mode-btn" id="chatModeBtn" role="radio" aria-checked="false">Chat</button>
+        <button class="mode-btn active" id="searchModeBtn" role="radio" aria-checked="true" tabindex="0">Search</button>
+        <button class="mode-btn" id="chatModeBtn" role="radio" aria-checked="false" tabindex="-1">Chat</button>
       </div>
       <button class="ai-gear-btn" id="aiSettingsBtn" aria-label="AI search settings" title="Configure AI search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -3092,6 +3092,8 @@ function toggleChatMode(on) {
   document.getElementById('chatModeBtn').classList.toggle('active', on);
   document.getElementById('searchModeBtn').setAttribute('aria-checked', String(!on));
   document.getElementById('chatModeBtn').setAttribute('aria-checked', String(on));
+  document.getElementById('searchModeBtn').tabIndex = on ? -1 : 0;
+  document.getElementById('chatModeBtn').tabIndex = on ? 0 : -1;
   if (on) {
     const thread = document.getElementById('chatThread');
     if (!thread.children.length) thread.innerHTML = chatEmptyHTML();
@@ -3134,19 +3136,23 @@ async function sendChatMessage(text) {
 
   // Build glossary candidates — temporarily set searchQuery so scoreCommand works correctly
   const savedQuery = searchQuery;
+  let candidates = [];
   searchQuery = q;
-  const qTokens = tokenize(q);
-  const expanded = getExpanded(qTokens);
-  const candidates = COMMANDS
-    .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
-    .filter(r => r.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 20)
-    .map(r => r.cmd);
-  searchQuery = savedQuery;
+  try {
+    const qTokens = tokenize(q);
+    const expanded = getExpanded(qTokens);
+    candidates = COMMANDS
+      .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
+      .filter(r => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20)
+      .map(r => r.cmd);
+  } finally {
+    searchQuery = savedQuery;
+  }
 
-  // Limit to 300 chars to keep the prompt within reasonable context budget
-  const safeQ = q.replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, 300);
+  // Limit to 300 chars and replace quotes to prevent prompt formatting issues
+  const safeQ = q.replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').replace(/"/g, "'").slice(0, 300);
 
   const userPrompt = candidates.length > 0
     ? `User query: "${safeQ}"\n\nGlossary candidates (id | command | description | category):\n${candidates.map(c => `${c.id} | ${c.cmd} | ${c.desc} | ${c.category}`).join('\n')}\n\nSuggest up to 3 Ubuntu/Linux approaches. Set glossary_id to the matching candidate id when the command is an exact match, otherwise null.`
@@ -3247,7 +3253,8 @@ function chatAppendAIResponse(result, thread) {
       const card = document.createElement('div');
       card.className = 'ai-method-card';
       const rankClass = m.rank === 2 ? ' r2' : m.rank >= 3 ? ' r3' : '';
-      const gid = (m.glossary_id != null && !isNaN(Number(m.glossary_id))) ? Number(m.glossary_id) : null;
+      const numGid = Number(m.glossary_id);
+      const gid = (m.glossary_id != null && !isNaN(numGid)) ? numGid : null;
       const glossaryBtn = gid !== null
         ? `<button class="ai-method-glossary" data-gid="${gid}" type="button">\u2192 See in glossary</button>`
         : '';
@@ -3333,6 +3340,18 @@ function chatAppendAIResponse(result, thread) {
 
 document.getElementById('searchModeBtn').addEventListener('click', () => { if (chatMode) toggleChatMode(false); });
 document.getElementById('chatModeBtn').addEventListener('click', () => { if (!chatMode) toggleChatMode(true); });
+
+// Radiogroup arrow-key navigation
+document.getElementById('searchModeBtn').addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault(); toggleChatMode(true); document.getElementById('chatModeBtn').focus();
+  }
+});
+document.getElementById('chatModeBtn').addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault(); toggleChatMode(false); document.getElementById('searchModeBtn').focus();
+  }
+});
 
 // ─── INIT ─────────────────────────────────────────────────────────
 aiAutoLoadFromConfig(); // auto-load key from gemini-config.json if present
