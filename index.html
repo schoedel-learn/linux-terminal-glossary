@@ -1479,8 +1479,8 @@ body.chat-mode .main{height:100dvh;overflow:hidden}
       </div>
       <div class="search-meta" id="searchMeta"></div>
       <div class="mode-toggle" role="radiogroup" aria-label="Switch between search and chat modes">
-        <button class="mode-btn active" id="searchModeBtn" role="radio" aria-checked="true" tabindex="0">Search</button>
-        <button class="mode-btn" id="chatModeBtn" role="radio" aria-checked="false" tabindex="-1">Chat</button>
+        <button type="button" class="mode-btn active" id="searchModeBtn" role="radio" aria-checked="true" tabindex="0">Search</button>
+        <button type="button" class="mode-btn" id="chatModeBtn" role="radio" aria-checked="false" tabindex="-1">Chat</button>
       </div>
       <button class="ai-gear-btn" id="aiSettingsBtn" aria-label="AI search settings" title="Configure AI search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -3151,8 +3151,8 @@ async function sendChatMessage(text) {
     searchQuery = savedQuery;
   }
 
-  // Limit to 300 chars and replace quotes to prevent prompt formatting issues
-  const safeQ = q.replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').replace(/"/g, "'").slice(0, 300);
+  // Limit to 300 chars and escape special JSON characters to prevent prompt injection
+  const safeQ = q.replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').replace(/\\/g, '\\\\').replace(/"/g, '\\"').slice(0, 300);
 
   const userPrompt = candidates.length > 0
     ? `User query: "${safeQ}"\n\nGlossary candidates (id | command | description | category):\n${candidates.map(c => `${c.id} | ${c.cmd} | ${c.desc} | ${c.category}`).join('\n')}\n\nSuggest up to 3 Ubuntu/Linux approaches. Set glossary_id to the matching candidate id when the command is an exact match, otherwise null.`
@@ -3192,7 +3192,7 @@ async function sendChatMessage(text) {
         res.status === 403
           ? 'Invalid API key \u2014 click \u2699\uFE0F to update it.'
           : res.status === 400
-            ? 'Invalid request \u2014 check your settings or try rephrasing.'
+            ? `Invalid request \u2014 ${escapeHtml(msg)}`
             : `Error: ${escapeHtml(msg)}`,
         thread
       );
@@ -3254,7 +3254,8 @@ function chatAppendAIResponse(result, thread) {
       card.className = 'ai-method-card';
       const rankClass = m.rank === 2 ? ' r2' : m.rank >= 3 ? ' r3' : '';
       const numGid = Number(m.glossary_id);
-      const gid = (m.glossary_id != null && !isNaN(numGid)) ? numGid : null;
+      const rawGid = (m.glossary_id != null && !isNaN(numGid)) ? numGid : null;
+      const gid = (rawGid !== null && COMMANDS.some(c => c.id === rawGid)) ? rawGid : null;
       const glossaryBtn = gid !== null
         ? `<button class="ai-method-glossary" data-gid="${gid}" type="button">\u2192 See in glossary</button>`
         : '';
@@ -3305,6 +3306,7 @@ function chatAppendAIResponse(result, thread) {
   if (clarText) {
     const div = document.createElement('div');
     div.className = 'ai-clarify';
+    div.setAttribute('aria-label', 'Clarification: ' + clarText);
     div.innerHTML = `
       <div class="ai-clarify-text"><span aria-hidden="true">&#x1F4AC;</span> ${escapeHtml(clarText)}</div>
       <button class="ai-quick-reply" type="button">\u21A9 Reply to clarify</button>`;
@@ -3344,12 +3346,16 @@ document.getElementById('chatModeBtn').addEventListener('click', () => { if (!ch
 // Radiogroup arrow-key navigation
 document.getElementById('searchModeBtn').addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-    e.preventDefault(); toggleChatMode(true); document.getElementById('chatModeBtn').focus();
+    e.preventDefault();
+    toggleChatMode(true);
+    document.getElementById('chatModeBtn').focus();
   }
 });
 document.getElementById('chatModeBtn').addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-    e.preventDefault(); toggleChatMode(false); document.getElementById('searchModeBtn').focus();
+    e.preventDefault();
+    toggleChatMode(false);
+    document.getElementById('searchModeBtn').focus();
   }
 });
 
