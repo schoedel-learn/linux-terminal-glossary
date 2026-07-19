@@ -1411,7 +1411,7 @@ a:hover{color:var(--color-primary-hover)}
     <p class="ai-modal-desc">
       <strong>One-time Linux setup:</strong> create a <code>gemini-config.json</code> file next to <code>index.html</code> and the key will be loaded automatically on every visit — no manual entry needed:
     </p>
-    <pre class="ai-config-hint">echo '{"gemini_api_key":"AIza…"}' &gt; gemini-config.json</pre>
+    <pre class="ai-config-hint">echo '{"gemini_api_key":"AIza…"}' > gemini-config.json</pre>
     <label class="ai-key-label" for="aiKeyInput">Gemini API Key</label>
     <div class="ai-key-row">
       <input type="password" class="ai-key-input" id="aiKeyInput" placeholder="AIza…" autocomplete="off" spellcheck="false">
@@ -2546,12 +2546,13 @@ function aiGetKey() { return localStorage.getItem(AI_KEY_STORE) || ''; }
 function aiHasKey() { return !!aiGetKey(); }
 
 async function aiAutoLoadFromConfig() {
+  // Intended for personal local use only — do not deploy with a config file on shared hosting.
   try {
     const res = await fetch('./gemini-config.json', { cache: 'no-store' });
     if (!res.ok) return;
     const cfg = await res.json();
     const key = (cfg.gemini_api_key || '').trim();
-    if (key.startsWith('AIza') && key !== aiGetKey()) {
+    if (key && key !== aiGetKey()) {
       localStorage.setItem(AI_KEY_STORE, key);
       aiUpdateGearDot();
       aiUpdateAskBtn();
