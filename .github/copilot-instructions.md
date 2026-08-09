@@ -192,6 +192,14 @@ Defined as `QS_STEPS` — an array of 8 step objects. Each step has:
 
 There is no build step for the site itself. To add or change commands:
 
+> The deploy workflow (`.github/workflows/pages.yml`) runs
+> `scripts/build_static_pages.py` before upload: it generates the SEO
+> surface (per-command pages under `/command/`, category pages under
+> `/category/`, `sitemap.xml`, `robots.txt`) into the `site/` directory
+> (gitignored) and stages the SPA files alongside. `GLOSSARY_SITE_URL` repo
+> variable overrides the canonical base URL — set it when a custom domain
+> goes live.
+
 ```bash
 # 1. Edit the catalog in catalogs/<category>.json (or commands.json directly for
 #    small fixes — keep it pretty-printed, indent=2)
