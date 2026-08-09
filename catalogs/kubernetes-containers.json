@@ -1,0 +1,960 @@
+{
+ "category": "Kubernetes & Containers",
+ "commands": [
+  {
+   "cmd": "kubectl version",
+   "desc": "Print client and server Kubernetes versions",
+   "tooltip": "Shows the kubectl client version and the server version of the cluster your kubeconfig points at (kubeconfig = the file with cluster addresses and credentials, usually ~/.kube/config). Run kubectl version --output=yaml for full build info. Pair with kubectl cluster-info to confirm you are talking to the intended cluster."
+  },
+  {
+   "cmd": "kubectl cluster-info",
+   "desc": "Show cluster endpoint and service URLs",
+   "tooltip": "Prints the API server address and the URLs of core cluster services like the DNS add-on. Useful as a quick health check that your kubeconfig points at a live cluster. Combine with kubectl cluster-info dump to gather full diagnostics."
+  },
+  {
+   "cmd": "kubectl cluster-info dump",
+   "desc": "Dump cluster diagnostics for troubleshooting",
+   "tooltip": "Exports current cluster state, events, and configuration from the API server to help debug problems. Output is large, so pipe it to a file or grep it, for example kubectl cluster-info dump > cluster-state.txt. Start with kubectl get events for a quicker overview."
+  },
+  {
+   "cmd": "kubectl get nodes",
+   "desc": "List cluster nodes with their status",
+   "tooltip": "Shows every node (worker machine) in the cluster with its status, roles, age, and Kubernetes version. A node stuck in NotReady usually means networking or kubelet problems. Add -o wide for IP addresses and the container runtime in use."
+  },
+  {
+   "cmd": "kubectl get nodes -o wide",
+   "desc": "List nodes with IPs and runtime details",
+   "tooltip": "Adds internal and external IPs, the OS image, kernel version, and container runtime to the plain node listing. Handy when investigating node-level networking or capacity issues. Pair with kubectl describe node node-a for deeper conditions."
+  },
+  {
+   "cmd": "kubectl get pods",
+   "desc": "List pods in the current namespace",
+   "tooltip": "Shows pods (the smallest deployable unit in Kubernetes, one or more containers) with their status, restarts, and age. Pods show Pending while waiting for a node and CrashLoopBackOff when they keep failing. Add -A to see pods across all namespaces, or -o wide for the hosting node and IP."
+  },
+  {
+   "cmd": "kubectl get pods -o wide",
+   "desc": "List pods with node and IP details",
+   "tooltip": "Extends the pod listing with each pod's IP, the node it runs on, and the nominated node. Essential when a pod is Running but unreachable, because it shows exactly where the pod landed. Pair with kubectl describe pod for container-level details."
+  },
+  {
+   "cmd": "kubectl get pods --watch",
+   "desc": "Stream pod status changes live",
+   "tooltip": "Follows the pod list and prints every change as it happens, such as pods starting, crashing, or being deleted. Press Ctrl-C to stop watching. For historical events, use kubectl get events instead."
+  },
+  {
+   "cmd": "kubectl get pods --field-selector=status.phase=Running",
+   "desc": "Filter pods by a field value",
+   "tooltip": "Filters the pod list by any field in the pod object, here only pods whose phase is Running. Field selectors work on other resources too, for example spec.nodeName=node-a. Use kubectl explain pods.spec to discover field names."
+  },
+  {
+   "cmd": "kubectl get deploy",
+   "desc": "List deployments and their replicas",
+   "tooltip": "Shows deployments (the resource that manages replicas of a pod and drives rolling updates) with desired, current, and ready replica counts. READY lower than DESIRED points at failed pods, so follow up with kubectl get pods. Related: kubectl rollout status deploy/web."
+  },
+  {
+   "cmd": "kubectl get svc",
+   "desc": "List services and their endpoints",
+   "tooltip": "Shows services (stable network endpoints that route traffic to a set of pods) with their cluster IPs and ports. EXTERNAL-IP stays pending until a LoadBalancer provisioner assigns one. Pair with kubectl get endpoints to see which pod IPs back the service."
+  },
+  {
+   "cmd": "kubectl get ingress",
+   "desc": "List ingress rules for HTTP access",
+   "tooltip": "Shows ingress resources, which define hostnames and paths routed from outside the cluster to internal services. A blank ADDRESS column usually means the ingress controller is not installed or the service type is wrong. Related: minikube addons enable ingress on local clusters."
+  },
+  {
+   "cmd": "kubectl get ns",
+   "desc": "List cluster namespaces",
+   "tooltip": "Shows every namespace, the logical partitions that separate workloads, with their status. Namespaces keep teams and environments from colliding, and almost every kubectl command can target one with -n. Create new ones with kubectl create ns staging."
+  },
+  {
+   "cmd": "kubectl get pvc",
+   "desc": "List persistent volume claims",
+   "tooltip": "Shows persistent volume claims (PVCs), the requests for storage that pods mount as volumes. PVCs stay Pending until a storage class provisions a matching PersistentVolume. Check kubectl describe pvc for provisioning errors."
+  },
+  {
+   "cmd": "kubectl get secrets",
+   "desc": "List secrets in the current namespace",
+   "tooltip": "Shows secrets, which store sensitive data like passwords and tokens in base64-encoded form. Values are never printed here, only names and types. Create them with kubectl create secret generic db-pass --from-literal=password=secret."
+  },
+  {
+   "cmd": "kubectl get configmaps",
+   "desc": "List configmaps in the current namespace",
+   "tooltip": "Shows configmaps, which hold non-sensitive configuration data that pods can mount as files or environment variables. Unlike secrets, configmap values are plain text and safe to view. Create one with kubectl create configmap app-config --from-file=config.yaml."
+  },
+  {
+   "cmd": "kubectl get events --sort-by=.lastTimestamp",
+   "desc": "List events newest first",
+   "tooltip": "Prints cluster events, such as pod scheduling failures and image pulls, sorted so the most recent appear last. Events are the first place to look when a pod is stuck or crash-looping. Narrow them with kubectl get events --field-selector involvedObject.name=web-7d8f9c."
+  },
+  {
+   "cmd": "kubectl get all -n staging",
+   "desc": "List common resources in a namespace",
+   "tooltip": "Shows pods, services, deployments, and replica sets at once in the staging namespace, a quick snapshot of everything running there. Note that it skips some types such as configmaps and secrets. Use kubectl get crds or api-resources to enumerate the rest."
+  },
+  {
+   "cmd": "kubectl get pod web-7d8f9c -o jsonpath={.status.podIP}",
+   "desc": "Extract a pod IP with jsonpath",
+   "tooltip": "Queries a single field from the pod's API object instead of printing the whole thing. JsonPath expressions follow the resource structure, which you can inspect with kubectl explain or kubectl get pod web-7d8f9c -o yaml. Wrap the expression in single quotes when it contains braces."
+  },
+  {
+   "cmd": "kubectl get crds",
+   "desc": "List custom resource definitions",
+   "tooltip": "Shows CustomResourceDefinitions (CRDs), the schema declarations that extend the Kubernetes API with your own resource types. Operators and tools like cert-manager install CRDs along with themselves. Inspect one with kubectl describe crd <name>."
+  },
+  {
+   "cmd": "kubectl describe node node-a",
+   "desc": "Show node capacity, conditions, and pods",
+   "tooltip": "Prints a node's capacity, allocatable resources, taints, conditions, and the pods currently running on it. The Conditions section explains why a node might be NotReady or under memory pressure. Compare with kubectl top nodes for live usage."
+  },
+  {
+   "cmd": "kubectl describe pod web-7d8f9c",
+   "desc": "Describe a pod's events and containers",
+   "tooltip": "Prints a pod's full detail: labels, containers, images, mount points, node, and recent events like image pulls and restarts. It is the standard first step when a pod is CrashLoopBackOff or stuck Pending. Compare with kubectl get pods -o wide for the summary view."
+  },
+  {
+   "cmd": "kubectl api-resources",
+   "desc": "List all supported API resource types",
+   "tooltip": "Enumerates every resource type the cluster serves, with its API group, kind, and whether it is namespaced. Great for discovering short names like deploy, svc, and po. Get field-level detail for any resource with kubectl explain."
+  },
+  {
+   "cmd": "kubectl explain pods",
+   "desc": "Show the schema of a resource",
+   "tooltip": "Prints the documented structure of the pods resource, including required fields and types, straight from the API server. Drill deeper with dotted paths, for example kubectl explain pods.spec.containers. Useful before writing manifests by hand."
+  },
+  {
+   "cmd": "kubectl explain deploy.spec.template.spec.containers",
+   "desc": "Explain a nested resource field path",
+   "tooltip": "Documents a deep field path inside the deployment schema, here the container definitions of the pod template. Each level is a key in the YAML manifest you would write. Start at the top with kubectl explain deploy and descend level by level."
+  },
+  {
+   "cmd": "kubectl create ns staging",
+   "desc": "Create a namespace",
+   "tooltip": "Creates a namespace (logical partition of a cluster) named staging for isolating workloads. List namespaces with kubectl get ns and target one with -n staging on other commands. Deleting a namespace removes everything inside it, so name carefully."
+  },
+  {
+   "cmd": "kubectl create deployment web --image=nginx:1.25",
+   "desc": "Create a deployment from an image",
+   "tooltip": "Creates a deployment (the resource that manages replicas of a pod) running the nginx:1.25 image. This is the quickest way to get a workload running for testing. Expose it with kubectl expose deployment web --type=NodePort --port=80."
+  },
+  {
+   "cmd": "kubectl run web --image=nginx:1.25",
+   "desc": "Run a single pod from an image",
+   "tooltip": "Starts one pod (the smallest deployable unit in Kubernetes, one or more containers) named web from the nginx:1.25 image. Unlike create deployment it makes a bare pod with no replica management. For long-lived workloads prefer kubectl create deployment web --image=nginx:1.25."
+  },
+  {
+   "cmd": "kubectl run web --image=nginx:1.25 --dry-run=client -o yaml",
+   "desc": "Render a pod manifest without creating",
+   "tooltip": "Generates the YAML manifest kubectl would apply, so you can review or edit it before anything touches the cluster. The --dry-run=client flag skips the API server entirely. Save it with -o yaml > web.yaml and apply later."
+  },
+  {
+   "cmd": "kubectl apply -f deploy.yaml",
+   "desc": "Create or update resources from a manifest",
+   "tooltip": "Applies the resources declared in deploy.yaml, creating them if absent and updating them if present. kubectl apply is declarative: it records the last-applied config and only changes what differs. Prefer it over kubectl create for ongoing management."
+  },
+  {
+   "cmd": "kubectl apply -k ./kustomize-dir",
+   "desc": "Apply kustomize-rendered manifests",
+   "tooltip": "Runs kustomize on the directory, which overlays base resources with patches and generators, then applies the result. Kustomize lets you keep environment-specific tweaks in separate overlay folders. Validate the rendered output first with kubectl kustomize ./kustomize-dir."
+  },
+  {
+   "cmd": "kubectl diff -f deploy.yaml",
+   "desc": "Show differences before applying",
+   "tooltip": "Compares the manifests in deploy.yaml against what is live on the cluster and prints the diff, like git diff for Kubernetes. Nothing is changed, making it a safe dry run. Apply when satisfied with kubectl apply -f deploy.yaml."
+  },
+  {
+   "cmd": "kubectl apply --server-side -f deploy.yaml",
+   "desc": "Apply manifests with server-side apply",
+   "tooltip": "Lets the API server compute the patch instead of the kubectl client, avoiding conflicts when multiple controllers manage the same field. The server tracks each field's owning manager, so ownership shows up in kubectl describe output. Fall back to plain kubectl apply -f deploy.yaml if your cluster predates server-side apply."
+  },
+  {
+   "cmd": "kubectl delete -f deploy.yaml",
+   "desc": "Delete resources defined in a manifest",
+   "tooltip": "Deletes every resource declared in deploy.yaml, in dependency order. This is the clean counterpart to kubectl apply -f deploy.yaml. Check the file contents first, because the command removes anything listed there."
+  },
+  {
+   "cmd": "kubectl delete pod web-7d8f9c",
+   "desc": "Delete a pod",
+   "tooltip": "Deletes the pod web-7d8f9c; if a deployment owns it, a replacement pod is created immediately, which is normal. A terminating pod that hangs usually means the container ignores SIGTERM. Only reach for --force when a pod is truly stuck, since it skips graceful shutdown."
+  },
+  {
+   "cmd": "kubectl delete pod web-7d8f9c --force --grace-period=0",
+   "desc": "Force-delete a stuck pod",
+   "tooltip": "Deletes the pod immediately without waiting for a graceful shutdown, which can corrupt state for stateful apps. Use only when a pod is stuck in Terminating and the normal delete hangs. The deployment controller will schedule a replacement pod."
+  },
+  {
+   "cmd": "kubectl delete ns staging",
+   "desc": "Delete a namespace and everything in it",
+   "tooltip": "Removes the staging namespace and every resource inside it, including pods, services, secrets, and PVCs. There is no undo, and storage volumes may be destroyed too. Export anything you need first with kubectl get all -n staging -o yaml."
+  },
+  {
+   "cmd": "kubectl logs web-7d8f9c",
+   "desc": "Print a pod's logs",
+   "tooltip": "Shows the stdout and stderr output of the pod's first container. For pods with multiple containers, add -c <container-name>. Follow the log stream with kubectl logs -f web-7d8f9c."
+  },
+  {
+   "cmd": "kubectl logs -f deploy/web",
+   "desc": "Stream deployment pod logs live",
+   "tooltip": "Follows the logs of a pod selected by the web deployment, printing new lines as they appear. Targeting a deployment works even after pods restart, because the label selector resolves to the current pod. Press Ctrl-C to stop following."
+  },
+  {
+   "cmd": "kubectl logs deploy/web --tail=100",
+   "desc": "Show the last 100 log lines",
+   "tooltip": "Prints only the most recent 100 lines instead of the entire log, ideal when a container is crash-looping. Combine with --timestamps to correlate lines with pod restart times. Deeper history lives in your log aggregator, since kubectl shows only the current container's output."
+  },
+  {
+   "cmd": "kubectl exec -it web-7d8f9c -- /bin/sh",
+   "desc": "Open a shell inside a pod",
+   "tooltip": "Runs /bin/sh interactively inside the running pod, giving you a shell for troubleshooting. The double dash separates kubectl flags from the command to run in the container. Changes you make inside are lost when the pod is recreated."
+  },
+  {
+   "cmd": "kubectl cp web-7d8f9c:/app/config.json ./config.json",
+   "desc": "Copy files out of a pod",
+   "tooltip": "Copies config.json from inside the pod to the current directory, useful for inspecting files that are not in the logs. The reverse direction works too, for example kubectl cp ./fix.sh web-7d8f9c:/tmp/fix.sh. Note that kubectl cp runs tar inside the pod, so it needs tar present in the container."
+  },
+  {
+   "cmd": "kubectl port-forward svc/web 8080:80",
+   "desc": "Forward a local port to a service",
+   "tooltip": "Exposes the web service's port 80 as localhost:8080 on your machine, letting you reach cluster-internal services without publishing them. Great for debugging APIs and databases. Stop with Ctrl-C; the tunnel closes when the command exits."
+  },
+  {
+   "cmd": "kubectl debug node/node-a -it --image=busybox",
+   "desc": "Debug a node with an ephemeral container",
+   "tooltip": "Runs a temporary debug container on node-a in the host namespaces, letting you inspect files and processes on the node itself. Ephemeral containers are discarded when you exit, so nothing permanent is created. Start with kubectl describe node node-a for the node's health summary."
+  },
+  {
+   "cmd": "kubectl debug web-7d8f9c -it --image=busybox",
+   "desc": "Debug a pod with an ephemeral container",
+   "tooltip": "Adds a temporary busybox container to the running pod so you can inspect it without disturbing the app containers. The debug container shares the pod's network and storage. Exit to remove it; the pod itself is untouched."
+  },
+  {
+   "cmd": "kubectl rollout status deploy/web --timeout=120s",
+   "desc": "Wait for a rollout to finish",
+   "tooltip": "Blocks until the web deployment's rollout completes or the 120 second timeout expires, printing progress along the way. Scripts use this after kubectl apply or set image to know when the new version is live. A non-zero exit means the rollout did not finish in time."
+  },
+  {
+   "cmd": "kubectl rollout restart deploy/web",
+   "desc": "Restart pods with zero downtime",
+   "tooltip": "Triggers a rolling restart of the deployment's pods by updating their pod template annotation. Useful for picking up new configmaps or secrets without changing the image. Watch progress with kubectl rollout status deploy/web --timeout=120s."
+  },
+  {
+   "cmd": "kubectl rollout undo deploy/web",
+   "desc": "Roll back to the previous revision",
+   "tooltip": "Reverts the deployment to the revision before the current one, undoing the last change. The old revision's pod template is reapplied as a new rollout. Confirm what you are reverting with kubectl rollout history deploy/web."
+  },
+  {
+   "cmd": "kubectl rollout undo deploy/web --to-revision=2",
+   "desc": "Roll back to a specific revision",
+   "tooltip": "Reverts the deployment to revision 2 specifically, not just the previous one. Find revision numbers with kubectl rollout history deploy/web. Use the plain kubectl rollout undo deploy/web when you simply want the last good state."
+  },
+  {
+   "cmd": "kubectl rollout history deploy/web",
+   "desc": "List rollout revisions",
+   "tooltip": "Shows every revision of the deployment's pod template, with the change cause when recorded. Revisions let you roll back to a known-good state with kubectl rollout undo deploy/web --to-revision=N. Revisions accumulate until the deployment's revisionHistoryLimit is hit."
+  },
+  {
+   "cmd": "kubectl rollout pause deploy/web",
+   "desc": "Pause a deployment rollout",
+   "tooltip": "Halts any in-progress rollout, so new pods stop being created mid-change. Useful when you want to apply several changes and let them roll out together. Resume with kubectl rollout resume deploy/web."
+  },
+  {
+   "cmd": "kubectl rollout resume deploy/web",
+   "desc": "Resume a paused deployment rollout",
+   "tooltip": "Continues a rollout paused with kubectl rollout pause deploy/web. Any pending pod template changes apply now. Check completion with kubectl rollout status deploy/web --timeout=120s."
+  },
+  {
+   "cmd": "kubectl scale deploy/web --replicas 3",
+   "desc": "Scale a deployment to three replicas",
+   "tooltip": "Sets the web deployment's replica count to 3, and the deployment controller creates or deletes pods to match. Scaling down deletes pods, so stateful workloads need careful handling. For automatic sizing, use kubectl autoscale deploy/web --min=2 --max=10 --cpu-percent=70."
+  },
+  {
+   "cmd": "kubectl set image deploy/web web=nginx:1.26",
+   "desc": "Update a deployment's container image",
+   "tooltip": "Changes the image of the container named web to nginx:1.26, triggering a rolling update. The deployment's old replicas are replaced gradually, so the service stays up. Watch the rollout finish with kubectl rollout status deploy/web --timeout=120s."
+  },
+  {
+   "cmd": "kubectl edit deploy/web",
+   "desc": "Edit a deployment in your editor",
+   "tooltip": "Opens the deployment's live spec in your default editor, applies your changes on save, and shows the diff. Kubernetes validates the edited object before applying. For scripted changes prefer kubectl patch or kubectl set image."
+  },
+  {
+   "cmd": "kubectl patch deploy/web -p '{\"spec\":{\"replicas\":5}}'",
+   "desc": "Patch a deployment's replicas",
+   "tooltip": "Applies a surgical JSON patch to the live deployment, here scaling replicas to 5 without editing the whole object. Patches are ideal for single-field changes in scripts. Related: kubectl edit deploy/web for interactive edits."
+  },
+  {
+   "cmd": "kubectl autoscale deploy/web --min=2 --max=10 --cpu-percent=70",
+   "desc": "Set up automatic pod autoscaling",
+   "tooltip": "Creates a HorizontalPodAutoscaler (HPA) that keeps the deployment between 2 and 10 replicas based on CPU usage. The cluster needs the metrics server installed, for example minikube addons enable metrics-server. Check kubectl get hpa to see the current target and actual replicas."
+  },
+  {
+   "cmd": "kubectl expose deployment web --type=NodePort --port=80",
+   "desc": "Expose a deployment as a service",
+   "tooltip": "Creates a service (stable network endpoint for a set of pods) of type NodePort that publishes the deployment on a cluster-wide port. On local clusters, minikube service web opens the URL in a browser. For HTTP routing, consider an ingress instead."
+  },
+  {
+   "cmd": "kubectl config get-contexts",
+   "desc": "List all kubeconfig contexts",
+   "tooltip": "Shows every context defined in your kubeconfig (the file that maps cluster addresses to credentials), with an asterisk marking the current one. Contexts bundle a cluster, user, and namespace. Switch with kubectl config use-context prod."
+  },
+  {
+   "cmd": "kubectl config current-context",
+   "desc": "Show the active context",
+   "tooltip": "Prints the name of the context (which cluster kubeconfig currently points at) that kubectl will use. Confirm it before destructive commands so you do not hit the wrong cluster. Related: kubectl config view."
+  },
+  {
+   "cmd": "kubectl config use-context prod",
+   "desc": "Switch to another context",
+   "tooltip": "Makes the prod context the active one, so all subsequent kubectl commands target the prod cluster. Switching contexts does not touch the clusters themselves. Verify with kubectl config current-context."
+  },
+  {
+   "cmd": "kubectl config set-context --current --namespace=staging",
+   "desc": "Set the default namespace",
+   "tooltip": "Updates the current context so every kubectl command runs against the staging namespace unless you override with -n. This only changes your kubeconfig, not the cluster. Undo with the same command and --namespace=default."
+  },
+  {
+   "cmd": "kubectl config view",
+   "desc": "Show the merged kubeconfig",
+   "tooltip": "Prints the merged contents of your kubeconfig file: clusters, users, and contexts. Combine with --minify to show only the current context, or --raw to include certificate data. Redact credentials by omitting --raw."
+  },
+  {
+   "cmd": "kubectl config delete-context staging",
+   "desc": "Delete a context from kubeconfig",
+   "tooltip": "Removes the staging context entry from your kubeconfig, leaving clusters and users intact. The cluster itself keeps running; only your local pointer disappears. Re-add contexts via kubeconfig edits or tools like kind and minikube."
+  },
+  {
+   "cmd": "kubectl top nodes",
+   "desc": "Show node CPU and memory usage",
+   "tooltip": "Prints live CPU and memory usage per node, provided the metrics server is running in the cluster. Numbers come from the Metrics API, so they lag a few seconds behind reality. Related: kubectl top pods for per-pod usage."
+  },
+  {
+   "cmd": "kubectl top pods",
+   "desc": "Show pod CPU and memory usage",
+   "tooltip": "Prints live CPU and memory usage for pods in the current namespace, useful for spotting runaway containers. Requires the metrics server addon, for example minikube addons enable metrics-server. Add -A to cover all namespaces."
+  },
+  {
+   "cmd": "kubectl cordon node-a",
+   "desc": "Mark a node unschedulable",
+   "tooltip": "Marks node-a as unschedulable, so no new pods are placed on it while existing pods keep running. Prepares a node for maintenance before draining it. Reverse with kubectl uncordon node-a."
+  },
+  {
+   "cmd": "kubectl uncordon node-a",
+   "desc": "Make a node schedulable again",
+   "tooltip": "Removes the unschedulable marker set by kubectl cordon node-a, allowing new pods onto the node. Pending pods will be scheduled there as capacity allows. Use after maintenance finishes."
+  },
+  {
+   "cmd": "kubectl drain node-a --ignore-daemonsets",
+   "desc": "Evict pods from a node",
+   "tooltip": "Evicts every pod from node-a so the node can be rebooted or removed, keeping daemonset pods in place with --ignore-daemonsets. This is disruptive: it terminates workloads, so do it during maintenance windows. Add --delete-emptydir-data for pods using emptyDir volumes, and undo with kubectl uncordon node-a."
+  },
+  {
+   "cmd": "kubectl label node-a disktype=ssd",
+   "desc": "Add a label to a node",
+   "tooltip": "Labels node-a with disktype=ssd, a key-value pair that schedulers and selectors can match. Deployments can then target labeled nodes via nodeSelector or affinity. List existing labels with kubectl get nodes --show-labels."
+  },
+  {
+   "cmd": "kubectl taint node-a key=value:NoSchedule",
+   "desc": "Add a taint to a node",
+   "tooltip": "Taints node-a so the scheduler refuses to place pods there unless they tolerate the taint. Taints and tolerations keep dedicated workloads off shared nodes. Remove the taint by re-running with a trailing minus, key=value:NoSchedule-, and note that tainting an active node can strand pods."
+  },
+  {
+   "cmd": "kubectl auth can-i create pods",
+   "desc": "Check if you can perform an action",
+   "tooltip": "Asks the API server whether your current credentials may create pods, honoring role bindings and impersonation. Useful for debugging permission errors before they hit your workflow. List everything you can do with kubectl auth can-i --list -n staging."
+  },
+  {
+   "cmd": "kubectl auth can-i --list -n staging",
+   "desc": "List all permitted actions",
+   "tooltip": "Prints every verb and resource you are allowed to touch in the staging namespace, based on your roles and bindings. A fast way to audit your permissions. Pair with kubectl auth whoami to see which identity is being checked."
+  },
+  {
+   "cmd": "kubectl auth whoami",
+   "desc": "Show the current authenticated user",
+   "tooltip": "Reports the user and groups your kubeconfig credentials resolve to on the current cluster. Useful when the same kubeconfig file is shared across contexts. Combine with kubectl auth can-i create pods to test permissions."
+  },
+  {
+   "cmd": "kubectl create secret generic db-pass --from-literal=password=secret",
+   "desc": "Create a secret from a literal value",
+   "tooltip": "Creates a secret named db-pass holding the key password, stored base64-encoded in etcd. Secrets are meant for sensitive values like passwords and API tokens. Read it back with kubectl get secret db-pass -o yaml."
+  },
+  {
+   "cmd": "kubectl create secret generic creds --from-file=creds.json",
+   "desc": "Create a secret from a file",
+   "tooltip": "Loads the entire creds.json file into the secret as a key named after the filename. Multiple --from-file flags can pack several files into one secret. Mount the result into pods as files or environment variables."
+  },
+  {
+   "cmd": "kubectl create secret docker-registry regcred --docker-server=ghcr.io --docker-username=barry --docker-password=ch4nge-me",
+   "desc": "Create a registry pull secret",
+   "tooltip": "Creates a secret of type kubernetes.io/dockerconfigjson so nodes can pull images from a private registry. Reference it in a pod spec via imagePullSecrets. The password sits in the secret base64-encoded, so rotate it if it leaks."
+  },
+  {
+   "cmd": "kubectl create configmap app-config --from-file=config.yaml",
+   "desc": "Create a configmap from a file",
+   "tooltip": "Creates a configmap named app-config whose key config.yaml holds the file's contents, mountable into pods as a file. Configmaps keep configuration out of container images so you can change it without rebuilding. Update pods to pick up changes with kubectl rollout restart deploy/web."
+  },
+  {
+   "cmd": "kubectl get secret db-pass -o yaml",
+   "desc": "Show a secret's encoded values",
+   "tooltip": "Prints the secret object with its values base64-encoded, not plain text. Decode a value with echo <value> | base64 -d. Prefer tools like kubectl create secret over committing secrets to git."
+  },
+  {
+   "cmd": "kubectl completion bash > ~/.kube/completion.bash",
+   "desc": "Generate bash completion for kubectl",
+   "tooltip": "Writes the bash completion script so kubectl tab-completes resources, flags, and names. Load it by adding source ~/.kube/completion.bash to your .bashrc. Other shells use kubectl completion zsh or fish."
+  },
+  {
+   "cmd": "kubectl proxy",
+   "desc": "Proxy the Kubernetes API to localhost",
+   "tooltip": "Starts a local HTTP proxy on 127.0.0.1:8001 that forwards requests to the cluster API server, with authentication handled for you. Handy for browsing API endpoints in a browser or with curl. Stop with Ctrl-C."
+  },
+  {
+   "cmd": "kubectl wait --for=condition=Ready pod/web-7d8f9c --timeout=60s",
+   "desc": "Wait for a resource condition",
+   "tooltip": "Blocks until the pod reports Ready or the 60 second timeout passes, returning a non-zero exit code on timeout. Scripts use this to sequence dependent deployments. Conditions vary by resource, for example available for deployments."
+  },
+  {
+   "cmd": "helm version",
+   "desc": "Print the Helm client version",
+   "tooltip": "Shows the installed Helm client version. In Helm 3 there is no server-side component, so only client info is printed, unlike Helm 2's tiller. Useful for confirming you are on Helm 3.x. Related: helm list shows what you have installed."
+  },
+  {
+   "cmd": "helm search hub nginx",
+   "desc": "Search Artifact Hub for charts",
+   "tooltip": "Searches Artifact Hub, the public catalog of distributed Helm charts, for charts matching nginx. Results link back to each chart's repository and maintainer. Once you pick one, add its repository with helm repo add and search locally."
+  },
+  {
+   "cmd": "helm search repo bitnami/nginx",
+   "desc": "Search your added repositories",
+   "tooltip": "Looks for charts named nginx inside the repositories you have added locally, using the cached index. The repo/chart form narrows the search to one repository. Refresh the index first with helm repo update if results look stale."
+  },
+  {
+   "cmd": "helm repo add bitnami https://charts.bitnami.com/bitnami",
+   "desc": "Add a chart repository",
+   "tooltip": "Registers the Bitnami chart repository under the short name bitnami, so you can install charts with helm install my-web bitnami/nginx. Repository metadata is stored in ~/.config/helm/repositories.yaml. List what you have with helm repo list."
+  },
+  {
+   "cmd": "helm repo update",
+   "desc": "Refresh local repository indexes",
+   "tooltip": "Downloads the latest index files for every configured repository, so helm search repo finds newly published chart versions. Run it after adding a repo or when a chart version seems missing. There is no harm in running it often."
+  },
+  {
+   "cmd": "helm repo list",
+   "desc": "List configured chart repositories",
+   "tooltip": "Prints the short names and URLs of every repository you have added. The short name is the prefix used when installing, such as bitnami in bitnami/nginx. Remove an entry with helm repo remove bitnami."
+  },
+  {
+   "cmd": "helm repo remove bitnami",
+   "desc": "Remove a chart repository",
+   "tooltip": "Forgets the bitnami repository, so its charts stop appearing in helm search repo and installs must use a full URL or another repo. Installed releases keep working after removal. Re-add later with helm repo add bitnami https://charts.bitnami.com/bitnami."
+  },
+  {
+   "cmd": "helm install my-web bitnami/nginx",
+   "desc": "Install a chart as a release",
+   "tooltip": "Installs the bitnami/nginx chart under the release name my-web, creating the Kubernetes resources the chart templates. A release (an installed instance of a chart) can be upgraded, rolled back, and uninstalled independently. Watch the printed status and notes for next steps."
+  },
+  {
+   "cmd": "helm install my-web bitnami/nginx --values values.yaml",
+   "desc": "Install a chart with custom values",
+   "tooltip": "Installs the chart while overriding defaults with the settings in values.yaml, which is how you customize size, resources, and features per environment. Values files are YAML and can be chained with repeated --values flags. See the available keys with helm show values bitnami/nginx."
+  },
+  {
+   "cmd": "helm upgrade my-web bitnami/nginx --set replicaCount=3",
+   "desc": "Upgrade a release with overrides",
+   "tooltip": "Upgrades the my-web release to the latest chart while setting replicaCount to 3, overriding the default without editing a file. In Helm 3, upgrades create a new revision while the old one stays restorable. Roll back with helm rollback my-web 2."
+  },
+  {
+   "cmd": "helm rollback my-web 2",
+   "desc": "Roll back a release to a revision",
+   "tooltip": "Reverts the my-web release to revision 2, reapplying the manifests that revision used. Find revision numbers with helm history my-web. Rolling back creates a new revision itself, so the current state is never lost."
+  },
+  {
+   "cmd": "helm history my-web",
+   "desc": "List release revisions",
+   "tooltip": "Shows every revision of the my-web release with its status, chart version, and when it was deployed. Revision numbers feed helm rollback my-web 2 and tell you which state to restore. Prune old revisions with --max on upgrade."
+  },
+  {
+   "cmd": "helm list",
+   "desc": "List installed releases",
+   "tooltip": "Prints the releases installed in the current namespace with their chart, version, and status. Filter by namespace with -n or use -A for all namespaces. Add -a to include failed and uninstalled releases."
+  },
+  {
+   "cmd": "helm list -n monitoring",
+   "desc": "List releases in one namespace",
+   "tooltip": "Shows only the releases installed in the monitoring namespace, keeping multi-tenant clusters readable. The namespace flag works the same way on helm install and helm uninstall. Pair with helm status my-web for details of one release."
+  },
+  {
+   "cmd": "helm status my-web",
+   "desc": "Show a release's status and notes",
+   "tooltip": "Prints the my-web release's current status, revision, and the notes the chart author wrote, which often contain the admin password or access URLs. A failed status points at a broken upgrade, so check helm history my-web next. Related: helm list for the summary view."
+  },
+  {
+   "cmd": "helm uninstall my-web",
+   "desc": "Remove a release",
+   "tooltip": "Deletes every resource created by the my-web release, including its secrets and volumes unless they are protected. There is no undo, so export what you need first with helm get manifest my-web. Use --keep-history to preserve the release record for auditing."
+  },
+  {
+   "cmd": "helm template my-web bitnami/nginx",
+   "desc": "Render chart manifests locally",
+   "tooltip": "Renders the chart's Kubernetes manifests to stdout without installing anything or contacting the cluster. Pipe to a file to review exactly what helm would create. Use --values values.yaml to render with your overrides."
+  },
+  {
+   "cmd": "helm lint ./chart",
+   "desc": "Validate a chart's structure and values",
+   "tooltip": "Checks the chart in ./chart for common errors such as malformed Chart.yaml, invalid templates, and bad values references. Lint errors usually mean the chart will fail to install. Run it in CI before publishing charts."
+  },
+  {
+   "cmd": "helm pull bitnami/nginx --untar",
+   "desc": "Download and unpack a chart",
+   "tooltip": "Downloads the latest bitnami/nginx chart as a tgz and unpacks it into a directory of the same name. The source lets you inspect templates or vendor the chart into your repo. Add --version to pin a specific chart version."
+  },
+  {
+   "cmd": "helm dependency build ./chart",
+   "desc": "Fetch a chart's dependencies",
+   "tooltip": "Downloads the charts declared in ./chart's Chart.yaml dependencies into its charts/ directory, honoring the versions and repositories listed. Run it after editing dependencies or checking out a chart that omits vendor files. Related: helm dependency list shows what is expected."
+  },
+  {
+   "cmd": "helm create mychart",
+   "desc": "Scaffold a new chart",
+   "tooltip": "Generates a complete starter chart in ./mychart with Chart.yaml, values.yaml, templates, and a sample deployment and service. Edit the metadata and templates to fit your app. Validate the result with helm lint ./mychart."
+  },
+  {
+   "cmd": "helm show values bitnami/nginx",
+   "desc": "Show a chart's default values",
+   "tooltip": "Prints every configurable value of the chart with its default, the reference for writing your own values.yaml overrides. Keys seen here can be set with --set or --values at install time. Related: helm show chart for metadata."
+  },
+  {
+   "cmd": "helm get manifest my-web",
+   "desc": "Show a release's installed manifests",
+   "tooltip": "Prints the exact Kubernetes manifests Helm applied for the my-web release, useful before uninstalling or when auditing what is live. Compare with helm template to spot drift. Values used are visible with helm get values my-web."
+  },
+  {
+   "cmd": "k9s",
+   "desc": "Launch the k9s terminal UI",
+   "tooltip": "Starts the interactive terminal dashboard for Kubernetes, showing pods in the current context with keyboard shortcuts for describe, logs, edit, and delete. It reads the same kubeconfig as kubectl. Press ? inside for the key binding reference."
+  },
+  {
+   "cmd": "k9s -n staging",
+   "desc": "Launch k9s in a namespace",
+   "tooltip": "Starts k9s scoped to the staging namespace, so resource views only show that namespace's objects. Switch namespaces later from inside the UI with the :ns command. Equivalent to kubectl -n staging."
+  },
+  {
+   "cmd": "k9s -c pod",
+   "desc": "Launch k9s into a resource view",
+   "tooltip": "Opens k9s directly in the pod view instead of the default start screen, skipping a few keystrokes. The -c flag accepts any resource name, short name, or alias such as deploy or svc. Related: k9s -n staging -c deploy."
+  },
+  {
+   "cmd": "k9s --context prod",
+   "desc": "Launch k9s against a context",
+   "tooltip": "Starts k9s using the prod context from your kubeconfig, which selects the cluster and credentials to talk to. The running UI lets you hop contexts with the :ctx command. Verify the active context with k9s info."
+  },
+  {
+   "cmd": "k9s --readonly",
+   "desc": "Launch k9s with changes disabled",
+   "tooltip": "Starts k9s in read-only mode, so delete, edit, and scale actions are blocked in the UI. Useful when a developer should only observe a production cluster. The flag also works per context in the k9s config."
+  },
+  {
+   "cmd": "k9s info",
+   "desc": "Show k9s runtime and config paths",
+   "tooltip": "Prints the k9s version, current context and namespace, and where k9s reads its configuration files. Run it first when k9s behaves unexpectedly, since it reveals which config directory is active. Related: k9s --help lists all startup flags."
+  },
+  {
+   "cmd": "podman ps -a",
+   "desc": "List all containers, running or stopped",
+   "tooltip": "Shows every container on this machine, including exited ones, with their names, images, and status. The plain podman ps lists only running containers. Remove old ones with podman rm <name>."
+  },
+  {
+   "cmd": "podman images",
+   "desc": "List local container images",
+   "tooltip": "Prints all images stored locally with their repository, tag, size, and creation date. Images are the templates that containers run from, fetched with podman pull. Reclaim space with podman image prune."
+  },
+  {
+   "cmd": "podman search nginx",
+   "desc": "Search registries for images",
+   "tooltip": "Searches container registries for images matching nginx, showing official and community results with star counts. Registries are servers that store container images, such as Docker Hub. Pull a result with podman pull nginx:1.25."
+  },
+  {
+   "cmd": "podman pull nginx:1.25",
+   "desc": "Pull an image from a registry",
+   "tooltip": "Downloads the nginx:1.25 image (a container image is the template containers run from) from its registry into local storage. Tagged versions like 1.25 are reproducible, unlike latest. See local images with podman images."
+  },
+  {
+   "cmd": "podman run -d --name web -p 8080:80 nginx",
+   "desc": "Run a detached container",
+   "tooltip": "Starts a container named web from the nginx image in the background, mapping host port 8080 to the container's port 80. The -d flag detaches, so your terminal stays free. Check it with podman ps and podman logs -f web."
+  },
+  {
+   "cmd": "podman run -it --rm alpine sh",
+   "desc": "Run an interactive throwaway container",
+   "tooltip": "Starts an alpine container with an interactive shell, removing the container automatically when you exit thanks to --rm. Perfect for experiments that should leave no trace. Type exit to return to your host shell."
+  },
+  {
+   "cmd": "podman exec -it web sh",
+   "desc": "Open a shell in a running container",
+   "tooltip": "Runs sh inside the running web container, giving you a shell for inspecting processes, files, and network state. The container must be running, so start it first with podman start web. Changes inside are lost when the container is removed."
+  },
+  {
+   "cmd": "podman logs -f web",
+   "desc": "Stream a container's logs",
+   "tooltip": "Follows the stdout and stderr output of the web container, printing new lines as they appear. Drop -f to print the existing log once. Pair with podman ps to find the container name first."
+  },
+  {
+   "cmd": "podman stop web",
+   "desc": "Stop a running container",
+   "tooltip": "Sends SIGTERM to the web container's main process and waits for it to exit, letting the app shut down cleanly. The container stays on disk and can be restarted with podman start web. A hung container can be killed with podman stop -t 0 web."
+  },
+  {
+   "cmd": "podman start web",
+   "desc": "Start a stopped container",
+   "tooltip": "Restarts the stopped web container, preserving its filesystem and configuration. The container must already exist, so run podman run once first. Verify it is running again with podman ps."
+  },
+  {
+   "cmd": "podman restart web",
+   "desc": "Restart a container",
+   "tooltip": "Stops and starts the web container in one step, useful after changing its host files or when it misbehaves. Restart time counts against the container's restart policy. For clean shutdowns prefer podman stop and podman start."
+  },
+  {
+   "cmd": "podman rm web",
+   "desc": "Remove a stopped container",
+   "tooltip": "Deletes the web container and its writable layer, so all filesystem changes inside are gone. The container must be stopped first, or add -f to force it. Removing an image with podman rmi nginx still fails while a container uses it."
+  },
+  {
+   "cmd": "podman rmi nginx",
+   "desc": "Remove an image",
+   "tooltip": "Deletes the nginx image from local storage, freeing disk space, but fails if a container still references it. There is no undo, and the image must be pulled again to recreate it. List images with podman images and remove unused ones in bulk with podman image prune -a."
+  },
+  {
+   "cmd": "podman build -t myapp .",
+   "desc": "Build an image from a Dockerfile",
+   "tooltip": "Builds a container image named myapp from the Dockerfile in the current directory, using the same syntax as docker build. Podman builds run rootless and unprivileged by default. Tag another version with podman tag myapp myapp:1.0."
+  },
+  {
+   "cmd": "podman system df",
+   "desc": "Show storage usage by object type",
+   "tooltip": "Summarizes disk space used by images, containers, volumes, and build cache, like docker system df. Use --verbose for per-object detail. Reclaim space with podman system prune."
+  },
+  {
+   "cmd": "podman system prune -a",
+   "desc": "Remove unused images, containers, and cache",
+   "tooltip": "Deletes every stopped container, dangling and unused image, and cached build data, which can free gigabytes but is not undoable. Add --volumes to also drop unused named volumes. Double-check what would go with podman system df first."
+  },
+  {
+   "cmd": "podman volume create data",
+   "desc": "Create a named volume",
+   "tooltip": "Creates a volume called data, a piece of persistent storage that survives container removal and can be shared between containers. Mount it with -v data:/app/data on podman run. List volumes with podman volume ls."
+  },
+  {
+   "cmd": "podman volume ls",
+   "desc": "List named volumes",
+   "tooltip": "Shows every named volume on the host with its driver. Volumes persist independently of containers, so they survive podman rm and podman system prune unless --volumes is passed. Inspect one with podman volume inspect data."
+  },
+  {
+   "cmd": "podman network create web-net",
+   "desc": "Create a user-defined network",
+   "tooltip": "Creates a bridge network called web-net that containers can join with --network web-net on podman run. User-defined networks give containers DNS resolution by name. List networks with podman network ls."
+  },
+  {
+   "cmd": "podman stats",
+   "desc": "Show live container resource usage",
+   "tooltip": "Prints CPU, memory, and network usage for all running containers, updating continuously like a container-aware top. Press Ctrl-C to stop. Pair with podman ps -a to spot containers to prune."
+  },
+  {
+   "cmd": "podman inspect web",
+   "desc": "Show container details as JSON",
+   "tooltip": "Dumps the web container's full configuration, including mounts, environment, and network settings, as JSON. Grep the output or use --format to pull one field, for example podman inspect -f '{{.State.Status}}' web."
+  },
+  {
+   "cmd": "podman login ghcr.io",
+   "desc": "Log in to a container registry",
+   "tooltip": "Saves credentials for the ghcr.io registry so podman push and pull can authenticate, storing them in ~/.config/containers/auth.json. The same file is shared with buildah and skopeo. Log out with podman logout ghcr.io."
+  },
+  {
+   "cmd": "buildah build -t myapp .",
+   "desc": "Build an image from a Dockerfile",
+   "tooltip": "Builds a container image named myapp from the Dockerfile in the current directory. The older spelling buildah bud -t app:latest . still works but is deprecated. Podman's podman build wraps the same engine."
+  },
+  {
+   "cmd": "buildah from alpine",
+   "desc": "Create a working container from a base image",
+   "tooltip": "Pulls the alpine base image and creates a working container from it, printing its name, typically alpine-working-container. Working containers are scratch spaces for assembling images without a Dockerfile. List them with buildah containers."
+  },
+  {
+   "cmd": "buildah run alpine-working-container sh",
+   "desc": "Run a command in a working container",
+   "tooltip": "Executes sh inside the working container, where you can install packages and lay down files for the final image. Unlike container runtimes, no long-lived process is started, so the container stays buildable. Commit the result with buildah commit alpine-working-container myapp."
+  },
+  {
+   "cmd": "buildah commit alpine-working-container myapp",
+   "desc": "Save a working container as an image",
+   "tooltip": "Converts the alpine-working-container's filesystem into an image named myapp, ready to run or push. This is the buildah equivalent of docker commit. Verify the result with buildah images."
+  },
+  {
+   "cmd": "buildah push myapp docker://registry.example.com/myapp:latest",
+   "desc": "Push an image to a registry",
+   "tooltip": "Uploads the myapp image to the registry.example.com registry using the docker:// transport, after buildah login for private registries. The destination form is transport://location, and other transports include docker-archive and oci. Confirm the remote copy with skopeo inspect docker://registry.example.com/myapp:latest."
+  },
+  {
+   "cmd": "buildah images",
+   "desc": "List local images",
+   "tooltip": "Shows every image in local storage with its repository, tag, and size, including ones committed by buildah and pulled by podman. Both tools share the same storage. Remove images with buildah rmi."
+  },
+  {
+   "cmd": "buildah containers",
+   "desc": "List working containers",
+   "tooltip": "Prints every working container created with buildah from, with their base image and status. Working containers are build-time scratch spaces, not running services. Clean up with buildah rm alpine-working-container."
+  },
+  {
+   "cmd": "buildah inspect myapp",
+   "desc": "Show image configuration as JSON",
+   "tooltip": "Prints the myapp image's config, layers, and history as JSON, useful for auditing what an image contains. Extract one field with --format. Related: skopeo inspect does the same for images in a registry without pulling them."
+  },
+  {
+   "cmd": "buildah tag myapp myapp:1.0",
+   "desc": "Tag an image with another name",
+   "tooltip": "Adds the myapp:1.0 tag to the myapp image, letting you version images without duplicating data. Tags are references, so many tags can point at one image. Push a specific tag with buildah push myapp:1.0 docker://registry.example.com/myapp:1.0."
+  },
+  {
+   "cmd": "skopeo inspect docker://nginx:1.25",
+   "desc": "Inspect an image without pulling it",
+   "tooltip": "Reads metadata for the nginx:1.25 image directly from its registry, reporting architecture, layers, and digest without downloading the image. The docker:// prefix is the registry transport. Compare with buildah inspect, which works on local images."
+  },
+  {
+   "cmd": "skopeo inspect --config docker://nginx:1.25",
+   "desc": "Show an image's config blob",
+   "tooltip": "Prints the image's config blob, the JSON describing environment variables, entrypoint, and exposed ports, straight from the registry. Useful for checking what an image runs without pulling it. Add --raw to see the raw manifest instead."
+  },
+  {
+   "cmd": "skopeo list-tags docker://nginx",
+   "desc": "List the tags of a repository",
+   "tooltip": "Queries the registry for every tag attached to the nginx repository, handy for finding the exact version to pin. The repository is identified with the docker:// transport. Verify a chosen tag with skopeo inspect docker://nginx:<tag>."
+  },
+  {
+   "cmd": "skopeo copy docker://nginx:1.25 docker://registry.example.com/nginx:1.25",
+   "desc": "Copy an image between registries",
+   "tooltip": "Copies the image from one registry to another without a local pull, streaming layers directly between them. This is the fastest way to mirror images. For private registries, pass credentials with --src-creds and --dest-creds."
+  },
+  {
+   "cmd": "skopeo delete docker://registry.example.com/nginx:canary",
+   "desc": "Delete an image from a registry",
+   "tooltip": "Marks the image for deletion in the registry, which is destructive and often requires the registry to support the operation. Deleting by digest can remove every tag pointing at that manifest, so delete by tag carefully. Confirm what exists first with skopeo list-tags docker://registry.example.com/nginx."
+  },
+  {
+   "cmd": "crictl ps",
+   "desc": "List running containers via CRI",
+   "tooltip": "Lists the containers running on this node as the container runtime (containerd, for example) sees them, the same view the kubelet uses. crictl talks to the CRI (Container Runtime Interface) socket, so it works even when the kubelet is down. Add -a for stopped containers."
+  },
+  {
+   "cmd": "crictl ps -a",
+   "desc": "List all containers, including stopped",
+   "tooltip": "Shows every container on the node with its status, image, and the pod sandbox it belongs to. Stopped containers linger until the kubelet's garbage collection runs. Pair with crictl logs <container-id> to inspect a failed one."
+  },
+  {
+   "cmd": "crictl images",
+   "desc": "List images on the node",
+   "tooltip": "Lists the container images present in the node's runtime storage, tagged by repository and digest. Compare with kubectl get nodes -o wide to see which runtime is in use. Remove unused ones with crictl rmi <image>."
+  },
+  {
+   "cmd": "crictl pods",
+   "desc": "List pod sandboxes",
+   "tooltip": "Shows the pod sandboxes on the node, which are the pause containers that hold the pod's namespaces. Each sandbox maps to one Kubernetes pod scheduled on this node. Dig into one with crictl inspectp <sandbox-id>."
+  },
+  {
+   "cmd": "crictl pull nginx:1.25",
+   "desc": "Pull an image with the CRI runtime",
+   "tooltip": "Downloads the nginx:1.25 image into the node's runtime storage, equivalent to what the kubelet does before starting a pod. Useful when debugging image pulls without the kubelet. Confirm with crictl images."
+  },
+  {
+   "cmd": "crictl logs 3f8d9c2a1b4e",
+   "desc": "Show a container's logs",
+   "tooltip": "Prints the logs of the container identified by the shortened ID 3f8d9c2a1b4e, which you find with crictl ps -a. This is the runtime-level view, available even if Kubernetes is unreachable. Follow with -f for live output."
+  },
+  {
+   "cmd": "crictl exec -it 3f8d9c2a1b4e sh",
+   "desc": "Exec into a container on the node",
+   "tooltip": "Runs sh inside the container directly through the runtime, bypassing the API server and kubelet. A lifesaver when the node is not registered with the cluster. List container IDs with crictl ps."
+  },
+  {
+   "cmd": "crictl stats",
+   "desc": "Show container resource usage",
+   "tooltip": "Prints CPU and memory usage per container from the runtime, similar to kubectl top pods but node-local and working without the metrics server. Press Ctrl-C to stop the live view. Related: crictl ps -a for the container list."
+  },
+  {
+   "cmd": "crictl rmi nginx:1.25",
+   "desc": "Remove an image from the node",
+   "tooltip": "Deletes the image from the runtime's storage, freeing disk space on the node. There is no undo, and the kubelet will repull it when a pod needs it. Removing images still in use by a running container fails."
+  },
+  {
+   "cmd": "crictl version",
+   "desc": "Show runtime and client versions",
+   "tooltip": "Prints the crictl client version and the CRI runtime version and name (for example containerd) on the node. Run it first when crictl cannot reach the runtime socket, since it surfaces connection errors. The default socket path is /run/containerd/containerd.sock."
+  },
+  {
+   "cmd": "lxc list --format json",
+   "desc": "List instances as JSON",
+   "tooltip": "Lists every LXD instance (container or VM) as machine-readable JSON instead of the default table, handy for scripting and jq. The plain lxc list is covered in the master glossary. Add filters, for example lxc list type=container status=running."
+  },
+  {
+   "cmd": "lxc launch ubuntu:24.04 web01",
+   "desc": "Create and start a container",
+   "tooltip": "Pulls the ubuntu:24.04 image and starts a container named web01 in one step, the LXD equivalent of docker run. Images come from remotes like ubuntu:, and LXD caches them locally. Connect with lxc exec web01 bash."
+  },
+  {
+   "cmd": "lxc launch ubuntu:24.04 db01 --vm -c limits.memory=2GiB",
+   "desc": "Launch a virtual machine instead of a container",
+   "tooltip": "Starts an LXD virtual machine from the ubuntu:24.04 image with a 2GiB memory limit, using the --vm flag to choose VMs over containers. VMs give kernel isolation at the cost of more overhead. The -c flag sets instance configuration at launch."
+  },
+  {
+   "cmd": "lxc exec web01 -- systemctl status nginx",
+   "desc": "Run a command inside an instance",
+   "tooltip": "Executes systemctl status nginx inside the web01 container, the way to manage services or inspect state from the host. The double dash separates lxc flags from the remote command. For an interactive shell use lxc exec web01 bash."
+  },
+  {
+   "cmd": "lxc info web01",
+   "desc": "Show instance details",
+   "tooltip": "Prints web01's configuration, resource usage, IP addresses, and snapshot list in one view. It is the first stop when an instance misbehaves. Snapshots created with lxc snapshot web01 snap1 show up here too."
+  },
+  {
+   "cmd": "lxc restart web01",
+   "desc": "Restart an instance",
+   "tooltip": "Stops and starts web01 in one step, applying changes made to its configuration. Add --force to skip graceful shutdown if it hangs. For scheduled maintenance, lxc stop and lxc start give you finer control."
+  },
+  {
+   "cmd": "lxc delete web01",
+   "desc": "Delete an instance",
+   "tooltip": "Removes web01 and everything on its root disk, which cannot be undone unless a snapshot exists. Running instances refuse deletion, so stop them first or pass --force. Restore a snapshot beforehand with lxc restore web01 snap1."
+  },
+  {
+   "cmd": "lxc snapshot web01 snap1",
+   "desc": "Snapshot an instance",
+   "tooltip": "Captures web01's filesystem (and optionally memory with --stateful) as snap1, giving you a restore point before risky changes. Snapshots are cheap and stored with the instance. Revert with lxc restore web01 snap1."
+  },
+  {
+   "cmd": "lxc restore web01 snap1",
+   "desc": "Restore an instance from a snapshot",
+   "tooltip": "Replaces web01's current state with the snap1 snapshot, discarding every change since the snapshot was taken. Data written after the snapshot is lost, so confirm before running. List snapshots with lxc info web01."
+  },
+  {
+   "cmd": "lxc file push ./config.yaml web01/etc/config.yaml",
+   "desc": "Copy a file into an instance",
+   "tooltip": "Uploads config.yaml from your machine into web01's filesystem at /etc/config.yaml, the LXD equivalent of scp. Add -p to create missing parent directories. Pull files back with lxc file pull web01/etc/config.yaml ./config.yaml."
+  },
+  {
+   "cmd": "lxc file pull web01/etc/nginx/nginx.conf ./nginx.conf",
+   "desc": "Copy a file out of an instance",
+   "tooltip": "Downloads nginx.conf from inside web01 to your current directory, handy for backing up configs or inspecting them on the host. Use lxc file push for the reverse direction. Directories work too with --recursive."
+  },
+  {
+   "cmd": "lxc image list",
+   "desc": "List locally cached images",
+   "tooltip": "Shows the images cached on your LXD server, which are the base templates instances are created from. Images from remotes like ubuntu: are cached automatically. Import your own with lxc image import ./myimage.tar.gz --alias myapp."
+  },
+  {
+   "cmd": "lxc config set web01 limits.memory 512MB",
+   "desc": "Set an instance resource limit",
+   "tooltip": "Limits web01's memory to 512MB, one of many limits.* keys that constrain CPU, memory, and processes. Changes apply after a restart. See the current config with lxc config show web01."
+  },
+  {
+   "cmd": "lxc config device add web01 www proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:80",
+   "desc": "Add a proxy device to an instance",
+   "tooltip": "Forwards host port 8080 to port 80 inside web01 via a proxy device, the LXD way to publish services without touching iptables. The device survives restarts and is managed with lxc config device. Remove it with lxc config device remove web01 www."
+  },
+  {
+   "cmd": "lxc network list",
+   "desc": "List LXD networks",
+   "tooltip": "Shows the networks managed by LXD, including the default lxdbr0 bridge most instances attach to. Create isolated networks with lxc network create and attach instances with --network on launch. Check usage with lxc network show <name>."
+  },
+  {
+   "cmd": "lxc config show web01",
+   "desc": "Show an instance's full config",
+   "tooltip": "Prints web01's complete configuration as YAML, including limits, devices, and profiles. Edit values with lxc config set web01 <key> <value>. The output is also what lxc edit would open for changes."
+  },
+  {
+   "cmd": "minikube start",
+   "desc": "Start a local Kubernetes cluster",
+   "tooltip": "Creates and starts a single-node Kubernetes cluster on your machine using the default driver (Docker on Linux). The first run downloads a VM image or container, so it can take a while. Check readiness with minikube status."
+  },
+  {
+   "cmd": "minikube status",
+   "desc": "Show cluster status",
+   "tooltip": "Reports whether the minikube cluster's host, kubelet, and API server components are running. If something is down, the output names which part failed. Start or repair with minikube start and minikube delete."
+  },
+  {
+   "cmd": "minikube stop",
+   "desc": "Stop the local cluster",
+   "tooltip": "Shuts down the minikube VM or container, pausing the cluster while preserving its state. Start it again later with minikube start, and the same workloads come back. To remove the cluster entirely, use minikube delete."
+  },
+  {
+   "cmd": "minikube dashboard",
+   "desc": "Open the Kubernetes web dashboard",
+   "tooltip": "Launches the Kubernetes dashboard in your browser, showing cluster resources in a UI. It starts a proxy automatically and prints the URL in the terminal. Combine with kubectl port-forward for services you want to browse."
+  },
+  {
+   "cmd": "minikube tunnel",
+   "desc": "Expose LoadBalancer services locally",
+   "tooltip": "Runs a network tunnel so services of type LoadBalancer get reachable IPs on your machine, which minikube otherwise cannot provide. Keep the command running in its own terminal. Use it after kubectl expose deployment web --type=LoadBalancer --port=80."
+  },
+  {
+   "cmd": "minikube delete",
+   "desc": "Delete the local cluster",
+   "tooltip": "Destroys the minikube cluster and its data, including everything you deployed, with no undo. The same minikube start later creates a fresh empty cluster. Use minikube stop instead when you just want to pause work."
+  },
+  {
+   "cmd": "minikube addons list",
+   "desc": "List available minikube addons",
+   "tooltip": "Shows every addon (optional bundled component like ingress, dashboard, or metrics-server) with its enabled status. Addons extend what a local cluster can do without manual installs. Enable one with minikube addons enable ingress."
+  },
+  {
+   "cmd": "minikube addons enable ingress",
+   "desc": "Enable an addon",
+   "tooltip": "Turns on the ingress addon, installing the nginx ingress controller so ingress resources route traffic on the local cluster. The same pattern enables metrics-server for kubectl top. Confirm with minikube addons list."
+  },
+  {
+   "cmd": "minikube addons enable metrics-server",
+   "desc": "Enable the metrics-server addon",
+   "tooltip": "Installs the metrics server, the component that powers kubectl top nodes and pod autoscaling. Without it, kubectl top reports an error about the Metrics API. Enable it before setting up HorizontalPodAutoscalers."
+  },
+  {
+   "cmd": "minikube ip",
+   "desc": "Show the cluster's IP address",
+   "tooltip": "Prints the IP of the minikube VM or container, which you need to reach NodePort services from your machine. Combine with the node port, for example curl http://$(minikube ip):30080. For LoadBalancer services, use minikube tunnel."
+  },
+  {
+   "cmd": "minikube service web",
+   "desc": "Open a service's URL in the browser",
+   "tooltip": "Finds the web service's URL and opens it in your default browser, or prints it with --url. It handles NodePort and LoadBalancer services for you. Pair with minikube tunnel for LoadBalancer types."
+  },
+  {
+   "cmd": "kind create cluster",
+   "desc": "Create a default kind cluster",
+   "tooltip": "Creates a Kubernetes cluster named kind running entirely in Docker containers, with one control-plane node. kind (Kubernetes in Docker) is the fastest way to spin up a local cluster for testing. Point kubectl at it with kubectl config use-context kind-kind."
+  },
+  {
+   "cmd": "kind create cluster --name dev",
+   "desc": "Create a named kind cluster",
+   "tooltip": "Creates a second cluster named dev, letting you run several isolated clusters side by side. Each cluster gets its own context named kind-dev. List them with kind get clusters."
+  },
+  {
+   "cmd": "kind create cluster --config kind-config.yaml",
+   "desc": "Create a cluster from a config file",
+   "tooltip": "Creates a cluster using the multi-node topology in kind-config.yaml, such as one control-plane and two workers, or custom ports. Config files unlock realistic test setups that the default single-node cluster cannot provide. Delete with kind delete cluster --name <name>."
+  },
+  {
+   "cmd": "kind get clusters",
+   "desc": "List kind clusters",
+   "tooltip": "Prints the name of every kind cluster currently running on your machine. Each name maps to a kubectl context of the form kind-<name>. Remove one with kind delete cluster --name dev."
+  },
+  {
+   "cmd": "kind delete cluster",
+   "desc": "Delete the default kind cluster",
+   "tooltip": "Destroys the kind cluster and its Docker containers, deleting everything deployed in it with no undo. Running containers are removed too, so export anything important first. Use --name to target a specific cluster."
+  },
+  {
+   "cmd": "kind load docker-image myapp:latest",
+   "desc": "Load a local image into the cluster",
+   "tooltip": "Copies the myapp:latest image from your local Docker daemon into every node of the cluster, making it available to pods without a registry. kind nodes do not share your Docker images, so loading is required for local builds. Reference the image as myapp:latest in your manifests."
+  },
+  {
+   "cmd": "kind export kubeconfig --name dev",
+   "desc": "Export a cluster's kubeconfig",
+   "tooltip": "Writes the dev cluster's kubeconfig so other tools can reach it, defaulting to updating your main kubeconfig when no --kubeconfig flag is passed. Useful for pointing kubectl or k9s at a specific kind cluster. Related: kind get clusters lists the names."
+  }
+ ]
+}

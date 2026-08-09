@@ -1,0 +1,795 @@
+{
+  "category": "Security & Hardening",
+  "commands": [
+    {
+      "cmd": "fail2ban-client ping",
+      "desc": "Test if the fail2ban server is running",
+      "tooltip": "Fail2ban watches log files and bans repeated offenders with firewall rules. The ping command asks the fail2ban-server daemon to answer, confirming the client can reach it. A pong reply means the service is alive. Pair with systemctl status fail2ban to inspect service health."
+    },
+    {
+      "cmd": "fail2ban-client reload",
+      "desc": "Reload fail2ban configuration without restarting the server",
+      "tooltip": "Applies changes made in /etc/fail2ban/jail.conf and jail.d/*.conf while keeping the daemon and current bans intact. Use it after editing jail settings or filter definitions. For a full restart of one jail, fail2ban-client restart sshd restarts just that jail."
+    },
+    {
+      "cmd": "fail2ban-client set sshd banip 203.0.113.9",
+      "desc": "Manually ban an IP address in the sshd jail",
+      "tooltip": "Adds an IP to the ban list of the sshd jail immediately, without waiting for the failure threshold to be hit. The address 203.0.113.9 is a documentation IP, so substitute the real offender. Undo with fail2ban-client set sshd unbanip 203.0.113.9."
+    },
+    {
+      "cmd": "fail2ban-client set sshd unbanip 203.0.113.9",
+      "desc": "Remove a ban for an IP in the sshd jail",
+      "tooltip": "Unbans a specific IP from the sshd jail right away, useful when a legitimate user got locked out by mistake. The IP stays unbanned until fail2ban sees new failures. To clear every ban at once, use fail2ban-client unban --all."
+    },
+    {
+      "cmd": "fail2ban-client get sshd banned",
+      "desc": "List currently banned IPs in the sshd jail",
+      "tooltip": "Prints the IP addresses fail2ban has banned for the sshd jail. Compare with fail2ban-client status sshd, which shows banned and failed counts plus the current log position. Useful for verifying that unban commands took effect."
+    },
+    {
+      "cmd": "fail2ban-client set sshd bantime 7200",
+      "desc": "Change the ban duration of the sshd jail",
+      "tooltip": "Sets how long the sshd jail keeps offenders banned, here 7200 seconds, which is 2 hours. The change applies immediately but is not written to the config file, so it resets on reload. Set bantime in jail.conf for a permanent change."
+    },
+    {
+      "cmd": "fail2ban-client unban --all",
+      "desc": "Unban every IP across all fail2ban jails",
+      "tooltip": "Clears the complete ban list of every jail and the persistent database in one shot. Handy after a misconfigured filter or regex caused mass lockouts. Individual addresses can be unbanned with fail2ban-client unban 203.0.113.9 or the per-jail unbanip form."
+    },
+    {
+      "cmd": "fail2ban-regex /var/log/auth.log /etc/fail2ban/filter.d/sshd.conf",
+      "desc": "Test a fail2ban filter against a log file",
+      "tooltip": "Dry-runs a filter without touching the live service, replaying each log line and reporting how many matched the failregex. The second argument can be a filter file path or a regex string. Run this before enabling a custom jail so you can confirm it detects real attacks."
+    },
+    {
+      "cmd": "systemctl status fail2ban",
+      "desc": "Show fail2ban service status and recent log entries",
+      "tooltip": "Displays whether the fail2ban daemon is active, its uptime, and the last few journal lines. Check this when bans are not appearing or the service failed to start. Related: journalctl -u fail2ban -f for a live log stream."
+    },
+    {
+      "cmd": "journalctl -u fail2ban -f",
+      "desc": "Follow the fail2ban service log in real time",
+      "tooltip": "Streams new log lines from the fail2ban systemd unit, showing bans, unbans, and errors as they happen. Press Ctrl+C to stop following. Useful while testing a new jail or after running fail2ban-client reload."
+    },
+    {
+      "cmd": "ufw status",
+      "desc": "Show whether ufw is active and its rules",
+      "tooltip": "Prints Status active or inactive plus the current rule list in short form. For the default policies, logging level, and fuller rule detail, use ufw status verbose. If ufw is inactive, the firewall is not filtering anything."
+    },
+    {
+      "cmd": "ufw status numbered",
+      "desc": "List ufw rules with index numbers",
+      "tooltip": "Adds a number to each rule so you can delete by position, for example ufw delete 3. Numbers change whenever rules are added or removed, so re-run this before deleting. The numbered output shows allow, deny, and limit rules together."
+    },
+    {
+      "cmd": "ufw allow 443/tcp",
+      "desc": "Allow incoming HTTPS traffic on port 443",
+      "tooltip": "Adds a rule permitting TCP connections to port 443, the standard HTTPS port. The /tcp suffix restricts the rule to TCP; omit it to allow both TCP and UDP. To allow several ports at once, use a comma list like ufw allow 80,443/tcp."
+    },
+    {
+      "cmd": "ufw allow from 192.168.1.0/24",
+      "desc": "Allow all traffic from a private subnet",
+      "tooltip": "Permits every port for sources in the 192.168.1.0/24 network, handy for LAN-only services. The /24 is a CIDR mask covering 192.168.1.1 through 192.168.1.254. Restrict further by adding a port, for example ufw allow from 10.0.0.5 to any port 3306."
+    },
+    {
+      "cmd": "ufw allow from 10.0.0.5 to any port 3306",
+      "desc": "Allow one host to reach a specific port",
+      "tooltip": "Lets the single IP 10.0.0.5 connect to MySQL's port 3306 while everyone else is blocked by the default policy. This is the classic pattern for database access from an app server. Check the result with ufw status verbose."
+    },
+    {
+      "cmd": "ufw deny 8080",
+      "desc": "Block incoming traffic on port 8080",
+      "tooltip": "Adds a deny rule that drops connections to port 8080 for both TCP and UDP. Deny rules are checked before the default policy. Remove the rule with ufw delete deny 8080 or by number after ufw status numbered."
+    },
+    {
+      "cmd": "ufw delete allow 8080",
+      "desc": "Remove a previously added allow rule",
+      "tooltip": "Deletes the rule that allowed port 8080, returning that port to the default policy. You must quote the rule exactly as added, or delete by number from ufw status numbered. Verify with ufw status afterwards."
+    },
+    {
+      "cmd": "ufw default deny incoming",
+      "desc": "Set the default policy to block all incoming traffic",
+      "tooltip": "Changes the fallback for incoming connections to deny, so any port without an explicit allow rule is refused. This is the recommended baseline for servers. Combined with ufw default allow outgoing, you build a default-deny posture."
+    },
+    {
+      "cmd": "ufw default allow outgoing",
+      "desc": "Set the default policy to permit all outgoing traffic",
+      "tooltip": "Lets the system initiate any outbound connection, which keeps updates, DNS, and API calls working. Most servers pair this with ufw default deny incoming. Policies apply only to traffic not matched by an explicit rule."
+    },
+    {
+      "cmd": "ufw disable",
+      "desc": "Turn the ufw firewall off completely",
+      "tooltip": "Stops ufw and unloads its kernel rules, leaving the system with no firewall protection. Only do this deliberately, for example when migrating to nftables. Re-enable with ufw enable, and note that ufw reset restores defaults instead."
+    },
+    {
+      "cmd": "ufw app list",
+      "desc": "List available application profiles",
+      "tooltip": "Shows named profiles, such as OpenSSH or Nginx Full, that package ufw profiles define. Each profile bundles the ports a service needs, so you can allow a whole app with ufw allow 'Nginx Full'. Use ufw app info Nginx Full to inspect the ports it contains."
+    },
+    {
+      "cmd": "ufw show added",
+      "desc": "Show the rules added to ufw this session",
+      "tooltip": "Prints only the rules you added since ufw started, excluding defaults, which makes it easy to review your changes. For the full active configuration including policies, use ufw status verbose. The underlying nftables ruleset appears with nft list ruleset."
+    },
+    {
+      "cmd": "ufw limit ssh",
+      "desc": "Rate-limit SSH connections to block brute force",
+      "tooltip": "Allows port 22 but limits each source IP to a few connection attempts per minute, automatically refusing faster repeaters. It is a lightweight alternative to fail2ban for SSH protection. Set the rule before enabling ufw so you never lock yourself out."
+    },
+    {
+      "cmd": "nft list ruleset > /etc/nftables.conf",
+      "desc": "Back up the current nftables ruleset to a file",
+      "tooltip": "Dumps every table, chain, and rule in the kernel to a config file that nft -f can reload later. Run this after each change so the file matches reality. The Debian and Ubuntu initscripts load /etc/nftables.conf at boot, making this your persistence step."
+    },
+    {
+      "cmd": "nft add chain inet filter input '{ type filter hook input priority 0; policy accept; }'",
+      "desc": "Create an input chain with accept default policy",
+      "tooltip": "Defines a chain named input inside the filter table, bound to the input hook where incoming packets arrive. The priority 0 orders it among other chains, and policy accept means unmatched packets pass. Rules added later narrow this default. The braces must be quoted so the shell passes them as one argument."
+    },
+    {
+      "cmd": "nft add rule inet filter input tcp dport 22 accept",
+      "desc": "Allow SSH traffic in the nftables input chain",
+      "tooltip": "Adds a rule that accepts TCP packets destined for port 22, the SSH port, in the input chain. nftables matches modern syntax directly, with no separate match module needed. Add this before any drop rule or you may cut off your SSH session."
+    },
+    {
+      "cmd": "nft add rule inet filter input tcp dport 443 accept",
+      "desc": "Allow HTTPS traffic in the nftables input chain",
+      "tooltip": "Accepts TCP connections to port 443, the standard HTTPS port, in the input chain. Combine several services with a set, for example tcp dport { 80, 443 } accept. This pairs with the established,related rule for well-behaved connections."
+    },
+    {
+      "cmd": "nft add rule inet filter input ct state established,related accept",
+      "desc": "Accept traffic belonging to existing connections",
+      "tooltip": "Lets replies and related packets, like FTP data channels, through for connections your system already opened. The ct keyword reads connection tracking state, a concept iptables expresses as conntrack --ctstate. Place this rule early so response traffic is not dropped by later rules."
+    },
+    {
+      "cmd": "nft add rule inet filter input iif lo accept",
+      "desc": "Accept all traffic on the loopback interface",
+      "tooltip": "Allows packets coming in on lo, the internal loopback interface, unconditionally. Local services often talk to each other over loopback, and blocking it breaks them. Add this rule before any drop rule. The iif keyword means input interface."
+    },
+    {
+      "cmd": "nft add rule inet filter input drop",
+      "desc": "Drop all remaining packets in the input chain",
+      "tooltip": "Adds a catch-all drop as the last rule, so anything not explicitly accepted is discarded silently. In nftables, unlike iptables, you can mix accept and drop rules freely in one chain. Always place it after your accept rules or traffic never reaches them."
+    },
+    {
+      "cmd": "nft -f /etc/nftables.conf",
+      "desc": "Load and apply an nftables configuration file",
+      "tooltip": "Reads the config file and applies the ruleset atomically, replacing what is in the kernel. This is how you restore a backup or apply edits made offline. If the file has a syntax error, nft reports the line and changes nothing, so it is safe to retry."
+    },
+    {
+      "cmd": "nft -a list ruleset",
+      "desc": "List the ruleset with rule handle numbers",
+      "tooltip": "Same as nft list ruleset but annotates every rule with a handle, a numeric id used to delete individual rules. You need these numbers for nft delete rule inet filter input handle 5. Handles change after reloads, so always re-list first."
+    },
+    {
+      "cmd": "nft delete rule inet filter input handle 5",
+      "desc": "Delete one rule by its handle number",
+      "tooltip": "Removes the single rule with handle 5 from the input chain, the precise way to undo one nftables rule. Find the handle with nft -a list ruleset; the numbers are not stable across reloads. To delete a whole chain, use nft delete chain, and nft delete table removes everything in it."
+    },
+    {
+      "cmd": "nft delete table inet filter",
+      "desc": "Delete an entire nftables table",
+      "tooltip": "Removes the filter table and every chain and rule inside it, instantly disabling that part of your firewall. A table with no rules leaves traffic unfiltered, so make sure a replacement ruleset is loaded first. Verify with nft list ruleset afterwards."
+    },
+    {
+      "cmd": "nft list table inet filter",
+      "desc": "Show one nftables table in detail",
+      "tooltip": "Prints just the filter table, its chains, and rules instead of the whole ruleset. Handy when you manage several tables and want to focus on one. The full picture is available with nft list ruleset."
+    },
+    {
+      "cmd": "iptables -S",
+      "desc": "Print all iptables rules in rule format",
+      "tooltip": "Dumps every chain's rules as iptables commands, the same form used to create them. This is the cleanest way to see exactly what is configured, compared to the table layout of iptables -L. The output can be fed back with iptables-restore."
+    },
+    {
+      "cmd": "iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT",
+      "desc": "Accept packets from existing connections",
+      "tooltip": "The conntrack match (connection tracking) lets replies to your outgoing traffic come back in while still blocking new inbound connections. ESTABLISHED covers ongoing sessions and RELATED covers helpers like FTP data. This rule is the foundation of a stateful firewall and should be among the first in INPUT."
+    },
+    {
+      "cmd": "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
+      "desc": "Allow SSH into the INPUT chain",
+      "tooltip": "Appends a rule accepting TCP packets headed for port 22, the SSH port. Without a similar rule, SSH connections fail once the default policy drops traffic. Append it before setting iptables -P INPUT DROP to avoid locking yourself out."
+    },
+    {
+      "cmd": "iptables -A INPUT -p tcp --dport 80,443 -j ACCEPT",
+      "desc": "Allow web traffic on ports 80 and 443",
+      "tooltip": "Accepts TCP connections to both HTTP (80) and HTTPS (443) with one rule, thanks to the comma-separated port list. This covers a typical web server's inbound traffic. Add the conntrack state rule first so replies flow back."
+    },
+    {
+      "cmd": "iptables -A INPUT -i lo -j ACCEPT",
+      "desc": "Accept all loopback traffic",
+      "tooltip": "Lets packets on lo, the loopback interface, through unconditionally. Local processes communicating with each other rely on loopback, so firewalling it usually breaks services. Place this early in the INPUT chain, before any drop rule."
+    },
+    {
+      "cmd": "iptables -P INPUT DROP",
+      "desc": "Set the INPUT chain default policy to drop",
+      "tooltip": "Makes DROP the fallback for any packet that matches no INPUT rule, silently discarding everything else. This is the core of a default-deny firewall, but applied over an active SSH session it severs your connection unless port 22 is already allowed. Test with a short timeout or use a rule-based drop first."
+    },
+    {
+      "cmd": "iptables -D INPUT -p tcp --dport 8080 -j ACCEPT",
+      "desc": "Delete a specific rule from the INPUT chain",
+      "tooltip": "Removes the rule that allowed TCP port 8080; the rule text must match the added rule exactly. Deleting by spec works for one rule, while iptables -D INPUT 3 deletes by position. Check iptables -L --line-numbers for the index."
+    },
+    {
+      "cmd": "iptables -F",
+      "desc": "Flush all rules from every chain",
+      "tooltip": "Empties all chains, leaving only the default policies in effect. If the default policy is DROP, flushing instantly cuts all traffic, including SSH, so be sure of the current policy first. The equivalent for a single chain is iptables -F INPUT."
+    },
+    {
+      "cmd": "ip6tables -L -n -v",
+      "desc": "List IPv6 firewall rules without resolving names",
+      "tooltip": "Shows the IPv6 netfilter ruleset with numeric addresses and packet counters. IPv6 has its own firewall tables, so blocking IPv4 does not protect IPv6 traffic. Manage it with ip6tables, or use nftables which handles both families in one ruleset."
+    },
+    {
+      "cmd": "ip6tables -A INPUT -p tcp --dport 22 -j ACCEPT",
+      "desc": "Allow SSH over IPv6",
+      "tooltip": "Adds an IPv6 rule accepting TCP port 22 in the IPv6 INPUT chain. If your server has an IPv6 address but no ip6tables rules, SSH over IPv6 may be wide open. Mirror your IPv4 rules for the ip6tables tables, or migrate to nftables to manage both at once."
+    },
+    {
+      "cmd": "ipset create blacklist hash:ip timeout 3600",
+      "desc": "Create an IP set with auto-expiring entries",
+      "tooltip": "Defines a set named blacklist of type hash:ip, an efficient lookup table for IP addresses. The timeout 3600 makes every entry expire after one hour unless refreshed. ipset sets live in the kernel and plug into iptables matches like -m set --match-set blacklist src."
+    },
+    {
+      "cmd": "ipset add blacklist 203.0.113.9",
+      "desc": "Add an IP address to a set",
+      "tooltip": "Inserts 203.0.113.9 into the blacklist set so rules referencing the set now match it. Adding to a set is far faster than adding a firewall rule per address. Confirm with ipset list blacklist, or use ipset del to remove a single entry."
+    },
+    {
+      "cmd": "ipset list blacklist",
+      "desc": "Show the entries of an IP set",
+      "tooltip": "Prints every member of the blacklist set plus counts of references and how many seconds remain on expiring entries. Useful to verify that adds and deletes took effect. For all sets at once, run ipset list without a set name."
+    },
+    {
+      "cmd": "ipset destroy blacklist",
+      "desc": "Delete an IP set and all its entries",
+      "tooltip": "Removes the blacklist set entirely, which fails if a firewall rule still references it, so detach those rules first. Destroying a set removes every IP it held at once. The gentler alternative is ipset flush blacklist to just empty it."
+    },
+    {
+      "cmd": "nmap -sV target.example.com",
+      "desc": "Probe open ports and service versions",
+      "tooltip": "Scans target.example.com and for each open port tries to identify the running service and its version, such as OpenSSH 9.6. Version detection helps spot outdated software that may have known vulnerabilities. Combine with nmap -O for OS detection or -A for both plus scripts."
+    },
+    {
+      "cmd": "nmap -p- target.example.com",
+      "desc": "Scan all 65535 TCP ports",
+      "tooltip": "The -p- range covers every TCP port, catching services running on unusual ports that default scans miss. Full scans are slow and noisy, and firewalls or intrusion detection may notice them. Start with common ports, then drill down with -p- only when needed."
+    },
+    {
+      "cmd": "nmap -p 22,80,443 target.example.com",
+      "desc": "Scan a specific list of ports",
+      "tooltip": "Targets only ports 22, 80, and 443, the common SSH and web ports, for a fast and quiet check. Port ranges like -p 1-1024 work the same way. This is the polite scan to run first on a host you administer."
+    },
+    {
+      "cmd": "nmap -A target.example.com",
+      "desc": "Run an aggressive scan with OS and script detection",
+      "tooltip": "Turns on version detection, OS fingerprinting, default scripts, and traceroute in one pass, giving a thorough profile of the host. It is loud and slow, and OS guesses are just that. Run -sV first, then -A when you need the full picture."
+    },
+    {
+      "cmd": "nmap -sS target.example.com",
+      "desc": "Run a SYN half-open port scan",
+      "tooltip": "Sends SYN packets without completing the handshake, the classic fast stealth scan, and requires root privileges to craft raw packets. The target sees connection attempts but usually no full connection log. Without root, fall back to nmap -sT, the TCP connect scan."
+    },
+    {
+      "cmd": "nmap -sT target.example.com",
+      "desc": "Run a TCP connect port scan",
+      "tooltip": "Completes full TCP handshakes to detect open ports, working without root because it uses normal system calls. This is the reliable fallback when nmap -sS is unavailable or blocked. It shows up in target logs as ordinary connection attempts."
+    },
+    {
+      "cmd": "nmap -O target.example.com",
+      "desc": "Detect the target operating system",
+      "tooltip": "Fingerprints the OS from subtle differences in TCP/IP behavior, guessing things like Linux 6.x or Windows 11. It requires root to craft raw packets and is not always accurate, especially behind NAT or firewalls. Combine with -sV for service details."
+    },
+    {
+      "cmd": "nmap -F target.example.com",
+      "desc": "Run a fast scan of the top 100 ports",
+      "tooltip": "Scans only the 100 most commonly open ports, cutting scan time to seconds. Ideal for a quick health check of a host before deeper scans. Use --top-ports 1000 for a broader fast sweep."
+    },
+    {
+      "cmd": "nmap -Pn target.example.com",
+      "desc": "Skip host discovery and scan ports directly",
+      "tooltip": "Assumes the host is up and probes ports without the initial ping, useful when ICMP is blocked or the host ignores pings. Without it, nmap may report the host as down and skip the scan. Combine with -sV to identify services on filtered hosts."
+    },
+    {
+      "cmd": "nmap --top-ports 1000 target.example.com",
+      "desc": "Scan the most frequently used ports",
+      "tooltip": "Targets the 1000 ports most often found open, a balanced middle ground between -F and -p-. The list is based on nmap's frequency data and is a good default for internal audits. Add -sV to identify what runs on each open port."
+    },
+    {
+      "cmd": "openssl version",
+      "desc": "Print the installed OpenSSL version",
+      "tooltip": "Reports the OpenSSL library version, such as OpenSSL 3.0.13, which matters because TLS features and cipher support differ between releases. Old versions miss security fixes, so compare against current releases. Add -a for the full build and compile-time details."
+    },
+    {
+      "cmd": "openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out key.pem",
+      "desc": "Generate a 4096-bit RSA private key",
+      "tooltip": "Creates a new RSA private key of 4096 bits with the modern genpkey interface, the recommended replacement for the old genrsa command. Guard key.pem carefully; anyone holding it can impersonate your service. Inspect the key with openssl pkey -in key.pem -text -noout."
+    },
+    {
+      "cmd": "openssl genpkey -algorithm ed25519 -out key.pem",
+      "desc": "Generate an Ed25519 private key",
+      "tooltip": "Creates an Ed25519 key, a modern elliptic-curve algorithm that is fast, small, and considered strong, supported in OpenSSL 1.1.1 and later. Ed25519 keys are fixed-size and need no bit-length option. Many TLS stacks and SSH servers accept them today, though some legacy clients still expect RSA."
+    },
+    {
+      "cmd": "openssl req -new -x509 -key key.pem -out cert.pem -days 365 -subj '/CN=example.com'",
+      "desc": "Create a self-signed certificate from an existing key",
+      "tooltip": "Issues a self-signed X.509 certificate for CN=example.com using key.pem, valid for 365 days. Self-signed certs work for testing and internal services but browsers distrust them. For a public site, use the same key to generate a CSR and have it signed by a CA, for example via certbot."
+    },
+    {
+      "cmd": "openssl x509 -in cert.pem -noout -fingerprint -sha256",
+      "desc": "Print a certificate's SHA-256 fingerprint",
+      "tooltip": "Computes the certificate's SHA-256 digest, the short identifier used to verify a cert over the phone or in security advisories. Compare the output with the fingerprint published by the certificate owner. Use -dates or -subject to inspect other fields."
+    },
+    {
+      "cmd": "openssl x509 -in cert.pem -noout -dates",
+      "desc": "Show a certificate's validity period",
+      "tooltip": "Prints notBefore and notAfter, the exact timestamps when the certificate becomes valid and expires. Expired certificates break TLS handshakes, so check this before troubleshooting connectivity. The related form with -enddate shows only the expiry date."
+    },
+    {
+      "cmd": "openssl rand -hex 32",
+      "desc": "Generate 32 random bytes as hex",
+      "tooltip": "Outputs 64 hex characters of cryptographically strong randomness, ideal for API keys, database passwords, or salts. Use a real random source for secrets, never predictable patterns. Adjust the length with the byte count, for example openssl rand -hex 16."
+    },
+    {
+      "cmd": "openssl enc -aes-256-cbc -pbkdf2 -salt -in secret.txt -out secret.enc",
+      "desc": "Encrypt a file with a passphrase",
+      "tooltip": "Encrypts secret.txt using AES-256-CBC with a passphrase you type, deriving the key with PBKDF2 and a random salt for stronger password stretching. Delete the original only after testing decryption. WARNING: losing the passphrase makes the file unrecoverable, since there is no backdoor."
+    },
+    {
+      "cmd": "openssl enc -d -aes-256-cbc -pbkdf2 -in secret.enc -out secret.txt",
+      "desc": "Decrypt an OpenSSL-encrypted file",
+      "tooltip": "Reverses the encryption: reads secret.enc, prompts for the passphrase, and writes the plaintext to secret.txt. The cipher and KDF flags must match the ones used to encrypt. Test this immediately after encrypting so you never discover a mistake after deleting the original."
+    },
+    {
+      "cmd": "openssl dgst -sha256 file.iso",
+      "desc": "Compute the SHA-256 checksum of a file",
+      "tooltip": "Hashes file.iso with SHA-256 and prints the digest, used to verify downloads match the publisher's published checksum. Any single-bit change produces a completely different hash. Compare with sha256sum, the coreutils equivalent."
+    },
+    {
+      "cmd": "openssl ciphers -v 'HIGH:!aNULL'",
+      "desc": "List ciphers matching a security policy",
+      "tooltip": "Shows every TLS cipher suite OpenSSL supports that matches the expression, here high-strength ciphers minus anonymous NULL ones. This is how you verify server config strings before putting them in nginx or Apache. Each line lists the cipher, key exchange, and protocol versions."
+    },
+    {
+      "cmd": "openssl s_client -connect example.com:443 -servername example.com -showcerts </dev/null",
+      "desc": "Inspect a TLS server's certificate chain",
+      "tooltip": "Connects to example.com on 443 and dumps the handshake details: certificate chain, negotiated cipher, and validity dates. The -servername flag sets SNI so virtual hosts answer correctly. Pipe the output into openssl x509 -noout -dates to read just the cert dates."
+    },
+    {
+      "cmd": "gpg --quick-generate-key 'Alice <alice@example.com>' rsa4096 sign 1y",
+      "desc": "Create a signing key non-interactively",
+      "tooltip": "Generates a 4096-bit RSA keypair for Alice with signing-only usage and one year validity, without the interactive wizard. The usage word can be sign, encrypt, or auth, and cert is implied. GnuPG stores the key in ~/.gnupg; back up the secret part before relying on it."
+    },
+    {
+      "cmd": "gpg --list-keys",
+      "desc": "List public keys in your keyring",
+      "tooltip": "Shows every public key you hold, with the user ID, fingerprint, and creation date of each. These keys let you verify signatures from and encrypt to their owners. Add a key id to show just one, for example gpg --list-keys alice@example.com."
+    },
+    {
+      "cmd": "gpg --list-secret-keys",
+      "desc": "List secret keys in your keyring",
+      "tooltip": "Lists the private keys you own, identified with sec in the first column. Secret keys are the ones that sign and decrypt, so protect them with a strong passphrase. Use gpg --export-secret-keys to back them up."
+    },
+    {
+      "cmd": "gpg --export --armor alice@example.com > alice.asc",
+      "desc": "Export a public key as ASCII armor",
+      "tooltip": "Writes Alice's public key in armored text format, safe to paste into emails or share on key servers. The --armor flag produces readable text instead of binary. Recipients import it with gpg --import alice.asc before they can encrypt to you."
+    },
+    {
+      "cmd": "gpg --import alice.asc",
+      "desc": "Import a public key from a file",
+      "tooltip": "Adds the key in alice.asc to your keyring so you can encrypt messages to Alice and verify her signatures. After importing, check the fingerprint with gpg --fingerprint alice@example.com and confirm it over a trusted channel. Importing a key alone does not make it trusted."
+    },
+    {
+      "cmd": "gpg -c secret.txt",
+      "desc": "Encrypt a file symmetrically with a passphrase",
+      "tooltip": "Encrypts secret.txt using a passphrase you type, with no recipient key involved, producing secret.txt.gpg. Anyone with the passphrase can decrypt it, so choose a long one. Decrypt with gpg -d secret.txt.gpg."
+    },
+    {
+      "cmd": "gpg -e -r alice@example.com secret.txt",
+      "desc": "Encrypt a file for a specific recipient",
+      "tooltip": "Encrypts secret.txt so only Alice's private key can decrypt it, using her public key from your keyring. The -r recipient flag selects the key, and -e means encrypt. The output file is secret.txt.gpg, and Alice reads it with gpg -d."
+    },
+    {
+      "cmd": "gpg -d secret.txt.gpg",
+      "desc": "Decrypt a GPG-encrypted file",
+      "tooltip": "Decrypts secret.txt.gpg, using your secret key for recipient-encrypted files or a passphrase for symmetric ones, and prints the plaintext to stdout. Redirect to a file to save it, for example gpg -d secret.txt.gpg > secret.txt. Add --output secret.txt to write without redirection."
+    },
+    {
+      "cmd": "gpg --verify file.sig file",
+      "desc": "Verify a detached signature against a file",
+      "tooltip": "Checks that file was signed by the holder of the key that made file.sig, using the public key in your keyring. A good signature confirms authenticity and integrity, while a missing key makes verification impossible. Always verify downloads before running them."
+    },
+    {
+      "cmd": "gpg --fingerprint alice@example.com",
+      "desc": "Show a key's full fingerprint",
+      "tooltip": "Prints the long fingerprint, the unambiguous identifier of a key, to compare against a fingerprint Alice publishes on her website or in person. A matching fingerprint proves you imported the right key. Short key IDs alone are spoofable and should not be trusted."
+    },
+    {
+      "cmd": "gpg --refresh-keys",
+      "desc": "Update all keys from key servers",
+      "tooltip": "Contacts the configured keyservers and fetches the latest versions of every key in your keyring, pulling in new signatures, revocations, and expiry updates. Revocation updates matter because they tell you a key is no longer trustworthy. The network call may be slow on large keyrings."
+    },
+    {
+      "cmd": "gpg --delete-secret-keys alice@example.com",
+      "desc": "Permanently delete a secret key",
+      "tooltip": "Removes Alice's private key from your keyring. WARNING: this is irreversible; any data encrypted only to that key becomes unreadable forever, and you can no longer sign as Alice. Export a backup with gpg --export-secret-keys first. Public keys are removed separately with gpg --delete-keys."
+    },
+    {
+      "cmd": "gpg --clearsign message.txt",
+      "desc": "Sign a file as readable armored text",
+      "tooltip": "Wraps message.txt in an ASCII-armored signature block while leaving the text itself readable, producing message.txt.asc. This is how signed announcements and patches are distributed. Recipients verify with gpg --verify message.txt.asc, and the text is visible without any tool."
+    },
+    {
+      "cmd": "gpg --export-secret-keys --armor alice@example.com > alice-secret.asc",
+      "desc": "Back up a secret key as armored text",
+      "tooltip": "Exports Alice's private key to a text file so you can restore it on another machine or after disk failure. Store the backup offline and encrypted, because anyone holding it can sign and decrypt as Alice. Restore with gpg --import alice-secret.asc."
+    },
+    {
+      "cmd": "ssh-keygen -t ed25519 -a 100",
+      "desc": "Generate an Ed25519 key with 100 KDF rounds",
+      "tooltip": "Creates an Ed25519 keypair, the modern default for SSH, and the -a 100 flag raises the key derivation function rounds from the default 16. More rounds make brute-forcing your passphrase far slower. The public key lands in ~/.ssh/id_ed25519.pub, ready for ssh-copy-id."
+    },
+    {
+      "cmd": "ssh-keygen -t rsa -b 4096",
+      "desc": "Generate a 4096-bit RSA keypair",
+      "tooltip": "Creates an RSA key with a 4096-bit modulus, still needed to talk to older servers and appliances that lack Ed25519 support. A 2048-bit modulus is the absolute minimum today. Prefer ssh-keygen -t ed25519 on systems that accept it."
+    },
+    {
+      "cmd": "ssh-keygen -l -f ~/.ssh/id_ed25519.pub",
+      "desc": "Show a key's fingerprint",
+      "tooltip": "Prints the SHA-256 fingerprint of the public key, the identifier you compare when verifying a key over a trusted channel. Fingerprints are how you confirm you are connecting with the right key. Add -E md5 for the legacy MD5 fingerprint format."
+    },
+    {
+      "cmd": "ssh-keygen -p",
+      "desc": "Change the passphrase of a private key",
+      "tooltip": "Prompts for the private key file, its current passphrase, and a new one, re-encrypting the key in place. The key itself is unchanged, so authorized_keys entries stay valid. Add a passphrase to any key that lacks one; it protects you if the key file leaks."
+    },
+    {
+      "cmd": "ssh-keygen -y -f ~/.ssh/id_ed25519",
+      "desc": "Derive the public key from a private key",
+      "tooltip": "Recomputes and prints the public key that matches the private key, handy when you lost the .pub file. The public key is mathematically derived, so it always matches. Add a redirect to ~/.ssh/id_ed25519.pub to recreate the file with correct permissions."
+    },
+    {
+      "cmd": "ssh-copy-id -p 2222 deploy@example.com",
+      "desc": "Install your public key on a remote server",
+      "tooltip": "Appends your public key to the remote user's authorized_keys over SSH, using port 2222 and user deploy, so future logins need no password. You still authenticate with the password once during the copy. Run ssh-keygen -l -f ~/.ssh/id_ed25519.pub first to know which key goes over."
+    },
+    {
+      "cmd": "ssh-audit example.com",
+      "desc": "Audit an SSH server's algorithms and config",
+      "tooltip": "Connects to example.com and reports the key exchange, host key, cipher, and MAC algorithms it offers, flagging weak or legacy ones with recommendations. It also prints the banner to identify the server software. Run it from a machine you trust, since it actively probes the server."
+    },
+    {
+      "cmd": "ssh-keyscan -t ed25519 example.com",
+      "desc": "Fetch a host's SSH public keys",
+      "tooltip": "Queries example.com for its SSH host keys and prints them, the raw material for pre-populating known_hosts. Pinning the key before the first connection prevents man-in-the-middle attacks. Append the output to ~/.ssh/known_hosts to trust the host, or compare it with the fingerprint shown on the server."
+    },
+    {
+      "cmd": "sshd -t",
+      "desc": "Test the sshd configuration for errors",
+      "tooltip": "Parses /etc/ssh/sshd_config and reports any syntax errors without restarting the service. Silent output means the config is valid. Run this before every config change and reload, so a typo never takes SSH down."
+    },
+    {
+      "cmd": "sshd -T",
+      "desc": "Dump the effective sshd configuration",
+      "tooltip": "Prints every sshd setting with the values sshd will actually use, after applying defaults and includes. This is how you confirm that PasswordAuthentication no really took effect. Compare with /etc/ssh/sshd_config to spot overridden defaults."
+    },
+    {
+      "cmd": "lynis audit system --quick",
+      "desc": "Run a non-interactive security audit",
+      "tooltip": "Scans the whole system for hardening opportunities without pausing for input, ideal for cron jobs and repeat runs. Lynis checks permissions, configs, and installed software and writes findings to /var/log/lynis-report.dat. Review the suggestions after the run."
+    },
+    {
+      "cmd": "lynis audit system --pentest",
+      "desc": "Run a non-privileged penetration test scan",
+      "tooltip": "Audits from an unprivileged perspective, like an attacker who already has a low-level shell, skipping tests that need root. It highlights configuration weaknesses visible without elevated rights. Run the standard lynis audit system with sudo for the complete picture."
+    },
+    {
+      "cmd": "lynis audit dockerfile Dockerfile",
+      "desc": "Audit a Dockerfile for security issues",
+      "tooltip": "Analyzes the Dockerfile for risky patterns, such as running as root, missing healthchecks, or outdated base images. Feed it the Dockerfile from your project repo. The results complement a full system audit."
+    },
+    {
+      "cmd": "lynis update info",
+      "desc": "Check for a newer lynis release",
+      "tooltip": "Contacts the lynis update server and reports your installed version versus the latest available. Keeping lynis current matters because new tests are added regularly. Debian and Ubuntu users can often simply upgrade the lynis package."
+    },
+    {
+      "cmd": "lynis show version",
+      "desc": "Print the installed lynis version",
+      "tooltip": "Outputs the version number of the lynis binary, useful when comparing test results or reporting issues. A quick local check that needs no network access. Combine with lynis update info to see whether an upgrade is available."
+    },
+    {
+      "cmd": "rkhunter --update",
+      "desc": "Update rkhunter's rootkit signatures",
+      "tooltip": "Downloads the latest rootkit definitions and bad-file hashes so the next scan recognizes newer malware. Rootkit Hunter compares system files and binaries against these known-bad patterns. Run this regularly, then rkhunter --check to scan."
+    },
+    {
+      "cmd": "rkhunter --propupd",
+      "desc": "Update rkhunter's baseline file properties",
+      "tooltip": "Records the current permissions, ownership, and hashes of system files as the new baseline after you legitimately changed them, for example after a kernel or package upgrade. Skipping this causes false alarms on the next check. Only run it when you are sure the system is clean."
+    },
+    {
+      "cmd": "debsums -c",
+      "desc": "Verify checksums of all installed packages",
+      "tooltip": "Compares every installed Debian package file against the checksums recorded in its .deb, flagging any that were modified, which may indicate tampering or a botched upgrade. The -s variant silently lists only changed files. Expect a few false positives for files your config tools legitimately edit."
+    },
+    {
+      "cmd": "auditctl -w /etc/passwd -p wa -k passwd_changes",
+      "desc": "Watch a file for writes and attribute changes",
+      "tooltip": "Adds a rule that logs any write to or attribute change on /etc/passwd, tagging events with the key passwd_changes. The -w flag means watch, and -p wa selects write and attribute permissions. Find events later with ausearch -k passwd_changes."
+    },
+    {
+      "cmd": "auditctl -a always,exit -F arch=b64 -S execve -k process_exec",
+      "desc": "Audit every program execution",
+      "tooltip": "Logs each execve system call, meaning every command a process runs, tagged with process_exec. The arch=b64 filter covers 64-bit syscalls, and always,exit means always record on syscall exit. This produces many events, so pair it with ausearch for targeted queries."
+    },
+    {
+      "cmd": "auditctl -e 1",
+      "desc": "Enable the Linux audit subsystem",
+      "tooltip": "Turns auditing on system-wide; auditctl -e 0 disables it and auditctl -e 2 locks the configuration until reboot. Rules added with auditctl apply immediately but are not persistent, so add them to /etc/audit/rules.d/ for boot-time loading. Confirm with auditctl -l."
+    },
+    {
+      "cmd": "ausearch -k passwd_changes",
+      "desc": "Search audit logs by event key",
+      "tooltip": "Prints all audit events tagged with the passwd_changes key, the records created by the matching auditctl watch rule. This is how you answer who touched a file and when. Narrow the window with -ts today or -ts recent."
+    },
+    {
+      "cmd": "ausearch -m USER_LOGIN -ts recent",
+      "desc": "Show recent user login events",
+      "tooltip": "Filters audit records for USER_LOGIN messages, the type written at each login attempt, limited to recent activity by -ts recent. Combine with aureport -l for a login summary instead of raw records. Requires the login ruleset to be loaded."
+    },
+    {
+      "cmd": "aureport -l",
+      "desc": "Summarize login activity from audit logs",
+      "tooltip": "Produces a table of login sessions, users, terminals, and source addresses from audit records. The -l login report is the fastest way to spot unexpected logins. The sibling -au report summarizes authentication attempts and failures."
+    },
+    {
+      "cmd": "systemctl status auditd",
+      "desc": "Show the audit daemon status",
+      "tooltip": "Reports whether auditd is running and shows recent log lines, since the daemon consumes audit records and writes them to /var/log/audit/audit.log. If it is inactive, auditctl rules collect nothing. Start it with systemctl start auditd, and make sure the kernel audit subsystem is enabled."
+    },
+    {
+      "cmd": "cscli bouncers list",
+      "desc": "List registered CrowdSec bouncers",
+      "tooltip": "Shows every bouncer, the components that apply CrowdSec's ban decisions at the firewall or application layer, with their API keys and last-seen activity. A bouncer not seen recently may be failing. Register a new one with cscli bouncers add."
+    },
+    {
+      "cmd": "cscli bouncers add nginx-bouncer",
+      "desc": "Register a new bouncer and get its API key",
+      "tooltip": "Creates a bouncer named nginx-bouncer and prints a one-time API key you paste into that bouncer's config. The key is shown only once, so store it securely. Remove it later with cscli bouncers delete nginx-bouncer."
+    },
+    {
+      "cmd": "cscli decisions list",
+      "desc": "List all active CrowdSec decisions",
+      "tooltip": "Shows current ban, captcha, and throttling decisions with their scope, value, origin, and expiry. Decisions come from local scenarios and from the CrowdSec community blocklist. Delete a bad one with cscli decisions delete --ip 203.0.113.9."
+    },
+    {
+      "cmd": "cscli decisions add --ip 203.0.113.9",
+      "desc": "Ban an IP address manually",
+      "tooltip": "Adds a ban decision for 203.0.113.9 that lasts the default 4 hours, applying to every bouncer. Ban is the default decision type; use --type captcha or --duration 24h to change behavior. This is the manual override when a scenario has not fired yet."
+    },
+    {
+      "cmd": "cscli decisions delete --ip 203.0.113.9",
+      "desc": "Remove a decision for an IP",
+      "tooltip": "Revokes the active decision against 203.0.113.9, which unblocks the address at all bouncers. Handy when a ban was a false positive. Use --id to delete a specific decision by number, visible in cscli decisions list."
+    },
+    {
+      "cmd": "cscli alerts list",
+      "desc": "List alerts CrowdSec has raised",
+      "tooltip": "Shows security alerts, each tied to a scenario, with the offending source, event count, and time. Alerts precede or accompany decisions. Inspect one in detail with cscli alerts inspect 123 using its alert id."
+    },
+    {
+      "cmd": "cscli alerts inspect 123",
+      "desc": "Show the details of one alert",
+      "tooltip": "Dumps alert 123 including the scenario, source IP, and the raw events that triggered it. Add -d to include the underlying log lines, useful for tuning or debugging a scenario. The id comes from cscli alerts list."
+    },
+    {
+      "cmd": "cscli explain --file /var/log/nginx/access.log --type nginx",
+      "desc": "Trace how CrowdSec processes a log file",
+      "tooltip": "Replays the log through your local parsers and scenarios, showing which ones match each line and why, without waiting for real attacks. The --type nginx tells it the log format, and --log tests a single line instead of a file. Great for testing new scenarios before deployment."
+    },
+    {
+      "cmd": "cscli metrics",
+      "desc": "Show live CrowdSec processing metrics",
+      "tooltip": "Displays counters for processed events, dropped messages, and per-parser and per-scenario activity from the local engine. It answers whether logs are flowing and where they stall. Run cscli metrics list to see the available metric groups."
+    },
+    {
+      "cmd": "crowdsec -t",
+      "desc": "Test the CrowdSec configuration",
+      "tooltip": "Validates the main config, parsers, and scenarios and exits, reporting errors without starting the engine. Run this after editing /etc/crowdsec/config.yaml or adding parsers. A clean test means the service should start; then check cscli metrics for live processing."
+    },
+    {
+      "cmd": "firewall-cmd --add-port=443/tcp --permanent",
+      "desc": "Permanently open a TCP port in firewalld",
+      "tooltip": "Adds port 443/tcp to the default zone and saves it across reboots with --permanent. Without that flag the change lasts only until reload. Ports opened this way are usually service-specific; prefer named services like --add-service=https when available."
+    },
+    {
+      "cmd": "firewall-cmd --list-services",
+      "desc": "List services allowed in the current zone",
+      "tooltip": "Shows the named services, like ssh or http, permitted in the active zone. Services are friendlier than raw ports because firewalld knows their ports. To see ports too, use firewall-cmd --list-all."
+    },
+    {
+      "cmd": "firewall-cmd --remove-service=http --permanent",
+      "desc": "Remove an allowed service from firewalld",
+      "tooltip": "Stops allowing the http service in the current zone and persists the change with --permanent. The service stays open until you run firewall-cmd --reload or restart, since permanent changes are not applied live. Re-add it with --add-service=http --permanent."
+    },
+    {
+      "cmd": "firewall-cmd --runtime-to-permanent",
+      "desc": "Save the live firewalld config permanently",
+      "tooltip": "Copies every runtime-only rule change into the permanent configuration, so live edits survive a reload or reboot. This is the safe pattern: test with runtime rules first, then commit. Alternatively, edit permanent rules and reload to apply them."
+    },
+    {
+      "cmd": "firewall-cmd --get-default-zone",
+      "desc": "Show the default firewalld zone",
+      "tooltip": "Prints the zone new interfaces are assigned to, usually public on servers. Understanding the default zone matters because rules apply per zone, and new interfaces inherit the default. Change it with --set-default-zone, for example to internal for trusted networks."
+    },
+    {
+      "cmd": "aa-complain /etc/apparmor.d/usr.sbin.nginx",
+      "desc": "Switch an AppArmor profile to complain mode",
+      "tooltip": "Sets the nginx profile to complain mode, where violations are logged but not blocked, perfect for testing a new or updated profile. A profile in complain mode does not actually protect the service yet. Switch back to enforcement with aa-enforce /etc/apparmor.d/usr.sbin.nginx."
+    },
+    {
+      "cmd": "apparmor_parser -r /etc/apparmor.d/usr.sbin.nginx",
+      "desc": "Reload an AppArmor profile from its file",
+      "tooltip": "Re-reads the profile file and replaces the loaded version, applying edits to policy without rebooting. The -r flag means replace. After reloading, verify with aa-status that the profile is still enforced."
+    },
+    {
+      "cmd": "semanage fcontext -a -t httpd_sys_content_t '/srv/www(/.*)?'",
+      "desc": "Define a SELinux file context rule",
+      "tooltip": "Tells SELinux that files under /srv/www should carry the httpd_sys_content_t type, the label web servers may read. The regex (/.*)? covers files and subdirectories. Context rules do not apply until you run restorecon -Rv /srv/www."
+    },
+    {
+      "cmd": "setsebool -P httpd_can_network_connect 1",
+      "desc": "Enable an SELinux boolean persistently",
+      "tooltip": "Turns on httpd_can_network_connect, which lets Apache open outbound network connections, and -P makes it survive reboots. Booleans are SELinux's switches for common policy choices. See the full list with getsebool -a."
+    },
+    {
+      "cmd": "getsebool -a",
+      "desc": "List all SELinux booleans and their state",
+      "tooltip": "Prints every SELinux boolean with on or off, showing which policy switches are currently enabled. Use it to find the boolean behind a blocked service, for example httpd_can_network_connect. Flip one with setsebool -P <name> 1."
+    },
+    {
+      "cmd": "ausearch -m AVC -ts recent",
+      "desc": "Show recent SELinux denials",
+      "tooltip": "Searches audit records for AVC (Access Vector Cache) messages, the log entries SELinux writes for each denied access, limited to recent activity. Denials usually mean the wrong label or a missing boolean. Fix with chcon, semanage fcontext, or setsebool, then re-check."
+    },
+    {
+      "cmd": "sysctl -w net.ipv4.tcp_syncookies=1",
+      "desc": "Enable TCP SYN cookies against floods",
+      "tooltip": "Turns on SYN cookies, a kernel defense that keeps a SYN flood from exhausting connection slots, a common denial-of-service technique. The -w flag writes the value live. Persist it by adding net.ipv4.tcp_syncookies=1 to /etc/sysctl.d/ and running sysctl -p."
+    },
+    {
+      "cmd": "sysctl -w net.ipv4.conf.all.rp_filter=1",
+      "desc": "Enable reverse path filtering on all interfaces",
+      "tooltip": "Makes the kernel drop packets whose source address does not route back through the interface they arrived on, blocking IP spoofing. The value 1 is strict filtering, while 2 is loose. Apply to all and default interfaces for full coverage."
+    },
+    {
+      "cmd": "sysctl -w net.ipv4.conf.default.accept_redirects=0",
+      "desc": "Ignore ICMP redirect messages",
+      "tooltip": "Stops the kernel from accepting ICMP redirects, which an attacker can abuse to reroute traffic on a LAN. Setting it to 0 on default covers future interfaces. Many hardening guides also disable secure_redirects and apply the same to IPv6."
+    },
+    {
+      "cmd": "sysctl -p /etc/sysctl.d/99-hardening.conf",
+      "desc": "Load kernel parameters from a config file",
+      "tooltip": "Reads the file and applies every net.ipv4, net.ipv6, or fs setting inside, the standard way to activate persistent hardening changes. Settings in /etc/sysctl.d/ load automatically at boot, so this applies them without rebooting. Files later in the directory override earlier ones."
+    },
+    {
+      "cmd": "chattr +i /etc/ssh/sshd_config",
+      "desc": "Make a config file immutable",
+      "tooltip": "Sets the immutable attribute so even root cannot modify, delete, or rename the file until it is removed with chattr -i. This blocks tampering with SSH settings by malware or attackers. Remember to clear the attribute before editing, and run sshd -t afterwards."
+    },
+    {
+      "cmd": "lsattr /etc/ssh/sshd_config",
+      "desc": "Show file attributes",
+      "tooltip": "Lists the extended attributes of the file, where an i in the output means immutable. Use it to confirm whether chattr +i took effect. The attribute letters include a for append-only and e for extent format."
+    },
+    {
+      "cmd": "find / -xdev -type f -perm -4000 -ls",
+      "desc": "Find all setuid binaries",
+      "tooltip": "Lists every file with the setuid bit set, which makes it run with the owner's privileges, a classic privilege-escalation vector. The -xdev flag keeps the search on one filesystem. Review the list and remove setuid from anything that does not need it with chmod u-s."
+    },
+    {
+      "cmd": "find / -xdev -type f -perm -002 -ls",
+      "desc": "Find world-writable files",
+      "tooltip": "Finds files any user can write to, which attackers can modify to plant malicious content. The -002 permission mask matches other-writable files. Audit the results and tighten permissions with chmod o-w where appropriate."
+    },
+    {
+      "cmd": "faillock",
+      "desc": "Show failed login attempt tallies",
+      "tooltip": "Prints the current failure counters per user kept by pam_faillock, the PAM module that locks accounts after repeated bad passwords. A user in the denied column has hit the threshold. Related: passwd -l alice to lock an account manually."
+    },
+    {
+      "cmd": "faillock --user alice --reset",
+      "desc": "Clear a user's failed login counter",
+      "tooltip": "Zeroes alice's failure tally, unlocking her account if pam_faillock locked it after too many wrong passwords. Legitimate users who mistype their password repeatedly hit this lock. Run without --reset to just inspect the tally first."
+    },
+    {
+      "cmd": "chage -M 90 -m 7 -W 7 alice",
+      "desc": "Set password aging policy for a user",
+      "tooltip": "Forces alice's password to expire after 90 days (-M maximum), with at least 7 days between changes (-m minimum) and a 7-day warning before expiry (-W). Regular rotation limits the damage of leaked passwords. Review current settings with chage -l alice."
+    },
+    {
+      "cmd": "clamscan -r --infected /home/barry",
+      "desc": "Scan a directory tree for malware",
+      "tooltip": "Recursively scans /home/barry with ClamAV and prints only infected files thanks to --infected, reducing noise. ClamAV catches Windows malware, phishing payloads, and some Linux threats. Update virus definitions first with freshclam so the scan uses current signatures."
+    },
+    {
+      "cmd": "cryptsetup luksAddKey /dev/sdb1",
+      "desc": "Add a passphrase to a LUKS volume",
+      "tooltip": "Adds another passphrase slot to the LUKS-encrypted device /dev/sdb1 after prompting for an existing one. Multiple keys let several users or an escrow key unlock the volume. Remove a slot with cryptsetup luksRemoveKey /dev/sdb1."
+    },
+    {
+      "cmd": "cryptsetup luksRemoveKey /dev/sdb1",
+      "desc": "Remove a passphrase slot from a LUKS volume",
+      "tooltip": "Deletes a passphrase slot from the encrypted device, so that key can no longer unlock it. You must supply the key being removed; keep at least one valid key or the data is locked forever. Check remaining slots with cryptsetup luksDump /dev/sdb1."
+    },
+    {
+      "cmd": "aide --init",
+      "desc": "Initialize the AIDE integrity database",
+      "tooltip": "Snapshots hashes, sizes, and permissions of system files into the initial AIDE database, the baseline for detecting tampering. The new database is written to /var/lib/aide/aide.db.new; move it into place before the first check. Run it on a freshly installed, trusted system."
+    },
+    {
+      "cmd": "aide --check",
+      "desc": "Compare the system against the AIDE database",
+      "tooltip": "Re-hashes files and reports any that differ from the baseline database, flagging additions, removals, and modifications. Unexpected changes may indicate intrusion or a modified binary. Expect noise after package upgrades, then refresh the baseline with aide --update."
+    },
+    {
+      "cmd": "fail2ban-client status --all",
+      "desc": "Show status of every fail2ban jail",
+      "tooltip": "Prints a summary for all jails at once, including banned counts and log positions, instead of one jail at a time. An optional flavor argument changes the output style, for example stats for a compact table. Drill into one jail with fail2ban-client status sshd."
+    },
+    {
+      "cmd": "openssl pkey -in key.pem -text -noout",
+      "desc": "Inspect a private key's parameters",
+      "tooltip": "Prints the algorithm and parameters of the private key in key.pem, useful to confirm its type and size before use. The output includes the private key material, so keep the terminal private. To show only the public part, use openssl pkey -in key.pem -pubout."
+    },
+    {
+      "cmd": "ufw app info 'Nginx Full'",
+      "desc": "Show the ports of an application profile",
+      "tooltip": "Prints the ports and protocols bundled in the Nginx Full profile, typically 80/tcp and 443/tcp. Knowing a profile's ports helps you decide whether to allow it. Enable it with ufw allow 'Nginx Full'."
+    },
+    {
+      "cmd": "nft list chains inet filter",
+      "desc": "List the chains in an nftables table",
+      "tooltip": "Shows the chains defined in the filter table, such as input, output, and forward, without their rules. Useful for an overview when a table has many chains. The full detail, rules included, comes from nft list table inet filter."
+    },
+    {
+      "cmd": "rkhunter --check --rwo",
+      "desc": "Run a rootkit scan reporting warnings only",
+      "tooltip": "Checks the system for rootkits and prints only warnings, skipping informational lines, which keeps cron output short. The --rwo flag means report warnings only. Full output appears when you run rkhunter --check without it."
+    },
+    {
+      "cmd": "ssh-keygen -t ed25519 -N '' -f ~/.ssh/deploy_key",
+      "desc": "Generate a passwordless key for automation",
+      "tooltip": "Creates an Ed25519 key with an empty passphrase, stored as ~/.ssh/deploy_key, so scripts and CI jobs can log in unattended. The -N '' flag sets no passphrase, and -f names the file. Only do this for keys with limited, revocable access, since anyone who steals the file can use the key."
+    },
+    {
+      "cmd": "systemctl mask sshd",
+      "desc": "Disable SSH completely",
+      "tooltip": "Symlinks the sshd unit to /dev/null, so it cannot be started by any means, including dependencies or manual start attempts. This is the drastic way to shut down SSH after a compromise or on a hardened bastion. Re-enable with systemctl unmask sshd."
+    },
+    {
+      "cmd": "cryptsetup luksChangeKey /dev/sdb1",
+      "desc": "Change a passphrase on a LUKS volume",
+      "tooltip": "Replaces one of the volume's passphrases after prompting for the old and new ones, useful for routine key rotation. The number of slots stays the same. Confirm the slots with cryptsetup luksDump /dev/sdb1."
+    },
+    {
+      "cmd": "gpg --show-keys alice.asc",
+      "desc": "Inspect a key file without importing it",
+      "tooltip": "Prints the fingerprint, user IDs, and subkeys of the key in alice.asc without adding it to your keyring. This is the safe way to inspect a key before importing it. Import with gpg --import alice.asc when you are satisfied."
+    },
+    {
+      "cmd": "gpg --quick-add-uid alice@example.com 'Alice Backup <alice+backup@example.com>'",
+      "desc": "Add an identity to an existing key",
+      "tooltip": "Attaches a second user ID to Alice's key, useful for mapping several email addresses to one identity. The new user ID is signed by the key's owner automatically, so others can trust it right away. List identities with gpg --list-keys alice@example.com."
+    },
+    {
+      "cmd": "unhide proc",
+      "desc": "Detect processes hidden from ps",
+      "tooltip": "Compares /proc entries with the output of ps to find processes a rootkit or kernel module is hiding. Hidden processes often mean the box is compromised. Other tests include unhide sys, which checks against system calls. Run it alongside rkhunter --check for a deeper sweep."
+    }
+  ]
+}

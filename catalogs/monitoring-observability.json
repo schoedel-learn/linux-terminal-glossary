@@ -1,0 +1,605 @@
+{
+  "category": "Monitoring & Observability",
+  "commands": [
+    {
+      "cmd": "promtool check config",
+      "desc": "Validate Prometheus config files for syntax errors",
+      "tooltip": "Parses every scrape_config, rule file reference, and global setting in your prometheus.yml and reports problems with file and line numbers. Add config paths as arguments, for example promtool check config /etc/prometheus/prometheus.yml. Run it before restarting the server to avoid a broken scrape setup."
+    },
+    {
+      "cmd": "promtool check rules /etc/prometheus/rules.yml",
+      "desc": "Validate Prometheus recording and alerting rules",
+      "tooltip": "Checks rule files for valid PromQL expressions, correct YAML, and sane structure. It flags rules that never fire and expressions that reference missing metrics. Run it in CI before deploying new alerting rules."
+    },
+    {
+      "cmd": "promtool check web-config",
+      "desc": "Validate the Prometheus web server config",
+      "tooltip": "Verifies the YAML passed to --web.config.file, covering TLS certificates, basic auth, and HTTP header settings for the web UI and API. It catches expired certificate paths and malformed bcrypt hashes before the server fails at startup."
+    },
+    {
+      "cmd": "promtool check healthy",
+      "desc": "Check a running Prometheus health endpoint",
+      "tooltip": "Queries the /-/healthy endpoint of a Prometheus server and reports whether it is alive. The server must be running and reachable. It returns a non-zero exit code when the server is down, which makes it useful in monitoring probes."
+    },
+    {
+      "cmd": "promtool check ready",
+      "desc": "Check that Prometheus is ready for queries",
+      "tooltip": "Queries the /-/ready endpoint, which only reports ready after the server has finished loading TSDB data following a restart. Use it in load balancer checks to avoid querying a server that is still warming up."
+    },
+    {
+      "cmd": "promtool check metrics",
+      "desc": "Lint Prometheus metric names from stdin",
+      "tooltip": "Reads a metrics exposition file from standard input and flags metric and label names that break Prometheus naming rules. Pipe an exported file to it, for example cat metrics.prom | promtool check metrics. Add --extended for deeper consistency checks."
+    },
+    {
+      "cmd": "cat metrics.prom | promtool check metrics --extended",
+      "desc": "Deep-lint an exported metrics file",
+      "tooltip": "Runs the extended metric checks against a text-format metrics dump, validating naming conventions and unit consistency. The --extended mode also flags names whose _total or _seconds suffixes suggest unit mistakes. Feed it output from any exporter, such as a curl of a /metrics endpoint."
+    },
+    {
+      "cmd": "promtool query instant http://localhost:9090 'up'",
+      "desc": "Run an instant PromQL query against a server",
+      "tooltip": "Evaluates a PromQL expression at the current time against the server given as the positional argument and prints the resulting series. The expression up returns one series per scrape target, where 1 means healthy and 0 means down. Add --time with an RFC3339 timestamp to evaluate at a past moment."
+    },
+    {
+      "cmd": "promtool query range http://localhost:9090 'rate(cpu[5m])' --start=2026-08-09T00:00:00Z --end=2026-08-09T02:00:00Z --step=60s",
+      "desc": "Evaluate a PromQL expression over a time range",
+      "tooltip": "Samples a PromQL expression between --start and --end at intervals of --step, letting you preview what a graph will show without opening the UI. rate(cpu[5m]) computes the per-second increase of a counter averaged over five-minute windows. Times accept RFC3339 or Unix epoch seconds."
+    },
+    {
+      "cmd": "promtool tsdb list",
+      "desc": "List blocks in the Prometheus TSDB",
+      "tooltip": "Shows the time series blocks on disk in the TSDB (time series database), including each block's time range, series count, and size. Point it at the data directory with promtool tsdb list /var/lib/prometheus when the server uses a non-default path. Add -r for human-readable sizes."
+    },
+    {
+      "cmd": "promtool tsdb analyze",
+      "desc": "Analyze TSDB blocks for cardinality",
+      "tooltip": "Reports which metric names and label pairs consume the most storage, helping you find high-cardinality series that bloat the TSDB. High cardinality from labels like user_id or pod names is the most common cause of Prometheus memory growth. Point it at the data directory, for example promtool tsdb analyze /var/lib/prometheus."
+    },
+    {
+      "cmd": "promtool check service-discovery",
+      "desc": "Dry-run service discovery against a config",
+      "tooltip": "Runs the service discovery and relabeling steps from your scrape config and prints the targets that would be scraped, without scraping them. It takes the config file and job name as arguments, for example promtool check service-discovery /etc/prometheus/prometheus.yml node. Invaluable for debugging relabel rules."
+    },
+    {
+      "cmd": "promtool debug pprof",
+      "desc": "Capture pprof profiles from a running Prometheus",
+      "tooltip": "Collects Go runtime performance profiles such as heap, CPU, and goroutines from a running server and stores them locally for analysis. The server URL is the required argument, for example promtool debug pprof http://localhost:9090. Use it when investigating memory growth or slow queries."
+    },
+    {
+      "cmd": "promtool debug metrics http://localhost:9090",
+      "desc": "Dump self-metrics from a running Prometheus",
+      "tooltip": "Exports every metric the Prometheus server exposes about itself into a file for offline inspection. The server URL is the required argument. Combined with promtool debug all, this gives a full snapshot for debugging server performance problems."
+    },
+    {
+      "cmd": "promtool debug all http://localhost:9090",
+      "desc": "Collect a full debug bundle from Prometheus",
+      "tooltip": "Bundles pprof profiles, self-metrics, and config into one archive for support and debugging sessions. It requires only the server URL. Prefer it when you are not sure which individual debug command you need."
+    },
+    {
+      "cmd": "promtool promql format 'sum(rate(http_requests_total[5m]))'",
+      "desc": "Pretty-print a PromQL expression",
+      "tooltip": "Reformats a PromQL expression with consistent spacing and indentation so complex queries become readable. It is handy for cleaning up expressions pasted from dashboards. The formatted query prints to standard output without being evaluated."
+    },
+    {
+      "cmd": "promtool tsdb dump /var/lib/prometheus",
+      "desc": "Dump raw samples from a TSDB block",
+      "tooltip": "Prints the raw sample data stored in the TSDB at the given path, useful for low-level debugging of what exactly is on disk. Output can be enormous on production databases, so prefer tsdb analyze for cardinality questions."
+    },
+    {
+      "cmd": "prometheus --config.file=/etc/prometheus/prometheus.yml",
+      "desc": "Start the Prometheus server with a config file",
+      "tooltip": "Launches the Prometheus server reading its scrape and alerting configuration from the given file. The main config holds scrape_configs, rule file references, and alertmanager settings. Most distributions ship a systemd unit that already passes this flag, so run the binary directly only for test instances."
+    },
+    {
+      "cmd": "prometheus --web.listen-address=:9090",
+      "desc": "Start Prometheus bound to a specific address",
+      "tooltip": "Sets the address and port the web UI and API listen on, defaulting to 0.0.0.0:9090 on all interfaces. Bind to 127.0.0.1:9090 to keep the API private. Combine with --web.external-url when serving behind a reverse proxy."
+    },
+    {
+      "cmd": "prometheus --web.listen-address=127.0.0.1:9090",
+      "desc": "Start Prometheus bound to localhost only",
+      "tooltip": "Restricts the web UI and API to the loopback interface so only local processes can reach port 9090. Useful for test instances or when a reverse proxy terminates TLS on the same host. The API is unauthenticated by default, so binding it to a public interface exposes full query and admin access."
+    },
+    {
+      "cmd": "prometheus --storage.tsdb.retention.time=30d",
+      "desc": "Limit how long Prometheus keeps samples",
+      "tooltip": "Configures the retention window for samples in the TSDB (time series database); data older than 30 days is deleted in the background. Disk usage grows with retention, scrape frequency, and series count, so size the volume accordingly. Lower it on small disks and raise it when you need long-range queries."
+    },
+    {
+      "cmd": "prometheus --storage.tsdb.path=/var/lib/prometheus",
+      "desc": "Set the TSDB data directory for Prometheus",
+      "tooltip": "Points the TSDB (time series database) at a specific directory, defaulting to ./data in the working directory. Put it on a fast disk with room for at least two blocks plus head block headroom. Keep the path consistent across restarts or Prometheus starts a fresh empty database."
+    },
+    {
+      "cmd": "prometheus --web.external-url=https://prom.example.com",
+      "desc": "Advertise an external URL for the web UI",
+      "tooltip": "Tells Prometheus the public URL users and other systems use to reach it, which matters when it sits behind a reverse proxy or load balancer. Links in the web UI, alert notifications, and generated configs use this URL. Also pass --web.route-prefix when serving under a subpath."
+    },
+    {
+      "cmd": "curl -s localhost:9100/metrics | head -20",
+      "desc": "Fetch the first metrics from the node exporter",
+      "tooltip": "Pulls the OpenMetrics text exposition from the node exporter's /metrics endpoint, which listens on port 9100 by default. Every line is one metric: name, labels in braces, and the current value. The head -20 shows the header, HELP and TYPE lines, and the first metrics."
+    },
+    {
+      "cmd": "curl -s localhost:9100/metrics | grep node_cpu_seconds_total",
+      "desc": "Grep one metric from the node exporter",
+      "tooltip": "Filters the node exporter output for the node_cpu_seconds_total metric, which counts CPU time per core and per mode such as user or idle. It is a counter that only increases, so dashboards normally apply rate() to it in PromQL. Add the caret form '^node_cpu_seconds_total' to skip the HELP and TYPE lines."
+    },
+    {
+      "cmd": "systemctl status prometheus-node-exporter",
+      "desc": "Show status of the node exporter service",
+      "tooltip": "Displays whether the prometheus-node-exporter systemd unit is running, its PID, recent log lines, and the listen address. A failed state usually means a bad flag in the unit file. Follow with journalctl -u prometheus-node-exporter -f to watch live output."
+    },
+    {
+      "cmd": "node_exporter --collector.textfile.directory=/var/lib/node_exporter/textfile",
+      "desc": "Enable the node exporter textfile collector",
+      "tooltip": "Enables the textfile collector, which serves metrics from .prom files dropped into the given directory. Cron jobs write custom metrics there, such as backup duration or pending update counts, and the exporter exposes them alongside its built-in ones. The directory must exist and be readable by the exporter user."
+    },
+    {
+      "cmd": "node_exporter --web.listen-address=:9100",
+      "desc": "Bind the node exporter to an address",
+      "tooltip": "Sets the address and port the node exporter listens on, defaulting to :9100 on all interfaces. Bind to 127.0.0.1:9100 when only a local Prometheus scrapes it, or to a private IP when Prometheus runs elsewhere. Change it in the systemd unit, then restart the service."
+    },
+    {
+      "cmd": "node_exporter --collector.systemd",
+      "desc": "Enable the node exporter systemd collector",
+      "tooltip": "Activates the systemd collector, which exposes metrics about every unit on the host: active state, restart counts, and recent start times. It is opt-in because it is expensive on machines with hundreds of units. Filter which units are tracked with the --collector.systemd.unit-whitelist and --collector.systemd.unit-blacklist flags."
+    },
+    {
+      "cmd": "node_exporter --collector.disable-defaults",
+      "desc": "Start node exporter with only chosen collectors",
+      "tooltip": "Disables all default collectors so only the ones you enable explicitly run, cutting overhead on specialized hosts. Combine it with flags such as --collector.systemd to build a minimal collector set. Re-enable anything you still need, for example --collector.textfile.directory for custom metrics."
+    },
+    {
+      "cmd": "amtool alert query",
+      "desc": "Query active alerts from Alertmanager",
+      "tooltip": "Lists the alerts currently firing or resolved in Alertmanager, using the server from --alertmanager.url or your amtool config file. Add label matchers to filter, for example amtool alert query alertname=HighCPU. Use -o json for machine-readable output in scripts."
+    },
+    {
+      "cmd": "amtool alert query alertname=HighCPU",
+      "desc": "Query alerts matching a label matcher",
+      "tooltip": "Filters Alertmanager's active alerts by label matchers, here any alert whose alertname label equals HighCPU. Matchers support regex and negation, so alertname=~'High.*' also works. Add -i or -s to include inhibited or silenced alerts in the listing."
+    },
+    {
+      "cmd": "amtool alert query -o json",
+      "desc": "Export active alerts as JSON",
+      "tooltip": "Prints Alertmanager's current alerts as a JSON array, ideal for piping into jq or other tooling. The simple output mode is the default; extended adds annotation fields. The alertmanager URL comes from --alertmanager.url or the amtool config file."
+    },
+    {
+      "cmd": "amtool silence add --duration 2h --comment 'maintenance' --author alice",
+      "desc": "Create a silence for a fixed duration",
+      "tooltip": "Suppresses alert notifications for the given duration, here two hours, until it expires on its own. You must also pass label matchers to select which alerts are silenced, for example alertname=HighCPU. The --comment and --author fields are required by default and show up in the Alertmanager UI."
+    },
+    {
+      "cmd": "amtool silence add alertname=HighCPU -d 1h -c 'scheduled maintenance' -a alice",
+      "desc": "Silence alerts matching a label matcher",
+      "tooltip": "Short-form silence creation: match alerts with alertname=HighCPU and mute them for one hour (-d). -c sets the comment and -a the author, both shown in the Alertmanager web UI. The flag is -d/--duration, not the --expires form older documentation shows."
+    },
+    {
+      "cmd": "amtool silence expire 9f2b1a7c-4e3d-4f6a-9c1b-2a3b4c5d6e7f",
+      "desc": "Expire a silence by its ID",
+      "tooltip": "Immediately ends a silence identified by its UUID, which you can copy from the Alertmanager UI. Expiring is instant and cannot be undone, so confirm the ID first. Use it when a maintenance window ends early and you want notifications flowing again."
+    },
+    {
+      "cmd": "amtool check-config alertmanager.yml",
+      "desc": "Validate an Alertmanager config file",
+      "tooltip": "Parses alertmanager.yml and reports problems with routes, receivers, and inhibit rules before you load it. Run it in CI or before restarting Alertmanager to avoid a config that silently drops notifications. Pass multiple files to check them together."
+    },
+    {
+      "cmd": "amtool alert query --alertmanager.url=http://localhost:9093",
+      "desc": "Point amtool at a specific Alertmanager",
+      "tooltip": "Overrides the Alertmanager endpoint for this invocation, here the default local address on port 9093. Without it amtool reads the URL from its config file or the AMTOOL_URL environment variable. Useful when several Alertmanager instances run on one host."
+    },
+    {
+      "cmd": "grafana cli plugins install grafana-clock-panel",
+      "desc": "Install a Grafana plugin from the catalog",
+      "tooltip": "Downloads and installs a plugin from the Grafana catalog; grafana-clock-panel adds a live clock visualization. Bundled panels such as piechart are already built in, so pick a community plugin for install examples. Restart grafana-server afterwards so the plugin is picked up."
+    },
+    {
+      "cmd": "grafana cli plugins list-remote",
+      "desc": "List plugins in the Grafana catalog",
+      "tooltip": "Shows every plugin in the remote Grafana catalog with its version, useful for finding plugin IDs before installing. Output is long, so pipe it through grep for a keyword. Note the subcommand form: the canonical syntax is grafana cli followed by the action."
+    },
+    {
+      "cmd": "grafana cli plugins ls",
+      "desc": "List locally installed Grafana plugins",
+      "tooltip": "Prints the plugins installed on this Grafana instance with their versions and whether updates exist. Compare it against list-remote to spot outdated plugins. Plugins live under the data/plugins directory of the Grafana install."
+    },
+    {
+      "cmd": "grafana cli plugins update grafana-clock-panel",
+      "desc": "Update one installed Grafana plugin",
+      "tooltip": "Upgrades a single plugin to the latest version from the catalog. Restart grafana-server afterwards so the new version is loaded. For plugins installed from a local zip, reinstall the zip instead."
+    },
+    {
+      "cmd": "grafana cli plugins update-all",
+      "desc": "Update every installed Grafana plugin",
+      "tooltip": "Upgrades all plugins on the instance to their latest versions in one pass. Useful after major Grafana upgrades, though plugin authors occasionally break compatibility, so check the release notes. Restart grafana-server after the update completes."
+    },
+    {
+      "cmd": "grafana cli plugins remove grafana-clock-panel",
+      "desc": "Uninstall a Grafana plugin",
+      "tooltip": "Removes a plugin from the Grafana installation, freeing space and hiding it from the panel list. Dashboard panels that used the removed plugin show an error until replaced. Restart grafana-server to complete the removal."
+    },
+    {
+      "cmd": "grafana cli admin reset-admin-password Str0ngPassw0rd9",
+      "desc": "Reset the Grafana admin password from the CLI",
+      "tooltip": "Sets the admin user's password directly, bypassing the web UI login flow. On Debian packages add --homepath /usr/share/grafana or you get 'Could not find config defaults'. Restart grafana-server afterwards so the new password takes effect."
+    },
+    {
+      "cmd": "systemctl status grafana-server",
+      "desc": "Show status of the Grafana server service",
+      "tooltip": "Reports whether the grafana-server systemd unit is running, its PID, memory use, and the last log lines. The web UI listens on port 3000 by default, so a healthy unit should answer on http://localhost:3000. Follow with journalctl -u grafana-server -f for live logs."
+    },
+    {
+      "cmd": "journalctl -u grafana-server -f",
+      "desc": "Follow Grafana server logs live",
+      "tooltip": "Streams new log lines from the grafana-server systemd unit as they are written, ideal for watching a startup or debugging a login issue. Press Ctrl+C to stop following. Add --since '10 min ago' to replay recent lines before following."
+    },
+    {
+      "cmd": "curl -s http://localhost:3000/api/health",
+      "desc": "Check the Grafana health API endpoint",
+      "tooltip": "Returns the Grafana health status as JSON, including database connectivity, without requiring authentication. A response of database ok means the server is up and its backend store is reachable. Useful as a load balancer or monitoring probe."
+    },
+    {
+      "cmd": "curl -s -H 'Authorization: Bearer $GRAFANA_TOKEN' http://localhost:3000/api/health",
+      "desc": "Call the Grafana API with a service account token",
+      "tooltip": "Authenticates to the Grafana HTTP API using a service account token from Administration, Service accounts. The token travels as a Bearer token in the Authorization header; $GRAFANA_TOKEN expands from your environment. Authenticated calls can reach user-scoped endpoints such as /api/users."
+    },
+    {
+      "cmd": "docker run -d --name uptime-kuma -p 3001:3001 -v uptime-kuma-data:/app/data louislam/uptime-kuma:2",
+      "desc": "Run Uptime Kuma in a Docker container",
+      "tooltip": "Starts Uptime Kuma, a self-hosted uptime monitor, detached (-d) with its web UI on port 3001. The named volume uptime-kuma-data persists monitors and settings, so data survives container recreation. Use image tag :2 for the current v2 release, not :1. Open http://localhost:3001 to create the admin account."
+    },
+    {
+      "cmd": "docker run -d --name uptime-kuma -p 127.0.0.1:3001:3001 -v uptime-kuma-data:/app/data louislam/uptime-kuma:2",
+      "desc": "Run Uptime Kuma bound to localhost only",
+      "tooltip": "Same as the default run but binds the web UI to 127.0.0.1, so only the local machine can reach port 3001. Pair it with a reverse proxy like Caddy or nginx to serve Kuma over HTTPS. The monitor data volume and image tag :2 are unchanged."
+    },
+    {
+      "cmd": "btop",
+      "desc": "Open the btop system monitor",
+      "tooltip": "Launches the btop TUI (terminal user interface) showing CPU, memory, disks, network, and process tables. Mouse and arrow-key navigation work out of the box. Press ? for the help overlay and q to quit."
+    },
+    {
+      "cmd": "btop -p 1",
+      "desc": "Start btop with a saved preset layout",
+      "tooltip": "Loads preset layout number 1, one of ten saved box arrangements that persist between sessions. Presets are useful when you like a specific arrangement of CPU, memory, and process panes. Save your own layouts and cycle them with the p key."
+    },
+    {
+      "cmd": "btop -u 500",
+      "desc": "Set the btop refresh interval in milliseconds",
+      "tooltip": "Sets the UI update interval to 500 milliseconds, down from the default 1000, for smoother graphs on fast machines. Lower values cost more CPU, so raise it on loaded servers or slow SSH links. The interval is also adjustable live with the plus and minus keys."
+    },
+    {
+      "cmd": "btop -f nginx",
+      "desc": "Start btop with a process filter applied",
+      "tooltip": "Pre-filters the process list to entries matching nginx, so only matching processes appear at startup. The filter is a substring match against process names. You can also press f while btop runs to filter interactively."
+    },
+    {
+      "cmd": "btop -c ~/.config/btop/btop.conf",
+      "desc": "Start btop with a specific config file",
+      "tooltip": "Tells btop to read its configuration from the given path instead of the default ~/.config/btop/btop.conf. Useful for shipping a team-standard layout or testing theme changes without touching your real config. Generate a fresh default file with btop --default-config."
+    },
+    {
+      "cmd": "gdu /home",
+      "desc": "Analyze disk usage interactively starting at /home",
+      "tooltip": "Scans /home and opens an interactive TUI where you navigate directories with arrow keys and delete files with d. Sizes update progressively as the scan proceeds. Quit with q; nothing is deleted unless you confirm."
+    },
+    {
+      "cmd": "gdu -n /home",
+      "desc": "Print disk usage non-interactively",
+      "tooltip": "Runs a single non-interactive scan and prints a text table of the largest directories, suitable for scripts and SSH sessions. gdu is much faster than du because it reads the filesystem in parallel. Pair it with -o to write the result to a file for later analysis."
+    },
+    {
+      "cmd": "gdu -x /",
+      "desc": "Analyze root without crossing filesystems",
+      "tooltip": "Scans / but does not descend into mounted filesystems like /proc, /sys, or other disks, mirroring du -x. Without it gdu would count kernel pseudo-files and remote mounts, inflating the total. Use it to measure a single filesystem's real usage."
+    },
+    {
+      "cmd": "gdu -H /home",
+      "desc": "Ignore hidden files in the gdu scan",
+      "tooltip": "Excludes dot-directories such as .cache and .config from the gdu scan, giving a clearer view of visible disk usage. The flag is -H/--no-hidden; current gdu has no --show-hidden option. Combine with -n for scripted output."
+    },
+    {
+      "cmd": "dust",
+      "desc": "Show disk usage as a treemap bar chart",
+      "tooltip": "Renders directory sizes as an inverted treemap where the widest bar is the largest consumer, making outliers obvious at a glance. The current directory is scanned when no path is given. Use arrow keys or the mouse to navigate into subdirectories."
+    },
+    {
+      "cmd": "dust -n 20",
+      "desc": "Limit dust output to the top 20 entries",
+      "tooltip": "Restricts the listing to the 20 largest entries, trimming the long tail of small directories. Useful when a scan produces hundreds of rows. The order still reflects size unless you add -r to reverse it."
+    },
+    {
+      "cmd": "dust -d 3",
+      "desc": "Limit dust recursion to three levels deep",
+      "tooltip": "Stops the tree at depth 3, so only top-level, second-level, and third-level directories are shown. Deeper nesting is collapsed, which speeds up scans of large trees. Raise the depth when the real space hog sits far down the tree."
+    },
+    {
+      "cmd": "dust -s",
+      "desc": "Sort dust output by apparent size",
+      "tooltip": "Sorts directories by apparent size, the sum of file lengths, instead of actual disk usage including filesystem block overhead. The two differ most on filesystems with large block sizes or many small files."
+    },
+    {
+      "cmd": "dust -b",
+      "desc": "Hide bars and percentages in dust",
+      "tooltip": "Removes the size bars and percentage columns, leaving a compact plain listing of sizes. Useful for piping dust output into other commands or when the bars wrap on narrow terminals."
+    },
+    {
+      "cmd": "dust -x /",
+      "desc": "Restrict dust to a single filesystem",
+      "tooltip": "Prevents dust from crossing into other mounted filesystems while scanning /, so /proc, /sys, and external mounts are excluded. This mirrors the -x flag of du. Use it to measure one disk's usage without noise from pseudo-filesystems."
+    },
+    {
+      "cmd": "duf",
+      "desc": "Show disk usage across mounted filesystems",
+      "tooltip": "Lists every mounted filesystem with size, used, available, and usage percentage in a color-coded table. It groups local disks, network mounts, and special filesystems into separate sections. The default view hides some pseudo-filesystems to reduce noise."
+    },
+    {
+      "cmd": "duf /home",
+      "desc": "Show usage for filesystems under a path",
+      "tooltip": "Filters the duf output to the filesystem containing the given path, here /home. Pass multiple paths to see several at once. The filter also works with mount points such as duf /var/lib/docker."
+    },
+    {
+      "cmd": "duf --sort size",
+      "desc": "Sort duf output by filesystem size",
+      "tooltip": "Orders the duf table by total size, largest first, so the biggest volumes stand out. Other sort keys such as usage or mountpoint are available. Combine with --only or --hide to restrict which filesystem types appear."
+    },
+    {
+      "cmd": "duf --json",
+      "desc": "Emit duf output as JSON",
+      "tooltip": "Prints the filesystem table as JSON for scripting and monitoring integrations. Each entry carries device, mount point, and size fields in both human-readable and byte values. Pipe it through jq for custom formatting."
+    },
+    {
+      "cmd": "duf --all",
+      "desc": "Show every filesystem including pseudo mounts",
+      "tooltip": "Includes pseudo, loop, and bind filesystems that duf hides by default, such as tmpfs, squashfs, and loop devices. Useful when tracking down container or snap storage. The output gets long, so combine with --sort size and grep for what you need."
+    },
+    {
+      "cmd": "duf --output mountpoint,size,usage",
+      "desc": "Choose which columns duf prints",
+      "tooltip": "Restricts the table to the named columns, here mountpoint, size, and usage, in that order. Available fields include device, type, used, avail, and inodes. Useful for keeping the table narrow in scripts."
+    },
+    {
+      "cmd": "bandwhich",
+      "desc": "Show live per-process network usage",
+      "tooltip": "Displays which processes, connections, and remote hosts consume bandwidth in real time, with per-interface totals. It sniffs packets, so it usually needs root. Quit with q; press h for help. The default view shows local ports and remote addresses."
+    },
+    {
+      "cmd": "bandwhich -i eth0",
+      "desc": "Monitor bandwidth on one interface",
+      "tooltip": "Limits packet capture to the given interface, here eth0, instead of sniffing all interfaces. Useful on machines with many virtual interfaces where the default view is noisy. Other flags such as -n cut further noise."
+    },
+    {
+      "cmd": "bandwhich -n",
+      "desc": "Disable DNS resolution in bandwhich",
+      "tooltip": "Skips reverse DNS lookups so remote hosts appear as raw IP addresses, speeding up the display and reducing network chatter. Handy on servers where DNS lookups are slow or blocked. Combine with -i to scope the capture to one interface."
+    },
+    {
+      "cmd": "bandwhich -t",
+      "desc": "Show total utilization instead of per process",
+      "tooltip": "Switches the display to overall interface utilization rather than per-process breakdowns, a cleaner view for spotting saturation. The total includes traffic bandwhich cannot attribute to a process. Use it with -i eth0 to watch a single uplink."
+    },
+    {
+      "cmd": "bandwhich -s",
+      "desc": "Show DNS queries in bandwhich",
+      "tooltip": "Adds a section listing DNS queries as they happen, showing which hosts are being resolved and by which process. Useful for spotting leaky or unexpected DNS traffic. It is off by default to keep the view compact."
+    },
+    {
+      "cmd": "gpustat",
+      "desc": "Show GPU utilization and memory per process",
+      "tooltip": "Prints a one-screen summary of every GPU: utilization, memory used, temperature, and the processes using it. Think of it as nvidia-smi condensed to the essentials. Requires an NVIDIA driver and nvidia-smi on the PATH."
+    },
+    {
+      "cmd": "gpustat --watch",
+      "desc": "Continuously refresh the GPU status view",
+      "tooltip": "Re-renders the gpustat output every second by default, like watch for GPUs. Adjust the interval with -i, for example gpustat -i 2 for two-second updates. Press Ctrl+C to stop. Use it while training jobs run to watch utilization swing."
+    },
+    {
+      "cmd": "gpustat -i 2",
+      "desc": "Refresh gpustat every two seconds",
+      "tooltip": "Sets the watch interval to two seconds instead of the default one. Longer intervals lower the CPU cost of the loop on busy machines. Combine with --watch or use it standalone for a periodic snapshot."
+    },
+    {
+      "cmd": "gpustat --json",
+      "desc": "Dump GPU status as JSON",
+      "tooltip": "Emits GPU utilization, memory, and process data as JSON for scripts and dashboards. Pipe it into jq to extract a single field such as memory per GPU. The JSON contains one entry per GPU, keyed by index."
+    },
+    {
+      "cmd": "gpustat -a",
+      "desc": "Show all GPU details including processes",
+      "tooltip": "Adds command lines, PIDs, and power draw to the standard gpustat summary. Useful when several jobs share one GPU and you need to see which process owns the memory. Combine with -P for power usage in watts."
+    },
+    {
+      "cmd": "nload",
+      "desc": "Show live network traffic graphs",
+      "tooltip": "Renders incoming and outgoing traffic as moving bar graphs, with current, average, min, and max rates in the corner. By default it shows the first available interface; cycle through devices with the left and right arrow keys. Quit with q or Ctrl+C."
+    },
+    {
+      "cmd": "nload eth0",
+      "desc": "Monitor a specific network interface",
+      "tooltip": "Targets a single interface by name, passed positionally rather than with a flag. Pass several names to monitor multiple devices at once, and use -m to show them side by side. The device list is also cyclable with arrow keys."
+    },
+    {
+      "cmd": "nload -u M",
+      "desc": "Show nload rates in megabytes per second",
+      "tooltip": "Sets the display unit for traffic rates to MB/s; other letters are k for KB/s, g for GB/s, and b or B for bits and bytes. Uppercase means bytes and lowercase means bits, so -u m differs from -u M. Use -t to also tune the refresh interval."
+    },
+    {
+      "cmd": "glances -w",
+      "desc": "Serve the Glances web interface",
+      "tooltip": "Starts Glances' built-in web server so you can view the same dashboard in a browser, on port 61208 by default. Add -B 127.0.0.1 to restrict the bind address when no reverse proxy is in front. The web mode shares the terminal dashboard's data."
+    },
+    {
+      "cmd": "glances -s",
+      "desc": "Run Glances in server mode",
+      "tooltip": "Starts Glances as a server that clients attach to with glances -c, exporting all metrics over the network. By default it listens on 0.0.0.0:61209 with no authentication, so firewall it or add -P for a password. Server and client versions should match."
+    },
+    {
+      "cmd": "glances -c 192.168.1.10",
+      "desc": "Connect a Glances client to a server",
+      "tooltip": "Attaches this Glances instance to a remote Glances server at the given address, showing the server's dashboard as if it were local. The server must run with glances -s. Use -p to override the default port 61209 and -P to supply a password."
+    },
+    {
+      "cmd": "glances -t 5",
+      "desc": "Set the Glances refresh interval in seconds",
+      "tooltip": "Changes how often Glances refreshes its data, here every 5 seconds instead of the default 2. Longer intervals lower CPU and network overhead, handy over slow links or on busy hosts. The interval also applies to exported data."
+    },
+    {
+      "cmd": "glances --export csv",
+      "desc": "Export Glances metrics to a CSV file",
+      "tooltip": "Writes sampled metrics to a CSV file in the current directory while Glances runs, one row per interval. Other exporters include json, influxdb, statsd, and prometheus. For Prometheus output, configure host and port in the [prometheus] section of glances.conf instead of CLI flags."
+    },
+    {
+      "cmd": "glances -b",
+      "desc": "Show Glances network rates in bytes",
+      "tooltip": "Forces byte-based units for network and disk rates instead of the auto-scaled human format. Handy when you want exact numbers for scripts or comparisons. The dashboard layout stays the same otherwise."
+    },
+    {
+      "cmd": "glances -1",
+      "desc": "Show per-CPU usage in Glances",
+      "tooltip": "Splits the CPU section into one line per core instead of a single aggregate, revealing one saturated core on an otherwise idle machine. It matches the 1 key inside the UI. Combine with -t for a slower refresh on big machines."
+    },
+    {
+      "cmd": "glances -B 127.0.0.1",
+      "desc": "Bind Glances services to an address",
+      "tooltip": "Restricts the web and server listeners to the given address, here the loopback interface, so remote hosts cannot connect. Pair it with -w or -s to control exactly where the service is reachable. Leave it off when clients on other hosts must connect."
+    },
+    {
+      "cmd": "systemctl status netdata",
+      "desc": "Show status of the netdata service",
+      "tooltip": "Reports whether the netdata systemd unit is running and serving metrics on port 19999, plus recent log lines. A healthy instance answers on http://localhost:19999. Watch the agent logs with journalctl -u netdata -f."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/allmetrics?format=prometheus' | head",
+      "desc": "Export netdata metrics in Prometheus format",
+      "tooltip": "Pulls every metric netdata collects, rewritten as Prometheus exposition text so a Prometheus server can scrape it directly. The format parameter also accepts json and shell. This endpoint is how you wire netdata into an existing Prometheus setup."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/allmetrics?format=json' | jq",
+      "desc": "Export netdata metrics as JSON",
+      "tooltip": "Returns all collected metrics as a JSON object, useful for scripts and custom dashboards. The format parameter switches between json, prometheus, and shell output. Pipe it through jq to extract a single chart's values."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/charts' | jq",
+      "desc": "List all netdata charts as JSON",
+      "tooltip": "Returns the full catalog of charts netdata maintains, each with its id, title, units, and dimensions. Use jq to pretty-print and filter, for example .charts | keys to see the names. Chart ids feed the /api/v1/data endpoint for raw samples."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/alarms' | jq",
+      "desc": "List netdata alarms and their states",
+      "tooltip": "Shows every configured alarm with its current status, from OK through WARNING and CRITICAL, plus the triggering value. The output is a flat list of alarm objects, so filter with jq for just the critical ones. Notifications still go through the configured channels."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/info' | jq",
+      "desc": "Show netdata version and build info",
+      "tooltip": "Returns the netdata version, host details, and collection configuration as JSON. A cheap way to confirm which release is running and whether the agent sees its host correctly. The same info appears in the dashboard footer."
+    },
+    {
+      "cmd": "curl -s 'http://localhost:19999/api/v1/data?chart=system.cpu&after=-60' | jq",
+      "desc": "Fetch raw samples for one netdata chart",
+      "tooltip": "Queries the samples behind a chart, here system.cpu for the last 60 seconds, with dimension names and values in JSON. The after parameter accepts negative offsets from now. This is the API behind the dashboard graphs, useful for scripting custom checks."
+    },
+    {
+      "cmd": "netdata -W buildinfo",
+      "desc": "Print netdata build and version details",
+      "tooltip": "Prints compile-time options, the version, and plugin configuration of the netdata binary. Run it to confirm feature flags before enabling a plugin or filing a bug. The -W prefix is netdata's generic way to pass internal commands."
+    },
+    {
+      "cmd": "sudo kill -USR2 $(pgrep -x netdata)",
+      "desc": "Reload netdata health configuration",
+      "tooltip": "Sends the USR2 signal to the netdata process, which reloads alarm definitions from health.d without a full restart. Sending HUP instead reopens log files. Use it after editing alarm files so new checks apply immediately."
+    },
+    {
+      "cmd": "iotop",
+      "desc": "Show per-process disk I/O usage",
+      "tooltip": "Lists processes sorted by their current disk read and write throughput, with cumulative totals. It needs root to see other users' processes and to read kernel I/O counters. Quit with q; the display refreshes every second by default."
+    },
+    {
+      "cmd": "iotop -o",
+      "desc": "Show only processes doing active I/O",
+      "tooltip": "Filters the listing to processes that performed I/O during the last refresh, hiding the idle ones. This is the standard flag for finding what is hammering the disk right now. Combine with -b -n 3 for a three-shot batch snapshot in scripts."
+    },
+    {
+      "cmd": "iotop -b -n 3",
+      "desc": "Run iotop in batch mode for three samples",
+      "tooltip": "Non-interactive mode prints the current I/O table, then exits after -n 3 samples, suitable for cron jobs and log files. Each batch line carries a timestamp. Add -k to display sizes in kilobytes."
+    },
+    {
+      "cmd": "iotop -P",
+      "desc": "Show I/O per process, not per thread",
+      "tooltip": "Aggregates I/O at the process level instead of listing each thread separately, cutting noise on multi-threaded applications. The default view shows threads, which can look like duplicated entries. Combine with -o to keep only the busy ones."
+    },
+    {
+      "cmd": "iotop -k",
+      "desc": "Show iotop rates in kilobytes",
+      "tooltip": "Displays I/O throughput in kilobytes instead of the default human-readable units. Useful when you want exact numbers for scripts or comparisons. It pairs well with batch mode for logged output."
+    },
+    {
+      "cmd": "nvidia-smi",
+      "desc": "Show NVIDIA GPU status summary",
+      "tooltip": "Prints every NVIDIA GPU: name, driver and CUDA version, utilization, memory, temperature, and running processes. The table updates once, so pair it with watch for a live view. Requires the NVIDIA driver and CUDA toolkit libraries."
+    },
+    {
+      "cmd": "nvidia-smi -l 5",
+      "desc": "Refresh nvidia-smi every five seconds",
+      "tooltip": "Re-runs the GPU summary every 5 seconds, equivalent to watch -n 5 nvidia-smi. The loop keeps running until Ctrl+C. Newer drivers also accept -lms for millisecond intervals during benchmarks."
+    },
+    {
+      "cmd": "nvidia-smi --query-gpu=name,utilization.gpu,memory.used --format=csv",
+      "desc": "Query specific GPU fields as CSV",
+      "tooltip": "Selects only the requested fields, here name, utilization, and memory used, and prints them as CSV for scripts. Add --format=csv,noheader to skip the header row. Queryable fields include temperature, power.draw, and clocks."
+    },
+    {
+      "cmd": "journalctl --vacuum-size=500M",
+      "desc": "Trim journal files to a maximum size",
+      "tooltip": "Deletes the oldest journal files until the remaining ones total at most 500 MB. This permanently removes those logs, so archive anything you need first. Run it when journald's disk usage creeps up; the counterpart --vacuum-time keeps only recent days."
+    },
+    {
+      "cmd": "journalctl --vacuum-time=30d",
+      "desc": "Delete journal entries older than 30 days",
+      "tooltip": "Removes journal files whose contents are all older than 30 days, freeing space while keeping recent history. The oldest files go first, so recent logs are never touched. Combine it with --vacuum-size if you also want a hard size cap."
+    },
+    {
+      "cmd": "journalctl --rotate",
+      "desc": "Rotate journal files immediately",
+      "tooltip": "Tells journald to close the current journal file and start a new one, which helps when a file is corrupted or you need clean rotation before shipping logs. New entries go to the fresh file. Usually follow it with --vacuum-size to actually reclaim space."
+    },
+    {
+      "cmd": "journalctl --verify",
+      "desc": "Check journal files for corruption",
+      "tooltip": "Scans all journal files for structural damage and missing entries, reporting per-file status. Run it if timestamps jump or entries vanish, then rotate and vacuum to rebuild if problems appear. The scan is read-only and safe on a live system."
+    },
+    {
+      "cmd": "journalctl --output=json",
+      "desc": "Print journal entries as JSON objects",
+      "tooltip": "Formats each log entry as a JSON object with fields like __REALTIME_TIMESTAMP, _PID, and MESSAGE, ideal for piping into jq or a log shipper. Add -n 50 to limit the volume of JSON produced."
+    },
+    {
+      "cmd": "logrotate -d /etc/logrotate.conf",
+      "desc": "Dry-run logrotate to debug configs",
+      "tooltip": "Debug mode prints every decision logrotate would make, which files rotate, when, and why, without touching any log. Use it to test config changes safely, including files included from /etc/logrotate.d. Errors show exactly which directive is misconfigured."
+    },
+    {
+      "cmd": "logrotate -f /etc/logrotate.conf",
+      "desc": "Force logrotate to run now",
+      "tooltip": "Forces rotation regardless of the age or size rules, useful after editing configs or when a log must rotate immediately. Because it bypasses the schedule, files rotate even when they would not normally. Handy before compressing a directory of logs."
+    },
+    {
+      "cmd": "docker compose logs uptime-kuma -f",
+      "desc": "Follow Uptime Kuma container logs",
+      "tooltip": "Streams the logs of the uptime-kuma service defined in docker-compose.yml, tagged by container and colored per service. Press Ctrl+C to stop following. Run it from the directory containing your compose file, or pass -f path/to/docker-compose.yml."
+    },
+    {
+      "cmd": "curl -s http://localhost:9090/-/healthy",
+      "desc": "Check the Prometheus health endpoint",
+      "tooltip": "Returns a short health message with HTTP 200 when the server is up; any other status means the process is down or restarting. This is the endpoint load balancers and monitoring probes use. Use it in monitoring checks instead of scraping metrics."
+    },
+    {
+      "cmd": "curl -s -G http://localhost:9090/api/v1/query --data-urlencode 'query=up' | jq",
+      "desc": "Query the Prometheus HTTP API for instant results",
+      "tooltip": "Evaluates the PromQL expression up against the Prometheus API and pretty-prints the JSON with jq. The -G flag keeps parameters in the URL while --data-urlencode encodes them safely. Results appear under .data.result, one series per scrape target."
+    }
+  ]
+}
