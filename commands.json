@@ -8,6 +8,7 @@
     "Bash Scripting",
     "Cloudflare",
     "Cron & Scheduling",
+    "Data Science & Analysis",
     "Databases & SQL",
     "Docker",
     "Dokploy",
@@ -20,6 +21,7 @@
     "Git - Core",
     "GitHub CLI",
     "GitHub Copilot",
+    "GitLab",
     "Google Cloud & Workspace",
     "I/O Redirection & Pipes",
     "IaC & Automation",
@@ -42445,7 +42447,2464 @@
       "cmd": "pm2 restart api",
       "desc": "Restart a PM2 process by name",
       "tooltip": "Cycles the api process, reloading its code after a deploy or config change. Restart is graceful by default, draining in-flight requests when using the cluster mode. List all processes with pm2 ls."
+    },
+    {
+      "id": 6105,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash --header-in sum 4 < data.tsv",
+      "desc": "Sum column 4 of a TSV, treating the first line as a header",
+      "tooltip": "Datamash is GNU's statistics toolkit for tabular text. This sums the numeric values in column 4 of a tab-separated file, the default delimiter, so no -t flag is needed. The --header-in flag tells datamash the first line is a column-name header that must not be summed. Add -t, to apply the same command to comma-separated data."
+    },
+    {
+      "id": 6106,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in sum 4 < data.csv",
+      "desc": "Sum column 4 of a CSV file with datamash",
+      "tooltip": "The -t, flag sets the field delimiter to a comma, which is how datamash reads CSV (comma-separated values) files. Summing column 4 then produces one number for the whole file, and --header-in keeps the header row out of the math. Use this one-liner instead of awk when you want a quick total of a numeric column. Add -g for per-group totals, as in the grouped examples in this catalog."
+    },
+    {
+      "id": 6107,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in mean 2 median 2 pstdev 2 < data.csv",
+      "desc": "Show mean, median, and population stddev of column 2",
+      "tooltip": "Computes three statistics for column 2 in one pass: the mean (average), the median (middle value when sorted), and pstdev (population standard deviation, a measure of how spread out values are around the mean). Multiple operation and field pairs can follow each other, so mean 2 median 2 pstdev 2 all run in a single command. Each statistic is a separate keyword, which keeps the syntax readable."
+    },
+    {
+      "id": 6108,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in -g 3 mean 4 < data.csv",
+      "desc": "Compute mean of column 4 grouped by column 3",
+      "tooltip": "The -g 3 flag groups rows by the values in column 3 before applying the statistic, a group-by operation. Here each unique value in column 3 (say a department name) gets its own mean of column 4 (say salary). Output rows appear in first-seen order unless you add -s to sort the groups. This is the datamash equivalent of a SQL GROUP BY with AVG."
+    },
+    {
+      "id": 6109,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in perc:95 4 < data.csv",
+      "desc": "Compute the 95th percentile of column 4",
+      "tooltip": "The perc:95 operation reports the 95th percentile, the value below which 95 percent of the data falls. Percentiles summarize the shape of a column better than the mean when outliers are present. Change the number to get any percentile, such as perc:50 for the median. Pair it with -g to get per-group percentiles."
+    },
+    {
+      "id": 6110,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in -s -g 3 mean 4 < data.csv",
+      "desc": "Sort groups, then compute mean of column 4 by column 3",
+      "tooltip": "Adding -s (sort) orders the group-by output by the grouping key instead of first-seen order. The sort applies to the grouping column, so group labels appear alphabetically. Compare this with the unsorted grouped mean to see the difference in row order. Pipe the output through sort -k2 -nr if you want groups ranked by their mean instead."
+    },
+    {
+      "id": 6111,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -H -t, --header-in sum 4 < data.csv",
+      "desc": "Sum column 4 and print the column name as a header",
+      "tooltip": "The -H flag prints a header line in the output, naming the statistic and the field it came from. Combined with --header-in (input has a header) this round-trips the column name into the result, keeping downstream tools and reports readable. Without -H the output is just the bare number. This flag pair is the common pattern for datamash one-liners."
+    },
+    {
+      "id": 6112,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in q1 2 q3 2 iqr 2 < data.csv",
+      "desc": "Show quartiles and interquartile range of column 2",
+      "tooltip": "Computes q1 (the 25th percentile), q3 (the 75th percentile), and iqr (interquartile range, q3 minus q1) for column 2. The IQR measures the middle 50 percent spread of the data and is a robust alternative to the standard deviation. Box plots typically visualize exactly these three numbers. Use perc:5 and perc:95 for wider fences when screening for outliers."
+    },
+    {
+      "id": 6113,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in unique 3 countunique 3 < data.csv",
+      "desc": "List unique values in column 3 and count them",
+      "tooltip": "The unique operation lists each distinct value in column 3 once, and countunique reports how many distinct values there are. Running them side by side shows both the values themselves and the total number of categories in one pass. This answers questions like how many departments exist and what they are called. Use the -g flag with count to get per-group row counts instead."
+    },
+    {
+      "id": 6114,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in -g 3 collapse 1 < data.csv",
+      "desc": "Collapse column 1 values into one comma list per group",
+      "tooltip": "The collapse operation joins every value of column 1 inside a group into a single comma-separated list. Grouped by column 3, each output row pairs one group label with all its associated values from column 1. This is handy for building lookup tables or summarizing many-to-one relations. The separator between collapsed values can be changed with the --collapse-delimiter flag."
+    },
+    {
+      "id": 6115,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in geomean 2 harmmean 2 < data.csv",
+      "desc": "Compute geometric and harmonic means of column 2",
+      "tooltip": "The geomean (geometric mean) suits growth rates and ratios, while harmmean (harmonic mean) suits rates and speeds, both of which the plain arithmetic mean handles poorly. Each operation is another statistic datamash can compute in the same one-line pass. Rate-of-change data and averaged speeds are the classic use cases. Use plain mean for everyday averages."
+    },
+    {
+      "id": 6116,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in trimmean:0.1 2 < data.csv",
+      "desc": "Compute a 10% trimmed mean of column 2",
+      "tooltip": "The trimmean:0.1 operation drops the lowest and highest 10 percent of values (5 percent off each end) before averaging, which dampens the effect of outliers. The number after the colon is the total fraction trimmed, so trimmean:0.2 removes 10 percent off each side. Trimmed means are a standard robust-statistics alternative to the plain mean. Note that the fraction comes before the field number, unlike other operations."
+    },
+    {
+      "id": 6117,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in pstdev 2 pvar 2 svar 2 mad 2 < data.csv",
+      "desc": "Show population and sample variance plus MAD of column 2",
+      "tooltip": "Reports four spread statistics for column 2: pstdev and pvar (population standard deviation and variance), svar (sample variance), and mad (median absolute deviation). Population versions divide by the count while sample versions divide by count minus one, matching statistics conventions. MAD is a robust spread measure resistant to outliers. Use pstdev alone when you only need one number."
+    },
+    {
+      "id": 6118,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in spearson 2:4 < data.csv",
+      "desc": "Compute Spearman rank correlation between columns 2 and 4",
+      "tooltip": "The spearson operation computes the Spearman rank correlation between two columns named as a colon pair, here columns 2 and 4. The result ranges from -1 (perfect inverse relationship) to 1 (perfect direct relationship), with 0 meaning no monotonic association. Spearman works on ranks, so it tolerates outliers better than Pearson. For covariance instead of correlation, use the pcov operation with the same syntax."
+    },
+    {
+      "id": 6119,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in pcov 2:4 < data.csv",
+      "desc": "Compute population covariance between columns 2 and 4",
+      "tooltip": "The pcov operation reports the population covariance of the two fields given as a colon pair, columns 2 and 4 here. Covariance measures how two variables move together, with positive values meaning they rise and fall in step. Unlike correlation it is not bounded to the -1 to 1 range, so its magnitude depends on the units of the data. Use spearson for a unit-free measure of association."
+    },
+    {
+      "id": 6120,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in range 2 absmax 2 < data.csv",
+      "desc": "Show value range and absolute max of column 2",
+      "tooltip": "Computes range (maximum minus minimum) and absmax (the value farthest from zero) for column 2. Range is the simplest possible spread measure, while absmax matters when negative and positive values both appear in the data. Min and max are available as separate operations when you need the actual endpoints. These pair naturally with mean for a quick numeric summary."
+    },
+    {
+      "id": 6121,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in -g 3 count 4 sum 4 min 4 max 4 < data.csv",
+      "desc": "Summarize column 4 with count, sum, min, and max per group",
+      "tooltip": "Combines four aggregations on column 4 inside one group-by on column 3: row count, sum, minimum, and maximum. This single command replaces a whole spreadsheet pivot table for per-category summaries. Any mix of operations can be listed this way, and each is computed over the same grouping. Add median 4 to the list for a fuller picture of each group's distribution."
+    },
+    {
+      "id": 6122,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, --header-in -g 3 trimmean:0.1 4 < data.csv",
+      "desc": "Compute trimmed mean of column 4 grouped by column 3",
+      "tooltip": "Applies the 10 percent trimmed mean to column 4 separately for each group found in column 3. Per-group trimmed means are useful when some groups contain outlier values that would skew a plain average. The grouping flag -g works with every datamash operation, not just this one. Results are one row per group, in first-seen order unless -s is added."
+    },
+    {
+      "id": 6123,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, transpose < data.csv",
+      "desc": "Transpose rows and columns of a CSV file",
+      "tooltip": "The transpose line-operation swaps rows and columns, turning the first row into the first column and so on. This is the same transformation as a spreadsheet paste-special transpose feature. It is a standalone operation, so no statistic or field number is needed. Transposed files are sometimes required by tools that expect one observation per column."
+    },
+    {
+      "id": 6124,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash -t, check < data.csv",
+      "desc": "Check a CSV for consistent field counts per row",
+      "tooltip": "The check operation verifies that every row has the same number of fields and that numeric columns contain only numbers. It prints the number of lines checked and reports any problems, making it a quick data-quality gate before analysis. Rows with missing trailing fields fail unless --no-strict is given. Run this on freshly exported spreadsheets before feeding them to statistics tools."
+    },
+    {
+      "id": 6125,
+      "category": "Data Science & Analysis",
+      "cmd": "datamash --no-strict -t, sum 1 < ragged.csv",
+      "desc": "Sum column 1 of a ragged CSV, tolerating missing fields",
+      "tooltip": "The --no-strict flag lets datamash accept ragged rows, where some lines have fewer fields than the header. Without it datamash errors out on the first short line; with it, missing trailing fields are treated as empty. This example sums the first field of a messy CSV export where later columns are often blank. For permanently fixing ragged files, xsv fixlengths pads them to a uniform width."
+    },
+    {
+      "id": 6126,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv head -n 5 data.csv",
+      "desc": "Show the first 5 rows of a CSV with Miller",
+      "tooltip": "Miller (mlr) is a data-processing toolkit that treats CSV and JSON as first-class citizens. The head verb prints the first 5 records of the input, similar to the head command but CSV-aware and format-safe. The --csv flag declares comma-separated input and output. Pair with the tail verb to see the end of a file."
+    },
+    {
+      "id": 6127,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv stats1 -a mean,min,max -f score data.csv",
+      "desc": "Compute mean, min, and max of the score column",
+      "tooltip": "The stats1 verb computes one-pass aggregations over the fields named by -f, here score. The -a flag lists which statistics to produce, with mean, min, and max being the common starting set. Output is one row per input field per statistic. Add -g dept to compute these same numbers separately for each department."
+    },
+    {
+      "id": 6128,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv stats1 -a sum,mean -f salary -g dept data.csv",
+      "desc": "Group by dept, then sum and average salary",
+      "tooltip": "stats1 with -g dept performs a group-by, splitting rows by the values in the dept field and running the aggregations within each group. This mirrors a SQL GROUP BY and is the core pattern for per-category summaries in Miller. The -a sum,mean flag list can be extended with min, max, or count. Output has one row per department."
+    },
+    {
+      "id": 6129,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv sort -f age data.csv",
+      "desc": "Sort CSV rows by the age column, lexicographically",
+      "tooltip": "The sort verb orders records by the fields given to -f, here age, in ascending order. Text fields sort lexicographically, so ages like 100 sort before 20; use -nr for numeric ordering instead. Multiple sort keys can follow -f, applied left to right. This is Miller's replacement for the sort command when headers must be preserved."
+    },
+    {
+      "id": 6130,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv sort -nr score data.csv",
+      "desc": "Sort CSV rows by score, numeric descending",
+      "tooltip": "The -nr flag sorts numerically in descending order, putting the largest score first. Numeric sorting matters for columns that are stored as text, where 9 would otherwise sort after 100. This is the Miller equivalent of sort -k2 -nr for CSV files with headers. Combine with head to print the top few rows."
+    },
+    {
+      "id": 6131,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv sort -f dept -nr salary data.csv",
+      "desc": "Sort by dept ascending, then salary numeric descending",
+      "tooltip": "Sorts on two keys in priority order: dept first (ascending, text), then salary within each department (numeric descending). The sort verb applies -f and -nr flags as a key list, so this ranks the highest-paid people first inside every department. Multi-key sorting is the standard way to prepare ranked reports. Add more -f or -nr flags to extend the key chain."
+    },
+    {
+      "id": 6132,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv filter '$age > 30' data.csv",
+      "desc": "Keep CSV rows where the age field exceeds 30",
+      "tooltip": "The filter verb keeps only records whose expression evaluates true, using awk-like syntax where $age refers to the age field. Comparison operators, boolean logic with and and or, and function calls are all supported in the expression. The result is Miller's version of a SQL WHERE clause. Compare a text field the same way, with the value quoted inside the expression."
+    },
+    {
+      "id": 6133,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv cut -f name,age data.csv",
+      "desc": "Keep only the name and age columns",
+      "tooltip": "The cut verb keeps just the fields named by -f and drops everything else, like a column-wise filter. Field order in the output follows the input unless -o is used to reorder. This is the Miller way to slim wide files before analysis. Use cut -x to do the inverse and drop the named fields instead."
+    },
+    {
+      "id": 6134,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv put '$ratio = $salary / $score' data.csv",
+      "desc": "Add a computed ratio column to each row",
+      "tooltip": "The put verb adds a new field computed by an expression, here ratio equals salary divided by score for every row. New fields appear at the end of the record and are carried into the output. Expressions can reference any existing field with the dollar sign. This is the workhorse for deriving features on tabular data."
+    },
+    {
+      "id": 6135,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv put -S '$pct = $score * 100' data.csv",
+      "desc": "Add a percentage column, keeping the value as text",
+      "tooltip": "The -S flag makes put treat the computed value as a string instead of guessing a numeric type. Without it Miller would infer the type of the new pct field, which can change downstream formatting. The -S option is useful when you want to preserve leading zeros or exact text. Miller normally infers types, so this flag exists for when that inference is wrong."
+    },
+    {
+      "id": 6136,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv put '$ts = sec2gmt(1700000000)' data.csv",
+      "desc": "Convert a Unix timestamp column to GMT time",
+      "tooltip": "The sec2gmt function converts a Unix epoch timestamp, seconds since 1970, into a human-readable GMT date and time. Here the literal 1700000000 becomes a fixed timestamp column for every row; reference a field like $ts instead to convert real data. Miller ships a library of such functions for dates, strings, and math. Use gmt2sec for the reverse direction."
+    },
+    {
+      "id": 6137,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --icsv --ojson cat data.csv",
+      "desc": "Convert a CSV file to JSON records",
+      "tooltip": "Miller converts formats through its input and output flags: --icsv reads comma-separated data and --ojson writes one JSON object per record. The cat verb passes records through unchanged, making this a clean CSV-to-JSON converter on the command line. Each CSV row becomes a flat JSON object with the header names as keys. Use --ojsonl for JSON Lines output instead."
+    },
+    {
+      "id": 6138,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --icsv --ojsonl cat data.csv",
+      "desc": "Convert a CSV file to JSON Lines format",
+      "tooltip": "JSON Lines (--ojsonl) writes each record as a single compact JSON object on its own line, unlike --ojson which emits a pretty array. Line-delimited JSON streams well through pipes and log processors, making it a popular interchange format. Each CSV row maps to one line of JSON. This is the fastest way to hand a spreadsheet to a JSON-consuming tool."
+    },
+    {
+      "id": 6139,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --json head -n 1 data.json",
+      "desc": "Show the first record of a JSON file",
+      "tooltip": "With --json, Miller reads a JSON array of objects and treats it like a table. The head verb prints the first record, here just one with -n 1. This mirrors head for text files but operates on whole records, so one JSON object never gets cut mid-way. Use the tail verb to inspect the last records of the same file."
+    },
+    {
+      "id": 6140,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --json tail -n 2 data.json",
+      "desc": "Show the last 2 records of a JSON file",
+      "tooltip": "The tail verb prints the final records of a JSON input, here the last 2 objects in the array. This is the record-aware counterpart to the tail command for text. Combined with --json input, it is a quick way to check how a JSON dataset ends. Note that the -n flag counts records, not lines."
+    },
+    {
+      "id": 6141,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv join -f emp-ids.csv -j name data.csv",
+      "desc": "Join two CSVs on the name field",
+      "tooltip": "The join verb merges two files on a key field, here name, combining columns from emp-ids.csv into the rows of data.csv. The -f flag names the file to join against and -j names the shared key column. Rows without a match are dropped unless -u is passed to keep unpaired records. This is Miller's answer to a SQL JOIN between two CSV tables."
+    },
+    {
+      "id": 6142,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv nest --explode --values --across-records -f tags tags.csv",
+      "desc": "Explode a tags field into one row per tag",
+      "tooltip": "The nest verb restructures fields; --explode splits one field's value into multiple values, and --across-records turns each value into its own row. Here a semicolon-separated tags column becomes one row per tag, the classic data-cleaning step called unnesting. The --values flag says the field holds plain values rather than key-value pairs. The inverse operation, --implode, collapses rows back into one field."
+    },
+    {
+      "id": 6143,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv uniq -a data.csv",
+      "desc": "Remove duplicate rows, comparing all fields",
+      "tooltip": "The uniq verb drops duplicate records; -a compares every field of the record. Use it after concatenating files to de-duplicate a dataset where whole rows repeat. Only the first occurrence of each unique row is kept. For duplicates based on a single key column, use -g instead."
+    },
+    {
+      "id": 6144,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv uniq -g dept data.csv",
+      "desc": "Keep one row per unique dept value",
+      "tooltip": "With -g dept, uniq keeps the first record for each distinct value of the dept field, like SELECT DISTINCT on one column. This answers questions such as which departments appear in the data and where each first occurs. Whole-row dedup uses -a instead. The output row count equals the number of unique departments."
+    },
+    {
+      "id": 6145,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv count-distinct -f dept data.csv",
+      "desc": "Count distinct dept values with a header row",
+      "tooltip": "The count-distinct verb counts how many unique values appear in the fields named by -f, here dept. Output includes a header line naming the field and the count unless -n is given. This is a fast category census for any column of a CSV. Add more fields to -f to count distinct combinations instead."
+    },
+    {
+      "id": 6146,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv count-distinct -n -f dept data.csv",
+      "desc": "Count distinct dept values without a header row",
+      "tooltip": "The -n flag suppresses the header line from count-distinct output, leaving just the bare count number. This makes the result directly usable in scripts or arithmetic pipelines. The plain form with header is friendlier for interactive use. Both variants count the same unique values of the dept field."
+    },
+    {
+      "id": 6147,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv top -n 5 -f score data.csv",
+      "desc": "Show the 5 highest score values",
+      "tooltip": "The top verb lists the largest values of the fields named by -f, here the top 5 scores. Unlike sorting then taking the head, top is a single streaming pass and prints each value with a rank column. Add -g dept to get the top 5 per department. This is the quickest way to find record-setting rows in a CSV."
+    },
+    {
+      "id": 6148,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv rename name,employee data.csv",
+      "desc": "Rename the name column to employee",
+      "tooltip": "The rename verb changes field names, here name becomes employee throughout the file. Multiple renames can be given as comma-separated old,new pairs. Headers in the output reflect the new names while all values stay untouched. This keeps downstream tools seeing consistent column names."
+    },
+    {
+      "id": 6149,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv tac data.csv",
+      "desc": "Reverse the row order of a CSV",
+      "tooltip": "The tac verb prints records in reverse order, last row first, which is useful for time series where the newest entries sit at the bottom. It is the record-aware counterpart of the tac command for plain text. Headers are preserved and printed once at the top. Use head after tac to see the last few rows in original order."
+    },
+    {
+      "id": 6150,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv sample -k 2 data.csv",
+      "desc": "Draw a random sample of 2 rows",
+      "tooltip": "The sample verb picks k records at random, here 2, without replacement. It is a handy way to eyeball a large file or build a small test set. The -k flag sets the sample size. Unlike shuf, sampling happens inside Miller with full CSV awareness."
+    },
+    {
+      "id": 6151,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv reorder -f name,score data.csv",
+      "desc": "Move the name and score columns to the front",
+      "tooltip": "The reorder verb moves the fields named by -f to the front of each record, keeping every other column in its original relative order. This is useful when a tool expects certain columns first. The remaining fields follow in their original sequence. Column order is cosmetic for most tools but matters for fixed-position parsers."
+    },
+    {
+      "id": 6152,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv merge-fields -a sum -f salary,score -o total data.csv",
+      "desc": "Add a total column summing salary and score",
+      "tooltip": "The merge-fields verb combines several fields into one; -a sum adds them and -o total names the new column. The original salary and score fields are removed from the output. This is a fast way to build row totals without writing a put expression. Use -a mean or min to combine fields with other operations."
+    },
+    {
+      "id": 6153,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv histogram -f score --lo 0.7 --hi 1.0 --nbins 3 data.csv",
+      "desc": "Build a 3-bin histogram of the score column",
+      "tooltip": "The histogram verb bins the score field into a fixed number of buckets between --lo and --hi, here 3 bins from 0.7 to 1.0. Output lists each bin's range and the count of rows in it, the raw material of a distribution chart. Choose bounds that cover the data's full range, or rows outside them are ignored. Feed the output to a plotting tool for a bar chart."
+    },
+    {
+      "id": 6154,
+      "category": "Data Science & Analysis",
+      "cmd": "mlr --csv step -a delta -f score data.csv",
+      "desc": "Add a delta column with row-to-row score changes",
+      "tooltip": "The step verb computes rolling statistics across consecutive records; -a delta adds a column holding the change from the previous row's score. The first row has no predecessor, so its delta is blank. This is the standard way to turn a series of values into a series of differences for time-series analysis. Add -g dept to restart the delta at each department boundary."
+    },
+    {
+      "id": 6155,
+      "category": "Data Science & Analysis",
+      "cmd": "printf 'a,b,c\\n1,,3\\n' | mlr --csv remove-empty-columns",
+      "desc": "Drop columns that are empty in every row",
+      "tooltip": "The remove-empty-columns verb deletes any column whose values are all blank, cleaning files where some headers have no data. The example pipes a two-row CSV where column b is empty, so the output keeps only a and c. The pipe symbol (|) feeds printf's output into mlr's input. This is a fast data-quality fix for sparse spreadsheet exports."
+    },
+    {
+      "id": 6156,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv headers data.csv",
+      "desc": "List the column names of a CSV file",
+      "tooltip": "xsv is a high-performance CSV toolkit written in Rust. The headers command prints each column name on its own numbered line, a fast way to inspect a file's schema before writing queries. Column numbers matter because every other xsv command addresses fields by name or index. Use this first when exploring an unfamiliar dataset."
+    },
+    {
+      "id": 6157,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv stats data.csv",
+      "desc": "Show summary statistics for every column",
+      "tooltip": "The stats command computes summary statistics for all columns: count, mean, standard deviation, min, max, and more, one row per field. It is the fastest way to get a numeric overview of a CSV without loading it into a spreadsheet. Mean and standard deviation are always included by default. Add --median or --mode for distribution measures, and -s to limit which columns are analyzed."
+    },
+    {
+      "id": 6158,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv stats --median --mode data.csv",
+      "desc": "Add median and mode to the column statistics",
+      "tooltip": "The --median and --mode flags extend xsv stats output with the median (middle value) and mode (most frequent value) of each column. These flags combine freely and can be used together in one command. There is no --mean flag because the mean is already part of the default output. Use --cardinality to also count distinct values per column."
+    },
+    {
+      "id": 6159,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv stats -s age,salary data.csv",
+      "desc": "Compute statistics only for the age and salary columns",
+      "tooltip": "The -s flag (short for --select) limits stats to the named columns, here age and salary, skipping the rest. This keeps output readable when a file has many fields and speeds up analysis on wide files. Column names or 1-based indices both work in the selection list. Combine with --median to get a compact distribution summary."
+    },
+    {
+      "id": 6160,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv select name,age data.csv",
+      "desc": "Extract just the name and age columns",
+      "tooltip": "The select command keeps only the named columns and drops the rest, like a column filter. Fields can be listed by name, by 1-based index, or as ranges such as 1-3. Output preserves the header order as listed. This is the xsv equivalent of cut for comma-separated data that also understands quoted fields."
+    },
+    {
+      "id": 6161,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv search eng data.csv",
+      "desc": "Find rows containing the pattern eng",
+      "tooltip": "The search command keeps rows where any field matches a regex pattern, here eng. Regular expressions give it more power than a plain text grep; for example ^eng matches the start of a field only. Search applies to the whole row, unlike csvgrep which targets one column. Combine with select to filter first and then keep only relevant fields."
+    },
+    {
+      "id": 6162,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv frequency -s dept data.csv",
+      "desc": "Count how often each dept value occurs",
+      "tooltip": "The frequency command tallies the values in the -s selected columns and prints a table of value, count, and percentage. It ranks by frequency descending, so the most common department appears first. Multiple columns can be listed to count value combinations. This is the fastest category census available for CSV data."
+    },
+    {
+      "id": 6163,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv table data.csv",
+      "desc": "Render a CSV as an aligned table",
+      "tooltip": "The table command pretty-prints a CSV with aligned columns and trimmed cells, making it readable in the terminal. It does not modify the data, only the display. Wide rows wrap or truncate depending on terminal width, so use it on narrow slices. This is the xsv counterpart of csvlook for quick eyeballing."
+    },
+    {
+      "id": 6164,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv slice -s 2 -e 4 data.csv",
+      "desc": "Print rows 2 through 3 of the CSV",
+      "tooltip": "The slice command extracts a contiguous range of rows by 0-based index: -s 2 starts at the third row and -e 4 stops before the fifth, so rows 2 and 3 are printed. This is the CSV-aware replacement for sed -n on tabular data. Without -e the slice runs to the end of the file. Negative indices count from the end."
+    },
+    {
+      "id": 6165,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv sort -s age data.csv",
+      "desc": "Sort CSV rows by the age column",
+      "tooltip": "The sort command orders rows by the columns named by -s, here age, ascending by default. Add -R to reverse the order or -N for numeric sorting, since lexicographic sort puts 100 before 20. Sorting a CSV with xsv is safe for quoted fields and embedded commas, which plain sort mishandles. This is the xsv way to order records by any column."
+    },
+    {
+      "id": 6166,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv join name data.csv name emp-ids.csv",
+      "desc": "Join two CSVs on their name columns",
+      "tooltip": "The join command merges two CSV files on a key column, taking the column name, first file, second column name, and second file as four arguments. Here data.csv and emp-ids.csv share the name field, and matching rows combine their columns. Rows without a match in the other file are dropped by default. Add --left to keep all rows of the first file, like a SQL LEFT JOIN."
+    },
+    {
+      "id": 6167,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv count data.csv",
+      "desc": "Count the data rows in a CSV",
+      "tooltip": "The count command prints the number of data rows, excluding the header, as a single number. It streams the file, so it handles files of any size quickly. This is the CSV-aware answer to wc -l, which would also count the header. Combine with slice or sample when you need to know how many rows you are working with."
+    },
+    {
+      "id": 6168,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv sample 3 data.csv",
+      "desc": "Draw a random sample of 3 rows",
+      "tooltip": "The sample command randomly selects the given number of rows, here 3, for a quick look at a large file. The header row is always included in the output. Sampling beats reading everything when you are exploring unfamiliar data. Use mlr sample or shuf for the same idea in other toolchains."
+    },
+    {
+      "id": 6169,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv flatten data.csv",
+      "desc": "Print one field per line for each record",
+      "tooltip": "The flatten command expands each record into multiple lines, one field per line labeled with its column name. This makes long rows readable and is ideal for inspecting a single record's full content. Flattened output is for humans, not for further processing. Pipe a slice of rows into flatten to examine them one at a time."
+    },
+    {
+      "id": 6170,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv fmt -t '|'",
+      "desc": "Convert CSV on stdin to pipe-delimited output",
+      "tooltip": "The fmt command reformats CSV, and -t '|' changes the output delimiter to a pipe character. Run it as a pipe stage, for example cat data.csv | xsv fmt -t '|', to convert a comma-separated file into pipe-delimited text. The -t flag is short for --out-delimiter. Output quoting is adjusted automatically so delimiters inside fields stay safe."
+    },
+    {
+      "id": 6171,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv cat rows a.csv b.csv",
+      "desc": "Stack two CSVs vertically, header once",
+      "tooltip": "The cat command concatenates files; rows mode stacks them vertically, appending b.csv's rows under a.csv's with the header printed once. Column counts must match or the merge fails. This is the xsv equivalent of csvstack for simple appends. Use cat columns to glue files side by side instead."
+    },
+    {
+      "id": 6172,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv cat columns a.csv b.csv",
+      "desc": "Join two CSVs side by side, row by row",
+      "tooltip": "The cat columns mode merges files horizontally, placing b.csv's columns to the right of a.csv's, matched by row position. Both files need the same number of rows for the alignment to make sense. This is a positional join, unlike xsv join which matches on key values. Header rows are combined into one."
+    },
+    {
+      "id": 6173,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv input -d '|'",
+      "desc": "Normalize pipe-delimited stdin into standard CSV",
+      "tooltip": "The input command guesses or accepts a delimiter with -d and normalizes the stream into standard quoted CSV on stdout. Run it as a pipe stage, for example cat data.psv | xsv input -d '|', when a file uses a non-comma separator. This is the first step before other xsv commands that expect commas. The -d flag also accepts tabs and other single characters."
+    },
+    {
+      "id": 6174,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv index data.csv",
+      "desc": "Create a fast random-access index file",
+      "tooltip": "The index command builds data.csv.idx, a sidecar index that lets other xsv commands jump to any row instantly. It costs one pass over the file but makes repeated slice and sample operations much faster on huge CSVs. The index is rebuilt automatically when the data file changes size. This is the xsv performance trick for multi-gigabyte files."
+    },
+    {
+      "id": 6175,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv split --size 2 split data.csv",
+      "desc": "Split a CSV into chunks of 2 rows each",
+      "tooltip": "The split command divides a CSV into multiple files, here chunks of 2 rows, written into the split directory. Each chunk keeps the header row, so the pieces stay usable on their own. Use --size for rows per file or --chunks for a target number of output files. This is how you break one big file into parallel-processing batches."
+    },
+    {
+      "id": 6176,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv partition dept part data.csv",
+      "desc": "Split a CSV into one file per dept value",
+      "tooltip": "The partition command writes one output file per distinct value of the selected column, here dept, into the part directory. Every output file keeps the header and is named after the value it contains. This is the classic way to split work per category before parallel processing. Choose the column by name rather than index for readable filenames."
+    },
+    {
+      "id": 6177,
+      "category": "Data Science & Analysis",
+      "cmd": "xsv fixlengths data.csv",
+      "desc": "Pad or truncate rows to a uniform field count",
+      "tooltip": "The fixlengths command forces every row to have the same number of fields, padding short rows with empty fields and truncating long ones. Ragged rows from hand-edited spreadsheets otherwise break stats and join operations. The output is a clean rectangular table ready for analysis. Run datamash check first to see how bad the damage is."
+    },
+    {
+      "id": 6178,
+      "category": "Data Science & Analysis",
+      "cmd": "csvcut -n data.csv",
+      "desc": "List column names and indices of a CSV",
+      "tooltip": "csvcut is part of csvkit, a Python suite of CSV utilities. The -n flag prints each column's 1-based index and name, the reference for every other csvcut invocation. It also reveals the delimiter of the input file. Use this before cutting columns so you address fields correctly."
+    },
+    {
+      "id": 6179,
+      "category": "Data Science & Analysis",
+      "cmd": "csvcut -c name,age data.csv",
+      "desc": "Extract the name and age columns",
+      "tooltip": "The -c flag selects columns by name or 1-based index, here name and age. Output keeps the header row and only the chosen fields. Column order in the output matches the order you list them, which can differ from the input. This is csvkit's equivalent of xsv select."
+    },
+    {
+      "id": 6180,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstat data.csv",
+      "desc": "Print a full statistical profile of every column",
+      "tooltip": "csvstat analyzes each column of a CSV and prints count, mean, standard deviation, min, max, and other summary values in a readable report. It also detects the type of each column and warns about blank values. This is the single best command for a first look at a dataset's health. Add --freq to see the most common values of each column."
+    },
+    {
+      "id": 6181,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstat --mean data.csv",
+      "desc": "Print only the mean of each column",
+      "tooltip": "The --mean flag narrows csvstat output to just the mean (average) of every column. csvstat accepts only one such operation flag per run, so --mean and --median cannot be combined in a single command. Pair it with other single-op flags like --median or --stdev for focused reports. Use the full csvstat when you want everything at once."
+    },
+    {
+      "id": 6182,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstat --median data.csv",
+      "desc": "Print only the median of each column",
+      "tooltip": "The --median flag restricts csvstat output to the median, the middle value when a column is sorted. Because csvstat takes one operation flag at a time, run this separately from --mean. Medians resist outliers better than means for skewed data. Run both when you need the pair."
+    },
+    {
+      "id": 6183,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstat --json data.csv",
+      "desc": "Dump column statistics as JSON",
+      "tooltip": "The --json flag switches csvstat output from a human report to a JSON object that scripts can parse. Each column becomes a key holding its statistics as nested values. This is the machine-readable form for feeding summaries into other tools. The same flag shape is used by csvjson for converting whole files."
+    },
+    {
+      "id": 6184,
+      "category": "Data Science & Analysis",
+      "cmd": "csvgrep -c name -m 'alice' data.csv",
+      "desc": "Keep rows where the name column equals alice",
+      "tooltip": "csvgrep filters rows like grep but column-aware. The -c flag names the column and -m matches a literal string, here alice, keeping rows where that column equals it exactly. It is case-sensitive by default. Use -r with a regex for pattern matching instead of exact strings."
+    },
+    {
+      "id": 6185,
+      "category": "Data Science & Analysis",
+      "cmd": "csvgrep -c name -r '^a' data.csv",
+      "desc": "Keep rows whose name starts with the letter a",
+      "tooltip": "The -r flag switches csvgrep to regular-expression matching, here ^a which anchors to the start of the field. Regexes unlock patterns that literal matching cannot express, such as digit ranges or alternations. The match applies to the single column named by -c. This is the column-scoped cousin of grep for tabular data."
+    },
+    {
+      "id": 6186,
+      "category": "Data Science & Analysis",
+      "cmd": "csvgrep -i -c dept -m 'ENG' data.csv",
+      "desc": "Drop rows where dept equals ENG, case-insensitive",
+      "tooltip": "The -i flag inverts the match, keeping every row that does not match, and makes the comparison case-insensitive. Here all rows whose dept field is eng in any casing are removed, keeping the rest. Inversion turns a whitelist filter into a blacklist filter. Use it to exclude known-bad categories from an analysis."
+    },
+    {
+      "id": 6187,
+      "category": "Data Science & Analysis",
+      "cmd": "csvjoin --left -c name data.csv emp-ids.csv",
+      "desc": "Left-join two CSVs on the name column",
+      "tooltip": "csvjoin merges two CSV files on a key column named by -c, here name, like a SQL JOIN. The --left flag keeps every row of the first file even when no match exists in the second, filling missing columns with blanks. Without --left only matching rows survive. This is the go-to command for enriching a dataset with a lookup table."
+    },
+    {
+      "id": 6188,
+      "category": "Data Science & Analysis",
+      "cmd": "csvsort -c age data.csv",
+      "desc": "Sort rows by the age column",
+      "tooltip": "csvsort orders rows by the column named by -c, here age, ascending by default. Sorting is type-aware, so numeric columns order numerically rather than lexicographically. Add -r to reverse the order, and pass comma-separated names to -c to sort by several columns. The header row always stays on top."
+    },
+    {
+      "id": 6189,
+      "category": "Data Science & Analysis",
+      "cmd": "csvsort -c age -r data.csv",
+      "desc": "Sort rows by age, descending",
+      "tooltip": "The -r flag reverses csvsort's ordering, putting the largest age first. Combine -c and -r for ranked reports, such as a top-N list after slicing. Type-aware sorting means 100 orders after 20 for a numeric column. This is the csvkit way to rank records before cutting off a top-N."
+    },
+    {
+      "id": 6190,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstack a.csv b.csv",
+      "desc": "Stack two CSVs vertically, header once",
+      "tooltip": "csvstack appends the rows of b.csv below a.csv, printing the header once. Both files must share the same column names and order. This is the standard way to combine monthly or per-source exports into one dataset. Add the -g flag to record which file each row came from."
+    },
+    {
+      "id": 6191,
+      "category": "Data Science & Analysis",
+      "cmd": "csvstack -g one,two a.csv b.csv",
+      "desc": "Stack two CSVs and tag rows with their source",
+      "tooltip": "The -g flag adds a grouping column, here with the values one and two, that labels each row's origin file. The new column is prepended as the first field of every row. This provenance marker lets you filter or group by source after merging. The number of -g values must match the number of input files."
+    },
+    {
+      "id": 6192,
+      "category": "Data Science & Analysis",
+      "cmd": "csvlook data.csv",
+      "desc": "Render a CSV as a Markdown table",
+      "tooltip": "csvlook pretty-prints a CSV as a Markdown table with aligned columns, ready to paste into documentation or issue reports. The output is human-oriented and not meant for further processing. It truncates wide tables to the terminal width. This is the csvkit counterpart of xsv table for shareable output."
+    },
+    {
+      "id": 6193,
+      "category": "Data Science & Analysis",
+      "cmd": "csvformat -T data.csv",
+      "desc": "Convert a CSV to tab-delimited output",
+      "tooltip": "The -T flag is shorthand for tab-delimited output, converting commas to tabs while preserving quoting rules. The result is a TSV (tab-separated values) file suitable for tools that prefer tabs. Use -D '|' to choose any other delimiter. This command only changes the format, never the data."
+    },
+    {
+      "id": 6194,
+      "category": "Data Science & Analysis",
+      "cmd": "csvformat -D '|' data.csv",
+      "desc": "Convert a CSV to pipe-delimited output",
+      "tooltip": "The -D flag sets a custom output delimiter, here the pipe character, producing pipe-delimited text. Delimiters inside quoted fields are preserved correctly because csvformat rewrites quoting as needed. This is handy for formats that must not contain commas, such as certain report exports. The -T flag is the shortcut for the tab variant."
+    },
+    {
+      "id": 6195,
+      "category": "Data Science & Analysis",
+      "cmd": "csvpy data.csv",
+      "desc": "Open a Python REPL with the CSV preloaded",
+      "tooltip": "csvpy launches an interactive Python session with the CSV already read into a variable named after the file, so data becomes a csvkit table object. You can then run Python expressions and csvkit methods against it directly. Exit with Ctrl+D to return to the shell. This is a quick bridge between CSV files and ad-hoc Python exploration."
+    },
+    {
+      "id": 6196,
+      "category": "Data Science & Analysis",
+      "cmd": "csvsql --query 'SELECT dept, AVG(salary) FROM data GROUP BY dept' data.csv",
+      "desc": "Run SQL against a CSV, grouping by dept",
+      "tooltip": "csvsql turns any CSV into a queryable table named after the file, then runs the SQL you pass to --query against it. Here a GROUP BY dept with AVG(salary) reproduces a pivot-table summary in one line. The table name comes from the filename without its extension. This is the fastest way to apply SQL thinking to spreadsheet data."
+    },
+    {
+      "id": 6197,
+      "category": "Data Science & Analysis",
+      "cmd": "csvsql --query 'SELECT dept, MAX(salary) AS top FROM data GROUP BY dept' data.csv",
+      "desc": "Find the top salary per dept with SQL",
+      "tooltip": "This csvsql query returns the maximum salary per department, aliased to top with AS. Any SQL that SQLite supports works inside --query, including joins, subqueries, and window functions. Writing the analysis in SQL often beats chaining awk one-liners. Add a WHERE clause to restrict rows before grouping."
+    },
+    {
+      "id": 6198,
+      "category": "Data Science & Analysis",
+      "cmd": "csvsql --db sqlite:///test.db --insert data.csv",
+      "desc": "Load a CSV into a SQLite database table",
+      "tooltip": "The --db flag points csvsql at a database connection string, here a SQLite file, and --insert writes the CSV into a new table named after the file. The table is created automatically with types inferred from the data. Repeat for other files to build a relational dataset, then query it with sqlite3. Other dialects such as PostgreSQL work through the same --db URI."
+    },
+    {
+      "id": 6199,
+      "category": "Data Science & Analysis",
+      "cmd": "csvjson data.csv",
+      "desc": "Convert a CSV to a JSON array",
+      "tooltip": "csvjson converts each CSV row into a JSON object keyed by the header names, wrapped in an array. The result is the standard shape most JSON APIs and tools expect. Numeric-looking fields are converted to JSON numbers automatically. Use --indent for a human-readable version."
+    },
+    {
+      "id": 6200,
+      "category": "Data Science & Analysis",
+      "cmd": "csvjson --indent 2 data.csv",
+      "desc": "Convert a CSV to pretty-printed JSON",
+      "tooltip": "The --indent flag adds whitespace formatting, here 2 spaces per level, making the JSON readable in editors and diffs. Compact output is smaller but harder to inspect. The structure is identical to the plain csvjson form. This is the format to save when the JSON will be reviewed by humans."
+    },
+    {
+      "id": 6201,
+      "category": "Data Science & Analysis",
+      "cmd": "in2csv -f json api.json",
+      "desc": "Convert a JSON file to CSV",
+      "tooltip": "in2csv converts between tabular formats. The -f json flag declares the input as JSON, here a JSON array of objects from an API export, and the output is CSV. Without -f the input format is guessed from the extension, and nested objects are flattened into dotted column names. This is the standard way to turn API responses into spreadsheet data."
+    },
+    {
+      "id": 6202,
+      "category": "Data Science & Analysis",
+      "cmd": "in2csv data.xlsx",
+      "desc": "Convert an Excel workbook to CSV",
+      "tooltip": "in2csv reads Excel files directly, converting the first worksheet of data.xlsx to CSV on stdout. Extension detection figures out the format automatically, so no -f flag is needed. Only the first sheet is converted unless --sheet names another. This bridges the gap between spreadsheet exports and command-line analysis."
+    },
+    {
+      "id": 6203,
+      "category": "Data Science & Analysis",
+      "cmd": "in2csv --sheet Sheet2 book.xlsx",
+      "desc": "Convert a specific worksheet to CSV",
+      "tooltip": "The --sheet flag selects a named worksheet, here Sheet2, instead of the default first sheet. Sheet names are case-sensitive and must match the workbook exactly. There is no --sheet-names flag for listing sheets, so use a spreadsheet tool or Python to enumerate them. The chosen sheet becomes the CSV on stdout."
+    },
+    {
+      "id": 6204,
+      "category": "Data Science & Analysis",
+      "cmd": "jq 'group_by(.dept) | map({dept: .[0].dept, total: map(.salary) | add})' data.json",
+      "desc": "Sum salaries per department with jq",
+      "tooltip": "jq is a JSON processor built around a pipeline of filters. Here group_by(.dept) buckets objects by department, then map builds one summary object per bucket, adding all salary values with add. The pipe symbol (|) chains filters, feeding each stage's output into the next. This is the jq equivalent of a SQL GROUP BY with SUM."
+    },
+    {
+      "id": 6205,
+      "category": "Data Science & Analysis",
+      "cmd": "jq -r '.[] | [.name, .age] | @tsv' data.json",
+      "desc": "Convert JSON objects to TSV lines",
+      "tooltip": "The -r flag outputs raw strings instead of JSON-quoted text. The filter .[] streams each array element, [.name, .age] builds a two-value array, and @tsv renders it as a tab-separated line. This turns a JSON array into a TSV (tab-separated values) table for spreadsheet tools. Use @csv instead of @tsv for comma-separated output."
+    },
+    {
+      "id": 6206,
+      "category": "Data Science & Analysis",
+      "cmd": "jq 'map(select(.age > 30))' data.json",
+      "desc": "Keep JSON objects where age exceeds 30",
+      "tooltip": "The select filter keeps only inputs that satisfy its condition, and map applies it to every element of the array. The result is a filtered array, the jq version of a WHERE clause. Comparison operators work on numbers, strings, and dates as expected. Chain another select after the pipe to add more conditions."
+    },
+    {
+      "id": 6207,
+      "category": "Data Science & Analysis",
+      "cmd": "jq 'sort_by(.age) | reverse | .[0]' data.json",
+      "desc": "Find the object with the highest age",
+      "tooltip": "sort_by(.age) orders the array by age, reverse flips it to descending, and .[0] grabs the first element, the oldest record. This is the jq recipe for top-1 queries on any field. Use .[0:3] to take the top three instead. Sorting is stable, so ties keep their original order."
+    },
+    {
+      "id": 6208,
+      "category": "Data Science & Analysis",
+      "cmd": "jq 'length' data.json",
+      "desc": "Count the elements in a JSON array",
+      "tooltip": "The length filter returns the number of elements for arrays, characters for strings, or keys for objects. Applied to a top-level array this is a quick record count for a JSON dataset. It streams cheaply for most inputs. This is the jq counterpart of wc -l for JSON data."
+    },
+    {
+      "id": 6209,
+      "category": "Data Science & Analysis",
+      "cmd": "jq -n '{sum: (100 + 200)}'",
+      "desc": "Build a JSON object with computed values",
+      "tooltip": "The -n flag runs jq with no input, so the filter alone builds the output from scratch. Here an object literal computes sum as 100 plus 200, printing a JSON object with the value 300. This mode is handy for generating JSON payloads in scripts. Arithmetic, string concatenation, and functions all work inside the braces."
+    },
+    {
+      "id": 6210,
+      "category": "Data Science & Analysis",
+      "cmd": "jq '.[0] | keys' data.json",
+      "desc": "List the keys of the first JSON object",
+      "tooltip": "The keys filter returns the field names of an object as a sorted array. Applied to .[0], the first element, it reveals the schema of one record. This is the fastest way to discover what fields a JSON dataset contains. Use keys_unsorted to preserve the original field order."
+    },
+    {
+      "id": 6211,
+      "category": "Data Science & Analysis",
+      "cmd": "jq --arg v alice '.[] | select(.name == $v)' data.json",
+      "desc": "Filter JSON by a shell variable value",
+      "tooltip": "The --arg flag binds a shell string to a jq variable, here v holding alice, referenced as $v inside the filter. This keeps the filter free of hard-coded values so the same command works for any name. Variable values are always strings; use --argjson for numbers and booleans. This is the safe way to inject data into jq expressions."
+    },
+    {
+      "id": 6212,
+      "category": "Data Science & Analysis",
+      "cmd": "jq '.results[0:2] | map(.title)' data.json",
+      "desc": "Take the first 2 results and list their titles",
+      "tooltip": "The slice .results[0:2] extracts the first two elements of the results array, mirroring Python's half-open slicing. map(.title) then pulls the title field from each, producing a two-element array of strings. API responses with a results wrapper are the classic use case. Use -r to print the titles as plain lines instead of JSON."
+    },
+    {
+      "id": 6213,
+      "category": "Data Science & Analysis",
+      "cmd": "jq 'to_entries[] | \"\\(.key): \\(.value)\"' object.json",
+      "desc": "Print each key and value as one line",
+      "tooltip": "to_entries converts an object into an array of key and value pairs, and .[] streams them. The string interpolation \\(.key) and \\(.value) injects each pair into a formatted line. The result is one key and value pair per line. This is the standard jq idiom for flattening an object into grep-friendly text."
+    },
+    {
+      "id": 6214,
+      "category": "Data Science & Analysis",
+      "cmd": "jq -c '.[]' data.json",
+      "desc": "Stream JSON objects one compact line at a time",
+      "tooltip": "The -c flag emits compact output with no extra whitespace, and .[] streams each array element onto its own line. The result is JSON Lines, one object per line, ideal for piping into grep or other line-oriented tools. Large arrays can be processed incrementally this way. Use jq -c without .[] to compact a whole document instead."
+    },
+    {
+      "id": 6215,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter lab --no-browser --port 8888",
+      "desc": "Start JupyterLab on port 8888 without opening a browser",
+      "tooltip": "JupyterLab is the web IDE for notebooks, Python and R kernels, and data files. The --no-browser flag skips auto-launching a browser, which matters when running on a remote server, and --port 8888 fixes the listening port. The printed URL contains a token that grants access, so keep it private. On a remote host, tunnel the port with ssh before visiting it."
+    },
+    {
+      "id": 6216,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter notebook --no-browser",
+      "desc": "Start the classic Jupyter Notebook server",
+      "tooltip": "The classic notebook interface runs through the same server as JupyterLab but shows the older notebook-only UI. The notebook subcommand requires the separate notebook package, so installing jupyterlab alone is not enough. The --no-browser flag is useful on servers where no local browser exists. Choose this when you prefer the simpler single-document workflow."
+    },
+    {
+      "id": 6217,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --to html notebook.ipynb",
+      "desc": "Export a notebook to a standalone HTML page",
+      "tooltip": "nbconvert converts notebooks between formats. The --to html flag produces a self-contained HTML page with code, output, and markdown rendered, ready to share with anyone. Styling is embedded, so the file works offline. This is the standard way to publish an analysis without installing notebook software on the reader's machine."
+    },
+    {
+      "id": 6218,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --to markdown notebook.ipynb",
+      "desc": "Export a notebook to Markdown",
+      "tooltip": "The --to markdown target converts a notebook into a Markdown document with code blocks and rendered outputs. Images are written to a companion folder referenced by the Markdown. This format is ideal for documentation sites and version-controlled analysis write-ups. Code cells become fenced code blocks with language tags."
+    },
+    {
+      "id": 6219,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --to script notebook.ipynb",
+      "desc": "Strip a notebook down to a plain Python script",
+      "tooltip": "The --to script target extracts only the code cells into a .py file, dropping markdown and outputs. The result runs with plain python3 and is easy to diff or schedule. Markdown cells are turned into comments for context. This is the standard way to move a notebook prototype into production code."
+    },
+    {
+      "id": 6220,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --execute --to notebook --inplace notebook.ipynb",
+      "desc": "Run all notebook cells and save the outputs",
+      "tooltip": "The --execute flag runs every cell in order, and --to notebook --inplace writes the executed results back into the original file. This turns a bare notebook into one with fresh outputs and is the headless equivalent of clicking Run All. Use it before sharing to guarantee the results are reproducible. Errors stop execution unless --allow-errors is added."
+    },
+    {
+      "id": 6221,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --clear-output --inplace notebook.ipynb",
+      "desc": "Remove all cell outputs from a notebook",
+      "tooltip": "The --clear-output flag deletes every cell's printed output and figures, leaving code and markdown intact, and --inplace saves the result over the original file. Cleaning outputs shrinks notebooks and avoids committing stale results to version control. Re-running with --execute regenerates everything. This is standard hygiene before committing notebooks to git."
+    },
+    {
+      "id": 6222,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter nbconvert --to pdf notebook.ipynb",
+      "desc": "Export a notebook to a PDF document",
+      "tooltip": "The --to pdf target produces a typeset PDF through LaTeX. A working LaTeX engine such as texlive is required, and missing packages cause confusing errors. For quick PDFs without LaTeX, export to HTML first and print it to PDF from a browser. The result embeds code and outputs in a paginated report format."
+    },
+    {
+      "id": 6223,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter kernelspec list",
+      "desc": "List the installed Jupyter kernels",
+      "tooltip": "A kernel is the computation engine a notebook runs against, such as Python 3 or R. The kernelspec list command shows every installed kernel with its display name and path. Multiple kernels can coexist, letting one notebook server serve different languages. Use this before installing a new kernel to see what is already available."
+    },
+    {
+      "id": 6224,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter kernelspec install --user ./mykernel",
+      "desc": "Register a local kernel with Jupyter",
+      "tooltip": "The kernelspec install command registers a kernel directory, here ./mykernel containing a kernel.json, so it appears in the launcher. The --user flag installs it for the current account instead of system-wide, avoiding permission issues. Kernel specs point to the interpreter and its display name. Re-run after changing the kernel configuration."
+    },
+    {
+      "id": 6225,
+      "category": "Data Science & Analysis",
+      "cmd": "jupyter trust notebook.ipynb",
+      "desc": "Mark a notebook as trusted",
+      "tooltip": "Untrusted notebooks hide their outputs until you trust them, a security feature against malicious embedded HTML. The trust command marks a notebook as safe, making outputs visible. Trusting does not execute code; it only records a signature in the file. Trust only notebooks you have reviewed or generated yourself."
+    },
+    {
+      "id": 6226,
+      "category": "Data Science & Analysis",
+      "cmd": "ipython -c 'print(2**10)'",
+      "desc": "Run a one-line Python expression in IPython",
+      "tooltip": "IPython is an enhanced Python shell with tab completion, history, and inline help. The -c flag runs the given code and exits, here printing 2 raised to the power of 10. This is handy for quick math and for testing snippets without opening a notebook. The same pattern works with plain python3 -c."
+    },
+    {
+      "id": 6227,
+      "category": "Data Science & Analysis",
+      "cmd": "ipython --pdb",
+      "desc": "Drop into the debugger on any exception",
+      "tooltip": "The --pdb flag makes IPython start the interactive debugger automatically whenever code raises an exception. You can then inspect variables and step through frames at the exact failure point. This is faster than adding print statements when debugging a session. The debugger prompt supports commands like up, down, and where to navigate the call stack."
+    },
+    {
+      "id": 6228,
+      "category": "Data Science & Analysis",
+      "cmd": "ipython --matplotlib",
+      "desc": "Start IPython with interactive matplotlib plotting",
+      "tooltip": "The --matplotlib flag enables interactive plotting inside the IPython terminal, showing figures in a separate window as you create them. In notebooks the equivalent is the inline magic, which embeds plots into cells. Figures update live during a session instead of requiring explicit show calls. This is the terminal workbench for exploratory data visualization."
+    },
+    {
+      "id": 6229,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"out.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot columns 2 and 4 of a CSV as a line chart",
+      "tooltip": "gnuplot is a mature plotting program driven by commands. The -e flag executes a command string before plotting, here setting the pngcairo terminal, naming the output file out.png, and declaring the comma delimiter with set datafile separator. The plot command draws column 4 against column 2 using the 2:4 column specifier, with lines connecting the points. The result is a PNG image ready to view or embed."
+    },
+    {
+      "id": 6230,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal svg; set output \"out.svg\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Render a line chart as an SVG vector image",
+      "tooltip": "The svg terminal writes a scalable vector graphic instead of a bitmap, so out.svg stays sharp at any zoom level. SVG output is ideal for web pages and documents. The rest of the command mirrors the PNG recipe: comma separator and columns 2 against 4. Vector files also remain editable in illustration tools."
+    },
+    {
+      "id": 6231,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo size 1200,800; set output \"big.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a custom canvas size of 1200 by 800",
+      "tooltip": "The size keyword inside the terminal setting fixes the output dimensions, here 1200 by 800 pixels, which controls resolution and aspect ratio. Larger canvases suit wide datasets and presentation slides. The default size varies by terminal, so setting it explicitly makes output predictable. Fonts and line widths scale with the canvas."
+    },
+    {
+      "id": 6232,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"hist.png\"; set datafile separator \",\"; plot \"data.csv\" using 4 smooth frequency with boxes'",
+      "desc": "Draw a histogram of column 4 with boxes",
+      "tooltip": "The smooth frequency modifier bins identical column 4 values and counts them, and with boxes renders the counts as a bar chart. This turns raw values into a frequency histogram without any preprocessing. The using 4 specifier selects the field to count. Bin the data yourself with mlr histogram when you need custom bin widths."
+    },
+    {
+      "id": 6233,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"scatter.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with points pt 7'",
+      "desc": "Scatter plot columns 2 and 4 with round markers",
+      "tooltip": "The with points style draws one marker per data pair instead of connecting lines, the right choice for scatter plots of two variables. The pt 7 setting selects point type 7, a filled circle, and ps can follow to control marker size. Scatter plots reveal correlation and clustering between the two columns. Switch to with lines when the order of points matters."
+    },
+    {
+      "id": 6234,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"log.png\"; set logscale y; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a logarithmic y axis",
+      "tooltip": "The set logscale y command switches the y axis to a logarithmic scale, which straightens exponential growth and widens small-value detail. Use set logscale x or set logscale xy for the other axis variants. Data values must be positive, since logarithms of zero or negatives are undefined. Log axes are standard for financial and growth data."
+    },
+    {
+      "id": 6235,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"lab.png\"; set title \"Age vs Salary\"; set xlabel \"Age\"; set ylabel \"Salary\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a title and labeled axes",
+      "tooltip": "The set title, set xlabel, and set ylabel commands annotate the chart, here labeling a plot of age against salary. Labels are essential when the chart will be read by others or published. The -e string can hold any number of set commands separated by semicolons. This is the base template for presentation-ready gnuplot output."
+    },
+    {
+      "id": 6236,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines' -p",
+      "desc": "Plot and keep the interactive window open",
+      "tooltip": "Without an explicit terminal, gnuplot opens an interactive window, and the -p flag (persist) keeps it open after the script finishes. The window supports zooming and panning with the mouse. Interactive mode is ideal for exploring data before exporting a final image. In -e strings, each set command still needs its semicolon separator."
+    },
+    {
+      "id": 6237,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot analyze.gp",
+      "desc": "Run a gnuplot script file",
+      "tooltip": "A .gp script file contains gnuplot commands, one per line, executed in order when passed as the argument. Scripts scale beyond -e one-liners because they can define functions, loops, and multiple plots. Comments start with a hash sign. This is the format to save when a plot recipe will be re-run on updated data."
+    },
+    {
+      "id": 6238,
+      "category": "Data Science & Analysis",
+      "cmd": "gnuplot -e 'set terminal dumb size 60,20; plot sin(x)'",
+      "desc": "Draw an ASCII plot of sin(x) in the terminal",
+      "tooltip": "The dumb terminal renders plots as ASCII characters directly in the terminal, needing no display server or image viewer. The size 60,20 sets the plot width and height in characters. This is the fastest way to eyeball a function or quick dataset from a headless shell. The output is plain text, so it also pastes into chat and bug reports."
+    },
+    {
+      "id": 6239,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'summary(read.csv(\"data.csv\"))'",
+      "desc": "Print summary statistics for every CSV column",
+      "tooltip": "Rscript runs R code from the command line without opening the interactive session. The -e flag takes code as a string: read.csv loads data.csv into a data frame, and summary prints min, quartiles, mean, max, and missing-value counts per column. This one-liner is the R equivalent of csvstat. For a single column, wrap it like summary of the column with the dollar sign syntax."
+    },
+    {
+      "id": 6240,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'x <- c(1,2,3); print(mean(x))'",
+      "desc": "Compute the mean of a vector in R",
+      "tooltip": "The c() function builds a vector from its arguments, the <- operator assigns it to x, and mean() computes the average. Semicolons separate statements within the -e string. This is the minimal R one-liner pattern for any computation. Replace mean with median, sd, or var for other statistics."
+    },
+    {
+      "id": 6241,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(tapply(df$salary, df$dept, mean))'",
+      "desc": "Average salary per dept with tapply",
+      "tooltip": "tapply applies a function to groups of a vector: here it splits df$salary by the df$dept factor and computes the mean within each group, a group-by operation. The dollar sign syntax selects a column from the data frame df. The result is a named vector of per-department averages. This is base R's answer to SQL GROUP BY without loading extra packages."
+    },
+    {
+      "id": 6242,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); png(\"rplot.png\"); plot(df$age, df$salary); dev.off()'",
+      "desc": "Scatter plot age against salary to a PNG file",
+      "tooltip": "The png() function opens a PNG graphics device, plot() draws the scatter of age versus salary, and dev.off() closes the device and finalizes the file. Forgetting dev.off() leaves the file empty or truncated. The resulting rplot.png appears in the working directory. Use hist() instead of plot() for a single-column distribution."
+    },
+    {
+      "id": 6243,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript --vanilla -e 'print(1+1)'",
+      "desc": "Run R code without loading startup files",
+      "tooltip": "The --vanilla flag disables loading .Rprofile and site startup files, restoring packages, and saving the workspace, giving a clean, reproducible environment. Startup files can otherwise change behavior between machines. This flag is recommended for scripts and cron jobs where reproducibility matters. The code itself is a trivial arithmetic check."
+    },
+    {
+      "id": 6244,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(quantile(df$salary))'",
+      "desc": "Show the five-number summary of the salary column",
+      "tooltip": "quantile() returns the 0, 25, 50, 75, and 100 percent percentiles of a vector, the classic five-number summary. Percentiles describe the distribution's shape and spread far better than a single average. Add probs=c(0.05, 0.95) to request custom quantiles instead. This is the R counterpart of the datamash perc: operations."
+    },
+    {
+      "id": 6245,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(cor(df$age, df$salary))'",
+      "desc": "Compute the correlation between age and salary",
+      "tooltip": "cor() returns the Pearson correlation between two vectors, ranging from -1 to 1. Values near 1 mean the variables move together, near -1 they move oppositely, and near 0 there is no linear relationship. Correlation does not imply causation, so interpret with care. Pass a data frame with several numeric columns to cor() for a full correlation matrix."
+    },
+    {
+      "id": 6246,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(head(df, 3))'",
+      "desc": "Show the first 3 rows of a data frame",
+      "tooltip": "head() prints the first n rows of a data frame, here 3, with column names as the header. It is the R version of head for tabular data and the standard first step after loading a file. Use tail() for the last rows or str(df) for a compact structure dump. The print() wrapper makes the result visible in Rscript's non-interactive mode."
+    },
+    {
+      "id": 6247,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(table(df$dept))'",
+      "desc": "Count rows per department with table",
+      "tooltip": "table() builds a frequency table from a factor or vector, counting how many rows each department has. The output is a named count per category, sorted by name. This is base R's quick category census, equivalent to xsv frequency. Pass two vectors to table() to build a cross-tabulation of combinations."
+    },
+    {
+      "id": 6248,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(summary(lm(salary ~ age, data = df))$coefficients)'",
+      "desc": "Fit a linear model of salary on age",
+      "tooltip": "The lm() function fits a linear regression, here salary modeled as a function of age, and summary() extracts its statistics. The dollar sign coefficients selection prints just the intercept and slope with their standard errors, p-values, and significance stars. This is the command-line entry point to statistical modeling in R. The tilde separates the outcome from the predictors."
+    },
+    {
+      "id": 6249,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); png(\"rhist.png\"); hist(df$salary, main=\"Salary distribution\"); dev.off()'",
+      "desc": "Draw a histogram of salary to a PNG file",
+      "tooltip": "hist() bins a numeric vector and draws a histogram, with main setting the title. Wrapped between png() and dev.off(), it writes rhist.png instead of opening a window. Histograms reveal the shape, center, and spread of a distribution at a glance. Adjust bin width with the breaks argument, such as breaks=50."
+    },
+    {
+      "id": 6250,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript analyze.R",
+      "desc": "Run an R analysis script file",
+      "tooltip": "Rscript executes a .R script file top to bottom, printing output to stdout. Scripts allow multi-step analyses with comments, functions, and saved results, far beyond -e one-liners. Shebang lines in the file can even make it executable directly. This is the standard way to run reproducible analyses from cron or CI pipelines."
+    },
+    {
+      "id": 6251,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'x <- rnorm(1000, mean=50, sd=10); print(summary(x))'",
+      "desc": "Generate 1000 normal samples and summarize them",
+      "tooltip": "rnorm() draws random numbers from a normal distribution, here 1000 samples with mean 50 and standard deviation 10. summary() then reports its min, quartiles, mean, and max. The sample mean and median should land near 50 for a large draw. Set a seed with set.seed(42) first to make the random draw reproducible."
+    },
+    {
+      "id": 6252,
+      "category": "Data Science & Analysis",
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(colMeans(df[c(\"age\",\"salary\",\"score\")]))'",
+      "desc": "Average several numeric columns at once",
+      "tooltip": "colMeans() computes the mean of every column in a data frame or matrix in one call. The df[c(...)] subsetting selects just the three numeric columns. The result is a named vector of column means, skipping any non-numeric columns you leave out. Use colSums() for totals or apply(df, 2, median) for per-column medians."
+    },
+    {
+      "id": 6253,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db -header -column 'SELECT dept, COUNT(*), AVG(salary) FROM employees GROUP BY dept;'",
+      "desc": "Query per-dept counts and average salary from SQLite",
+      "tooltip": "sqlite3 runs SQL directly against a database file, here data.db. The -header and -column flags format the output as a readable aligned table with column names. The query groups employees by department and reports each group's row count and average salary, a group-by summary. This is the fastest way to interrogate a SQLite database without a GUI."
+    },
+    {
+      "id": 6254,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db '.mode csv' 'SELECT * FROM employees;' > employees.csv",
+      "desc": "Export a SQLite table to a CSV file",
+      "tooltip": "Dot commands like .mode csv change the output format for the queries that follow, here switching to comma-separated values. The shell redirect (>) saves the query result into employees.csv. This is the standard recipe for moving SQLite data into spreadsheets and analysis tools. Other modes include .mode json and .mode markdown."
+    },
+    {
+      "id": 6255,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db -csv 'SELECT * FROM employees LIMIT 2;'",
+      "desc": "Run a query with CSV output via a flag",
+      "tooltip": "The -csv flag is the command-line shortcut for .mode csv, producing comma-separated output without typing a dot command. The query selects all columns but limits the result to 2 rows. Use -header with it to include column names in the first line. This form fits pipelines better than the interactive dot-command variant."
+    },
+    {
+      "id": 6256,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 :memory: 'CREATE TABLE t(x); INSERT INTO t VALUES (42); SELECT x*2 FROM t;'",
+      "desc": "Run an in-memory SQLite experiment with no file",
+      "tooltip": "The :memory: database name creates a temporary database that lives only for the command. Multiple SQL statements can be passed in one quoted argument, separated by semicolons. Here a table is created, one row inserted, and a computed value selected. This is ideal for testing SQL syntax without touching disk."
+    },
+    {
+      "id": 6257,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db 'SELECT * FROM employees ORDER BY CAST(salary AS INTEGER) DESC LIMIT 2;'",
+      "desc": "Sort by salary numerically and take the top 2",
+      "tooltip": "SQLite's import tool stores values as TEXT, so sorting a numeric-looking column lexicographically puts 9 before 100. CAST(salary AS INTEGER) converts the text to a number for a true numeric sort. The DESC keyword orders descending and LIMIT 2 keeps the top two rows. This CAST pattern is mandatory whenever imported columns sort wrongly."
+    },
+    {
+      "id": 6258,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db 'WITH s AS (SELECT dept, AVG(salary) AS a FROM employees GROUP BY dept) SELECT * FROM s WHERE a > 70000;'",
+      "desc": "Filter grouped results with a common table expression",
+      "tooltip": "A common table expression (WITH s AS ...) names a subquery so the outer query can filter its result, here keeping only departments whose average salary exceeds 70000. This two-step pattern is how you put a WHERE clause on an aggregate, since WHERE cannot directly follow GROUP BY. CTEs also make complex queries readable. The alias a refers to the computed average inside the outer query."
+    },
+    {
+      "id": 6259,
+      "category": "Data Science & Analysis",
+      "cmd": "sqlite3 data.db 'SELECT dept, ROUND(AVG(salary),2) AS avg_salary FROM employees GROUP BY dept ORDER BY avg_salary DESC;'",
+      "desc": "Rank departments by rounded average salary",
+      "tooltip": "ROUND(AVG(salary),2) rounds each department's average to 2 decimal places for tidy output, aliased as avg_salary with AS. The ORDER BY then sorts the grouped result by that alias, putting the highest-paying department first. Aliases can be referenced in ORDER BY but not in WHERE. This is the canonical grouped ranking query for SQLite."
+    },
+    {
+      "id": 6260,
+      "category": "Data Science & Analysis",
+      "cmd": "echo 'scale=4; 22/7' | bc -l",
+      "desc": "Divide with 4 decimal places using bc",
+      "tooltip": "bc is an arbitrary-precision calculator language. The -l flag loads the math library, and scale=4 sets 4 decimal places for division, giving 22/7 as 3.1428. Without scale, integer division would truncate. The echo pipe feeds the expression into bc's stdin; the pipe symbol (|) connects the two commands."
+    },
+    {
+      "id": 6261,
+      "category": "Data Science & Analysis",
+      "cmd": "echo 'sqrt(144)' | bc -l",
+      "desc": "Compute a square root with bc",
+      "tooltip": "With the -l math library loaded, bc gains functions like sqrt, sine, and logarithms. The expression sqrt(144) prints 12. Use scale to control decimal precision of the result. This is a quick way to do scientific calculations in the shell without starting Python."
+    },
+    {
+      "id": 6262,
+      "category": "Data Science & Analysis",
+      "cmd": "seq 1 10 | paste -sd+ | bc",
+      "desc": "Sum the numbers 1 through 10",
+      "tooltip": "seq generates the numbers 1 to 10, one per line, and paste -sd+ joins them into a single line separated by plus signs. The resulting expression is piped into bc, which evaluates it to 55. The pipe symbol (|) chains the three commands. Swap the seq range for any series you need totaled."
+    },
+    {
+      "id": 6263,
+      "category": "Data Science & Analysis",
+      "cmd": "numfmt --to=si 1500000",
+      "desc": "Format 1500000 with SI unit suffixes",
+      "tooltip": "numfmt converts numbers between human and machine formats. The --to=si flag prints 1500000 as 1.5M using SI (powers of 1000) suffixes. The iec variant uses powers of 1024 and is common for memory sizes. Feed it file sizes from du or stat to make them readable, and add --padding to right-align a column of values."
+    },
+    {
+      "id": 6264,
+      "category": "Data Science & Analysis",
+      "cmd": "numfmt --to=iec --suffix=B 1048576",
+      "desc": "Format a byte count in IEC units with a B suffix",
+      "tooltip": "The iec target uses binary units (powers of 1024), so 1048576 becomes 1.0M, and --suffix=B appends the letter B to yield 1.0MB. This is the exact formatting used by ls -lh for file sizes. The raw number can come from a pipe instead of the argument. Use --from=iec to parse such strings back into plain numbers."
+    },
+    {
+      "id": 6265,
+      "category": "Data Science & Analysis",
+      "cmd": "paste -sd, list.txt",
+      "desc": "Join all lines of a file with commas",
+      "tooltip": "The paste command merges lines, and -s serial mode treats each input file as one stream, with -d, setting the comma as the joining delimiter. The result is the whole file on a single line, one item per comma. This converts a line-per-item list into a comma-separated string for config files or SQL IN clauses. Use + instead of the comma to build arithmetic expressions."
+    },
+    {
+      "id": 6266,
+      "category": "Data Science & Analysis",
+      "cmd": "comm -23 x1.txt x2.txt",
+      "desc": "Show lines present only in the first file",
+      "tooltip": "comm compares two sorted files and prints three columns: lines only in file 1, only in file 2, and common to both. The flags -2 and -3 suppress the second and third columns, leaving just the lines unique to x1.txt. Both inputs must be sorted first, or results are wrong. This is the standard way to diff two sorted lists for missing entries."
+    },
+    {
+      "id": 6267,
+      "category": "Data Science & Analysis",
+      "cmd": "join -t, -1 1 -2 1 ids.s.csv scores.s.csv",
+      "desc": "Join two sorted CSVs on their first column",
+      "tooltip": "join merges two sorted files on a common key column: -1 1 and -2 1 name the key as column 1 of each file, and -t, declares the comma delimiter. Both inputs must be pre-sorted on the key or the join silently misses matches. This is the classic text-tools join, distinct from CSV-aware tools like xsv join. The output combines matching rows into one line."
+    },
+    {
+      "id": 6268,
+      "category": "Data Science & Analysis",
+      "cmd": "join -t, -1 1 -2 1 <(sort -t, -k1,1 ids.csv) <(sort -t, -k1,1 scores.csv)",
+      "desc": "Sort two CSVs in-process, then join them",
+      "tooltip": "Process substitution (<(...)) runs each sort command and presents its output as a file-like stream, so the join receives already-sorted inputs. Sorting on the key is required because join demands sorted files. This one-liner turns two unsorted CSVs into a joined result without intermediate files. The -k1,1 key ensures sorting only on the first field."
+    },
+    {
+      "id": 6269,
+      "category": "Data Science & Analysis",
+      "cmd": "split -l 10 big.csv chunk_",
+      "desc": "Split a file into 10-line chunks",
+      "tooltip": "split divides a file into pieces, here 10 lines each, named chunk_aa, chunk_ab, and so on. The prefix argument chunk_ sets the output naming scheme. Splitting by rows is the way to parallelize processing of huge datasets. Use split -b 100M to split by size instead of line count."
+    },
+    {
+      "id": 6270,
+      "category": "Data Science & Analysis",
+      "cmd": "shuf -n 2 data.csv",
+      "desc": "Pick 2 random lines from a file",
+      "tooltip": "shuf randomizes the order of input lines, and -n 2 prints just 2 of them, a quick random sample. It is the simplest sampling tool on the command line, though it treats lines as text rather than CSV records. For header-aware sampling of a CSV, use xsv sample or mlr sample instead. Reproducible draws need --random-source pointing at a fixed file."
+    },
+    {
+      "id": 6271,
+      "category": "Data Science & Analysis",
+      "cmd": "factor 123456789",
+      "desc": "Print the prime factors of a number",
+      "tooltip": "factor decomposes a number into its prime factors, here 3, 3, 3607, and 3803 for 123456789. Prime factorization underpins modular arithmetic and number-theory checks in data validation. Multiple numbers can be listed on one line. This is a small but surprisingly handy math utility."
+    },
+    {
+      "id": 6272,
+      "category": "Data Science & Analysis",
+      "cmd": "seq 1 10 | awk '{s+=$1} END {print s}'",
+      "desc": "Sum a stream of numbers with awk",
+      "tooltip": "awk processes input line by line: the pattern {s+=$1} accumulates the first field of every line into s, and the special END block prints the total after the last line. The pipe symbol (|) feeds seq's output into awk's input. This is the canonical awk accumulator pattern. It works on any whitespace-separated stream, not just seq output."
+    },
+    {
+      "id": 6273,
+      "category": "Data Science & Analysis",
+      "cmd": "sort -t, -k4 -nr data.csv | head -2",
+      "desc": "Sort a CSV by column 4 numerically and take the top 2",
+      "tooltip": "The -t, flag sets the comma field delimiter, -k4 selects column 4 as the key, and -nr sorts numerically in descending order. Piping the sorted output into head -2 keeps only the two highest rows. Because this is plain sort, the header row may end up in the middle of the output; CSV-aware tools like mlr sort keep headers on top. The pipe symbol (|) chains the two commands."
+    },
+    {
+      "id": 6274,
+      "category": "Data Science & Analysis",
+      "cmd": "awk -F, 'NR>1 {s+=$4; n++} END {print s/n}' data.csv",
+      "desc": "Average column 4 of a CSV, skipping the header",
+      "tooltip": "The -F, flag sets the field separator to a comma. NR>1 skips the header row, then each line adds field 4 to s and counts it in n; the END block prints the mean. This is the minimal awk averaging pattern for CSV files. For multiple statistics, datamash is easier and less error-prone; field numbers start at 1, with $1 the first column."
+    },
+    {
+      "id": 6275,
+      "category": "Data Science & Analysis",
+      "cmd": "awk -F, 'NR>1 {a[$3]+=$4} END {for (k in a) print k, a[k]}' data.csv",
+      "desc": "Sum column 4 per value of column 3 with awk",
+      "tooltip": "This awk one-liner implements a group-by sum: the array a indexes by field 3's value and accumulates field 4 into it, then the END loop prints each key with its total. It is the classic awk pivot idiom, but hand-rolled. For readability and extra statistics, prefer datamash -g or mlr stats1, which do the same with clearer syntax. The output order of keys is unspecified."
+    },
+    {
+      "id": 6276,
+      "category": "Data Science & Analysis",
+      "cmd": "cut -d, -f3 data.csv | sort | uniq -c | sort -nr",
+      "desc": "Rank the most frequent values of column 3",
+      "tooltip": "This pipeline is the classic frequency tally: cut extracts column 3, sort orders the values, uniq -c counts consecutive duplicates, and the final sort -nr ranks them by count descending. The pipe symbol (|) connects all four stages. The result is a leaderboard of the most common values. For CSV-aware counting with headers, xsv frequency is cleaner."
+    },
+    {
+      "id": 6277,
+      "category": "Data Science & Analysis",
+      "cmd": "tail -n +2 data.csv | head -2",
+      "desc": "Skip the header, then show the next 2 rows",
+      "tooltip": "The -n +2 argument makes tail start at line 2, dropping the CSV header, and head -2 keeps the first two data rows. This pattern peeks at sample rows without including the header. Combine with wc -l to count data rows precisely. For CSV-aware alternatives use mlr head or xsv slice."
+    },
+    {
+      "id": 6278,
+      "category": "Data Science & Analysis",
+      "cmd": "tr ',' '\\t' < data.csv | head -2",
+      "desc": "Convert commas to tabs in the first 2 lines",
+      "tooltip": "tr translates characters, here every comma into a tab, converting CSV into TSV (tab-separated values). The input redirection (<) reads data.csv, and head -2 limits output to two lines. tr does not understand quotes, so commas inside quoted fields are converted too, which can corrupt data. For safe delimiter conversion use csvformat or xsv fmt."
+    },
+    {
+      "id": 6279,
+      "category": "Data Science & Analysis",
+      "cmd": "paste <(cut -d, -f1 data.csv) <(cut -d, -f4 data.csv) | head -2",
+      "desc": "Combine two columns side by side with paste",
+      "tooltip": "Process substitution (<(...)) runs each cut as a virtual file, and paste places their lines side by side, pairing column 1 with column 4 of the same rows. This is a lightweight way to extract and recombine columns without intermediate files. The head -2 limits the preview. Column counts must match for clean alignment."
+    },
+    {
+      "id": 6280,
+      "category": "Data Science & Analysis",
+      "cmd": "echo 'analysis step 1' | ts '%F %T'",
+      "desc": "Timestamp each line of a log stream",
+      "tooltip": "ts from the moreutils package prefixes every input line with a timestamp; the '%F %T' format yields date and time like 2026-08-09 11:47:50. Piping log output through ts gives every analysis step a recorded time. This is invaluable for auditing long-running jobs and measuring step durations. Plain ts adds only a time, without the date."
+    },
+    {
+      "id": 6281,
+      "category": "Data Science & Analysis",
+      "cmd": "sort sp.txt | sponge sp.txt",
+      "desc": "Sort a file in place",
+      "tooltip": "Redirecting sorted output back onto the input file truncates it before sort finishes reading, destroying data. sponge from moreutils soaks up all input first and writes the file only after the command completes. This makes in-place transforms like sort sp.txt | sponge sp.txt safe. The same pattern works for any file-modifying pipeline."
+    },
+    {
+      "id": 6282,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.describe())'",
+      "desc": "Print pandas summary statistics for a CSV",
+      "tooltip": "pandas is Python's data analysis library, and read_csv loads a CSV into a DataFrame, the table-like core structure. The describe() method prints count, mean, standard deviation, min, quartiles, and max for every numeric column. The -c flag runs the whole snippet as one program. This one-liner matches csvstat and R's summary() output."
+    },
+    {
+      "id": 6283,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.groupby(\"dept\")[\"salary\"].mean())'",
+      "desc": "Average salary per dept with pandas groupby",
+      "tooltip": "The groupby method splits the DataFrame by the dept column's values, the square brackets select the salary column, and mean() aggregates each group. The result is a per-department average, the pandas equivalent of a SQL GROUP BY. Chain sort_values() to order the groups by their means. This is the standard pandas idiom for grouped summaries."
+    },
+    {
+      "id": 6284,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df[df.age > 30])'",
+      "desc": "Filter pandas rows where age exceeds 30",
+      "tooltip": "The expression df[df.age > 30] applies a boolean mask: pandas keeps only rows where the condition is true, here age greater than 30. The mask must reference the column with df.age or bracket notation. This is the pandas equivalent of a WHERE clause. Combine multiple conditions with the & operator and parentheses."
+    },
+    {
+      "id": 6285,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.sort_values(\"salary\", ascending=False).head(3))'",
+      "desc": "Sort pandas rows by salary and show the top 3",
+      "tooltip": "sort_values orders the DataFrame by the salary column, ascending=False puts the largest first, and head(3) keeps the top three rows. This is the pandas recipe for a top-N ranking. The default ascending=True gives the smallest values first. Chain reset_index() if you need fresh row indices after sorting."
+    },
+    {
+      "id": 6286,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -c 'import numpy as np; print(np.mean([1,2,3,4]))'",
+      "desc": "Compute a mean with NumPy",
+      "tooltip": "NumPy is Python's numeric array library, imported here as np. np.mean() averages the list [1,2,3,4] to 2.5 in one call. NumPy functions also operate on arrays and DataFrames with the same syntax. This is the minimal NumPy check that the library is installed and working."
+    },
+    {
+      "id": 6287,
+      "category": "Data Science & Analysis",
+      "cmd": "python3 -m pip install pandas numpy matplotlib",
+      "desc": "Install the core Python data stack",
+      "tooltip": "The -m pip form runs pip as a module, which works even when pip is not on the PATH. This installs pandas, numpy, and matplotlib, the foundational trio for data analysis and plotting in Python. On system-managed Python installs, create a virtual environment first with python3 -m venv .venv. Pin versions with == to keep results reproducible."
+    },
+    {
+      "id": 6288,
+      "category": "GitLab",
+      "cmd": "glab auth login",
+      "desc": "Sign in to GitLab from the terminal",
+      "tooltip": "Walks you through connecting glab to gitlab.com or a self-hosted instance and stores your credentials locally. You can paste a personal access token or complete a browser-based flow, depending on your setup. Confirm the active account with glab auth status afterward."
+    },
+    {
+      "id": 6289,
+      "category": "GitLab",
+      "cmd": "glab auth login --web",
+      "desc": "Sign in with a browser authorization flow",
+      "tooltip": "Opens your default browser so you can authorize glab through the web UI instead of pasting a token manually. The CLI waits while you finish the flow and then saves the credentials. On headless servers, use the --device flag to complete the same flow with a device code."
+    },
+    {
+      "id": 6290,
+      "category": "GitLab",
+      "cmd": "glab auth login --hostname gitlab.example.com -t $GITLAB_TOKEN",
+      "desc": "Sign in to a self-hosted GitLab with a token",
+      "tooltip": "Logs into a specific instance using a personal access token from the GITLAB_TOKEN shell variable, which keeps the secret out of your shell history. The --hostname flag targets self-hosted GitLab instead of gitlab.com. Create the token in GitLab under Preferences and Access Tokens with the api scope."
+    },
+    {
+      "id": 6291,
+      "category": "GitLab",
+      "cmd": "glab auth logout",
+      "desc": "Remove stored GitLab credentials",
+      "tooltip": "Deletes the saved authentication for the active host from your glab config. Commands that need the API will ask you to log in again. Run glab auth status first to see which host is currently active."
+    },
+    {
+      "id": 6292,
+      "category": "GitLab",
+      "cmd": "glab auth status",
+      "desc": "Show the authenticated GitLab account",
+      "tooltip": "Prints which GitLab host and username glab is currently authenticated as, plus the token expiry when known. Run this first when API calls fail with authentication errors. Add -a to see every host stored in the config."
+    },
+    {
+      "id": 6293,
+      "category": "GitLab",
+      "cmd": "glab auth status -a",
+      "desc": "List all authenticated GitLab hosts",
+      "tooltip": "Shows every hostname glab has credentials for, not just the active one, which helps on machines that use gitlab.com and a self-hosted instance together. Add -t to print the token value itself, which is sensitive output. The active host is marked in the listing."
+    },
+    {
+      "id": 6294,
+      "category": "GitLab",
+      "cmd": "glab config edit",
+      "desc": "Open the glab config file in your editor",
+      "tooltip": "Launches your default editor on the YAML file where glab stores hosts, tokens, and preferences such as the git protocol. Changes apply immediately on save. Prefer glab config set for single keys so the file stays valid."
+    },
+    {
+      "id": 6295,
+      "category": "GitLab",
+      "cmd": "glab config get git_protocol",
+      "desc": "Read one glab configuration value",
+      "tooltip": "Prints the current value of a single config key, such as git_protocol or editor, using its dotted name. Values can come from a per-host section, so check the --host flag if the result looks wrong. Pair with glab config set to change a value."
+    },
+    {
+      "id": 6296,
+      "category": "GitLab",
+      "cmd": "glab config set git_protocol ssh -g",
+      "desc": "Set the git protocol for clones and pushes",
+      "tooltip": "Configures whether glab clones and pushes over ssh or https. The -g flag applies the choice globally instead of only to the active host. SSH avoids password prompts on most setups and is the usual default."
+    },
+    {
+      "id": 6297,
+      "category": "GitLab",
+      "cmd": "glab config set editor code --host gitlab.example.com",
+      "desc": "Assign an editor for one GitLab host",
+      "tooltip": "Sets which editor glab opens for merge request and issue descriptions, scoped to the gitlab.example.com host with --host. The value code launches VS Code; other hosts keep their own settings. Without --host the change applies to the active host."
+    },
+    {
+      "id": 6298,
+      "category": "GitLab",
+      "cmd": "glab repo create",
+      "desc": "Create a new repository on GitLab",
+      "tooltip": "Walks you through creating a project on your GitLab instance, prompting for name, visibility, and group. Use -P for public or -p for private to skip the visibility prompt. Add --readme to initialize the project with a README file."
+    },
+    {
+      "id": 6299,
+      "category": "GitLab",
+      "cmd": "glab repo create -g acme-platform --public -d \"Shared service templates\"",
+      "desc": "Create a public repo inside a group",
+      "tooltip": "Creates a project under the acme-platform group with public visibility and the given description. The -g flag targets a group instead of your personal namespace. Add --defaultBranch main to name the initial branch explicitly."
+    },
+    {
+      "id": 6300,
+      "category": "GitLab",
+      "cmd": "glab repo clone git@gitlab.com:acme-platform/api-gateway.git",
+      "desc": "Clone a repository over SSH",
+      "tooltip": "Clones the project using the SSH URL shown and sets up glab remote helpers for later commands. You can also pass a bare path such as acme-platform/api-gateway and glab resolves the host from your config. HTTPS URLs work the same way."
+    },
+    {
+      "id": 6301,
+      "category": "GitLab",
+      "cmd": "glab repo clone -g acme-platform",
+      "desc": "Clone every project in a group",
+      "tooltip": "Fetches all repositories under the acme-platform group into the current directory, one folder per project. Add --preserve-namespace to keep subgroup paths in the folder layout. Useful when onboarding onto a team you just joined."
+    },
+    {
+      "id": 6302,
+      "category": "GitLab",
+      "cmd": "glab repo view",
+      "desc": "Show metadata for the current repository",
+      "tooltip": "Prints project details for the repo in the current directory, including description, star count, and default branch. Add -w to open the project page in your browser instead. The -F json flag switches the output to machine-readable JSON."
+    },
+    {
+      "id": 6303,
+      "category": "GitLab",
+      "cmd": "glab repo view -w",
+      "desc": "Open the current repository in the browser",
+      "tooltip": "Launches your default browser at the project page for the repository in the current directory. Add -b main to jump straight to a branch view. The plain glab repo view prints the same metadata as text."
+    },
+    {
+      "id": 6304,
+      "category": "GitLab",
+      "cmd": "glab repo search -s \"terraform modules\"",
+      "desc": "Search GitLab projects by name or description",
+      "tooltip": "Searches your GitLab instance for projects matching the term terraform modules and prints name, namespace, and description for each hit. The -s flag takes the search string. Combine with glab repo clone to fetch a matching project directly."
+    },
+    {
+      "id": 6305,
+      "category": "GitLab",
+      "cmd": "glab repo fork acme-platform/api-gateway",
+      "desc": "Fork a repository into your namespace",
+      "tooltip": "Creates a personal copy of the named project under your own account, the standard way to contribute without write access. glab registers the fork as a remote so you can push branches. Add --clone to fetch the fork locally right away."
+    },
+    {
+      "id": 6306,
+      "category": "GitLab",
+      "cmd": "glab repo archive acme-platform/legacy-app",
+      "desc": "Archive a repository so it becomes read-only",
+      "tooltip": "Marks the project as archived, hiding it from searches and blocking new changes while keeping all history intact. Members can still clone and browse archived projects. Use glab repo update with the --archive flag set to false to unarchive later."
+    },
+    {
+      "id": 6307,
+      "category": "GitLab",
+      "cmd": "glab repo transfer acme-platform/legacy-app",
+      "desc": "Move a repository to another group",
+      "tooltip": "Relocates the project to a different group or user namespace and prompts for the target. The move changes the project path, so all remote URLs must be updated. Only group owners and instance admins can transfer projects."
+    },
+    {
+      "id": 6308,
+      "category": "GitLab",
+      "cmd": "glab repo delete acme-platform/legacy-app",
+      "desc": "Delete a repository and all of its data",
+      "tooltip": "Permanently removes the project, including its git repository, issues, merge requests, and CI artifacts. This cannot be undone, so double-check the namespace and name before confirming the prompt. Prefer archiving when you only want to stop active work."
+    },
+    {
+      "id": 6309,
+      "category": "GitLab",
+      "cmd": "glab repo list",
+      "desc": "List repositories you can access",
+      "tooltip": "Prints the projects available to your account, most recently updated first. By default only projects you own appear; add --all to include every project you can access. Filter with -g for a specific group."
+    },
+    {
+      "id": 6310,
+      "category": "GitLab",
+      "cmd": "glab repo mirror acme-platform/api-gateway",
+      "desc": "Configure repository mirroring for a project",
+      "tooltip": "Sets up pull or push mirroring on the named GitLab project so it stays in sync with an external repository. A pull mirror makes the external repo the source of truth, while a push mirror makes your GitLab project the source. You supply the remote URL and direction during the prompts."
+    },
+    {
+      "id": 6311,
+      "category": "GitLab",
+      "cmd": "glab repo prune",
+      "desc": "Delete local branches whose MRs were merged",
+      "tooltip": "Removes local git branches that have at least one merged merge request and no open ones, skipping protected, default, and checked-out branches. Only your local repository changes; remote branches are untouched. Add --merged to skip the per-branch lookup and rely on git branch --merged instead."
+    },
+    {
+      "id": 6312,
+      "category": "GitLab",
+      "cmd": "glab repo update api-gateway --defaultBranch main",
+      "desc": "Change the default branch of a repository",
+      "tooltip": "Updates project settings such as the default branch for the api-gateway project. The same command changes the description with --description and archives or unarchives with the --archive flag. Run it from inside the repo to target the current project without naming it."
+    },
+    {
+      "id": 6313,
+      "category": "GitLab",
+      "cmd": "glab mr create -t \"Add rate limiting\" -d \"Limits API calls per user\" -b main -l backend -a @me",
+      "desc": "Create a merge request with title and labels",
+      "tooltip": "Files a merge request for the current branch targeting main, with the given title and description. The -l flag adds the backend label and -a @me assigns the request to you. A merge request is GitLab's code-review unit, the equivalent of a pull request."
+    },
+    {
+      "id": 6314,
+      "category": "GitLab",
+      "cmd": "glab mr create -f",
+      "desc": "Create a merge request from commit messages",
+      "tooltip": "Fills the title and description automatically from the branch's commit history so you can skip writing one. The first commit message becomes the title when -f is used. Add --draft to mark the request as work in progress."
+    },
+    {
+      "id": 6315,
+      "category": "GitLab",
+      "cmd": "glab mr create --draft --remove-source-branch --squash-before-merge -y",
+      "desc": "Create a draft MR with branch cleanup flags",
+      "tooltip": "Files a draft merge request, which signals work in progress and blocks the merge button. The --remove-source-branch flag deletes the feature branch after merging and --squash-before-merge folds every commit into one. The -y flag skips the final confirmation prompt."
+    },
+    {
+      "id": 6316,
+      "category": "GitLab",
+      "cmd": "glab mr list",
+      "desc": "List open merge requests in a project",
+      "tooltip": "Shows open merge requests for the current project with their IDs, titles, and authors. The numeric ID printed is what you pass to glab mr view. Add -a @me to see only yours, or -M to list merged requests instead."
+    },
+    {
+      "id": 6317,
+      "category": "GitLab",
+      "cmd": "glab mr list -a @me -l backend -M",
+      "desc": "List merged MRs assigned to you with a label",
+      "tooltip": "Filters merge requests to those you are assigned to, carrying the backend label, that are already merged. The -M flag switches the default listing from open to merged requests. Add -A to include requests from every project in the group."
+    },
+    {
+      "id": 6318,
+      "category": "GitLab",
+      "cmd": "glab mr view 42",
+      "desc": "Show details of one merge request",
+      "tooltip": "Prints the title, description, status, and diff statistics for merge request 42. Add -c to include the discussion comments inline. This is the fastest way to review an MR without opening a browser."
+    },
+    {
+      "id": 6319,
+      "category": "GitLab",
+      "cmd": "glab mr view 42 -w",
+      "desc": "Open a merge request in the browser",
+      "tooltip": "Opens merge request 42 in your default browser at the GitLab web interface. Handy when you need the full discussion sidebar or want to leave inline comments. The -w flag works on other glab commands too, such as glab repo view."
+    },
+    {
+      "id": 6320,
+      "category": "GitLab",
+      "cmd": "glab mr checkout 42",
+      "desc": "Check out a merge request locally",
+      "tooltip": "Creates a local branch from merge request 42 and switches to it so you can test the changes. Add -b to name the branch yourself or -u to set upstream tracking. This is the standard way to review someone else's code on your machine."
+    },
+    {
+      "id": 6321,
+      "category": "GitLab",
+      "cmd": "glab mr merge 42 -s --remove-source-branch -y",
+      "desc": "Merge an MR with squash and cleanup",
+      "tooltip": "Merges merge request 42 into its target branch, squashing all commits into one with -s and deleting the source branch afterward. The -y flag skips the final confirmation. A red pipeline blocks the merge unless the project allows bypassing it."
+    },
+    {
+      "id": 6322,
+      "category": "GitLab",
+      "cmd": "glab mr merge 42 --auto-merge",
+      "desc": "Merge an MR when pipelines pass",
+      "tooltip": "Queues merge request 42 to merge automatically once its required pipelines succeed. The request stays open and merges the moment checks are green, which helps when you are away. Cancel it before then if you change your mind."
+    },
+    {
+      "id": 6323,
+      "category": "GitLab",
+      "cmd": "glab mr close 42",
+      "desc": "Close a merge request without merging",
+      "tooltip": "Marks merge request 42 as closed, keeping the discussion and commits while declining the changes. Reopen it later with glab mr reopen. Closing is the polite way to abandon a review instead of deleting it."
+    },
+    {
+      "id": 6324,
+      "category": "GitLab",
+      "cmd": "glab mr update 42 --draft",
+      "desc": "Mark a merge request as draft",
+      "tooltip": "Flips merge request 42 into draft state, which blocks merging and signals work in progress. Use -r or --ready to mark it ready again. The same command updates the title with -t and removes labels with -u."
+    },
+    {
+      "id": 6325,
+      "category": "GitLab",
+      "cmd": "glab mr rebase 42",
+      "desc": "Rebase an MR onto its target branch",
+      "tooltip": "Rewinds merge request 42's commits and replays them on top of the latest target branch, clearing drift so the diff stays clean. Pipelines rerun after a rebase. Useful when the target branch moved ahead of the request."
+    },
+    {
+      "id": 6326,
+      "category": "GitLab",
+      "cmd": "glab mr approve 42",
+      "desc": "Approve a merge request",
+      "tooltip": "Records your approval on merge request 42, which counts toward the project's required approvals. Approving signals the code is good to merge from your perspective. Withdraw it later using glab mr revoke."
+    },
+    {
+      "id": 6327,
+      "category": "GitLab",
+      "cmd": "glab mr revoke 42",
+      "desc": "Withdraw approval from a merge request",
+      "tooltip": "Removes your approval from merge request 42, for example after new commits change the code. Useful when a review is no longer valid. The command defaults to the current branch when no ID is given."
+    },
+    {
+      "id": 6328,
+      "category": "GitLab",
+      "cmd": "glab mr note create 42 -m \"LGTM, ship it\"",
+      "desc": "Comment on a merge request",
+      "tooltip": "Posts the message LGTM, ship it as a comment on merge request 42, starting a new discussion thread. A note is GitLab's word for a comment. Read existing threads with glab mr view -c or reply to one with the --reply flag."
+    },
+    {
+      "id": 6329,
+      "category": "GitLab",
+      "cmd": "glab mr diff 42",
+      "desc": "Show the diff of a merge request",
+      "tooltip": "Prints the file-by-file changes introduced by merge request 42 as a unified diff in the terminal. Great for a quick review without leaving the shell. Pair with glab mr view for the full context around the changes."
+    },
+    {
+      "id": 6330,
+      "category": "GitLab",
+      "cmd": "glab mr delete 123",
+      "desc": "Delete a merge request permanently",
+      "tooltip": "Removes merge request 123 and its discussion entirely. Only draft and closed requests can be deleted, and the action cannot be undone, so prefer closing when the history matters. Multiple IDs and branch names can be passed in one call."
+    },
+    {
+      "id": 6331,
+      "category": "GitLab",
+      "cmd": "glab mr reopen 42",
+      "desc": "Reopen a closed merge request",
+      "tooltip": "Restores merge request 42 to open state after it was closed without merging. The discussion history survives the round trip. Multiple IDs can be passed in a single call."
+    },
+    {
+      "id": 6332,
+      "category": "GitLab",
+      "cmd": "glab mr todo 42",
+      "desc": "Add a merge request to your to-do list",
+      "tooltip": "Flags merge request 42 for follow-up in your personal to-do list, which also lives in the GitLab web UI. Clear it with glab todo done after you act on it. The command defaults to the current branch's request when no ID is given."
+    },
+    {
+      "id": 6333,
+      "category": "GitLab",
+      "cmd": "glab issue create -t \"Fix login timeout\" -d \"Session expires too fast\" -l bug -a @me",
+      "desc": "Create an issue with title and labels",
+      "tooltip": "Opens an editor pre-filled with the given title and description for a new issue. The -l flag adds the bug label and -a @me assigns the issue to you. Issues track bugs and tasks, while merge requests carry code changes."
+    },
+    {
+      "id": 6334,
+      "category": "GitLab",
+      "cmd": "glab issue create -t \"Audit trail\" --confidential --weight 3",
+      "desc": "Create a confidential weighted issue",
+      "tooltip": "Files an issue visible only to project members with the confidential flag and a weight of 3 for estimation. Confidential issues hide from public views and searches. Weight is an optional effort estimate used in planning."
+    },
+    {
+      "id": 6335,
+      "category": "GitLab",
+      "cmd": "glab issue list",
+      "desc": "List issues in the current project",
+      "tooltip": "Shows open issues with their IDs, titles, and labels. The numeric ID is what you pass to glab issue view. Filter with -l for a label or -a @me for your own assignments."
+    },
+    {
+      "id": 6336,
+      "category": "GitLab",
+      "cmd": "glab issue list -l bug -a @me",
+      "desc": "List issues by label and assignee",
+      "tooltip": "Filters issues to those carrying the bug label and assigned to you. Combine as many filters as you like, such as label, assignee, and milestone. Use -A to list issues across every project in the group."
+    },
+    {
+      "id": 6337,
+      "category": "GitLab",
+      "cmd": "glab issue view 42",
+      "desc": "Show details of one issue",
+      "tooltip": "Prints the title, description, labels, and current state of issue 42. Add -c to include the comments in the output. This beats opening a browser tab for a quick status check."
+    },
+    {
+      "id": 6338,
+      "category": "GitLab",
+      "cmd": "glab issue close 42",
+      "desc": "Close an issue",
+      "tooltip": "Marks issue 42 as closed, which usually means the work is done or no longer planned. The issue stays visible with its history intact. Reopen it with glab issue reopen if needed."
+    },
+    {
+      "id": 6339,
+      "category": "GitLab",
+      "cmd": "glab issue board view",
+      "desc": "View the issue board interactively",
+      "tooltip": "Opens the project's issue board in the terminal, showing issues grouped into lists much like a kanban board. Boards track work as it moves between stages such as To Do and Done. Create a board first with glab issue board create if the project has none."
+    },
+    {
+      "id": 6340,
+      "category": "GitLab",
+      "cmd": "glab issue update 42",
+      "desc": "Edit an issue's labels and assignees",
+      "tooltip": "Opens interactive prompts to change issue 42's title, description, labels, assignees, or milestone. Every flag is optional, and changes apply immediately in the web UI."
+    },
+    {
+      "id": 6341,
+      "category": "GitLab",
+      "cmd": "glab issue note 42 -m \"Looking into this now\"",
+      "desc": "Comment on an issue",
+      "tooltip": "Posts the message Looking into this now as a comment on issue 42. Without the -m flag, glab opens your editor for a longer comment. Comments keep the discussion attached to the issue for later reference."
+    },
+    {
+      "id": 6342,
+      "category": "GitLab",
+      "cmd": "glab issue reopen 42",
+      "desc": "Reopen a closed issue",
+      "tooltip": "Restores issue 42 to open state after it was closed, keeping all comments and history. Common when a bug comes back after being marked done. The command also accepts a full GitLab URL in place of the ID."
+    },
+    {
+      "id": 6343,
+      "category": "GitLab",
+      "cmd": "glab issue delete 42",
+      "desc": "Delete an issue permanently",
+      "tooltip": "Removes issue 42 and its comments from the project entirely. Deletion cannot be undone, so prefer closing when the discussion has value. Only users with sufficient project permissions can delete issues."
+    },
+    {
+      "id": 6344,
+      "category": "GitLab",
+      "cmd": "glab ci status",
+      "desc": "Show the pipeline status of a branch",
+      "tooltip": "Prints the CI/CD pipeline state for the current branch, such as running, passed, or failed. CI/CD is GitLab's built-in automation that builds, tests, and deploys your code from the CI config file (gitlab-ci.yml). Add -b to check another branch."
+    },
+    {
+      "id": 6345,
+      "category": "GitLab",
+      "cmd": "glab ci status -b main --live",
+      "desc": "Watch pipeline status update in real time",
+      "tooltip": "Follows the pipeline for the main branch and refreshes its status live until it finishes. Use --compact for a condensed view or -w to wait for completion without extra output. The -b flag selects the branch."
+    },
+    {
+      "id": 6346,
+      "category": "GitLab",
+      "cmd": "glab ci retry 123456",
+      "desc": "Retry a failed CI job",
+      "tooltip": "Reruns CI job 123456 after a failure, passing the job name or ID. Only jobs that failed or were canceled can be retried. Add -p to target a job in a specific pipeline instead of the latest one."
+    },
+    {
+      "id": 6347,
+      "category": "GitLab",
+      "cmd": "glab ci cancel pipeline 123456",
+      "desc": "Cancel a running CI pipeline",
+      "tooltip": "Stops pipeline 123456 and its running jobs, which saves runner time when a pipeline is wrong or obsolete. Canceling is not reversible, so retry jobs afterward with glab ci retry. The job subcommand cancels individual jobs instead."
+    },
+    {
+      "id": 6348,
+      "category": "GitLab",
+      "cmd": "glab ci trace 123456",
+      "desc": "Show a CI job log in real time",
+      "tooltip": "Streams the live log of job 123456 while it runs, then prints the full trace once it finishes. A trace is the complete output a job produced on the runner. Press q or Ctrl-C to stop following without canceling the job."
+    },
+    {
+      "id": 6349,
+      "category": "GitLab",
+      "cmd": "glab ci lint .gitlab-ci.yml",
+      "desc": "Validate a CI configuration file",
+      "tooltip": "Checks the CI config file (gitlab-ci.yml) for syntax and logic errors before you push, showing warnings and the resolved job list. Add --dry-run to simulate what the pipeline would look like. The command accepts a path or a URL to a remote file."
+    },
+    {
+      "id": 6350,
+      "category": "GitLab",
+      "cmd": "glab ci list --status success",
+      "desc": "List pipelines filtered by status",
+      "tooltip": "Prints recent pipelines for the current project, filtered to those that finished successfully. Other status values include running, failed, and canceled. The listing shows the pipeline ID and branch for each entry."
+    },
+    {
+      "id": 6351,
+      "category": "GitLab",
+      "cmd": "glab ci get",
+      "desc": "Show the latest pipeline for a branch",
+      "tooltip": "Prints details of the most recent pipeline for the current branch, including its ID, status, and the commit it ran on. Pass --pipeline-id to fetch a specific pipeline instead. Pair with glab ci status for a compact summary."
+    },
+    {
+      "id": 6352,
+      "category": "GitLab",
+      "cmd": "glab ci run --branch main",
+      "desc": "Trigger a new pipeline manually",
+      "tooltip": "Starts a fresh pipeline for the main branch using the project's CI config, without pushing a commit. Pass pipeline variables with the --variables flag and typed inputs with -i. Useful for testing the config on demand."
+    },
+    {
+      "id": 6353,
+      "category": "GitLab",
+      "cmd": "glab ci trigger lint",
+      "desc": "Run a manual CI job",
+      "tooltip": "Starts the manual job named lint, which only runs when someone triggers it by design. Without a job argument you pick one interactively from the list of manual jobs. Add -p to target a specific pipeline."
+    },
+    {
+      "id": 6354,
+      "category": "GitLab",
+      "cmd": "glab ci delete 123456",
+      "desc": "Delete a pipeline and its traces",
+      "tooltip": "Removes pipeline 123456 and its job logs from the project, which frees storage and cleans up mistakes. Deleting does not stop a running pipeline, so cancel it first with glab ci cancel pipeline. Only users with sufficient permissions can delete pipelines."
+    },
+    {
+      "id": 6355,
+      "category": "GitLab",
+      "cmd": "glab job artifact main build",
+      "desc": "Download artifacts from the latest pipeline",
+      "tooltip": "Downloads the artifacts produced by the build job on the main branch from the most recent successful pipeline. Artifacts are files a job saves for later jobs or for humans, such as test reports and binaries. The command replaces the deprecated glab ci artifact form."
+    },
+    {
+      "id": 6356,
+      "category": "GitLab",
+      "cmd": "glab release create v1.2.0",
+      "desc": "Create a release tag with notes",
+      "tooltip": "Tags the current commit as v1.2.0 and creates a GitLab release, prompting for release notes in your editor. A release bundles a git tag with notes and downloadable assets. Point at another commit or branch with the --ref flag."
+    },
+    {
+      "id": 6357,
+      "category": "GitLab",
+      "cmd": "glab release create v1.2.0 -n \"v1.2.0\" -N \"Adds rate limiting\" --ref main",
+      "desc": "Create a release with notes and target ref",
+      "tooltip": "Creates release v1.2.0 from the main branch with the name and notes given, skipping the editor. The -N flag sets the notes and --ref picks the tag target. Attach files afterward with glab release upload."
+    },
+    {
+      "id": 6358,
+      "category": "GitLab",
+      "cmd": "glab release list",
+      "desc": "List releases for the current project",
+      "tooltip": "Prints the project's releases, most recent first, with their tags and titles. Each release corresponds to a git tag. Use glab release view for the full notes of one release."
+    },
+    {
+      "id": 6359,
+      "category": "GitLab",
+      "cmd": "glab release download v1.2.0 -D dist/",
+      "desc": "Download release assets to a directory",
+      "tooltip": "Fetches the assets attached to release v1.2.0 into the dist directory, which is created if missing. Use -n to grab a single asset by name. Assets are the files attached to a release, such as binaries and archives."
+    },
+    {
+      "id": 6360,
+      "category": "GitLab",
+      "cmd": "glab release upload v1.2.0 ./dist/app.tar.gz",
+      "desc": "Attach files to an existing release",
+      "tooltip": "Uploads the app archive as an asset of release v1.2.0. Append a display name after a hash sign to rename it, for example app.tar.gz#App package. Wildcards such as ./dist/* upload every matching file."
+    },
+    {
+      "id": 6361,
+      "category": "GitLab",
+      "cmd": "glab release delete v1.2.0",
+      "desc": "Delete a release and its assets",
+      "tooltip": "Removes release v1.2.0 and the assets attached to it, which cannot be undone. The git tag itself is left in place unless you delete it separately. Requires the Maintainer role or higher on the project."
+    },
+    {
+      "id": 6362,
+      "category": "GitLab",
+      "cmd": "glab variable list",
+      "desc": "List CI/CD variables for a project",
+      "tooltip": "Shows the CI/CD variables defined for the current project, with their scopes and masked or protected flags. CI/CD variables are key-value pairs injected into pipelines as environment variables. Add -g for a group's variables or -i for instance-wide ones."
+    },
+    {
+      "id": 6363,
+      "category": "GitLab",
+      "cmd": "glab variable list -g acme-platform",
+      "desc": "List variables for a group",
+      "tooltip": "Lists the CI/CD variables defined at the acme-platform group level, which every project under the group inherits. Use -i for instance-wide variables instead. Project variables override group ones with the same key."
+    },
+    {
+      "id": 6364,
+      "category": "GitLab",
+      "cmd": "glab variable set API_KEY -v \"s3cr3t\" --masked --protected",
+      "desc": "Create a masked protected CI/CD variable",
+      "tooltip": "Stores the value s3cr3t as the API_KEY variable, visible only in masked form in job logs. Masked values hide in pipeline output, and protected values only reach protected branches and tags. Update an existing key by setting it again."
+    },
+    {
+      "id": 6365,
+      "category": "GitLab",
+      "cmd": "glab variable set DEPLOY_CONFIG -t file -v ./config.env",
+      "desc": "Create a file-type CI/CD variable",
+      "tooltip": "Stores the contents of ./config.env as a file variable named DEPLOY_CONFIG. File variables appear as files in the job workspace instead of environment strings, handy for certificates and config bundles. The -t flag chooses the variable type."
+    },
+    {
+      "id": 6366,
+      "category": "GitLab",
+      "cmd": "glab variable get API_KEY",
+      "desc": "Print the value of one CI/CD variable",
+      "tooltip": "Reads the API_KEY variable and prints its value, honoring the same scoping rules as pipelines. Use --scope to inspect a specific environment scope. Values for masked variables print normally here, so treat the output as sensitive."
+    },
+    {
+      "id": 6367,
+      "category": "GitLab",
+      "cmd": "glab variable export",
+      "desc": "Export all project CI/CD variables",
+      "tooltip": "Writes every CI/CD variable for the current project as a JSON array, ready to move between projects or back up. Redirect the output to a file, for example with a shell redirect. Import the file elsewhere with glab variable import."
+    },
+    {
+      "id": 6368,
+      "category": "GitLab",
+      "cmd": "glab variable import",
+      "desc": "Import CI/CD variables from JSON",
+      "tooltip": "Reads a JSON array of variables, typically produced by glab variable export, and creates them in the current project. Existing keys are overwritten. Review the JSON before importing so secrets land in the right project."
+    },
+    {
+      "id": 6369,
+      "category": "GitLab",
+      "cmd": "glab variable delete API_KEY",
+      "desc": "Delete a CI/CD variable",
+      "tooltip": "Removes the API_KEY variable from the project so pipelines can no longer read it. Pipelines already running keep their injected values until they finish. Deleting is permanent, so confirm the key name first."
+    },
+    {
+      "id": 6370,
+      "category": "GitLab",
+      "cmd": "glab label create -n \"bug\" -c \"#FF0000\" -d \"Something is broken\"",
+      "desc": "Create a label with a color",
+      "tooltip": "Adds a bug label colored red to the project, with the description shown. Labels group issues and merge requests by topic or priority. Reference the label by name with the -l flag on issue and MR commands."
+    },
+    {
+      "id": 6371,
+      "category": "GitLab",
+      "cmd": "glab label list",
+      "desc": "List labels in the current project",
+      "tooltip": "Prints every label with its color and description, which helps you reuse existing names. Add -g to list a group's labels instead. Labels apply to both issues and merge requests."
+    },
+    {
+      "id": 6372,
+      "category": "GitLab",
+      "cmd": "glab label get 42",
+      "desc": "Show one label by its ID",
+      "tooltip": "Prints the name, color, and description of the label with ID 42. Label IDs come from glab label list output. Useful for scripting label lookups."
+    },
+    {
+      "id": 6373,
+      "category": "GitLab",
+      "cmd": "glab label delete bug",
+      "desc": "Delete a label by name",
+      "tooltip": "Removes the bug label from the project and detaches it from every issue and merge request that carried it. Deleting is permanent, and the name can then be reused."
+    },
+    {
+      "id": 6374,
+      "category": "GitLab",
+      "cmd": "glab alias set co \"mr checkout\"",
+      "desc": "Create a shortcut for a glab command",
+      "tooltip": "Defines co as a shorthand that expands to glab mr checkout, so you can type glab co instead. The alias value is any glab command string, including flags. List existing aliases with glab alias list and remove one with glab alias delete."
+    },
+    {
+      "id": 6375,
+      "category": "GitLab",
+      "cmd": "glab alias list",
+      "desc": "List configured glab aliases",
+      "tooltip": "Shows every alias you defined with glab alias set, with its expansion. Aliases are stored in your glab config and apply across projects. The output is sorted alphabetically."
+    },
+    {
+      "id": 6376,
+      "category": "GitLab",
+      "cmd": "glab alias delete co",
+      "desc": "Remove a glab alias",
+      "tooltip": "Deletes the co alias so glab co stops working. The removal is permanent, so redefine it with glab alias set if you change your mind. Other aliases are unaffected."
+    },
+    {
+      "id": 6377,
+      "category": "GitLab",
+      "cmd": "glab api \"projects?search=gitlab\"",
+      "desc": "Call the GitLab REST API from the terminal",
+      "tooltip": "Sends an authenticated request to the GitLab API v4 endpoint given, using your glab login, and prints the JSON response. Endpoints can use placeholders such as :id that resolve from the current repository. Append graphql as the endpoint to query the GraphQL API instead."
+    },
+    {
+      "id": 6378,
+      "category": "GitLab",
+      "cmd": "glab ssh-key add ~/.ssh/id_ed25519.pub -t \"laptop\"",
+      "desc": "Register an SSH key with your account",
+      "tooltip": "Uploads the public key from the file shown to your GitLab account under the title laptop. GitLab then accepts SSH pushes signed by the matching private key. Add -e with a date to expire the key automatically."
+    },
+    {
+      "id": 6379,
+      "category": "GitLab",
+      "cmd": "glab ssh-key list",
+      "desc": "List SSH keys on your account",
+      "tooltip": "Shows every SSH public key registered to your GitLab account with its title and creation date. Use this to spot stale keys you no longer use. Remove unused keys with glab ssh-key delete."
+    },
+    {
+      "id": 6380,
+      "category": "GitLab",
+      "cmd": "glab ssh-key delete 42",
+      "desc": "Remove an SSH key from your account",
+      "tooltip": "Deletes SSH key 42 from your account, after which pushes using that key are rejected. Machines relying on the key must switch to another registered key. The key ID comes from glab ssh-key list."
+    },
+    {
+      "id": 6381,
+      "category": "GitLab",
+      "cmd": "glab completion -s bash",
+      "desc": "Generate shell completion for glab",
+      "tooltip": "Prints a completion script for bash that makes the shell suggest glab commands and flags. Save the output into your shell config, for example by sourcing it from bashrc. Supported shells include zsh, fish, and powershell via the -s flag."
+    },
+    {
+      "id": 6382,
+      "category": "GitLab",
+      "cmd": "glab search semantic -q \"authentication middleware\"",
+      "desc": "Search project code by meaning",
+      "tooltip": "Searches the current project's code using natural language and semantic similarity instead of exact keywords. The -q flag takes the query, and -d narrows the search to a directory. This beta feature requires semantic code search enabled via GitLab Duo."
+    },
+    {
+      "id": 6383,
+      "category": "GitLab",
+      "cmd": "glab todo list",
+      "desc": "List items in your to-do list",
+      "tooltip": "Shows every pending to-do item, such as issues and merge requests where you were mentioned or asked to review. The list mirrors the To-Do List in the GitLab web UI. Mark items done with glab todo done."
+    },
+    {
+      "id": 6384,
+      "category": "GitLab",
+      "cmd": "glab todo done 123",
+      "desc": "Mark a to-do item as done",
+      "tooltip": "Clears to-do item 123 from your list after you have acted on it. Pass multiple IDs to clear several at once. Your remaining items still show in glab todo list."
+    },
+    {
+      "id": 6385,
+      "category": "GitLab",
+      "cmd": "glab version",
+      "desc": "Print the installed glab version",
+      "tooltip": "Shows the glab release and the commit it was built from, which helps when reporting bugs or checking for updates. Compare it with glab check-update to see whether a newer release exists. Works without authentication."
+    },
+    {
+      "id": 6386,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl status",
+      "desc": "Show the state of every GitLab service",
+      "tooltip": "Prints each service on the GitLab Omnibus server with its process ID and uptime, such as nginx, puma, and sidekiq. Omnibus is the all-in-one Linux package that bundles GitLab with its dependencies and runs services under runit. A stopped service shows as down so you know what to restart."
+    },
+    {
+      "id": 6387,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl reconfigure",
+      "desc": "Apply gitlab.rb changes to the server",
+      "tooltip": "Regenerates the server configuration from /etc/gitlab/gitlab.rb (the settings file) and restarts the services that changed. Run this after every edit to gitlab.rb, including upgrades. Expect a short downtime while services restart, sometimes a 502 until puma is back up."
+    },
+    {
+      "id": 6388,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl show-config",
+      "desc": "Preview the config reconfigure would generate",
+      "tooltip": "Prints the JSON configuration that a reconfigure would apply, without changing anything on disk. Use it to preview how gitlab.rb settings translate into service configs. Safe to run any time."
+    },
+    {
+      "id": 6389,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl diff-config",
+      "desc": "Diff generated config against the applied config",
+      "tooltip": "Compares the configuration reconfigure would generate with what the services currently run. Differences appear when gitlab.rb changed but reconfigure has not run yet. Run reconfigure to close the gap."
+    },
+    {
+      "id": 6390,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl check-config",
+      "desc": "Check gitlab.rb for deprecated options",
+      "tooltip": "Scans /etc/gitlab/gitlab.rb for settings that are deprecated or slated for removal in future releases. The warnings tell you which keys to replace and with what. Run it after every major upgrade."
+    },
+    {
+      "id": 6391,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl start",
+      "desc": "Start all GitLab services",
+      "tooltip": "Brings up every service that is currently stopped, using the runit supervision system. Services already running are left alone. Check the result with gitlab-ctl status."
+    },
+    {
+      "id": 6392,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl stop",
+      "desc": "Stop all GitLab services",
+      "tooltip": "Shuts down every GitLab service, which makes the web interface unreachable until you start them again. Use it before maintenance on the underlying system. Restart with gitlab-ctl start when finished."
+    },
+    {
+      "id": 6393,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl restart",
+      "desc": "Restart all GitLab services",
+      "tooltip": "Stops and starts every service, which briefly interrupts the web interface. Prefer targeted restarts such as gitlab-ctl restart puma when only one service needs it. Check health afterward with gitlab-ctl status."
+    },
+    {
+      "id": 6394,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl restart puma",
+      "desc": "Restart only the puma web server",
+      "tooltip": "Restarts the puma process that serves the GitLab web interface, which is the usual fix after changing settings that only affect the web app. Other services keep running, so the interruption is short. For zero-downtime reloads, use gitlab-ctl hup puma instead."
+    },
+    {
+      "id": 6395,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl restart-except gitaly redis",
+      "desc": "Restart all services except the named ones",
+      "tooltip": "Restarts every service while leaving gitaly and redis untouched, which saves time when those two are known to be healthy. The listed services keep running through the restart. Useful during maintenance that only touches the app layer."
+    },
+    {
+      "id": 6396,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl hup puma",
+      "desc": "Reload puma without dropping connections",
+      "tooltip": "Sends puma a hangup signal so workers restart gracefully, keeping existing connections alive. This applies most code and config changes with no downtime, unlike a full restart. Changes to the Ruby runtime itself still need gitlab-ctl restart puma."
+    },
+    {
+      "id": 6397,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl tail",
+      "desc": "Follow logs from all GitLab services",
+      "tooltip": "Streams the tail of the logs from every service, which is the first stop when debugging a GitLab problem. Press Ctrl-C to stop following. Narrow it down with a service name, such as gitlab-ctl tail nginx."
+    },
+    {
+      "id": 6398,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl tail nginx",
+      "desc": "Follow the nginx access and error logs",
+      "tooltip": "Tails the log files of the nginx service, which fronts all web traffic to GitLab. You can name any service from gitlab-ctl service-list. Add a filename to follow one specific log, such as error.log."
+    },
+    {
+      "id": 6399,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl backup-etc",
+      "desc": "Back up the GitLab configuration files",
+      "tooltip": "Archives /etc/gitlab, the directory holding gitlab.rb, secrets, and TLS material, into a timestamped tarball. Restoring a server needs both this config backup and the data backup from gitlab-backup. Store the tarball somewhere off the server."
+    },
+    {
+      "id": 6400,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl deploy-page up",
+      "desc": "Show the deploy in progress page",
+      "tooltip": "Switches the web interface to a maintenance page that says a deploy is in progress, so users see a clear message instead of errors. Pair it with gitlab-ctl deploy-page down when the maintenance ends. Check the current state with the status subcommand."
+    },
+    {
+      "id": 6401,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl deploy-page status",
+      "desc": "Check whether the deploy page is active",
+      "tooltip": "Reports whether the maintenance page from gitlab-ctl deploy-page up is currently shown. Useful in scripts that must wait for maintenance to end. The page is a static notice served instead of the GitLab UI."
+    },
+    {
+      "id": 6402,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl service-list",
+      "desc": "List every runit-managed service",
+      "tooltip": "Prints all services the GitLab Omnibus package supervises, including nginx, puma, sidekiq, gitaly, and redis. Use the names with commands such as gitlab-ctl restart and gitlab-ctl tail. runit is the process supervisor that keeps services alive."
+    },
+    {
+      "id": 6403,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl pg-upgrade",
+      "desc": "Upgrade the bundled PostgreSQL major version",
+      "tooltip": "Upgrades the embedded PostgreSQL database to the next major version, which is required when a GitLab upgrade targets a newer Postgres. It stops services, migrates data, and restarts everything, so plan for downtime. Back up first with gitlab-backup create."
+    },
+    {
+      "id": 6404,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl cleanse",
+      "desc": "Remove all GitLab data from the server",
+      "tooltip": "Deletes the entire GitLab installation state, including databases, repositories, and configuration, leaving the package installed. This is irreversible and wipes every project on the server. Use it only when decommissioning a node after confirming backups."
+    },
+    {
+      "id": 6405,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl uninstall",
+      "desc": "Remove the GitLab installation",
+      "tooltip": "Stops the services and removes the GitLab Omnibus package from the system. Data under /var/opt/gitlab and configuration under /etc/gitlab are preserved unless you remove them separately. Back up before uninstalling anything you might need again."
+    },
+    {
+      "id": 6406,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-ctl promote-to-primary-node",
+      "desc": "Promote a secondary Geo node to primary",
+      "tooltip": "Turns the current Geo secondary site into the primary during a failover, making it the writable source of truth. Geo is the GitLab EE feature that replicates a primary site to read-only secondaries for disaster recovery. Run it on the secondary after it has caught up with the primary."
+    },
+    {
+      "id": 6407,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rails runner \"user = User.first; puts user.username\"",
+      "desc": "Run a Ruby one-liner inside GitLab",
+      "tooltip": "Executes the Ruby snippet in the context of the GitLab Rails application, with access to models such as User. This is the supported way to query or fix data that has no admin UI. Wrap multi-line scripts in a file and pass the path instead."
+    },
+    {
+      "id": 6408,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rails runner /tmp/script.rb",
+      "desc": "Run a Ruby script inside GitLab",
+      "tooltip": "Executes the script file in the GitLab Rails environment, letting you loop over records and call application code. Scripts run as the git user with full database access, so test them on a copy first. One-liners work too by passing the code as a string."
+    },
+    {
+      "id": 6409,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rails console",
+      "desc": "Open an interactive GitLab console",
+      "tooltip": "Starts an interactive Ruby session inside the GitLab application where you can inspect models, users, and settings directly. Type quit to exit. This is powerful and unsafe for casual use, so prefer the runner for scripted changes."
+    },
+    {
+      "id": 6410,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rails console --sandbox",
+      "desc": "Open a console where changes roll back",
+      "tooltip": "Starts the Rails console in sandbox mode, where every database write is rolled back when you exit. Great for testing destructive operations safely. Reads behave normally, so queries and lookups are unaffected."
+    },
+    {
+      "id": 6411,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-psql -d gitlabhq_production",
+      "desc": "Open a psql session on the GitLab database",
+      "tooltip": "Connects to the gitlabhq_production database, where GitLab stores its application data, using the bundled PostgreSQL client. Standard psql features work, including SQL queries and meta-commands. Read-only queries are safe, but direct writes bypass GitLab's own checks."
+    },
+    {
+      "id": 6412,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-psql -d gitlabhq_production -c \"SELECT count(*) FROM users;\"",
+      "desc": "Run one SQL query against GitLab's database",
+      "tooltip": "Executes the count query against the production database and exits, which is handy for quick checks without an interactive session. The -c flag takes a single SQL statement. Wrap complex queries in a heredoc or file instead."
+    },
+    {
+      "id": 6413,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake db:migrate",
+      "desc": "Run pending database migrations",
+      "tooltip": "Applies database migrations that the last upgrade queued but has not run yet. Migrations change the schema, so the app may need a restart afterward. Rake tasks are GitLab's built-in maintenance scripts, run through the gitlab-rake wrapper."
+    },
+    {
+      "id": 6414,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake db:migrate:status",
+      "desc": "Show which migrations have run",
+      "tooltip": "Lists every migration with its version and whether it is up or down. Down entries are pending and will run on the next db:migrate. Use this to confirm an upgrade finished cleanly."
+    },
+    {
+      "id": 6415,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake db:schema:dump",
+      "desc": "Dump the current database schema",
+      "tooltip": "Writes the database structure to a schema file that GitLab uses to rebuild the database. Run it after manual schema changes so the file matches reality. The output is meant for the repository, not for humans."
+    },
+    {
+      "id": 6416,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:check",
+      "desc": "Run the GitLab environment checks",
+      "tooltip": "Runs the full suite of environment checks, covering database connectivity, git configuration, uploads, and permissions. Failures print with hints about how to fix them. Add SANITIZE=true to hide sensitive values from the output."
+    },
+    {
+      "id": 6417,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:check SANITIZE=true",
+      "desc": "Run environment checks without secrets in output",
+      "tooltip": "Runs the same checks as gitlab:check but replaces sensitive values with placeholders in the report. Use this variant when sharing check output in support tickets. The checks themselves are identical."
+    },
+    {
+      "id": 6418,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:env:info",
+      "desc": "Show the GitLab environment summary",
+      "tooltip": "Prints a summary of the installation, including version, package type, and database adapter. Attach this output to bug reports so support sees the exact environment. Quick and safe to run."
+    },
+    {
+      "id": 6419,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:db:reindex",
+      "desc": "Reindex the GitLab database tables",
+      "tooltip": "Rebuilds indexes on the GitLab database to restore performance after heavy churn. Indexes speed up lookups but fragment over time. Run during a maintenance window because the work loads the database."
+    },
+    {
+      "id": 6420,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:db:repair_index",
+      "desc": "Fix broken database indexes",
+      "tooltip": "Rebuilds indexes that GitLab detected as invalid or corrupted, for example after an aborted migration. Run it when the db:migrate output mentions index problems. Safe to run repeatedly if unsure."
+    },
+    {
+      "id": 6421,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:db:collation_checker",
+      "desc": "Check database collation consistency",
+      "tooltip": "Compares collation settings across GitLab database tables and reports mismatches. Collation defines how text is sorted and compared, and inconsistent collation can break lookups. Fix issues found before the next major upgrade."
+    },
+    {
+      "id": 6422,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:db:sos",
+      "desc": "Collect database diagnostics for support",
+      "tooltip": "Gathers database metadata, settings, and sample data into a bundle for GitLab support to analyze. Run it when reporting database performance problems. The output lands in a timestamped directory on the server."
+    },
+    {
+      "id": 6423,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:exclusive_lease:clear",
+      "desc": "Clear stuck exclusive leases",
+      "tooltip": "Removes exclusive lease entries left behind by crashed jobs, which can block background work such as repository maintenance. Exclusive leases prevent two jobs from running the same task at once. Clear them only when a job is truly stuck."
+    },
+    {
+      "id": 6424,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake cache:clear",
+      "desc": "Clear the Rails cache",
+      "tooltip": "Empties the Rails cache store, which holds frequently used data such as fragments and counters. Run it after migrations or manual data changes when stale cache entries cause odd behavior. Services rebuild the cache on demand."
+    },
+    {
+      "id": 6425,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:license:info",
+      "desc": "Show the license details and limits",
+      "tooltip": "Prints the current license type, expiration date, and the user limits it allows. Useful to confirm a renewal applied or to check how close you are to the seat limit. Works on CE too, reporting the free tier."
+    },
+    {
+      "id": 6426,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:shell:setup",
+      "desc": "Reconfigure the GitLab Shell",
+      "tooltip": "Re-establishes the GitLab Shell setup, which handles git operations over SSH. Run it when SSH pushes fail after a key or secret change. It writes the authorized keys configuration from the current settings."
+    },
+    {
+      "id": 6427,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:uploads:check VERBOSE=1",
+      "desc": "Check upload integrity across projects",
+      "tooltip": "Verifies that every referenced upload file exists on disk, reporting missing ones. The VERBOSE=1 setting lists each checked file instead of summarizing. Run it after a restore to catch files that did not come back."
+    },
+    {
+      "id": 6428,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:lfs:check VERBOSE=1",
+      "desc": "Check LFS object integrity",
+      "tooltip": "Verifies that large file storage objects referenced by the database exist on disk. LFS, or large file storage, keeps big files out of the git repository itself. The VERBOSE=1 flag prints every object checked."
+    },
+    {
+      "id": 6429,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:artifacts:check BATCH=100 ID_FROM=50 ID_TO=250",
+      "desc": "Check CI artifact files in a project range",
+      "tooltip": "Verifies that CI artifact files for projects with IDs between 50 and 250 exist, processing 100 projects per batch. The BATCH and ID range flags keep memory use bounded on large servers. Missing artifacts are reported for re-download or cleanup."
+    },
+    {
+      "id": 6430,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:git:fsck",
+      "desc": "Check repository integrity with fsck",
+      "tooltip": "Runs the git fsck integrity check over repositories, finding corrupt objects and dangling commits. Corrupt repositories can break clones and pushes. Fix issues found before they spread through replication."
+    },
+    {
+      "id": 6431,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-rake gitlab:doctor:secrets",
+      "desc": "Check secret files for consistency",
+      "tooltip": "Verifies that the secret files match what the database expects, which matters after restoring from a backup. Mismatched secrets break features such as two-factor auth and CI tokens. Re-encrypt the database when the check reports a problem."
+    },
+    {
+      "id": 6432,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create",
+      "desc": "Create a full GitLab backup",
+      "tooltip": "Backs up the database, repositories, uploads, and CI artifacts into a timestamped tarball under /var/opt/gitlab/backups. Run it regularly and copy the tarballs off the server, since a disk failure takes the backups with it. Restore with gitlab-backup restore."
+    },
+    {
+      "id": 6433,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create SKIP=db,uploads",
+      "desc": "Back up everything except database and uploads",
+      "tooltip": "Creates a backup while skipping the database and uploads components, which is useful for quick repository-only snapshots. The SKIP flag takes a comma-separated list of component names. A backup without the database cannot restore the app fully."
+    },
+    {
+      "id": 6434,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create SKIP=tar",
+      "desc": "Back up without creating the tar archive",
+      "tooltip": "Runs the backup steps but skips the final step that bundles everything into a tarball. Pair this with a custom COMPRESS_CMD when you handle archiving yourself. The raw component directories stay in the backups folder."
+    },
+    {
+      "id": 6435,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create SKIP=remote",
+      "desc": "Back up without uploading to remote storage",
+      "tooltip": "Prevents the backup from being uploaded to the configured object storage or remote directory. Use it when you want the tarball only on the local disk. The remote destination is set in gitlab.rb."
+    },
+    {
+      "id": 6436,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create SKIP=repositories",
+      "desc": "Back up everything except git repositories",
+      "tooltip": "Skips the git repository data while keeping the database, uploads, and other components. Restoring this backup alone does not bring back project code. Pair it with a separate repository backup strategy such as Gitaly snapshots."
+    },
+    {
+      "id": 6437,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create INCREMENTAL=yes PREVIOUS_BACKUP=1699000000_2023_11_04_16.0.5",
+      "desc": "Create an incremental backup on top of a previous one",
+      "tooltip": "Appends only the changes since the named backup into an incremental tarball, using the backup ID from the previous run. The ID format is a timestamp followed by the date and GitLab version. Incremental backups restore faster but need the full chain."
+    },
+    {
+      "id": 6438,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create CRON=1",
+      "desc": "Run a backup silently for cron jobs",
+      "tooltip": "Suppresses the progress output so the command is safe to run from a cron schedule without spamming logs. Set CRON=1 inside the cron job's command line. Errors still print and can be captured by the cron mailer."
+    },
+    {
+      "id": 6439,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup create COMPRESS_CMD=\"gzip -c --best\"",
+      "desc": "Back up with a custom compression command",
+      "tooltip": "Overrides the default compressor with gzip at its best level, trading speed for a smaller tarball. The command must read input on stdin and write compressed output to stdout. Pair with DECOMPRESS_CMD on restore so the formats match."
+    },
+    {
+      "id": 6440,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-backup restore BACKUP=11493107454_2018_04_25_10.6.4-ce",
+      "desc": "Restore GitLab from a backup file",
+      "tooltip": "Restores the database, repositories, and other components from the named backup. The value is the backup ID as it appears in the backups directory. This overwrites current data, and a version mismatch between backup and server aborts the restore."
+    },
+    {
+      "id": 6441,
+      "category": "GitLab",
+      "cmd": "sudo GITLAB_ASSUME_YES=1 gitlab-backup restore",
+      "desc": "Restore a backup without confirmation prompts",
+      "tooltip": "Runs the restore flow answering yes to every prompt, which is needed for unattended restores in scripts. It restores the latest backup found in the backups directory. Only set the variable when you are certain the current data can be overwritten."
+    },
+    {
+      "id": 6442,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner register",
+      "desc": "Register a new GitLab runner interactively",
+      "tooltip": "Walks you through registering a runner with a GitLab instance, asking for the GitLab URL, a registration token, and an executor. A runner is a worker machine that picks up CI jobs from GitLab. The answers land in the config file (config.toml)."
+    },
+    {
+      "id": 6443,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner register --non-interactive --url https://gitlab.com --token $RUNNER_TOKEN --executor docker --docker-image alpine:latest --name runner-1",
+      "desc": "Register a Docker runner without prompts",
+      "tooltip": "Registers a runner non-interactively using the token from the RUNNER_TOKEN shell variable, so it fits in setup scripts. The docker executor runs each job in a fresh alpine container, isolating builds from the host. The --name flag labels this runner in the GitLab UI."
+    },
+    {
+      "id": 6444,
+      "category": "GitLab",
+      "cmd": "gitlab-runner list",
+      "desc": "List runners from the local config",
+      "tooltip": "Shows every runner defined in the config file (config.toml) with its URL and executor. This reflects local registration, not what GitLab sees. Check the GitLab admin area when a runner shows as offline."
+    },
+    {
+      "id": 6445,
+      "category": "GitLab",
+      "cmd": "gitlab-runner verify",
+      "desc": "Check runner connectivity with GitLab",
+      "tooltip": "Contacts GitLab for each registered runner and reports whether the connection and token still work. Run it after moving servers or rotating tokens. Offline runners appear in the output with their last contact time."
+    },
+    {
+      "id": 6446,
+      "category": "GitLab",
+      "cmd": "gitlab-runner lint",
+      "desc": "Validate a CI config against the runner",
+      "tooltip": "Checks a CI config file (gitlab-ci.yml) for errors the way the runner would parse it, before pushing. Pass the file path or a URL to the config. The report lists each job and any problems found."
+    },
+    {
+      "id": 6447,
+      "category": "GitLab",
+      "cmd": "gitlab-runner status",
+      "desc": "Show whether the runner service is running",
+      "tooltip": "Reports whether the gitlab-runner service process is active on this machine. It does not check registration or connectivity, which is what gitlab-runner verify does. Useful after install or start to confirm the service came up."
+    },
+    {
+      "id": 6448,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner unregister --all-runners",
+      "desc": "Unregister every runner on this machine",
+      "tooltip": "Removes all runners registered from this host from the GitLab project or group, useful when decommissioning a machine. Individual runners can be removed with --name or by URL and token. The local config entries are removed too."
+    },
+    {
+      "id": 6449,
+      "category": "GitLab",
+      "cmd": "gitlab-runner run",
+      "desc": "Run the runner in the foreground",
+      "tooltip": "Starts the runner process directly in the terminal, which is what the service does in the background when installed. Run it manually to watch logs while debugging. Stop it with Ctrl-C."
+    },
+    {
+      "id": 6450,
+      "category": "GitLab",
+      "cmd": "gitlab-runner run-single -u http://gitlab.example.com -t $RUNNER_TOKEN --executor docker --docker-image ruby:3.3",
+      "desc": "Run one temporary runner session",
+      "tooltip": "Starts a single runner session that takes jobs until stopped, without writing a config file entry. The -u flag sets the GitLab URL and -t passes the token from the RUNNER_TOKEN variable. Useful for short-lived test runners."
+    },
+    {
+      "id": 6451,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner install",
+      "desc": "Install the runner as a system service",
+      "tooltip": "Registers the runner binary with the init system so it starts automatically on boot. The service runs the gitlab-runner run command in the background. Start it with gitlab-runner start."
+    },
+    {
+      "id": 6452,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner uninstall",
+      "desc": "Remove the runner system service",
+      "tooltip": "Removes the gitlab-runner service from the init system so it no longer starts on boot. Stop the service first to avoid a supervisor respawning the process. Registration entries in the config file remain."
+    },
+    {
+      "id": 6453,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner start",
+      "desc": "Start the runner service",
+      "tooltip": "Starts the installed gitlab-runner service so it begins picking up jobs. The service runs in the background under the init system. Confirm it is up with gitlab-runner status."
+    },
+    {
+      "id": 6454,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner stop",
+      "desc": "Stop the runner service",
+      "tooltip": "Stops the gitlab-runner service so it stops accepting new jobs. Jobs already running finish before the process exits. Restart later with gitlab-runner start."
+    },
+    {
+      "id": 6455,
+      "category": "GitLab",
+      "cmd": "sudo gitlab-runner reset-token",
+      "desc": "Reset the runner's authentication token",
+      "tooltip": "Rotates the authentication token the runner uses to talk to GitLab and writes the new value into the config file (config.toml). Run it when a token leaks or the runner reports authentication failures. The runner picks up the new token on its next communication with the server."
     }
   ],
-  "total": 6057
+  "total": 6408
 }
