@@ -1,7 +1,7 @@
 {
   "categories": [
-    "Administration",
     "AI Agents & MCP",
+    "Administration",
     "Archiving & Compression",
     "Bash Scripting",
     "Cron & Scheduling",
@@ -21,6 +21,7 @@
     "Node.js & npm/yarn",
     "Productivity & Search",
     "Python & pip",
+    "React Native & Mobile",
     "SSH & Remote",
     "Self-Hosting",
     "Shell & Bash",
@@ -22899,7 +22900,315 @@
       "desc": "create a new QCOW2 disk image",
       "tooltip": "Use `qemu-img create -f qcow2 disk.qcow2 20G` to create a new QCOW2 disk image. Helpful when you need this quickly on a Linux server.",
       "id": 3267
+    },
+    {
+      "id": 3268,
+      "category": "React Native & Mobile",
+      "cmd": "npx @react-native-community/cli init MyApp",
+      "desc": "Create a new React Native project",
+      "tooltip": "Scaffolds a fresh React Native app named MyApp. npx runs the CLI from the latest package version without installing it globally. Use --version to pin a specific React Native release."
+    },
+    {
+      "id": 3269,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native start",
+      "desc": "Start the Metro bundler",
+      "tooltip": "Metro is React Native's dev server and JavaScript bundler. It compiles your JS on demand and serves it to the app over port 8081. Keep this running in its own terminal while developing."
+    },
+    {
+      "id": 3270,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native run-android",
+      "desc": "Build and install the app on Android",
+      "tooltip": "Compiles the Android app and installs it on a connected device or running emulator, then launches it. Requires the Android SDK and a device reachable via adb. Debug builds connect to the Metro server."
+    },
+    {
+      "id": 3271,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native run-ios",
+      "desc": "Build and launch the app in the iOS simulator",
+      "tooltip": "Compiles the iOS app and boots it in the default simulator. Requires Xcode and CocoaPods dependencies installed (pod install). Pass --simulator \"iPhone 16\" to pick a specific device."
+    },
+    {
+      "id": 3272,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native log-android",
+      "desc": "Stream Android device logs in real time",
+      "tooltip": "Tails logcat output for the running app, filtered to React Native messages. Use it to watch console.log output and native crashes while developing. Press Ctrl+C to stop."
+    },
+    {
+      "id": 3273,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native log-ios",
+      "desc": "Stream iOS simulator logs in real time",
+      "tooltip": "Tails the iOS system log for the app running in the simulator. Useful for seeing JS console output and native errors side by side with the Metro terminal."
+    },
+    {
+      "id": 3274,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native doctor",
+      "desc": "Check the React Native environment for issues",
+      "tooltip": "Runs health checks on your setup: Node version, JDK, Android SDK, CocoaPods, and Xcode. Reports what is missing or outdated — the first thing to run when builds fail mysteriously."
+    },
+    {
+      "id": 3275,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native config",
+      "desc": "Show the resolved project configuration",
+      "tooltip": "Prints the effective React Native configuration: project paths, asset roots, platforms, and dependency versions. Useful for debugging why a native module is or is not linked."
+    },
+    {
+      "id": 3276,
+      "category": "React Native & Mobile",
+      "cmd": "adb devices",
+      "desc": "List connected Android devices and emulators",
+      "tooltip": "adb (Android Debug Bridge) is the universal tool for talking to Android devices. This prints every connected device/emulator with its serial. A device showing 'unauthorized' needs a USB debugging permission prompt accepted."
+    },
+    {
+      "id": 3277,
+      "category": "React Native & Mobile",
+      "cmd": "adb shell",
+      "desc": "Open an interactive shell on a connected device",
+      "tooltip": "Drops you into a Linux shell running on the Android device itself. From there you can inspect files, run commands, or check system state — the same environment your app runs in."
+    },
+    {
+      "id": 3278,
+      "category": "React Native & Mobile",
+      "cmd": "adb install -r app.apk",
+      "desc": "Install an APK, keeping app data",
+      "tooltip": "Installs an Android package file (.apk). The -r flag reinstalls and preserves the app's existing data, which is useful when iterating on builds without wiping local state. Use adb install -r -d to allow a downgrade."
+    },
+    {
+      "id": 3279,
+      "category": "React Native & Mobile",
+      "cmd": "adb uninstall com.example.app",
+      "desc": "Uninstall an app by package name",
+      "tooltip": "Removes an app from the device using its package identifier (the 'applicationId' in your build.gradle). Find the package name with adb shell pm list packages."
+    },
+    {
+      "id": 3280,
+      "category": "React Native & Mobile",
+      "cmd": "adb reverse tcp:8081 tcp:8081",
+      "desc": "Forward a device port to the host machine",
+      "tooltip": "Makes the device's port 8081 connect to your computer's port 8081 over USB — this is how a physical Android phone reaches the Metro dev server without Wi-Fi. Run it after plugging in a new device."
+    },
+    {
+      "id": 3281,
+      "category": "React Native & Mobile",
+      "cmd": "adb logcat -s ReactNativeJS",
+      "desc": "Show only React Native JavaScript logs",
+      "tooltip": "logcat is Android's system log. The -s flag filters to the ReactNativeJS tag, so you see console.log output from your JS code without the noise of every other system message."
+    },
+    {
+      "id": 3282,
+      "category": "React Native & Mobile",
+      "cmd": "adb logcat -d -s AndroidRuntime:E",
+      "desc": "Dump Android crash stack traces",
+      "tooltip": "-d dumps the log buffer and exits (instead of streaming forever). Filtering to AndroidRuntime with severity E shows fatal crashes — the Java stack traces from native crashes in your app."
+    },
+    {
+      "id": 3283,
+      "category": "React Native & Mobile",
+      "cmd": "adb shell pm list packages -3",
+      "desc": "List user-installed apps on the device",
+      "tooltip": "pm (package manager) lists installed packages. The -3 flag limits output to third-party apps, excluding the system's own packages. Useful for finding the exact package name of an app you installed."
+    },
+    {
+      "id": 3284,
+      "category": "React Native & Mobile",
+      "cmd": "adb shell am force-stop com.example.app",
+      "desc": "Force-stop an app",
+      "tooltip": "am (activity manager) force-stops an app's process entirely — like swiping it away plus killing background work. Use this to get a clean app start during testing, which is more reliable than just pressing back."
+    },
+    {
+      "id": 3285,
+      "category": "React Native & Mobile",
+      "cmd": "adb shell dumpsys activity activities",
+      "desc": "Show the current activity stack",
+      "tooltip": "dumpsys prints internal system service state. This variant shows which activity is in the foreground — handy for verifying deep-link routing or confirming which screen your app actually opened."
+    },
+    {
+      "id": 3286,
+      "category": "React Native & Mobile",
+      "cmd": "adb pull /sdcard/file.txt .",
+      "desc": "Copy a file from the device to your computer",
+      "tooltip": "Copies a file (or directory) from the device's filesystem to your current local directory. Useful for grabbing logs, screenshots, or databases your app wrote to storage."
+    },
+    {
+      "id": 3287,
+      "category": "React Native & Mobile",
+      "cmd": "adb push local.txt /sdcard/",
+      "desc": "Copy a file from your computer to the device",
+      "tooltip": "Copies a local file onto the device. Common uses: pushing an APK to test, seeding test data, or dropping files into app-visible storage paths."
+    },
+    {
+      "id": 3288,
+      "category": "React Native & Mobile",
+      "cmd": "adb reboot",
+      "desc": "Reboot the connected device",
+      "tooltip": "Restarts the Android device. Pair with adb wait-for-device afterwards if your script needs to continue once the device is back online."
+    },
+    {
+      "id": 3289,
+      "category": "React Native & Mobile",
+      "cmd": "adb wait-for-device",
+      "desc": "Wait until a device is connected",
+      "tooltip": "Blocks until adb sees a device. Combine with adb reboot in shell scripts to pause until the phone finishes restarting before running the next adb command."
+    },
+    {
+      "id": 3290,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew assembleDebug",
+      "desc": "Build the debug APK",
+      "tooltip": "gradlew is the Gradle wrapper — a project-local script that uses the exact Gradle version the project pins. assembleDebug compiles the debug variant and outputs app-debug.apk under android/app/build/outputs/apk/debug/."
+    },
+    {
+      "id": 3291,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew installDebug",
+      "desc": "Build and install the debug APK",
+      "tooltip": "Shortcut that builds the debug variant and immediately installs it on a connected device. Faster than assembling and adb install separately when you are iterating."
+    },
+    {
+      "id": 3292,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew bundleRelease",
+      "desc": "Build the release AAB for Play Store upload",
+      "tooltip": "Produces the Android App Bundle (.aab), the format Google Play requires for uploads. Play then generates optimized APKs per device from the bundle. Requires release signing configured."
+    },
+    {
+      "id": 3293,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew lint",
+      "desc": "Run Android lint checks",
+      "tooltip": "Android Lint statically analyzes your code for bugs, accessibility issues, and performance problems. Run it in CI to catch issues before they reach users. Reports land in android/app/build/reports/."
+    },
+    {
+      "id": 3294,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew test",
+      "desc": "Run the Android unit tests",
+      "tooltip": "Executes the unit tests in the test/ source set (JVM tests that do not need a device). Add --tests \"com.example.FooTest\" to run a single class."
+    },
+    {
+      "id": 3295,
+      "category": "React Native & Mobile",
+      "cmd": "./gradlew tasks",
+      "desc": "List all available Gradle tasks",
+      "tooltip": "Prints every task the project can run, grouped by type. Run this to discover what build, test, and install tasks exist in your Android project without guessing names."
+    },
+    {
+      "id": 3296,
+      "category": "React Native & Mobile",
+      "cmd": "sdkmanager --list",
+      "desc": "List installed and available Android SDK packages",
+      "tooltip": "sdkmanager (in cmdline-tools/latest/bin) manages Android SDK components: platforms, build-tools, and platform-tools. --list shows what is installed versus available, including the license acceptance status."
+    },
+    {
+      "id": 3297,
+      "category": "React Native & Mobile",
+      "cmd": "emulator -list-avds",
+      "desc": "List available Android virtual devices",
+      "tooltip": "Lists every AVD (Android Virtual Device) you have created — named configurations of device profile, system image, and storage. The names here are what you pass to emulator -avd."
+    },
+    {
+      "id": 3298,
+      "category": "React Native & Mobile",
+      "cmd": "emulator -avd Pixel_10",
+      "desc": "Boot a specific Android emulator",
+      "tooltip": "Starts the emulator with the named AVD. Add -no-snapshot-load for a cold boot, or -no-window to run headless (CI-friendly). The emulator binary lives in $ANDROID_HOME/emulator/."
+    },
+    {
+      "id": 3299,
+      "category": "React Native & Mobile",
+      "cmd": "aapt2 dump badging app.apk",
+      "desc": "Show an APK's package name, version, and permissions",
+      "tooltip": "aapt2 (Android Asset Packaging Tool) reads an APK's manifest metadata. dump badging prints the package name, versionCode/versionName, launchable activity, and permissions — the fastest way to verify what a build actually contains."
+    },
+    {
+      "id": 3300,
+      "category": "React Native & Mobile",
+      "cmd": "maestro test .maestro/flow.yaml",
+      "desc": "Run a Maestro UI test flow",
+      "tooltip": "Maestro is a UI-testing framework for mobile apps driven by simple YAML flows. This runs the named flow against the app currently on the device or emulator. Flows describe taps, text input, and assertions in plain steps."
+    },
+    {
+      "id": 3301,
+      "category": "React Native & Mobile",
+      "cmd": "maestro studio",
+      "desc": "Open Maestro Studio to record and inspect UI",
+      "tooltip": "Launches an interactive studio on top of the connected device: it shows the live view hierarchy and lets you point-and-click to generate test steps. Great for building flows without memorizing selectors."
+    },
+    {
+      "id": 3302,
+      "category": "React Native & Mobile",
+      "cmd": "maestro hierarchy",
+      "desc": "Print the current UI hierarchy for selectors",
+      "tooltip": "Dumps the accessibility tree of the screen currently shown. Use the text, id, or accessibility labels you see here to write robust Maestro selectors instead of guessing at element identifiers."
+    },
+    {
+      "id": 3303,
+      "category": "React Native & Mobile",
+      "cmd": "pod install",
+      "desc": "Install CocoaPods dependencies for iOS",
+      "tooltip": "CocoaPods is the dependency manager for iOS native libraries. pod install resolves the Podfile and generates the .xcworkspace file — always open and build the workspace, not the .xcodeproj, after running it."
+    },
+    {
+      "id": 3304,
+      "category": "React Native & Mobile",
+      "cmd": "npx pod-install",
+      "desc": "Run pod install without a global CocoaPods install",
+      "tooltip": "The pod-install package bundles CocoaPods, so you do not need a system-wide gem install. Recommended by React Native docs when CocoaPods is missing on a fresh machine."
+    },
+    {
+      "id": 3305,
+      "category": "React Native & Mobile",
+      "cmd": "xcodebuild -list",
+      "desc": "List schemes and targets in an Xcode project",
+      "tooltip": "xcodebuild is the command-line interface to Xcode builds. -list prints the project's schemes and targets — the exact names you need for -workspace and -scheme flags in later commands."
+    },
+    {
+      "id": 3306,
+      "category": "React Native & Mobile",
+      "cmd": "xcodebuild -workspace App.xcworkspace -scheme App -configuration Release build",
+      "desc": "Build the iOS app from the command line",
+      "tooltip": "Compiles the app using the workspace and scheme, in Release configuration. This is what CI runs to produce the .app bundle. Add -sdk iphonesimulator to build for the simulator instead of a device."
+    },
+    {
+      "id": 3307,
+      "category": "React Native & Mobile",
+      "cmd": "xcrun simctl list devices",
+      "desc": "List available iOS simulators",
+      "tooltip": "simctl is the CLI for controlling the iOS Simulator. list devices shows every simulator (including 'Shutdown' ones) with their UDIDs — the identifier you use to boot or target a specific simulator."
+    },
+    {
+      "id": 3308,
+      "category": "React Native & Mobile",
+      "cmd": "xcrun simctl boot \"iPhone 16\"",
+      "desc": "Boot an iOS simulator",
+      "tooltip": "Starts the named simulator headlessly — no Simulator window needed. Pair with open -a Simulator if you want the UI, or xcrun simctl bootstatus to wait until boot completes."
+    },
+    {
+      "id": 3309,
+      "category": "React Native & Mobile",
+      "cmd": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android-release.bundle",
+      "desc": "Bundle JavaScript for release without Metro",
+      "tooltip": "Pre-compiles all JS into a single bundle file, so the release build does not need the dev server. Run this before a standalone APK when you want the JS baked in. --dev false enables production optimizations."
+    },
+    {
+      "id": 3310,
+      "category": "React Native & Mobile",
+      "cmd": "fastlane init",
+      "desc": "Set up Fastlane for a project",
+      "tooltip": "Fastlane automates iOS/Android release chores (signing, screenshots, uploads). init creates the Fastfile, Appfile, and folder structure, and asks for your app's identifiers."
+    },
+    {
+      "id": 3311,
+      "category": "React Native & Mobile",
+      "cmd": "fastlane run release",
+      "desc": "Run a named Fastlane lane",
+      "tooltip": "A lane is a named sequence of actions defined in the Fastfile. This executes the 'release' lane — whatever build, signing, and upload steps you defined there. List lanes with fastlane lanes."
     }
   ],
-  "total": 3267
+  "total": 3311
 }
