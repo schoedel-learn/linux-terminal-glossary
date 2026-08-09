@@ -1,6 +1,7 @@
 {
   "categories": [
     "AI Agents & MCP",
+    "AI/ML Tooling",
     "Administration",
     "Archiving & Compression",
     "Backup & Restore",
@@ -21,9 +22,11 @@
     "GitHub Copilot",
     "Google Cloud & Workspace",
     "I/O Redirection & Pipes",
+    "IaC & Automation",
     "Kubernetes & Containers",
     "Mail Servers & Postfix",
     "Matrix & Synapse",
+    "Media & Conversion",
     "Monitoring & Observability",
     "Navigation & Directory",
     "Networking",
@@ -33936,7 +33939,3094 @@
       "cmd": "unhide proc",
       "desc": "Detect processes hidden from ps",
       "tooltip": "Compares /proc entries with the output of ps to find processes a rootkit or kernel module is hiding. Hidden processes often mean the box is compromised. Other tests include unhide sys, which checks against system calls. Run it alongside rkhunter --check for a deeper sweep."
+    },
+    {
+      "id": 4890,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama --version",
+      "desc": "Show installed Ollama version",
+      "tooltip": "Prints the version of the Ollama binary, useful when reading docs that assume a minimum release or troubleshooting odd behaviour. The same info appears at the end of `ollama serve` startup logs. Pair with `ollama ls` to confirm the daemon is reachable."
+    },
+    {
+      "id": 4891,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama ls",
+      "desc": "List models stored locally",
+      "tooltip": "Shows every model you have pulled, with its tag (a version label like 3b or latest), size, and modification time. `ls` is an alias for `ollama list`. New models arrive with `ollama pull`, and `ollama ps` shows only the ones currently loaded in memory."
+    },
+    {
+      "id": 4892,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama pull llama3.2",
+      "desc": "Download the llama3.2 model",
+      "tooltip": "Downloads the default llama3.2 tag from the Ollama registry to your machine, where it stays for offline use. The first run of a model also triggers this download automatically. Add a tag like llama3.2:3b to grab a specific size variant."
+    },
+    {
+      "id": 4893,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama pull llama3.2:3b",
+      "desc": "Download a tagged model size",
+      "tooltip": "Fetches the 3 billion parameter llama3.2 variant, a lighter model that runs comfortably on CPU-only laptops and 4-6 GB GPUs. The tag after the colon selects the size or quantization (compressed precision) of the same base model. Compare with llama3.2:1b for an even faster, dumber model."
+    },
+    {
+      "id": 4894,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama pull llama3.2:1b",
+      "desc": "Download the smallest llama3.2",
+      "tooltip": "Gets the 1 billion parameter llama3.2 build, the fastest and lightest official variant, usable on very modest hardware. It is best for quick tests, classification, and prototyping rather than serious writing. `ollama show llama3.2:1b` reveals its exact size after the pull."
+    },
+    {
+      "id": 4895,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama run llama3.2",
+      "desc": "Chat interactively with a model",
+      "tooltip": "Starts an interactive chat session with the llama3.2 model: you type prompts, the model replies, and the conversation history is kept in context. Type /bye or press Ctrl-D to exit, /help lists more slash commands, and /set changes session options. For a single question, pass the prompt as an argument instead."
+    },
+    {
+      "id": 4896,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama run llama3.2 'Write a haiku about Linux'",
+      "desc": "Ask a model a single question",
+      "tooltip": "Runs one prompt through llama3.2 and prints only the reply, then exits, which is ideal for scripts and shell pipelines. Wrap the prompt in quotes so the shell treats it as one argument. The interactive alternative is `ollama run llama3.2` with no prompt."
+    },
+    {
+      "id": 4897,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama run llama3.2 'Return a JSON list of three colors' --format json",
+      "desc": "Request structured JSON output",
+      "tooltip": "Forces llama3.2 to answer in valid JSON, matching the schema implied by the prompt, which is handy for feeding results into jq or other programs. The --format flag constrains the model to structured output instead of free text. Pair with `curl http://localhost:11434/api/generate` for the same behaviour over HTTP."
+    },
+    {
+      "id": 4898,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama rm llama3.2",
+      "desc": "Delete a model from disk",
+      "tooltip": "Permanently removes the llama3.2 model files from your Ollama storage directory, freeing several gigabytes. There is no undo, and the model must be downloaded again with `ollama pull llama3.2` if you change your mind. Run `ollama ls` first to confirm which tag you are deleting."
+    },
+    {
+      "id": 4899,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama ps",
+      "desc": "Show models currently loaded",
+      "tooltip": "Lists the models Ollama has loaded into memory right now, with their size, how long they have been resident, and how much VRAM or RAM they occupy. A model stays loaded for a few minutes after its last request unless `ollama stop` is used. This is the first place to look when a model feels slow or memory is tight."
+    },
+    {
+      "id": 4900,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama stop llama3.2",
+      "desc": "Unload a model from memory",
+      "tooltip": "Forces Ollama to unload llama3.2 from RAM or VRAM immediately, freeing memory that idle models otherwise hold for several minutes. The model stays on disk, so the next request reloads it with a small delay. Use `ollama ps` afterwards to confirm it is gone."
+    },
+    {
+      "id": 4901,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama show llama3.2",
+      "desc": "Show details about a model",
+      "tooltip": "Prints metadata for llama3.2: parameter count, quantization level, context length, license, and the architecture it runs on. It is the quick way to check whether a pulled model matches your hardware before running it. Add --modelfile to see the exact build recipe."
+    },
+    {
+      "id": 4902,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama show llama3.2 --modelfile",
+      "desc": "Print a model's Modelfile",
+      "tooltip": "Displays the Modelfile (the recipe of base model, prompt template, parameters, and system message) that defines llama3.2. This is the same content `ollama create` consumes, so it is a great starting point for building your own tuned variant. Related: `ollama show llama3.2 --parameters`."
+    },
+    {
+      "id": 4903,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama cp llama3.2 my-llama-copy",
+      "desc": "Clone a model under a new name",
+      "tooltip": "Creates a local copy of llama3.2 named my-llama-copy without downloading anything again, since Ollama stores shared blobs once. Use it to experiment safely with `ollama create` modifications or to give a tuned model a stable name. Delete the copy with `ollama rm my-llama-copy`."
+    },
+    {
+      "id": 4904,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama create mymodel -f Modelfile",
+      "desc": "Build a custom model from a Modelfile",
+      "tooltip": "Assembles a new model called mymodel from the instructions in Modelfile, which typically starts with FROM llama3.2 and adds a custom system prompt, temperature, or template. The file lives in the current directory unless -f points elsewhere. Tweak and recreate the same name to iterate, and `ollama show mymodel --modelfile` to inspect the result."
+    },
+    {
+      "id": 4905,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama create mymodel -q q4_K_M -f Modelfile",
+      "desc": "Create a model with quantization",
+      "tooltip": "Builds mymodel from Modelfile while quantizing the weights to q4_K_M, a 4-bit format that shrinks memory use and speeds up CPU inference at a small accuracy cost. The -q flag only works when the Modelfile imports a source model, not for imported GGUF files. q4_K_M is a solid default; q8_0 trades size for fidelity."
+    },
+    {
+      "id": 4906,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama push myuser/mymodel:latest",
+      "desc": "Upload a model to a registry",
+      "tooltip": "Uploads myuser/mymodel to a remote Ollama registry so other machines or people can `ollama pull` it. The namespace must be an account you own on ollama.com or a private registry, and you must be signed in first with `ollama signin`. Private registries need the --insecure flag when they lack TLS."
+    },
+    {
+      "id": 4907,
+      "category": "AI/ML Tooling",
+      "cmd": "ollama signin",
+      "desc": "Sign in to ollama.com",
+      "tooltip": "Authenticates with ollama.com so you can push models you created with `ollama create` to your namespace. It opens a browser flow or prompts for credentials in the terminal. `ollama signout` removes the saved session."
+    },
+    {
+      "id": 4908,
+      "category": "AI/ML Tooling",
+      "cmd": "OLLAMA_MODELS=/data/ollama ollama serve",
+      "desc": "Run Ollama with a custom model directory",
+      "tooltip": "Starts the Ollama server with its model storage redirected from the default ~/.ollama/models to /data/ollama, useful on machines where the home partition is small or models should live on a big data drive. Set the variable per-command or export it in your shell profile. `ollama serve` alone uses the defaults; the server listens on 127.0.0.1:11434."
+    },
+    {
+      "id": 4909,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:11434/api/tags",
+      "desc": "List local models via the API",
+      "tooltip": "Queries the Ollama REST API on port 11434 and prints every locally stored model as JSON, with name, size, and modification time. It is the API equivalent of `ollama ls`, useful from scripts or when no ollama binary exists on the machine. Pipe through `python3 -m json.tool` to pretty-print."
+    },
+    {
+      "id": 4910,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:11434/api/ps",
+      "desc": "List loaded models via the API",
+      "tooltip": "Hits the Ollama REST API to show which models are currently resident in memory, mirroring `ollama ps` but returning JSON that scripts can parse. Each entry includes the model name and how long it has been loaded. Use `ollama stop` or the API to unload a model."
+    },
+    {
+      "id": 4911,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:11434/api/chat -d '{\"model\":\"llama3.2\",\"messages\":[{\"role\":\"user\",\"content\":\"Hi\"}]}'",
+      "desc": "Send a chat request to Ollama's API",
+      "tooltip": "Sends a single chat message to the running Ollama server over HTTP, with the conversation passed as a messages array exactly like OpenAI's API shape. Add \"stream\":false to get the full reply in one JSON response instead of tokens as they are generated. This is how other programs talk to Ollama; `ollama run llama3.2` is the interactive shortcut."
+    },
+    {
+      "id": 4912,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:11434/api/generate -d '{\"model\":\"llama3.2\",\"prompt\":\"Explain Docker in one sentence\",\"stream\":false}'",
+      "desc": "Generate text via Ollama's API",
+      "tooltip": "Asks the Ollama server to complete a raw prompt, without chat history, and returns JSON containing the response field. stream:false makes the server buffer the whole answer instead of streaming token chunks. The companion endpoint /api/chat handles conversational messages; both speak to the server started by `ollama serve`."
+    },
+    {
+      "id": 4913,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth login",
+      "desc": "Log in to Hugging Face interactively",
+      "tooltip": "Stores a Hugging Face access token in ~/.cache/huggingface/token so `hf download` and `hf upload` can reach gated or private repos. It opens a browser to create the token, or accepts a pasted token at the prompt. Generate tokens at huggingface.co/settings/tokens; `hf auth whoami` confirms the logged-in account."
+    },
+    {
+      "id": 4914,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth login --token $HF_TOKEN",
+      "desc": "Log in with a token variable",
+      "tooltip": "Logs in non-interactively using the token stored in the HF_TOKEN environment variable, perfect for CI machines and scripts that cannot open a browser. The variable is single-quoted-safe because the shell expands it before hf runs. Add --add-to-git-credential to also let plain git commands authenticate."
+    },
+    {
+      "id": 4915,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth logout",
+      "desc": "Remove the saved Hugging Face token",
+      "tooltip": "Deletes the locally stored Hugging Face access token, so subsequent downloads of gated models will prompt again. Use it when rotating credentials or before handing a machine to someone else. `hf auth whoami` will then report that you are not logged in."
+    },
+    {
+      "id": 4916,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth whoami",
+      "desc": "Show the logged-in Hugging Face account",
+      "tooltip": "Prints the username of the Hugging Face account whose token is stored locally, plus any org memberships. It is the fastest sanity check that authentication is working before downloading a gated model. Related: `hf auth list` shows every saved token."
+    },
+    {
+      "id": 4917,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth list",
+      "desc": "List all stored access tokens",
+      "tooltip": "Shows every Hugging Face token saved on this machine with its name and creation date, which is handy when several accounts or CI tokens are in play. Tokens are stored in ~/.cache/huggingface. Switch the active one with `hf auth switch`; delete with `hf auth logout`."
+    },
+    {
+      "id": 4918,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth token",
+      "desc": "Print the current token to stdout",
+      "tooltip": "Outputs the active Hugging Face access token in plain text, useful for scripting but a security risk if the terminal is shared or the output is logged. Treat the printed value like a password. Prefer `hf auth whoami` when you only need to verify identity."
+    },
+    {
+      "id": 4919,
+      "category": "AI/ML Tooling",
+      "cmd": "hf auth switch",
+      "desc": "Switch between saved tokens",
+      "tooltip": "Lets you pick which saved Hugging Face token is active for the current user, without re-pasting tokens. Handy on machines shared between personal and work accounts. `hf auth list` shows what is available to switch between."
+    },
+    {
+      "id": 4920,
+      "category": "AI/ML Tooling",
+      "cmd": "hf download meta-llama/Llama-3.1-8B-Instruct",
+      "desc": "Download a model from the Hub",
+      "tooltip": "Downloads every file of the meta-llama/Llama-3.1-8B-Instruct repo into the Hugging Face cache, keyed by the repo name and revision so re-downloads are skipped. A model ID is the owner/repo-name pair from huggingface.co, like meta-llama/Llama-3.1-8B-Instruct. Gated models require `hf auth login` first, and --local-dir places files in a plain folder instead of the cache."
+    },
+    {
+      "id": 4921,
+      "category": "AI/ML Tooling",
+      "cmd": "hf download meta-llama/Llama-3.1-8B-Instruct --include '*.safetensors'",
+      "desc": "Download only matching files",
+      "tooltip": "Fetches just the .safetensors weight files from the model repo, skipping tokenizers and configs, which saves bandwidth on big repos. The --include flag takes shell-style glob patterns and can be repeated. Add --exclude to filter further, or download individual files by naming them after the repo."
+    },
+    {
+      "id": 4922,
+      "category": "AI/ML Tooling",
+      "cmd": "hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ./minilm",
+      "desc": "Download a model to a plain folder",
+      "tooltip": "Saves the all-MiniLM-L6-v2 embedding model directly under ./minilm instead of the hashed cache layout, mirroring how the repo looks on the Hub. A local-dir download is a copy, so deleting the folder removes the files but not the cache. Useful when a tool expects a model path rather than a model ID."
+    },
+    {
+      "id": 4923,
+      "category": "AI/ML Tooling",
+      "cmd": "hf download unsloth/Llama-3.2-1B-Instruct-GGUF --include '*Q4_K_M.gguf' --local-dir ./llama32",
+      "desc": "Download a quantized GGUF model",
+      "tooltip": "Fetches just the Q4_K_M GGUF file of the Llama-3.2-1B model into ./llama32. GGUF is a quantized (compressed) model format designed for CPU inference, and Q4_K_M is the popular quality/size sweet spot. Ollama-style runners and llama.cpp load these files directly, so this is how you fetch a model for CPU-only setups."
+    },
+    {
+      "id": 4924,
+      "category": "AI/ML Tooling",
+      "cmd": "hf upload myuser/my-repo ./model.safetensors",
+      "desc": "Upload a file to the Hub",
+      "tooltip": "Pushes model.safetensors to the myuser/my-repo repository on Hugging Face, committing it in a single shot. The repo must already exist (see `hf repos create`) or be created with --private, and you must be logged in as its owner. Repeat with more paths or a folder to upload several files at once."
+    },
+    {
+      "id": 4925,
+      "category": "AI/ML Tooling",
+      "cmd": "hf upload myuser/new-repo ./model.safetensors --private",
+      "desc": "Upload and create a private repo",
+      "tooltip": "Creates the private repo myuser/new-repo if it does not exist, then uploads model.safetensors into it in one command. Private repos are only visible to you and people you explicitly grant access to. Remove --private for a public upload."
+    },
+    {
+      "id": 4926,
+      "category": "AI/ML Tooling",
+      "cmd": "hf upload-large-folder myuser/my-repo ./model-weights",
+      "desc": "Upload a large folder with resume",
+      "tooltip": "Uploads the whole model-weights directory to the Hub in chunks that survive network drops, designed for multi-gigabyte model directories. Unlike plain `hf upload`, an interrupted run can be resumed rather than restarted. Run it in a terminal that stays open, or use --token for unattended jobs."
+    },
+    {
+      "id": 4927,
+      "category": "AI/ML Tooling",
+      "cmd": "hf repos create my-llm --type model",
+      "desc": "Create a new Hub repository",
+      "tooltip": "Creates an empty repository named my-llm of type model on your Hugging Face account, ready for `hf upload`. The --type flag switches between model, dataset, and space. Add --private to keep it hidden, and --exist-ok to avoid errors if it already exists."
+    },
+    {
+      "id": 4928,
+      "category": "AI/ML Tooling",
+      "cmd": "hf repos create my-secret-model --type model --private",
+      "desc": "Create a private model repo",
+      "tooltip": "Makes a new model repository that only you can see, for work-in-progress weights or proprietary data. The --private flag can be flipped later with `hf repos settings`. Public repos are the default, so remember this flag when the model must not leak."
+    },
+    {
+      "id": 4929,
+      "category": "AI/ML Tooling",
+      "cmd": "hf repos delete myuser/old-model",
+      "desc": "Delete a Hub repository",
+      "tooltip": "Permanently removes the entire myuser/old-model repository, including every file, revision, and commit history on Hugging Face. There is no trash bin, so download anything you need first. Consider `hf repos move` instead when the goal is just renaming."
+    },
+    {
+      "id": 4930,
+      "category": "AI/ML Tooling",
+      "cmd": "hf repos settings myuser/my-repo --private",
+      "desc": "Toggle repo visibility settings",
+      "tooltip": "Updates repository settings, here switching myuser/my-repo from public to private, which hides it from search and anonymous downloads. Existing downloaders keep their cached copies. Related flags: --public to reverse it and --protected for Spaces."
+    },
+    {
+      "id": 4931,
+      "category": "AI/ML Tooling",
+      "cmd": "hf repos move old-namespace/my-model new-namespace/my-model",
+      "desc": "Transfer a repo to another namespace",
+      "tooltip": "Moves a model repository to a different owner namespace, typically your own org, preserving all history and URLs redirect automatically. You must have write access to both namespaces. The old name stops working once the move completes."
+    },
+    {
+      "id": 4932,
+      "category": "AI/ML Tooling",
+      "cmd": "hf cache ls",
+      "desc": "Inspect the Hugging Face download cache",
+      "tooltip": "Shows every repo cached locally with its size and the revisions held, giving you a picture of how much disk space models occupy. This is the 1.x replacement for the old scan-cache command. Free space with `hf cache rm` or `hf cache prune`."
+    },
+    {
+      "id": 4933,
+      "category": "AI/ML Tooling",
+      "cmd": "hf cache rm model/gpt2",
+      "desc": "Remove a repo from the cache",
+      "tooltip": "Deletes the cached files of the gpt2 model (which lives in the model namespace) from ~/.cache/huggingface, reclaiming its disk space. The model can always be re-downloaded with `hf download`. Use `hf cache ls` first to see what is cached and how big each repo is."
+    },
+    {
+      "id": 4934,
+      "category": "AI/ML Tooling",
+      "cmd": "hf cache prune",
+      "desc": "Remove orphaned cache revisions",
+      "tooltip": "Deletes cached revisions no longer referenced by any tag or branch, the leftovers of repeated `hf download` calls that accumulate silently. It never touches the revision currently pointed at by a tag. Run `hf cache ls` before and after to see the reclaimed space."
+    },
+    {
+      "id": 4935,
+      "category": "AI/ML Tooling",
+      "cmd": "hf env",
+      "desc": "Print environment and install info",
+      "tooltip": "Dumps the environment report used for Hugging Face bug reports: hf version, Python version, OS, token location, and whether a token is saved. Paste its output into a GitHub issue when something misbehaves. `hf version` prints just the version number for quick checks."
+    },
+    {
+      "id": 4936,
+      "category": "AI/ML Tooling",
+      "cmd": "hf version",
+      "desc": "Show the hf CLI version",
+      "tooltip": "Prints the installed huggingface_hub version, which determines which subcommands and flags are available. Docs and error messages often assume a minimum version. Update with `pip install -U huggingface_hub`."
+    },
+    {
+      "id": 4937,
+      "category": "AI/ML Tooling",
+      "cmd": "hf models info meta-llama/Llama-3.2-1B-Instruct",
+      "desc": "Show metadata for a Hub model",
+      "tooltip": "Prints metadata about the model repo: downloads, likes, license, tags, and the files it contains, without downloading anything. It is the CLI version of a model card page. Related: `hf models ls` searches the Hub and `hf download` fetches the files."
+    },
+    {
+      "id": 4938,
+      "category": "AI/ML Tooling",
+      "cmd": "hf models ls --sort downloads --limit 10",
+      "desc": "Search the Hub for models",
+      "tooltip": "Lists the ten most-downloaded models on Hugging Face, sorted by the downloads counter, handy for discovering what the community actually uses. Add a search term as a positional argument, or --filter for tags like text-generation. `hf datasets ls` works the same way for datasets."
+    },
+    {
+      "id": 4939,
+      "category": "AI/ML Tooling",
+      "cmd": "huggingface-cli login",
+      "desc": "Legacy login command (deprecated)",
+      "tooltip": "The old pre-1.x name for Hugging Face authentication, which now prints a deprecation warning and does nothing, because the CLI was renamed to `hf`. Run `hf auth login` instead for the same behaviour. Scripts still calling huggingface-cli should be migrated."
+    },
+    {
+      "id": 4940,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct",
+      "desc": "Serve a model with an OpenAI API",
+      "tooltip": "Starts a vLLM inference server exposing the model behind an OpenAI-compatible API on http://localhost:8000, with endpoints like /v1/chat/completions and /v1/models. The model ID is a Hugging Face repo name and is downloaded on first start, which can take a while. Swap in any other repo name to serve a different model."
+    },
+    {
+      "id": 4941,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve mistralai/Mistral-7B-Instruct-v0.3 --port 8001",
+      "desc": "Serve on a custom port",
+      "tooltip": "Runs the Mistral-7B-Instruct-v0.3 model on port 8001 instead of the default 8000, letting several vLLM servers share one machine. Point clients at http://localhost:8001/v1 and set their base_url accordingly. Use --host 0.0.0.0 to accept connections from other machines."
+    },
+    {
+      "id": 4942,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --host 0.0.0.0",
+      "desc": "Expose the API on all interfaces",
+      "tooltip": "Binds the vLLM server to every network interface so other machines on the network can reach the OpenAI-compatible API. Anyone who can connect can use the model, so add --api-key or a firewall rule in untrusted networks. Default is localhost only."
+    },
+    {
+      "id": 4943,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 8192",
+      "desc": "Cap the context window size",
+      "tooltip": "Limits the model's context window to 8192 tokens, trading longer inputs for lower memory use and faster prefill. Long prompts that exceed the limit are rejected instead of silently truncated. Reduce it further when VRAM is tight; raise it when memory allows."
+    },
+    {
+      "id": 4944,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --gpu-memory-utilization 0.9",
+      "desc": "Use most of the GPU memory",
+      "tooltip": "Lets vLLM consume up to 90 percent of GPU memory for the KV cache, the buffer that stores conversation context, instead of the conservative default. Raise it on dedicated inference boxes to fit longer contexts; lower it when the GPU also runs other workloads. Combined with --max-model-len it is the main VRAM tuning knob."
+    },
+    {
+      "id": 4945,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve TheBloke/Llama-2-7B-Chat-AWQ --quantization awq",
+      "desc": "Serve a quantized AWQ model",
+      "tooltip": "Loads the AWQ-quantized Llama-2-7B weights with the matching --quantization awq flag, which vLLM needs because quantized files are not self-describing. AWQ (Activation-aware Weight Quantization) shrinks the model to 4-bit precision for lower VRAM use. The quantization value must match how the repo's weights were produced."
+    },
+    {
+      "id": 4946,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --tensor-parallel-size 2",
+      "desc": "Shard the model across two GPUs",
+      "tooltip": "Splits the model across two GPUs with tensor parallelism, letting you serve models too large for one card. Each GPU holds half the weights and they cooperate on every forward pass. Requires GPUs on the same machine or fast interconnect, and a model with enough parameters to justify it."
+    },
+    {
+      "id": 4947,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --served-model-name my-llama",
+      "desc": "Rename the model in the API",
+      "tooltip": "Makes the server answer to the name my-llama in /v1/models and requests, while actually running Llama-3.1-8B-Instruct underneath. Clients then pass \"model\": \"my-llama\" in their requests. Useful for stable names across model upgrades or for hiding which weights you run."
+    },
+    {
+      "id": 4948,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --api-key sk-my-secret-key",
+      "desc": "Require an API key for requests",
+      "tooltip": "Protects the OpenAI-compatible endpoints with a bearer token: clients must send \"Authorization: Bearer sk-my-secret-key\" or requests are rejected with 401. Choose a long random key, since anyone who has it can use the model. The same key also gates /health and metrics."
+    },
+    {
+      "id": 4949,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --dtype float16",
+      "desc": "Serve with fp16 precision",
+      "tooltip": "Forces the model to run in float16 (half precision), halving memory use versus fp32 with negligible quality loss on modern GPUs. vLLM usually auto-detects a good dtype, so this flag mainly resolves mismatches with unusual weight formats. For quantized weights, prefer --quantization instead."
+    },
+    {
+      "id": 4950,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --enable-auto-tool-choice --tool-call-parser hermes",
+      "desc": "Enable OpenAI-style tool calling",
+      "tooltip": "Turns on function-calling support so the model can emit structured tool calls, with hermes telling vLLM how to parse this model family's output format. Clients then send tools in the chat request and receive tool_calls in the reply. The parser name must match the model's training format or parsing breaks."
+    },
+    {
+      "id": 4951,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --chat-template ./chat_template.jinja",
+      "desc": "Serve with a custom chat template",
+      "tooltip": "Uses the Jinja2 template in chat_template.jinja to format chat messages into the model's expected prompt shape, overriding the template bundled with the tokenizer. Custom templates fix garbled multi-turn output for models with unusual chat formats. Test with one /v1/chat/completions call after starting."
+    },
+    {
+      "id": 4952,
+      "category": "AI/ML Tooling",
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --max-num-seqs 32",
+      "desc": "Cap concurrent request slots",
+      "tooltip": "Limits how many sequences vLLM processes at once to 32, trading throughput for lower latency variance and predictable memory use. Each in-flight request holds KV cache space, so the cap matters when context windows are long. Raise it for chat workloads with many parallel users."
+    },
+    {
+      "id": 4953,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:8000/v1/models | jq '.data[].id'",
+      "desc": "List models served by vLLM",
+      "tooltip": "Asks the running vLLM server which model IDs it serves, printing each one through jq for clean output. The response mirrors OpenAI's /v1/models shape. The model id shown is what clients must pass as \"model\" in requests, especially after --served-model-name renames it."
+    },
+    {
+      "id": 4954,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:8000/v1/chat/completions -H 'Content-Type: application/json' -d '{\"model\":\"meta-llama/Llama-3.1-8B-Instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'",
+      "desc": "Send a chat completion request",
+      "tooltip": "Calls vLLM's chat endpoint with one user message, exactly like OpenAI's API, and prints the assistant's reply as JSON. The messages array carries the whole conversation history on multi-turn calls. Add \"stream\":true to receive tokens incrementally instead of one big response."
+    },
+    {
+      "id": 4955,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:8000/v1/completions -H 'Content-Type: application/json' -d '{\"model\":\"meta-llama/Llama-3.1-8B-Instruct\",\"prompt\":\"Once upon a time\"}'",
+      "desc": "Send a raw text completion request",
+      "tooltip": "Uses the completions endpoint for raw prompt continuation without chat formatting, ideal for testing base models or non-chat tasks. The response contains the generated text plus token counts in usage. Chat models usually behave better through /v1/chat/completions, which applies their trained template."
+    },
+    {
+      "id": 4956,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:8000/health",
+      "desc": "Check vLLM server health",
+      "tooltip": "Returns HTTP 200 with the body OK when the vLLM server and its engine are healthy, making it the endpoint load balancers and monitoring poll. A 503 means the engine died or is still starting. The first health check may stay non-OK for minutes while the model loads."
+    },
+    {
+      "id": 4957,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://localhost:8000/v1/embeddings -H 'Content-Type: application/json' -d '{\"model\":\"BAAI/bge-small-en-v1.5\",\"input\":\"Hello world\"}'",
+      "desc": "Generate text embeddings via vLLM",
+      "tooltip": "Sends text to the embeddings endpoint and receives a vector per input, ready for semantic search or clustering. The served model must be an embedding model like bge-small-en-v1.5, not a chat model. Response vectors appear under data[0].embedding, often truncated by the terminal, so pipe to a file."
+    },
+    {
+      "id": 4958,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base",
+      "desc": "Transcribe audio to text",
+      "tooltip": "Transcribes audio.mp3 with the base Whisper model, auto-detecting the language and printing a timestamped transcript while writing .txt, .vtt, .srt, .tsv, and .json files next to the audio. Model sizes tiny, base, small, medium, large-v3 trade speed against accuracy. The first run downloads the model weights automatically."
+    },
+    {
+      "id": 4959,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model small --language es",
+      "desc": "Transcribe in a specific language",
+      "tooltip": "Transcribes Spanish audio using the small model, with --language skipping the auto-detection step and forcing Spanish decoding. Language codes follow ISO 639-1 (es, fr, de, ja, and so on). Forcing the language prevents misdetection on short clips and slightly speeds things up."
+    },
+    {
+      "id": 4960,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model medium --output_format txt --output_dir ./transcripts",
+      "desc": "Save transcripts to a folder",
+      "tooltip": "Transcribes audio.mp3 with the medium model and writes only plain-text transcripts into ./transcripts, keeping your working directory clean. --output_format picks between txt, vtt, srt, tsv, json, jsonl, or all. The output filename mirrors the input name, so audio.mp3 becomes audio.txt."
+    },
+    {
+      "id": 4961,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base --task translate",
+      "desc": "Translate audio to English text",
+      "tooltip": "Transcribes any-language audio and translates the result into English, one pass, no intermediate files needed. The --task flag switches between transcribe and translate; only English output is supported. Combine with --language to pin the source language instead of auto-detecting."
+    },
+    {
+      "id": 4962,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model tiny --fp16 False",
+      "desc": "Run Whisper on CPU only",
+      "tooltip": "Disables fp16 (half-precision) inference so the tiny model runs in fp32 on CPUs without CUDA, avoiding errors on machines without an NVIDIA GPU. GPU users keep the default fp16 for speed. Add --device cpu explicitly on systems where CUDA is broken or absent."
+    },
+    {
+      "id": 4963,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base --word_timestamps True",
+      "desc": "Include word-level timestamps",
+      "tooltip": "Adds start and end time for every word to the JSON transcript, enabling highlight-style captions and forced alignment. Timestamps become far more granular than the default segment-level ones. The word data only appears in JSON or TSV output, not plain text."
+    },
+    {
+      "id": 4964,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base --initial_prompt 'This is a technical podcast about Linux'",
+      "desc": "Guide transcription with context",
+      "tooltip": "Seeds the decoder with a hint about the audio's style and vocabulary, which often fixes repeated hallucinations and improves spelling of domain terms. Whisper weighs the prompt's style more than its exact words. Useful for names, jargon, and accented speech that default transcription mangles."
+    },
+    {
+      "id": 4965,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model large-v3 --language en --output_format srt",
+      "desc": "Make an SRT subtitle file",
+      "tooltip": "Transcribes English audio with the large-v3 model and writes an .srt subtitle file with segment timings, ready for video players or caption pipelines. SRT is the format most players and editors accept. Large-v3 is the most accurate Whisper model but slowest, so reserve it for clean, important audio."
+    },
+    {
+      "id": 4966,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base --beam_size 5",
+      "desc": "Use beam search decoding",
+      "tooltip": "Runs beam search with a width of 5 instead of the greedy default, exploring several candidate transcripts and keeping the most probable one. Higher beam sizes improve accuracy on hard audio at a real speed cost. Values of 5 are a common sweet spot; the default is 1 (greedy)."
+    },
+    {
+      "id": 4967,
+      "category": "AI/ML Tooling",
+      "cmd": "whisper audio.mp3 --model base --output_format all --output_dir ./transcripts",
+      "desc": "Write every transcript format",
+      "tooltip": "Produces txt, vtt, srt, tsv, json, and jsonl outputs for the same audio into ./transcripts in one pass, so you get plain text, subtitles, and timestamps without re-transcribing. This is the default behaviour when no output_format is given. Later runs overwrite these files."
+    },
+    {
+      "id": 4968,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks mmlu --num_fewshot 5",
+      "desc": "Evaluate a model on MMLU",
+      "tooltip": "Runs the lm-evaluation-harness on the MMLU benchmark with the model loaded via Hugging Face transformers, giving 5 example answers per question (few-shot) before scoring. The pretrained= value is a Hugging Face model ID. Runs are long and download model weights first; expect many minutes to hours depending on GPU."
+    },
+    {
+      "id": 4969,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks truthfulqa_mc2 --device cuda:0",
+      "desc": "Evaluate on TruthfulQA with a device",
+      "tooltip": "Scores the model on truthfulqa_mc2, a benchmark measuring whether answers are both true and informative, while pinning inference to GPU 0 with --device cuda:0. Use --device cpu to force CPU execution on machines without CUDA. Results print as a table with acc and other metrics per task."
+    },
+    {
+      "id": 4970,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model vllm --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct,tensor_parallel_size=1 --tasks hellaswag",
+      "desc": "Evaluate through the vLLM backend",
+      "tooltip": "Evaluates hellaswag using vLLM as the inference engine, which is dramatically faster than the transformers backend on big models. --model_args takes comma-separated key=value settings, here passing tensor_parallel_size=1. vLLM must be installed (`pip install vllm`) and the harness's vllm extra enabled."
+    },
+    {
+      "id": 4971,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks gsm8k --apply_chat_template",
+      "desc": "Evaluate a chat-tuned model properly",
+      "tooltip": "Runs the GSM8K math benchmark with --apply_chat_template so prompts are formatted as chat turns, matching how instruct-tuned models were trained instead of raw text. Skipping this flag tanks scores on chat models. Add --num_fewshot 8 for the standard GSM8K few-shot setup."
+    },
+    {
+      "id": 4972,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks hellaswag --limit 100",
+      "desc": "Smoke-test an evaluation quickly",
+      "tooltip": "Evaluates only the first 100 hellaswag examples, cutting a long run down to minutes so you can verify the setup before committing to the full benchmark. The limit accepts a fraction too, like 0.1. Remove --limit for the real, complete evaluation."
+    },
+    {
+      "id": 4973,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks mmlu --output_path ./results/ --log_samples",
+      "desc": "Save detailed evaluation results",
+      "tooltip": "Writes the evaluation results JSON into ./results/ and, with --log_samples, also saves every individual prompt and model answer for post-hoc analysis. Saved samples let you audit failures and recompute metrics offline. Without --log_samples only aggregated scores are stored."
+    },
+    {
+      "id": 4974,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval run --config my_eval_config.yaml --tasks mmlu",
+      "desc": "Run evaluation from a YAML config",
+      "tooltip": "Loads model, batch, and generation settings from my_eval_config.yaml, keeping long flag lists out of the command line and making runs reproducible. Settings given directly on the command line override the file. Great for re-running the same benchmark after model changes."
+    },
+    {
+      "id": 4975,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval ls tasks",
+      "desc": "List every available benchmark task",
+      "tooltip": "Prints all task, group, subtask, and tag names the harness knows, which is the first stop when picking a --tasks value. Group names like mmlu evaluate a whole family of subtasks at once. Individual subtask names end with a topic, for example mmlu_anatomy."
+    },
+    {
+      "id": 4976,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval ls groups",
+      "desc": "List benchmark task groups",
+      "tooltip": "Shows only the top-level task groups (mmlu, hellaswag, glue, and so on), which evaluate several related subtasks and report an aggregated score. Passing a group name to --tasks runs every subtask inside it. Related: `lm-eval ls subtasks` and `lm-eval ls tags`."
+    },
+    {
+      "id": 4977,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval validate --tasks hellaswag",
+      "desc": "Validate a task configuration",
+      "tooltip": "Checks that the hellaswag task definition loads and its few-shot prompt construction works, catching YAML or data errors before a long evaluation run starts. It is the harness's self-test for task configs. Custom tasks can be added with --include_path pointing at their directory."
+    },
+    {
+      "id": 4978,
+      "category": "AI/ML Tooling",
+      "cmd": "lm-eval validate --tasks my_custom_task --include_path ./custom_tasks",
+      "desc": "Validate a custom task file",
+      "tooltip": "Validates my_custom_task defined in the local ./custom_tasks directory, which is where your own YAML task definitions live. This catches config mistakes without burning GPU time. Once it passes, use the same --include_path with `lm-eval run` to evaluate on the task."
+    },
+    {
+      "id": 4979,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output",
+      "desc": "OCR an image to a text file",
+      "tooltip": "Runs OCR (optical character recognition) on image.png and writes the recognized text to output.txt in the current directory. The second argument is the output base name; tesseract appends the extension. Install language data with apt for non-English input, and use --psm to tune page layout."
+    },
+    {
+      "id": 4980,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png stdout",
+      "desc": "Print OCR text to the terminal",
+      "tooltip": "Writes the recognized text straight to stdout instead of a file, perfect for piping into grep, wc, or a script. The special output name stdout is a tesseract convention; a lone dash also works. Redirect with > to save the result to a file of your choosing."
+    },
+    {
+      "id": 4981,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output -l spa",
+      "desc": "OCR Spanish-language text",
+      "tooltip": "Recognizes Spanish text using the spa language pack, which must be installed first (apt package tesseract-ocr-spa on Debian systems). The -l flag accepts any installed language code. `tesseract --list-langs` shows which packs you actually have."
+    },
+    {
+      "id": 4982,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output -l eng+spa",
+      "desc": "OCR mixed-language documents",
+      "tooltip": "Recognizes English and Spanish in the same image by joining language codes with a plus sign, letting tesseract pick per-word. Add more languages the same way, though each one slows recognition slightly. Requires every listed language pack to be installed."
+    },
+    {
+      "id": 4983,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract --list-langs",
+      "desc": "List installed OCR languages",
+      "tooltip": "Prints every language pack tesseract can currently use, from the tessdata directory it was built against. Seeing only eng and osd means only English is installed. Language packs are separate packages, like tesseract-ocr-fra for French on Debian systems."
+    },
+    {
+      "id": 4984,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output --psm 6",
+      "desc": "Set the page segmentation mode",
+      "tooltip": "Tells tesseract the image is a uniform block of text (PSM 6), which fixes garbled output on clean single-column scans. Page segmentation modes 0-13 describe layouts from sparse text to a single word or character. Use --help-psm to see every mode explained."
+    },
+    {
+      "id": 4985,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output --oem 1",
+      "desc": "Force the LSTM OCR engine",
+      "tooltip": "Selects OCR engine mode 1, the neural LSTM engine, versus the legacy engine (mode 0) or tesseract's auto-choice (mode 3). The LSTM engine is far more accurate on modern fonts. Modes only matter when your build ships both engines."
+    },
+    {
+      "id": 4986,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output --dpi 300",
+      "desc": "Declare the image resolution",
+      "tooltip": "Tells tesseract the scan is 300 DPI, which matters for low-resolution images where tesseract underestimates text size and fails to find lines. When no DPI is embedded, tesseract guesses and warns about it. 300 is the standard scan resolution."
+    },
+    {
+      "id": 4987,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output -c tessedit_char_whitelist=0123456789",
+      "desc": "Restrict OCR to specific characters",
+      "tooltip": "Limits recognition to the whitelisted characters, here digits only, which eliminates letters in numeric-only images like barcodes or account numbers. The -c flag sets a tesseract config variable directly on the command line. Add letters by extending the list."
+    },
+    {
+      "id": 4988,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract image.png output pdf",
+      "desc": "Create a searchable PDF",
+      "tooltip": "Wraps the recognized text as an invisible layer over the original image in a PDF, so the file stays visually identical but text can be searched and copied. The output base name gains the .pdf extension. Great for archival scans that need to be findable."
+    },
+    {
+      "id": 4989,
+      "category": "AI/ML Tooling",
+      "cmd": "tesseract --version",
+      "desc": "Show tesseract version info",
+      "tooltip": "Prints the tesseract version, the bundled Leptonica library version, and build features like the available engines. Docs and troubleshooting guides often ask for this output. The 5.x line uses the LSTM engine by default."
+    },
+    {
+      "id": 4990,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py",
+      "desc": "Start the ComfyUI server",
+      "tooltip": "Launches the ComfyUI web server from its installation directory, serving the node-based UI at http://127.0.0.1:8188. First start downloads or compiles nothing but requires PyTorch and the requirements.txt packages installed. Keep the terminal open; Ctrl-C stops the server."
+    },
+    {
+      "id": 4991,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --port 8189",
+      "desc": "Start ComfyUI on a custom port",
+      "tooltip": "Runs the ComfyUI server on port 8189 instead of the default 8188, useful when the port is taken or several instances must coexist. Point your browser at http://127.0.0.1:8189 afterwards. The port matters when scripts hardcode the API base URL."
+    },
+    {
+      "id": 4992,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --listen 0.0.0.0",
+      "desc": "Expose ComfyUI to the network",
+      "tooltip": "Binds the ComfyUI server to all interfaces so other machines can open the UI and submit workflows, but also lets anyone on the network run arbitrary Python through custom nodes, which is effectively remote code execution. Only do this on trusted networks, ideally behind a reverse proxy with authentication. The default --listen 127.0.0.1 stays local-only."
+    },
+    {
+      "id": 4993,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --cpu",
+      "desc": "Run ComfyUI without a GPU",
+      "tooltip": "Forces every model to run on the CPU, which works but is dramatically slower, mainly for machines without CUDA or ROCm support. Text-encoder-only steps stay tolerable; diffusion sampling can take minutes per image. Check whether your hardware really lacks GPU support before resorting to this."
+    },
+    {
+      "id": 4994,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --auto-launch",
+      "desc": "Open the UI in a browser on start",
+      "tooltip": "Automatically opens the ComfyUI web UI in your default browser once the server is ready, saving a manual tab. Mostly a convenience for desktop use; headless servers should omit it. Pair with --port to control which URL opens."
+    },
+    {
+      "id": 4995,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --output-directory /data/comfy-outputs",
+      "desc": "Redirect generated images",
+      "tooltip": "Writes all generated images and videos to /data/comfy-outputs instead of the default output folder inside the ComfyUI directory. Handy when the install lives on a small system drive and results should land on a big data disk. The queue and history still track the files by their new paths."
+    },
+    {
+      "id": 4996,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --disable-cuda-malloc",
+      "desc": "Turn off cudaMallocAsync",
+      "tooltip": "Disables CUDA's async memory pool, working around CUDA out-of-memory crashes on some drivers and cards, at a small performance cost. ComfyUI prints a warning hinting at this flag when it suspects cudaMallocAsync is the culprit. Older torch builds may need it more often."
+    },
+    {
+      "id": 4997,
+      "category": "AI/ML Tooling",
+      "cmd": "python main.py --lowvram",
+      "desc": "Run with reduced VRAM footprint",
+      "tooltip": "Unloads models back to system RAM between nodes instead of keeping them on the GPU, letting 6 GB cards run SDXL-sized workloads by trading speed. ComfyUI 4.x defaults to dynamic VRAM management, so this flag mainly helps on cards it misjudges. Expect slower iterations but fewer out-of-memory errors."
+    },
+    {
+      "id": 4998,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://127.0.0.1:8188/system_stats",
+      "desc": "Check ComfyUI server health",
+      "tooltip": "Returns JSON with ComfyUI's version, Python version, GPU details, and current RAM/VRAM usage, the standard health check for a running server. A connection refused error means ComfyUI is not running. Related endpoints: /queue for job status and /object_info for the node catalogue."
+    },
+    {
+      "id": 4999,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://127.0.0.1:8188/queue | python3 -m json.tool",
+      "desc": "Inspect the ComfyUI job queue",
+      "tooltip": "Shows the pending and running workflow jobs as readable JSON, with each job's node graph and prompt id. The queue fills up as clients submit workflows while the server is busy. Cancel pending jobs by POSTing to /queue with a delete list, or interrupt the running job separately."
+    },
+    {
+      "id": 5000,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -X POST http://127.0.0.1:8188/interrupt",
+      "desc": "Stop the running workflow",
+      "tooltip": "Aborts the workflow currently executing, which is the ComfyUI equivalent of pressing stop in the UI. It interrupts generation mid-step; finished images stay on disk, and pending jobs in the queue still run afterwards. Use the /queue endpoint's delete action to clear waiting jobs too."
+    },
+    {
+      "id": 5001,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -X POST http://127.0.0.1:8188/free -H 'Content-Type: application/json' -d '{\"unload_models\": true, \"free_memory\": true}'",
+      "desc": "Free GPU memory in ComfyUI",
+      "tooltip": "Unloads loaded models from VRAM and frees cached memory, the recovery move after an out-of-memory error or before switching to a heavy workflow. The JSON body toggles model unloading and memory freeing independently. Retry your workflow after the VRAM drops."
+    },
+    {
+      "id": 5002,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -X POST http://127.0.0.1:8188/upload/image -F 'image=@photo.png' -F 'type=input' -F 'overwrite=true'",
+      "desc": "Upload an image for img2img",
+      "tooltip": "Uploads photo.png into ComfyUI's input folder so workflows can reference it by filename, the API path behind img2img and inpainting jobs. The -F flags send multipart form fields: the file, the folder type, and overwrite behaviour. The response echoes the stored filename to use in your workflow JSON."
+    },
+    {
+      "id": 5003,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -s http://127.0.0.1:8188/object_info | jq 'keys'",
+      "desc": "List all available ComfyUI nodes",
+      "tooltip": "Fetches the full node catalogue and prints just the node class names, showing what custom nodes and built-ins the server can run. A workflow that references a missing class fails with class_type not found, so this is the check before installing new node packs. Each entry's JSON also documents its inputs."
+    },
+    {
+      "id": 5004,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy --version",
+      "desc": "Show comfy-cli version",
+      "tooltip": "Prints the version of comfy-cli, the official ComfyUI management tool that handles install, launch, and node/model management. The CLI auto-detects your ComfyUI workspace, falling back to ~/comfy/ComfyUI. Install or update it with `pipx install comfy-cli`."
+    },
+    {
+      "id": 5005,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy install --nvidia",
+      "desc": "Install ComfyUI for NVIDIA GPUs",
+      "tooltip": "Downloads ComfyUI, ComfyUI-Manager, and CUDA-enabled PyTorch into a default workspace, ready to launch with `comfy launch`. Swap --nvidia for --amd, --m-series, or --cpu to match your hardware. The install can take a while because PyTorch is large."
+    },
+    {
+      "id": 5006,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy launch --background",
+      "desc": "Start ComfyUI as a background daemon",
+      "tooltip": "Launches the ComfyUI server in the background and returns, so your terminal stays free, with the server reachable at http://127.0.0.1:8188. Stop it later with `comfy stop`. Pass extra server flags after --, like `comfy launch -- --port 8190`."
+    },
+    {
+      "id": 5007,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy stop",
+      "desc": "Stop the background ComfyUI server",
+      "tooltip": "Shuts down the ComfyUI instance that `comfy launch --background` started, freeing GPU memory and the port. It targets the workspace daemon recorded by comfy-cli, so manually started servers need Ctrl-C in their own terminal. Verify with `curl http://127.0.0.1:8188/system_stats` failing afterwards."
+    },
+    {
+      "id": 5008,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy model download --url https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors --relative-path models/checkpoints",
+      "desc": "Download a model into ComfyUI",
+      "tooltip": "Fetches the SDXL base checkpoint straight into ComfyUI's models/checkpoints directory, where the Load Checkpoint node finds it by filename. The --relative-path flag mirrors the models folder layout. CivitAI URLs work too, with --set-civitai-api-token for gated downloads."
+    },
+    {
+      "id": 5009,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy model list",
+      "desc": "List installed ComfyUI models",
+      "tooltip": "Shows every model file in the workspace's models tree, grouped by folder like checkpoints, loras, and vae. Filenames here are the exact strings workflow nodes expect, so check before referencing a model in a workflow. Add --relative-path to filter one folder."
+    },
+    {
+      "id": 5010,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy node install comfyui-controlnet-aux",
+      "desc": "Install a custom node pack",
+      "tooltip": "Installs the comfyui-controlnet-aux custom node pack (preprocessors for ControlNet workflows) into the workspace and its Python dependencies. Custom nodes extend ComfyUI with new node classes visible in /object_info. Replace the name with any pack from the registry; `comfy node update all` refreshes everything later."
+    },
+    {
+      "id": 5011,
+      "category": "AI/ML Tooling",
+      "cmd": "comfy node update all",
+      "desc": "Update every custom node",
+      "tooltip": "Pulls the latest version of all installed custom node packs, which often fixes compatibility breaks after a ComfyUI core update. Updates occasionally change node inputs, so workflows may need re-exporting. Run `comfy update` first to bring ComfyUI itself up to date."
+    },
+    {
+      "id": 5012,
+      "category": "AI/ML Tooling",
+      "cmd": "curl -fsSL https://ollama.com/install.sh | sh",
+      "desc": "Install Ollama with the official script",
+      "tooltip": "Downloads and runs the official Ollama installer, which puts the binary in your path and sets up a systemd service on Linux. Piping a remote script into sh always carries risk, so review the script first if you are cautious. Afterwards `ollama run llama3.2` starts a chat and downloads the model on demand."
+    },
+    {
+      "id": 5013,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install openai-whisper",
+      "desc": "Install OpenAI Whisper",
+      "tooltip": "Installs the openai-whisper package and its dependencies, including PyTorch, which makes this a multi-gigabyte download on top of the small package itself. The `whisper` command-line tool arrives with it for transcribing audio. Prefer a virtual environment so PyTorch does not clash with system packages."
+    },
+    {
+      "id": 5014,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install faster-whisper",
+      "desc": "Install faster-whisper as a library",
+      "tooltip": "Installs faster-whisper, a CTranslate2-based reimplementation of Whisper that runs up to four times faster, but it ships no command-line tool: it is a Python library you import in your own scripts. The `whisper` CLI from openai-whisper or tools like WhisperX provide the terminal interface instead. The pip package pulls ctranslate2 and PyAV but not PyTorch."
+    },
+    {
+      "id": 5015,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install vllm",
+      "desc": "Install the vLLM inference engine",
+      "tooltip": "Installs vLLM with CUDA support for serving LLMs, pulling in large dependencies like PyTorch, so expect a sizeable download. After install, `vllm serve` launches an OpenAI-compatible API server. CUDA must match your driver; vLLM wheels target recent NVIDIA driver versions."
+    },
+    {
+      "id": 5016,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install lm-eval",
+      "desc": "Install lm-evaluation-harness",
+      "tooltip": "Installs the lm-evaluation-harness package, which provides the `lm-eval` command for benchmarking language models on tasks like MMLU and hellaswag. The base install covers CPU evaluation; add extras for backends, for example `pip install lm-eval[hf]` or `pip install lm-eval[vllm]`, which pull torch or vLLM. PyPI's project name uses an underscore, but pip resolves lm-eval the same way."
+    },
+    {
+      "id": 5017,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install huggingface_hub",
+      "desc": "Install the Hugging Face Hub CLI",
+      "tooltip": "Installs huggingface_hub, the Python library that also provides the `hf` command-line tool for downloading and uploading models. Version 1.x ships the hf binary; older releases called it huggingface-cli, which is now deprecated. Upgrade regularly with -U since subcommands evolve across minor versions."
+    },
+    {
+      "id": 5018,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install torch",
+      "desc": "Install PyTorch",
+      "tooltip": "Installs the CPU build of PyTorch by default, a large package that nearly every local ML tool depends on. For CUDA GPU support, follow the official install command for your CUDA version from pytorch.org instead, since pip's default build has no GPU acceleration. Use a virtual environment to avoid version conflicts with system Python."
+    },
+    {
+      "id": 5019,
+      "category": "AI/ML Tooling",
+      "cmd": "pip install transformers",
+      "desc": "Install the Hugging Face Transformers library",
+      "tooltip": "Installs transformers, the Python library for loading and running Hugging Face models, which is what tools like lm-eval use under the hood. It is a library, not a CLI, so commands go through other programs or short Python snippets. Requires torch or another backend to actually run models."
+    },
+    {
+      "id": 5020,
+      "category": "AI/ML Tooling",
+      "cmd": "sudo apt install tesseract-ocr tesseract-ocr-spa",
+      "desc": "Install Tesseract with Spanish data",
+      "tooltip": "Installs the tesseract OCR engine plus the Spanish language pack, which `tesseract -l spa` needs; English (eng) ships with the main package. Add more packs like tesseract-ocr-fra for other languages. On Debian-based systems this is the standard install route."
+    },
+    {
+      "id": 5021,
+      "category": "AI/ML Tooling",
+      "cmd": "pipx install comfy-cli",
+      "desc": "Install the ComfyUI management CLI",
+      "tooltip": "Installs comfy-cli into an isolated environment via pipx, keeping it out of system Python and making the `comfy` command available. This is the recommended install method for the official ComfyUI lifecycle tool. First run may ask about analytics, which `comfy --skip-prompt tracking disable` turns off."
+    },
+    {
+      "id": 5022,
+      "category": "AI/ML Tooling",
+      "cmd": "ct2-transformers-converter --model openai/whisper-large-v3 --output_dir whisper-large-v3-ct2 --quantization float16",
+      "desc": "Convert a Whisper model for faster-whisper",
+      "tooltip": "Converts the original large-v3 Whisper weights into CTranslate2 format that faster-whisper loads, writing float16 weights into whisper-large-v3-ct2. The converter ships with the ctranslate2 package. Load the result by passing the output directory as the model path in faster-whisper."
+    },
+    {
+      "id": 5023,
+      "category": "IaC & Automation",
+      "cmd": "terraform version",
+      "desc": "Print the installed Terraform and provider versions",
+      "tooltip": "Shows the Terraform release number plus versions of any installed providers. Useful when debugging version-specific behavior or confirming a setup before planning. Add -json for machine-readable output in scripts. Related: terraform init -upgrade."
+    },
+    {
+      "id": 5024,
+      "category": "IaC & Automation",
+      "cmd": "terraform init -upgrade",
+      "desc": "Reinitialize and upgrade providers and modules to newest versions",
+      "tooltip": "Re-runs initialization while upgrading every provider and module to the latest version that still satisfies your version constraints. Terraform records chosen versions in the lock file (.terraform.lock.hcl), so this flag is how you deliberately move forward. Run plain terraform init first on a fresh clone to install plugins and configure the backend, the storage where state lives. Related: terraform providers."
+    },
+    {
+      "id": 5025,
+      "category": "IaC & Automation",
+      "cmd": "terraform init -backend-config=backend.tfbackend",
+      "desc": "Initialize using settings from a backend config file",
+      "tooltip": "Merges the given tfbackend file into the backend configuration, a common way to point at remote state storage without hardcoding bucket names or credentials. The backend (where state is stored) is declared in configuration, while this file supplies environment-specific values. Related: terraform init, terraform state list."
+    },
+    {
+      "id": 5026,
+      "category": "IaC & Automation",
+      "cmd": "terraform plan -out plan.tfplan",
+      "desc": "Save the execution plan to a file for later apply",
+      "tooltip": "Writes the generated plan to plan.tfplan instead of only displaying it, capturing exactly what will change. A later terraform apply plan.tfplan performs those same actions without re-planning, which makes review pipelines safe. Related: terraform show plan.tfplan."
+    },
+    {
+      "id": 5027,
+      "category": "IaC & Automation",
+      "cmd": "terraform plan -destroy",
+      "desc": "Plan the teardown of all managed resources",
+      "tooltip": "Produces a plan that destroys every resource Terraform manages, without changing anything yet. Review the listed deletions carefully before applying it, since the teardown is irreversible. Related: terraform destroy -auto-approve."
+    },
+    {
+      "id": 5028,
+      "category": "IaC & Automation",
+      "cmd": "terraform apply plan.tfplan",
+      "desc": "Apply the actions captured in a saved plan file",
+      "tooltip": "Executes exactly the actions recorded in plan.tfplan, created earlier with terraform plan -out. Because the plan was already reviewed, apply skips the confirmation prompt and does not re-plan. The plan file must match the current configuration and state or apply refuses to run. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "id": 5029,
+      "category": "IaC & Automation",
+      "cmd": "terraform apply -auto-approve",
+      "desc": "Apply changes without the interactive approval step",
+      "tooltip": "Runs the full plan and apply cycle while skipping the yes/no confirmation, which suits CI pipelines and scripts. It removes the checkpoint where a human reviews what will change, so prefer plain terraform apply in production. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "id": 5030,
+      "category": "IaC & Automation",
+      "cmd": "terraform apply -replace=aws_instance.web",
+      "desc": "Force recreation of one resource during apply",
+      "tooltip": "Tells Terraform to destroy and recreate the resource at the given address even if nothing else changed. This is the modern replacement for the removed taint command, used when a server is corrupt or its configuration changed underneath you. Apply still plans and asks for approval first. Related: terraform state rm aws_instance.web."
+    },
+    {
+      "id": 5031,
+      "category": "IaC & Automation",
+      "cmd": "terraform destroy -auto-approve",
+      "desc": "Destroy all managed infrastructure without prompting",
+      "tooltip": "Deletes every resource recorded in the state file with no confirmation, so nothing pauses between you and an emptied cloud account. Run terraform plan -destroy first to review the deletion list, and treat this command as last resort in shared environments. Deleted infrastructure cannot be recovered. Related: terraform plan -destroy."
+    },
+    {
+      "id": 5032,
+      "category": "IaC & Automation",
+      "cmd": "terraform fmt",
+      "desc": "Format configuration files to canonical style",
+      "tooltip": "Rewrites HCL configuration files (tf, tfvars) in the current directory to HashiCorp's canonical style, aligning indentation and spacing. Run it before committing so diffs stay readable, and use -check in CI to fail on unformatted files. Related: terraform fmt -recursive, terraform validate."
+    },
+    {
+      "id": 5033,
+      "category": "IaC & Automation",
+      "cmd": "terraform fmt -recursive",
+      "desc": "Format configuration files in every subdirectory",
+      "tooltip": "Applies canonical formatting to all tf and tfvars files under the current directory and its subdirectories. One command formats an entire monorepo of modules, keeping every contribution consistent. Related: terraform fmt."
+    },
+    {
+      "id": 5034,
+      "category": "IaC & Automation",
+      "cmd": "terraform validate",
+      "desc": "Check configuration syntax and internal consistency",
+      "tooltip": "Validates that the configuration in the current directory is syntactically correct and internally consistent, catching typos and invalid references without contacting providers or the backend. It cannot see remote resources, and it requires an initialized directory. A standard gate in CI pipelines. Related: terraform plan, terraform fmt."
+    },
+    {
+      "id": 5035,
+      "category": "IaC & Automation",
+      "cmd": "terraform validate -json",
+      "desc": "Validate configuration with JSON output",
+      "tooltip": "Runs the same checks as terraform validate but emits results as JSON with file and line details for each diagnostic. Editors and CI systems parse this output to highlight errors directly in source files. Related: terraform validate."
+    },
+    {
+      "id": 5036,
+      "category": "IaC & Automation",
+      "cmd": "terraform show",
+      "desc": "Display the current state in human-readable form",
+      "tooltip": "Prints the contents of the state file (terraform's record of deployed resources), showing what Terraform believes exists in the cloud. Use it after an apply or when investigating drift, and add -json for structured output. Related: terraform state list."
+    },
+    {
+      "id": 5037,
+      "category": "IaC & Automation",
+      "cmd": "terraform show plan.tfplan",
+      "desc": "Inspect a saved plan file before applying",
+      "tooltip": "Renders the actions recorded in plan.tfplan in the same human-readable format as the original plan output. Use it to re-read what a saved plan will do or audit it in review without touching infrastructure. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "id": 5038,
+      "category": "IaC & Automation",
+      "cmd": "terraform state list",
+      "desc": "List all resources tracked in the state file",
+      "tooltip": "Outputs the addresses of every resource recorded in state, such as aws_instance.web, ready for grepping or scripting. Run it before surgical state operations to confirm exact resource names. Related: terraform state show aws_instance.web."
+    },
+    {
+      "id": 5039,
+      "category": "IaC & Automation",
+      "cmd": "terraform state show aws_instance.web",
+      "desc": "Show full attributes of one state resource",
+      "tooltip": "Prints every recorded attribute and metadata for the resource at the given address, such as instance IDs and IP addresses. This is the fastest way to look up values Terraform knows about before scripting against them. Related: terraform state list."
+    },
+    {
+      "id": 5040,
+      "category": "IaC & Automation",
+      "cmd": "terraform state mv aws_instance.web aws_instance.web2",
+      "desc": "Move a resource to a new address in state",
+      "tooltip": "Renames a resource entry in the state file, typically after renaming a configuration block or moving it into a module. A timestamped state backup is written before any change, and the configuration must be updated to match. Related: terraform state rm aws_instance.web."
+    },
+    {
+      "id": 5041,
+      "category": "IaC & Automation",
+      "cmd": "terraform state rm aws_instance.web",
+      "desc": "Remove a resource from state without deleting it",
+      "tooltip": "Makes Terraform forget the given resource while leaving the real infrastructure running and untouched. Use it when a resource should be managed elsewhere, then re-import with terraform import if needed. A later plan may recreate the resource if its block still exists in configuration. Related: terraform import aws_instance.web i-1234567890abcdef0."
+    },
+    {
+      "id": 5042,
+      "category": "IaC & Automation",
+      "cmd": "terraform refresh",
+      "desc": "Sync the state file with real cloud resources",
+      "tooltip": "Re-reads each managed resource from its provider and updates the state file to match reality, without planning or changing infrastructure. Useful after out-of-band changes to reduce drift surprises. Modern Terraform prefers plan -refresh-only to review recorded differences first. Related: terraform plan -refresh-only."
+    },
+    {
+      "id": 5043,
+      "category": "IaC & Automation",
+      "cmd": "terraform plan -refresh-only",
+      "desc": "Plan a state refresh without proposing changes",
+      "tooltip": "Creates a plan that only syncs the state file with the real cloud, showing what would be recorded without applying anything. Review the proposed updates, then apply the plan to commit them. The safer successor to a blind terraform refresh. Related: terraform refresh."
+    },
+    {
+      "id": 5044,
+      "category": "IaC & Automation",
+      "cmd": "terraform output",
+      "desc": "Print all output values from the state",
+      "tooltip": "Shows the values declared in output blocks, such as load balancer URLs or database endpoints, after an apply. The quick way to grab connection details without digging through the state file. Related: terraform output -json."
+    },
+    {
+      "id": 5045,
+      "category": "IaC & Automation",
+      "cmd": "terraform output -json",
+      "desc": "Print output values as JSON for scripting",
+      "tooltip": "Emits every output value as structured JSON, ready to feed into scripts or parse with jq. Ideal for wiring Terraform results into other tools. Related: terraform output -raw instance_ip."
+    },
+    {
+      "id": 5046,
+      "category": "IaC & Automation",
+      "cmd": "terraform output -raw instance_ip",
+      "desc": "Print one output value as a bare string",
+      "tooltip": "Prints only the raw value of the instance_ip output with no quoting or formatting, perfect for assigning to a shell variable. Works for outputs whose values convert to a string. Related: terraform output -json."
+    },
+    {
+      "id": 5047,
+      "category": "IaC & Automation",
+      "cmd": "terraform workspace list",
+      "desc": "List all workspaces for the configuration",
+      "tooltip": "Shows every workspace (a separate state instance) available for the current configuration, marking the active one with an asterisk. Workspaces let one configuration manage several environments with isolated state. Related: terraform workspace new prod."
+    },
+    {
+      "id": 5048,
+      "category": "IaC & Automation",
+      "cmd": "terraform workspace new prod",
+      "desc": "Create a new workspace named prod",
+      "tooltip": "Creates the prod workspace and selects it, giving the configuration a fresh, empty state. From then on plan, apply, and destroy act on prod's state until you switch again. Related: terraform workspace list."
+    },
+    {
+      "id": 5049,
+      "category": "IaC & Automation",
+      "cmd": "terraform workspace select prod",
+      "desc": "Switch the active workspace",
+      "tooltip": "Makes prod the current workspace so subsequent commands read and write its state. Output from plan and apply shows the active workspace, an important sanity check before destroying anything. Related: terraform workspace show."
+    },
+    {
+      "id": 5050,
+      "category": "IaC & Automation",
+      "cmd": "terraform workspace show",
+      "desc": "Print the name of the active workspace",
+      "tooltip": "Outputs the current workspace name, handy in scripts that must confirm which state a command will touch. Gate destructive commands on this value in shared environments. Related: terraform workspace select prod."
+    },
+    {
+      "id": 5051,
+      "category": "IaC & Automation",
+      "cmd": "terraform import aws_instance.web i-1234567890abcdef0",
+      "desc": "Import an existing resource into the state",
+      "tooltip": "Brings the real EC2 instance i-1234567890abcdef0 under Terraform management at the address aws_instance.web. Write the matching resource block in configuration first, then run plan to reconcile differences. Import never modifies the resource itself. Related: terraform state show aws_instance.web."
+    },
+    {
+      "id": 5052,
+      "category": "IaC & Automation",
+      "cmd": "terraform graph",
+      "desc": "Render the resource dependency graph in DOT",
+      "tooltip": "Outputs the dependency graph between resources in DOT language, which GraphViz or online renderers turn into a diagram. Helps visualize how changes cascade and diagnose ordering problems. Related: terraform plan."
+    },
+    {
+      "id": 5053,
+      "category": "IaC & Automation",
+      "cmd": "terraform console",
+      "desc": "Open an interactive expression evaluation shell",
+      "tooltip": "Starts a read-eval-print loop where you can type expressions and interpolations against the current state and configuration. Great for testing references like aws_instance.web.id before putting them in configuration. Type exit to leave. Related: terraform plan."
+    },
+    {
+      "id": 5054,
+      "category": "IaC & Automation",
+      "cmd": "terraform providers",
+      "desc": "Show the provider requirements of the configuration",
+      "tooltip": "Prints the tree of modules with the provider requirements each one declares, including version constraints. Helps understand why a particular provider version was selected before running init. Related: terraform init -upgrade."
+    },
+    {
+      "id": 5055,
+      "category": "IaC & Automation",
+      "cmd": "terraform login",
+      "desc": "Store credentials for a Terraform registry",
+      "tooltip": "Prompts for or opens a browser to obtain an API token for the given hostname, defaulting to HCP Terraform, and saves it in the credentials file. Needed before publishing modules or using private registries. Related: terraform logout."
+    },
+    {
+      "id": 5056,
+      "category": "IaC & Automation",
+      "cmd": "terraform logout",
+      "desc": "Remove locally stored registry credentials",
+      "tooltip": "Deletes the saved API token for the hostname, defaulting to app.terraform.io. The token is only removed from your machine, so revoke it on the server if it leaked. Related: terraform login."
+    },
+    {
+      "id": 5057,
+      "category": "IaC & Automation",
+      "cmd": "terraform force-unlock 8b6d2c84-2f5a-4f3a-9c1a-abcdef012345",
+      "desc": "Manually release a stuck state lock",
+      "tooltip": "Removes a stale state lock when a previous process crashed and left it in place, using the lock ID from the error message. Only run it when you are certain no other Terraform process is active, because releasing a live lock can corrupt concurrent runs. Related: terraform state list."
+    },
+    {
+      "id": 5058,
+      "category": "IaC & Automation",
+      "cmd": "terraform state pull",
+      "desc": "Print the raw state file to standard output",
+      "tooltip": "Outputs the entire state as raw JSON, exactly as stored in the backend, handy for backups or feeding other tooling. It modifies nothing. Related: terraform state list."
+    },
+    {
+      "id": 5059,
+      "category": "IaC & Automation",
+      "cmd": "ansible --version",
+      "desc": "Print the Ansible version and configuration details",
+      "tooltip": "Shows the ansible-core release, the Python version, module search paths, and which config file would be loaded. Run it first when behavior differs between machines. Related: ansible-config dump."
+    },
+    {
+      "id": 5060,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -i inventory.ini -m ping",
+      "desc": "Ping every host listed in an inventory file",
+      "tooltip": "Runs the ping module against every host in inventory.ini, reporting pong for reachable ones. It tests SSH connectivity, Python on the target, and privilege setup, making it the standard first smoke test of an inventory (Ansible's list of hosts). Related: ansible all -m ping -o."
+    },
+    {
+      "id": 5061,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m ping -o",
+      "desc": "Ping all hosts with condensed one-line output",
+      "tooltip": "Same connectivity check as a plain ping run, but the -o flag condenses each host result to a single line. Much easier to scan across hundreds of hosts for failures. Related: ansible all -i inventory.ini -m ping."
+    },
+    {
+      "id": 5062,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m command -a 'uptime'",
+      "desc": "Run a command on every managed host",
+      "tooltip": "Executes uptime on all hosts using the command module, which runs a program without a shell. The -a flag passes module arguments, here the command to run. Use the shell module instead when you need pipes or redirection. Related: ansible all -m shell."
+    },
+    {
+      "id": 5063,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m shell -a 'df -h | grep /data'",
+      "desc": "Run a shell command with pipes on all hosts",
+      "tooltip": "Executes the command through the target's shell, so pipes, redirects, and variable expansion work. Prefer the command module when you do not need shell features, because shell syntax differs between systems. Related: ansible all -m command."
+    },
+    {
+      "id": 5064,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m apt -a 'name=nginx state=latest' -b",
+      "desc": "Ensure nginx is at the latest version on Debian hosts",
+      "tooltip": "Uses the apt module to make sure nginx is installed and current on every host, with -b (become) elevating to root for package operations. The module is idempotent, so repeated runs change nothing once the package is up to date. Related: ansible all -m service."
+    },
+    {
+      "id": 5065,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m dnf -a 'name=nginx state=latest' -b",
+      "desc": "Ensure nginx is at the latest version on RHEL hosts",
+      "tooltip": "The dnf module plays the role of apt on Fedora and Red Hat family distributions, ensuring nginx is installed at the newest version with -b for root rights. Idempotent, so it only acts when the package state differs. Related: ansible all -m apt."
+    },
+    {
+      "id": 5066,
+      "category": "IaC & Automation",
+      "cmd": "ansible 'web*' -m service -a 'name=nginx state=restarted' -b",
+      "desc": "Restart nginx only on hosts matching a pattern",
+      "tooltip": "Targets just the hosts whose names match web* and restarts the nginx service via the service module with -b for root rights. Host patterns let one command slice the inventory without editing files. Related: ansible all -m systemd."
+    },
+    {
+      "id": 5067,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m systemd -a 'name=nginx enabled=yes state=started' -b",
+      "desc": "Enable and start nginx via systemd on all hosts",
+      "tooltip": "Configures the nginx unit to start now and on every boot using the systemd module, which speaks directly to modern init systems. Setting both enabled and state keeps services healthy across reboots. Related: ansible 'web*' -m service."
+    },
+    {
+      "id": 5068,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m copy -a 'src=/etc/hosts dest=/etc/hosts' -b",
+      "desc": "Copy a local file to every managed host",
+      "tooltip": "Pushes the local /etc/hosts file to the same path on all targets using the copy module with -b for write permission. The module transfers only when content differs, keeping repeated runs fast. Related: ansible all -m command."
+    },
+    {
+      "id": 5069,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m user -a 'name=deploy state=present' -b",
+      "desc": "Ensure the deploy user exists on all hosts",
+      "tooltip": "Creates the deploy user if missing using the user module with -b for account management rights, leaving an existing account untouched. This declarative style is core to Ansible: state the desired end state, not the steps. Related: ansible all -m apt."
+    },
+    {
+      "id": 5070,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m git -a 'repo=https://github.com/example/app.git dest=/srv/app'",
+      "desc": "Clone or update a repository on every host",
+      "tooltip": "Uses the git module to ensure /srv/app on each host is a checkout of the given repository, cloning or pulling as needed. Idempotent by design, it is the standard way to deploy code from version control. Related: ansible-playbook site.yml."
+    },
+    {
+      "id": 5071,
+      "category": "IaC & Automation",
+      "cmd": "ansible all -m setup -a 'filter=ansible_distribution*'",
+      "desc": "Gather OS facts from all hosts",
+      "tooltip": "Runs the setup module, which collects facts (detected system properties like OS family and CPU count) from each host, filtered here to distribution-related keys. Playbooks use these facts in conditions and templates. Related: ansible all -m command."
+    },
+    {
+      "id": 5072,
+      "category": "IaC & Automation",
+      "cmd": "ansible all --list-hosts",
+      "desc": "Show which hosts a pattern would match",
+      "tooltip": "Prints the hosts the given pattern selects without running any module, perfect for checking a pattern or inventory before acting. Safe to run on any setup. Related: ansible-inventory --graph."
+    },
+    {
+      "id": 5073,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook -i prod.inventory site.yml",
+      "desc": "Run a playbook against a specific inventory",
+      "tooltip": "Executes the tasks in site.yml against the hosts in prod.inventory, overriding the default inventory. An inventory is Ansible's list of hosts and groups, and pointing at the right one separates testing from production. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "id": 5074,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --check site.yml",
+      "desc": "Dry-run a playbook without changing hosts",
+      "tooltip": "Runs the playbook in check mode, reporting what each task would change without applying anything. Modules that support check mode simulate results, though raw commands still execute, so review carefully. Always check before a real run on important infrastructure. Related: ansible-playbook --diff site.yml."
+    },
+    {
+      "id": 5075,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --syntax-check site.yml",
+      "desc": "Validate playbook syntax without running it",
+      "tooltip": "Parses site.yml and reports syntax errors, catching typos, bad indentation, and malformed tasks before anything executes. It does not validate logic against real hosts. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "id": 5076,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --diff site.yml",
+      "desc": "Show file changes a playbook would make",
+      "tooltip": "Runs the playbook while printing diffs for file-modifying tasks such as copy or template, showing exactly what content changes. Combine with --check for a full dry run with visible changes. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "id": 5077,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --limit web1 site.yml",
+      "desc": "Run a playbook against a subset of hosts",
+      "tooltip": "Restricts execution to the single host web1, or any pattern you pass, even when the inventory lists many more. Useful for rolling out changes incrementally or re-running a failed host. Related: ansible-playbook -i prod.inventory site.yml."
+    },
+    {
+      "id": 5078,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --tags deploy site.yml",
+      "desc": "Run only the tasks tagged deploy",
+      "tooltip": "Executes just the tasks tagged deploy, skipping the rest of the playbook. Tags let one playbook cover install, configure, and deploy steps while you invoke only what you need. Related: ansible-playbook --list-tasks site.yml."
+    },
+    {
+      "id": 5079,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --start-at-task 'Install nginx' site.yml",
+      "desc": "Resume a playbook from a named task",
+      "tooltip": "Begins execution at the first task named Install nginx, skipping everything before it. Handy after a failure when earlier tasks already completed and re-running them is wasteful. Related: ansible-playbook --list-tasks site.yml."
+    },
+    {
+      "id": 5080,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook --list-tasks site.yml",
+      "desc": "List the tasks a playbook would run",
+      "tooltip": "Prints the task names in execution order without running anything, grouped by play. A quick way to review a playbook's plan before executing it. Related: ansible-playbook --syntax-check site.yml."
+    },
+    {
+      "id": 5081,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook -v site.yml",
+      "desc": "Run a playbook with verbose output",
+      "tooltip": "Adds verbosity so the result of each task, including what changed on the target, is printed. Add more v flags, like -vvv, when chasing connection or variable problems. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "id": 5082,
+      "category": "IaC & Automation",
+      "cmd": "ansible-playbook -e 'app_version=2.1.0' site.yml",
+      "desc": "Override playbook variables from the command line",
+      "tooltip": "Sets the app_version variable for this run via extra vars, taking precedence over values defined in files. Useful for promoting a specific build across environments without editing the playbook. Related: ansible-playbook --tags deploy site.yml."
+    },
+    {
+      "id": 5083,
+      "category": "IaC & Automation",
+      "cmd": "ansible-galaxy init my_role",
+      "desc": "Scaffold a new role directory structure",
+      "tooltip": "Creates my_role with the standard role layout, including tasks, handlers, templates, and defaults directories. A role is a reusable, packaged unit of tasks and files. Related: ansible-galaxy list."
+    },
+    {
+      "id": 5084,
+      "category": "IaC & Automation",
+      "cmd": "ansible-galaxy install geerlingguy.nginx",
+      "desc": "Install a role from Ansible Galaxy",
+      "tooltip": "Fetches the geerlingguy.nginx role from Ansible Galaxy, the community role repository, into your roles path. Declare roles in requirements.yml and install with -r for reproducible setups. Related: ansible-galaxy list."
+    },
+    {
+      "id": 5085,
+      "category": "IaC & Automation",
+      "cmd": "ansible-galaxy collection install community.docker",
+      "desc": "Install a collection from Ansible Galaxy",
+      "tooltip": "Installs the community.docker collection, a bundle of modules and plugins for working with Docker, into the collections path. Collections are the modern packaging format, referenced in playbooks like community.docker.docker_container. Related: ansible-galaxy collection list."
+    },
+    {
+      "id": 5086,
+      "category": "IaC & Automation",
+      "cmd": "ansible-galaxy list",
+      "desc": "List installed roles with versions",
+      "tooltip": "Shows every role installed in the roles path and its version. Use it to confirm what a requirements file installed before running playbooks that depend on roles. Related: ansible-galaxy collection list."
+    },
+    {
+      "id": 5087,
+      "category": "IaC & Automation",
+      "cmd": "ansible-galaxy collection list",
+      "desc": "List installed collections with versions",
+      "tooltip": "Prints installed collections and versions, including bundled ones such as ansible.builtin plus anything you added. Verify versions after upgrades to keep playbooks reproducible. Related: ansible-galaxy install."
+    },
+    {
+      "id": 5088,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault create secrets.yml",
+      "desc": "Create a new encrypted secrets file",
+      "tooltip": "Opens an editor and saves the file encrypted with a password you enter, so plaintext never touches disk. Ansible vault is the built-in secrets manager, and playbooks read these files when given the vault password. Related: ansible-vault view secrets.yml."
+    },
+    {
+      "id": 5089,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault edit secrets.yml",
+      "desc": "Edit an encrypted vault file in place",
+      "tooltip": "Decrypts secrets.yml in memory, opens your editor, and re-encrypts on save, leaving the file encrypted on disk. Supply the password with --ask-vault-password or a password file. Related: ansible-vault create secrets.yml."
+    },
+    {
+      "id": 5090,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault encrypt --vault-password-file .vault_pass group_vars/prod.yml",
+      "desc": "Encrypt a plaintext file using a password file",
+      "tooltip": "Encrypts group_vars/prod.yml in place, reading the password from the .vault_pass file instead of prompting, which suits scripts and CI. Keep the password file itself out of version control with tight permissions. Related: ansible-vault decrypt group_vars/prod.yml."
+    },
+    {
+      "id": 5091,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault decrypt group_vars/prod.yml",
+      "desc": "Decrypt a vault file back to plaintext",
+      "tooltip": "Removes encryption from group_vars/prod.yml, writing the content in clear text on disk. Use it only when you must edit with non-Ansible tools, then re-encrypt promptly to avoid leaking secrets. Related: ansible-vault encrypt."
+    },
+    {
+      "id": 5092,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault view secrets.yml",
+      "desc": "Display an encrypted file without editing",
+      "tooltip": "Decrypts secrets.yml to standard output so you can read it without risking an accidental save. The file on disk stays encrypted. Related: ansible-vault edit secrets.yml."
+    },
+    {
+      "id": 5093,
+      "category": "IaC & Automation",
+      "cmd": "ansible-vault encrypt_string 's3cr3t-value' --name api_key",
+      "desc": "Encrypt a single value for use in variables",
+      "tooltip": "Returns an encrypted blob you can paste as the api_key variable directly in a playbook or variable file, keeping the secret out of plaintext YAML. The value decrypts at runtime when the vault password is provided. Related: ansible-vault create secrets.yml."
+    },
+    {
+      "id": 5094,
+      "category": "IaC & Automation",
+      "cmd": "ansible-inventory --graph",
+      "desc": "Show inventory hosts and groups as a tree",
+      "tooltip": "Renders the inventory as an ASCII tree of groups and their hosts, making membership and nesting easy to grasp. Great for auditing a large inventory, Ansible's list of hosts. Related: ansible-inventory --list -y."
+    },
+    {
+      "id": 5095,
+      "category": "IaC & Automation",
+      "cmd": "ansible-inventory --list -y",
+      "desc": "Dump the full inventory as YAML",
+      "tooltip": "Prints the complete resolved inventory in YAML, including group and host variables after inheritance. Useful for debugging why a host received certain values. Related: ansible-inventory --host web1."
+    },
+    {
+      "id": 5096,
+      "category": "IaC & Automation",
+      "cmd": "ansible-inventory --host web1",
+      "desc": "Show all variables for a single host",
+      "tooltip": "Outputs the merged variables for web1 from every group it belongs to, the fastest way to debug where a value came from. Related: ansible all -m setup."
+    },
+    {
+      "id": 5097,
+      "category": "IaC & Automation",
+      "cmd": "ansible-doc -l",
+      "desc": "List all installed Ansible modules",
+      "tooltip": "Prints every module available on the system, built-in and from collections, with a one-line summary each. Pipe to grep to find a module for a task before searching the web. Related: ansible-doc apt."
+    },
+    {
+      "id": 5098,
+      "category": "IaC & Automation",
+      "cmd": "ansible-doc apt",
+      "desc": "Show full documentation for the apt module",
+      "tooltip": "Displays the apt module's parameters, examples, and return values straight from its embedded docs. Faster and more accurate than web searches because it reflects the installed version. Related: ansible-doc -s apt."
+    },
+    {
+      "id": 5099,
+      "category": "IaC & Automation",
+      "cmd": "ansible-doc -s apt",
+      "desc": "Show the parameter list for a module",
+      "tooltip": "Prints a compact parameter listing for the apt module without the full prose examples, ideal for a quick syntax reminder. Related: ansible-doc apt."
+    },
+    {
+      "id": 5100,
+      "category": "IaC & Automation",
+      "cmd": "ansible-config dump",
+      "desc": "Show the effective Ansible configuration",
+      "tooltip": "Prints every configuration setting with its source, such as config file, environment variable, or default, showing what Ansible will actually use. Run it when behavior differs from expectations. Related: ansible-config dump --only-changed."
+    },
+    {
+      "id": 5101,
+      "category": "IaC & Automation",
+      "cmd": "ansible-config dump --only-changed",
+      "desc": "Show only non-default configuration values",
+      "tooltip": "Filters the configuration dump to settings that differ from their defaults, cutting through noise to find what is customized here. Related: ansible --version."
+    },
+    {
+      "id": 5102,
+      "category": "IaC & Automation",
+      "cmd": "ansible-pull -U https://github.com/example/infra.git site.yml",
+      "desc": "Pull a playbook from git and run it locally",
+      "tooltip": "Clones the infra repository from git and immediately runs site.yml on the local machine, which is how Ansible works in pushless setups like cron-driven node self-configuration. Every host pulls the same repo and applies it to itself. Related: ansible-playbook site.yml."
+    },
+    {
+      "id": 5103,
+      "category": "IaC & Automation",
+      "cmd": "pulumi version",
+      "desc": "Print the installed Pulumi version",
+      "tooltip": "Outputs the current Pulumi CLI release number. Check it when debugging behavior differences or before reporting issues, since the CLI changes quickly. Related: pulumi about."
+    },
+    {
+      "id": 5104,
+      "category": "IaC & Automation",
+      "cmd": "pulumi about",
+      "desc": "Show project, stack, and backend details",
+      "tooltip": "Prints a summary of the current project, selected stack, plugin versions, backend, and language runtime. A quick health check before filing bugs or auditing a setup. Related: pulumi version."
+    },
+    {
+      "id": 5105,
+      "category": "IaC & Automation",
+      "cmd": "pulumi new aws-python",
+      "desc": "Scaffold a new project from a template",
+      "tooltip": "Creates a new Pulumi project from the aws-python template, generating project files, installing dependencies, and setting up an initial stack. A stack is an isolated instance of a project's state, typically one per environment. Related: pulumi up."
+    },
+    {
+      "id": 5106,
+      "category": "IaC & Automation",
+      "cmd": "pulumi preview",
+      "desc": "Preview changes without touching resources",
+      "tooltip": "Runs the program and compares the desired state against the stack's current state, showing what would be created, updated, or deleted. Nothing changes during a preview, so it is the safe first step before every deployment. Related: pulumi up."
+    },
+    {
+      "id": 5107,
+      "category": "IaC & Automation",
+      "cmd": "pulumi up",
+      "desc": "Deploy the program to the cloud",
+      "tooltip": "Computes the difference between the desired and current state of the stack, shows the plan, and applies it after your confirmation. This is the main deploy command, the Pulumi equivalent of terraform apply. Related: pulumi preview."
+    },
+    {
+      "id": 5108,
+      "category": "IaC & Automation",
+      "cmd": "pulumi up -y",
+      "desc": "Deploy without the confirmation prompt",
+      "tooltip": "Runs the update while skipping the interactive approval step with -y, which suits CI pipelines and scripts. The preview output still appears, but nothing pauses for a human. Related: pulumi up."
+    },
+    {
+      "id": 5109,
+      "category": "IaC & Automation",
+      "cmd": "pulumi destroy",
+      "desc": "Tear down every resource in the stack",
+      "tooltip": "Deletes all resources tracked in the current stack's state, which is generally irreversible, though it asks for confirmation first. The stack itself stays. Run pulumi preview first to review the deletion list, and never point this at shared environments casually. Related: pulumi up."
+    },
+    {
+      "id": 5110,
+      "category": "IaC & Automation",
+      "cmd": "pulumi destroy -y",
+      "desc": "Destroy all stack resources without prompting",
+      "tooltip": "Same teardown as pulumi destroy but skips the confirmation prompt, so one command empties the stack. Pair it with strict access controls and always preview before automating it. Related: pulumi destroy."
+    },
+    {
+      "id": 5111,
+      "category": "IaC & Automation",
+      "cmd": "pulumi stack ls",
+      "desc": "List all stacks for the project",
+      "tooltip": "Shows every stack belonging to the current project, marking the one in use. Stacks let a single project manage dev, staging, and production with separate state. Related: pulumi stack select dev."
+    },
+    {
+      "id": 5112,
+      "category": "IaC & Automation",
+      "cmd": "pulumi stack select dev",
+      "desc": "Switch the active stack",
+      "tooltip": "Makes dev the active stack for subsequent commands, so up and destroy act on its state. Confirm the selection before running pulumi destroy, because the wrong stack can mean the wrong environment. Related: pulumi stack ls."
+    },
+    {
+      "id": 5113,
+      "category": "IaC & Automation",
+      "cmd": "pulumi stack output",
+      "desc": "Show the stack's exported outputs",
+      "tooltip": "Prints the output values exported by the program, such as endpoint URLs or ARNs, from the current stack's state. Add -j for JSON output. Related: pulumi stack output endpoint_url."
+    },
+    {
+      "id": 5114,
+      "category": "IaC & Automation",
+      "cmd": "pulumi stack output endpoint_url",
+      "desc": "Show a single output property value",
+      "tooltip": "Prints just the endpoint_url value exported by the stack, ready to assign to a shell variable or feed into other tooling. Related: pulumi stack output."
+    },
+    {
+      "id": 5115,
+      "category": "IaC & Automation",
+      "cmd": "pulumi stack rm dev",
+      "desc": "Delete a stack and its state",
+      "tooltip": "Removes the dev stack and its configuration, prompting if resources still exist. Deleting a stack does not delete cloud resources unless you destroy them first, so run pulumi destroy beforehand. Related: pulumi destroy."
+    },
+    {
+      "id": 5116,
+      "category": "IaC & Automation",
+      "cmd": "pulumi config set region us-east-1",
+      "desc": "Set a configuration value for the stack",
+      "tooltip": "Stores the key region with value us-east-1 in the current stack's configuration, which programs read at runtime. Configuration keeps environment-specific settings out of code. Related: pulumi config get region."
+    },
+    {
+      "id": 5117,
+      "category": "IaC & Automation",
+      "cmd": "pulumi config get region",
+      "desc": "Read a single configuration value",
+      "tooltip": "Prints the value stored for the region key in the active stack's configuration. Use it to confirm what a program will see before an update. Related: pulumi config set region us-east-1."
+    },
+    {
+      "id": 5118,
+      "category": "IaC & Automation",
+      "cmd": "pulumi config set --secret db_password 'hunter2'",
+      "desc": "Store an encrypted secret configuration value",
+      "tooltip": "Saves db_password as an encrypted secret so the value never sits in plaintext in the stack configuration. Listings show it blinded, and programs decrypt it only when needed. Related: pulumi config get."
+    },
+    {
+      "id": 5119,
+      "category": "IaC & Automation",
+      "cmd": "pulumi config rm region",
+      "desc": "Remove a configuration key",
+      "tooltip": "Deletes the region key from the stack configuration, useful when a setting is no longer needed or was set by mistake. Related: pulumi config set region us-east-1."
+    },
+    {
+      "id": 5120,
+      "category": "IaC & Automation",
+      "cmd": "pulumi state list",
+      "desc": "List all resources in the stack state",
+      "tooltip": "Prints every resource URN (unique resource name) tracked in the current stack's state, with its type. Useful before surgical state operations or to confirm what destroy would remove. Related: pulumi import."
+    },
+    {
+      "id": 5121,
+      "category": "IaC & Automation",
+      "cmd": "pulumi import aws:s3/bucket:Bucket app-data data-bucket-2024",
+      "desc": "Import an existing cloud resource into a stack",
+      "tooltip": "Brings the real S3 bucket data-bucket-2024 into the stack as app-data, using its type token aws:s3/bucket:Bucket. The command prints resource code to add to the program so Pulumi manages it from now on. Related: pulumi state list."
+    },
+    {
+      "id": 5122,
+      "category": "IaC & Automation",
+      "cmd": "pulumi refresh",
+      "desc": "Sync stack state with the real cloud",
+      "tooltip": "Reconciles the stack's recorded state with what actually exists in the cloud provider, adopting out-of-band changes. It does not change infrastructure, only the state record, so review the differences it reports. Related: pulumi preview."
+    },
+    {
+      "id": 5123,
+      "category": "IaC & Automation",
+      "cmd": "pulumi login",
+      "desc": "Authenticate to the Pulumi backend",
+      "tooltip": "Prompts for an access token to log in to Pulumi Cloud, which stores your stack state, or accepts a URL for a self-hosted or local backend. Use pulumi login --local for fully local state. Related: pulumi logout."
+    },
+    {
+      "id": 5124,
+      "category": "IaC & Automation",
+      "cmd": "pulumi logout",
+      "desc": "Clear stored backend credentials",
+      "tooltip": "Removes the saved login credentials for the current backend from your machine, or all backends with --all. It touches only local authentication, never remote state. Related: pulumi login."
+    },
+    {
+      "id": 5125,
+      "category": "IaC & Automation",
+      "cmd": "make",
+      "desc": "Build the default target of the current directory",
+      "tooltip": "Runs the first target in the Makefile found in the current directory, rebuilding only what is out of date based on file timestamps. Make is a build automation tool driven by rules that declare dependencies between files. Related: make -n."
+    },
+    {
+      "id": 5126,
+      "category": "IaC & Automation",
+      "cmd": "make -n",
+      "desc": "Print build commands without running them",
+      "tooltip": "Prints every recipe command make would execute without running any, perfect for previewing a build or debugging what triggers a target. Combine with -B to see the full rebuild plan. Related: make."
+    },
+    {
+      "id": 5127,
+      "category": "IaC & Automation",
+      "cmd": "make -j4",
+      "desc": "Build with up to four parallel jobs",
+      "tooltip": "Runs up to four recipe commands simultaneously, speeding up large builds on multi-core machines. Independent targets build in parallel while dependencies stay ordered. Related: make."
+    },
+    {
+      "id": 5128,
+      "category": "IaC & Automation",
+      "cmd": "make -C /opt/myapp",
+      "desc": "Build in a different directory",
+      "tooltip": "Changes into /opt/myapp before reading the Makefile and building, so you can drive a project from anywhere. Equivalent to cd /opt/myapp followed by make. Related: make -f build.mk release."
+    },
+    {
+      "id": 5129,
+      "category": "IaC & Automation",
+      "cmd": "make install",
+      "desc": "Build and install the project",
+      "tooltip": "Runs the install target, the conventional way to copy built binaries, libraries, or files into their system locations after a build. Exact behavior depends on the project's Makefile. Related: make clean."
+    },
+    {
+      "id": 5130,
+      "category": "IaC & Automation",
+      "cmd": "make clean",
+      "desc": "Remove files produced by previous builds",
+      "tooltip": "Runs the clean target, which deletes build artifacts such as object files and binaries so the next build starts fresh. Some projects add distclean to also remove generated configuration. Related: make."
+    },
+    {
+      "id": 5131,
+      "category": "IaC & Automation",
+      "cmd": "make -f build.mk release",
+      "desc": "Build a target using a custom makefile",
+      "tooltip": "Reads build.mk instead of the default Makefile and executes its release target, useful when a project ships several makefiles for different purposes. Related: make -C /opt/myapp."
+    },
+    {
+      "id": 5132,
+      "category": "IaC & Automation",
+      "cmd": "make --debug=b",
+      "desc": "Trace target decisions during a build",
+      "tooltip": "Prints basic debugging output showing why make considers each target out of date and which rules it chooses. The b stands for basic, while --debug=v adds verbose detail on files and variables. Related: make -n."
+    },
+    {
+      "id": 5133,
+      "category": "IaC & Automation",
+      "cmd": "make -k",
+      "desc": "Keep building despite errors",
+      "tooltip": "Continues with independent targets even after one fails, instead of stopping at the first error. Useful for collecting the full list of failures in one pass. Related: make."
+    },
+    {
+      "id": 5134,
+      "category": "IaC & Automation",
+      "cmd": "make -s",
+      "desc": "Build silently, printing only errors",
+      "tooltip": "Suppresses echoed recipe commands so output shows only warnings and errors. Useful in CI logs where command noise buries failures. Related: make."
+    },
+    {
+      "id": 5135,
+      "category": "IaC & Automation",
+      "cmd": "make -B",
+      "desc": "Rebuild every target unconditionally",
+      "tooltip": "Treats all targets as out of date and re-runs every recipe, ignoring timestamps. Use it to force a full rebuild when timestamps lie, such as after copying files with preserved times. Related: make -n."
+    },
+    {
+      "id": 5136,
+      "category": "IaC & Automation",
+      "cmd": "make -q",
+      "desc": "Check whether a target is up to date",
+      "tooltip": "Runs no recipes and reports status through the exit code, which scripts use to decide whether to rebuild. Exit status zero means the target is up to date. Related: make -n."
+    },
+    {
+      "id": 5137,
+      "category": "IaC & Automation",
+      "cmd": "make -t",
+      "desc": "Mark targets up to date without building",
+      "tooltip": "Touches the target files to update their timestamps without running any recipe, pretending the build happened. Mostly useful for testing dependency logic without real work. Related: make -q."
+    },
+    {
+      "id": 5138,
+      "category": "IaC & Automation",
+      "cmd": "make -p",
+      "desc": "Print make's internal rule database",
+      "tooltip": "Dumps the entire rule and variable database make has computed, including built-in rules, invaluable for debugging unexpected build behavior. Pipe it to a pager since the output is long. Related: make --debug=b."
+    },
+    {
+      "id": 5139,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init status",
+      "desc": "Show cloud-init's current run status",
+      "tooltip": "Reports whether cloud-init (the tool that initializes cloud instances from user-data) has started, is running, or finished its run stages. Shows done when initialization completed and error when a stage failed. Related: cloud-init status --wait."
+    },
+    {
+      "id": 5140,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init status --wait",
+      "desc": "Block until cloud-init finishes initializing",
+      "tooltip": "Waits, re-checking until cloud-init completes its run, then prints the final status. Use it in provisioning scripts and containers that must not start until first-boot setup finished. Add --format json for parseable output. Related: cloud-init status."
+    },
+    {
+      "id": 5141,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init status --format json",
+      "desc": "Report cloud-init status as JSON",
+      "tooltip": "Prints the status with a machine-readable JSON structure, including the current stage and any errors, ideal for health checks in automation. Related: cloud-init status --wait."
+    },
+    {
+      "id": 5142,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init clean",
+      "desc": "Reset cloud-init state for a fresh first boot",
+      "tooltip": "Removes cloud-init's saved instance state so the next boot re-runs initialization as if the machine were new. It does not remove user-data or packages, but it can reset values like machine-id, so use it only when preparing golden images or clones. Related: cloud-init clean -r."
+    },
+    {
+      "id": 5143,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init clean -r",
+      "desc": "Reset state and reboot to reinitialize",
+      "tooltip": "Runs cloud-init clean and then reboots the machine immediately so initialization runs again on the next boot. Intended for imaging workflows, and the reboot interrupts anything running on the box. Related: cloud-init status."
+    },
+    {
+      "id": 5144,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init query -a",
+      "desc": "Print all instance metadata as key-value pairs",
+      "tooltip": "Dumps every known instance-data key, such as instance ID, region, and hostname, collected during boot. Handy for verifying what the datasource (the source of cloud information) actually provided. Related: cloud-init query v1.local_hostname."
+    },
+    {
+      "id": 5145,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init query v1.local_hostname",
+      "desc": "Look up a single instance metadata value",
+      "tooltip": "Returns just the value stored under v1.local_hostname, the dotted path into the instance-data JSON tree. Useful in scripts that need the machine's cloud-assigned hostname. Related: cloud-init query -a."
+    },
+    {
+      "id": 5146,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init schema -c /etc/cloud/cloud.cfg",
+      "desc": "Validate a cloud-config file against its schema",
+      "tooltip": "Checks /etc/cloud/cloud.cfg for valid keys and values against the official cloud-config schema, catching typos before they silently break boot-time behavior. Related: cloud-init schema --system."
+    },
+    {
+      "id": 5147,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init schema --system",
+      "desc": "Validate the system's cloud-init configuration",
+      "tooltip": "Validates the machine's own cloud-init configuration files in place, including /etc/cloud/cloud.cfg, and reports schema violations. Run it after editing config to catch mistakes early. Related: cloud-init init."
+    },
+    {
+      "id": 5148,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init init",
+      "desc": "Run the cloud-init init stage manually",
+      "tooltip": "Executes the init stage that discovers the datasource, fetches user-data, and configures the network, normally run automatically at boot. Running it manually suits containers and test environments that skip normal boot. Related: cloud-init modules -m final."
+    },
+    {
+      "id": 5149,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init modules -m final",
+      "desc": "Run the final configuration modules",
+      "tooltip": "Executes the final stage modules, which apply user-data such as package installs and user creation after the network is up. Useful for re-applying configuration without rebooting. Related: cloud-init init."
+    },
+    {
+      "id": 5150,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init collect-logs",
+      "desc": "Bundle logs and config into a tar archive",
+      "tooltip": "Collects cloud-init logs, journal excerpts, and configuration into cloud-init.tar.gz in the current directory for support requests. Add --include-userdata to embed the user-data that was provided. Related: cloud-init analyze blame."
+    },
+    {
+      "id": 5151,
+      "category": "IaC & Automation",
+      "cmd": "cloud-init analyze blame",
+      "desc": "Show which init stage took the longest",
+      "tooltip": "Analyzes the boot log and prints cloud-init modules ranked by execution time, helping diagnose slow first boots. Related: cloud-init collect-logs."
+    },
+    {
+      "id": 5152,
+      "category": "IaC & Automation",
+      "cmd": "packer version",
+      "desc": "Print the installed Packer version",
+      "tooltip": "Outputs the Packer release number and checks whether a newer version exists. Useful when template behavior differs from documentation. Related: packer validate ."
+    },
+    {
+      "id": 5153,
+      "category": "IaC & Automation",
+      "cmd": "packer init .",
+      "desc": "Install plugins required by the template",
+      "tooltip": "Reads the plugins block in the template in the current directory and downloads the required builder and provisioner plugins. Run it before validate or build on a fresh checkout, since Packer keeps no record of what was installed. Related: packer build ."
+    },
+    {
+      "id": 5154,
+      "category": "IaC & Automation",
+      "cmd": "packer fmt .",
+      "desc": "Format a Packer template canonically",
+      "tooltip": "Rewrites pkr.hcl files in the current directory to canonical HCL2 formatting, aligning indentation and spacing. Add -check in CI to fail when templates are not formatted. Related: packer validate ."
+    },
+    {
+      "id": 5155,
+      "category": "IaC & Automation",
+      "cmd": "packer validate .",
+      "desc": "Check a template for configuration errors",
+      "tooltip": "Parses the template in the current directory and verifies the builder and provisioner configurations are valid, reporting errors with a non-zero exit code. It does not create any images. Related: packer build ."
+    },
+    {
+      "id": 5156,
+      "category": "IaC & Automation",
+      "cmd": "packer build .",
+      "desc": "Build images from the template",
+      "tooltip": "Executes every build defined in the template in the current directory, creating the images or artifacts the builders produce, which can incur cloud costs. Run packer validate first, and use -only to limit which builds execute. Related: packer validate ."
+    },
+    {
+      "id": 5157,
+      "category": "IaC & Automation",
+      "cmd": "packer console",
+      "desc": "Open an interpolation test shell",
+      "tooltip": "Starts an interactive console for testing variable and function interpolation expressions against the template, similar to Terraform's console. Useful for debugging template expressions before a build. Related: packer validate ."
+    },
+    {
+      "id": 5158,
+      "category": "IaC & Automation",
+      "cmd": "packer plugins install github.com/hashicorp/amazon",
+      "desc": "Install a specific plugin binary",
+      "tooltip": "Downloads the amazon plugin from the given source and pins it for use, which also works in offline environments before running init. Related: packer init ."
+    },
+    {
+      "id": 5159,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 output.avi",
+      "desc": "Transcode a video to a different container and codec",
+      "tooltip": "Converts input.mp4 to AVI, guessing the output format and default codecs (video and audio compression algorithms) from the .avi extension. Defaults are rarely optimal, so serious work usually names codecs explicitly with -c:v and -c:a as in the H.264 example. Run ffprobe first to see what streams the file contains."
+    },
+    {
+      "id": 5160,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v libx264 -preset medium -crf 23 -c:a aac output.mp4",
+      "desc": "Transcode video to H.264 with CRF quality",
+      "tooltip": "Re-encodes the video with the libx264 codec (algorithm that compresses video) and audio with AAC. The -crf 23 flag sets quality: lower numbers give better quality and bigger files, 18-28 is the usual range. -preset medium trades encoding speed against file size, since slower presets compress better at the same CRF. A solid all-purpose conversion recipe."
+    },
+    {
+      "id": 5161,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v libx265 -crf 28 -c:a aac output.mp4",
+      "desc": "Transcode video to H.265 for smaller files",
+      "tooltip": "Encodes with H.265 (HEVC), which typically halves file size at quality similar to H.264. The CRF scale differs from x264: 28 here is roughly equivalent to 23 in the H.264 recipe. Expect much slower encoding, and check that your players support HEVC."
+    },
+    {
+      "id": 5162,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v libvpx-vp9 -crf 30 -b:v 0 output.webm",
+      "desc": "Encode a WebM video with the VP9 codec",
+      "tooltip": "Encodes a WebM file with the VP9 codec, a common choice for web video. The -crf 30 controls quality while -b:v 0 switches the encoder into constant-quality mode, since without it CRF is ignored. VP9 is slower than x264 but compresses better at the same quality."
+    },
+    {
+      "id": 5163,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v libaom-av1 -crf 30 -b:v 0 -c:a libopus output.mkv",
+      "desc": "Encode video with AV1 for maximum compression",
+      "tooltip": "Encodes with the AV1 codec, the most efficient codec widely supported today, using the libaom encoder. -crf 30 sets quality and -b:v 0 enables constant-quality mode; -c:a libopus picks an efficient audio codec. Encoding is very slow, so a small clip can take many minutes."
+    },
+    {
+      "id": 5164,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v h264_nvenc -preset p4 -cq 23 output.mp4",
+      "desc": "Encode video with the NVIDIA hardware encoder",
+      "tooltip": "Encodes using the NVIDIA GPU hardware encoder instead of the CPU, which is much faster but produces larger files at the same quality. -cq 23 works like CRF, with lower meaning better. Only works on machines with an NVIDIA GPU and the nvenc libraries installed."
+    },
+    {
+      "id": 5165,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vn -c:a libmp3lame -q:a 2 output.mp3",
+      "desc": "Extract the audio track as an MP3 file",
+      "tooltip": "Drops the video stream with -vn and encodes the audio as MP3 with the libmp3lame codec. -q:a 2 selects VBR quality on a 0-9 scale where lower is better, and 2 is a good music default. To copy audio without re-encoding use -c:a copy instead."
+    },
+    {
+      "id": 5166,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.flac -c:a libmp3lame -q:a 2 output.mp3",
+      "desc": "Convert a FLAC file to an MP3 file",
+      "tooltip": "Decodes the lossless FLAC file and encodes it as MP3. FLAC is lossless (bit-perfect) while MP3 is lossy, so keep the original if you may want higher quality later. -q:a 2 is the VBR quality setting, where 0 is best."
+    },
+    {
+      "id": 5167,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.wav -c:a flac output.flac",
+      "desc": "Convert a WAV file to lossless FLAC",
+      "tooltip": "Compresses a WAV file to FLAC without losing any audio data, so the output plays back identically. FLAC typically shrinks music to roughly half its WAV size, which makes it great for archiving. Use soxi or ffprobe to confirm the output."
+    },
+    {
+      "id": 5168,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.wav -c:a libopus -b:a 96k output.opus",
+      "desc": "Encode audio as Opus at a target bitrate",
+      "tooltip": "Encodes audio with the Opus codec at a target bitrate of 96 kbps. Opus beats MP3 at low bitrates and is the default for web audio and many chat apps. -b:a sets the bitrate, so higher values mean better quality and bigger files."
+    },
+    {
+      "id": 5169,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vn -sn -c:a copy output.m4a",
+      "desc": "Extract audio to M4A without re-encoding",
+      "tooltip": "Copies the audio stream into an M4A container (file format that holds streams) without re-encoding, so quality is untouched and the job is nearly instant. -vn drops video and -sn drops subtitles. The audio codec must be one M4A supports, like the AAC that is common in MP4 files."
+    },
+    {
+      "id": 5170,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -ss 00:01:00 -t 30 -c copy output.mp4",
+      "desc": "Trim a clip without re-encoding for speed",
+      "tooltip": "Cuts from 1 minute in for 30 seconds, copying streams with -c copy so nothing is re-encoded. -ss placed before -i seeks fast, and -t sets the duration. Because it copies, the cut snaps to the nearest keyframe (a frame that can be decoded alone), so the start may be a bit early. Re-encode for frame-exact cuts."
+    },
+    {
+      "id": 5171,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -ss 00:02:00 -i input.mp4 -t 60 -c:v libx264 -crf 23 -c:a aac output.mp4",
+      "desc": "Trim a clip precisely by re-encoding",
+      "tooltip": "Cuts 60 seconds starting 2 minutes in, re-encoding with libx264 and AAC so the cut is frame-accurate. -ss before -i seeks first, then only the requested span is decoded. Slower than -c copy trimming but exact."
+    },
+    {
+      "id": 5172,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -sseof -30 -c copy output.mp4",
+      "desc": "Take the last 30 seconds of a video",
+      "tooltip": "Takes the last 30 seconds of the file using -sseof, which seeks relative to the end of the stream, so the negative value counts backward. Streams are copied, meaning no quality is lost and the job is fast. Related: -ss seeks from the start instead."
+    },
+    {
+      "id": 5173,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf scale=1280:720 output.mp4",
+      "desc": "Resize video to a fixed resolution",
+      "tooltip": "Scales the video to exactly 1280 by 720 pixels with the scale filter in -vf. Stretching an odd-shaped source distorts it, so pair it with force_original_aspect_ratio to letterbox instead. See the scale=-2 variant to keep the aspect ratio."
+    },
+    {
+      "id": 5174,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf scale=-2:720 output.mp4",
+      "desc": "Resize video keeping the aspect ratio",
+      "tooltip": "Scales the video to 720 pixels tall while auto-computing the width from the aspect ratio. -2 (not -1) rounds the computed dimension to an even number, which the common yuv420p pixel format requires. Use -2:1080 or scale=1920:-2 for other targets."
+    },
+    {
+      "id": 5175,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2\" output.mp4",
+      "desc": "Scale and letterbox video to a fixed size",
+      "tooltip": "Fits the video inside 1280x720 with black bars rather than stretching it. force_original_aspect_ratio=decrease shrinks it to fit, and pad fills the rest while (ow-iw)/2 centers the image. The comma chains two filters in one -vf graph."
+    },
+    {
+      "id": 5176,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf fps=1 thumb-%03d.jpg",
+      "desc": "Extract one frame per second as JPEGs",
+      "tooltip": "Writes one JPEG per second of video into numbered files like thumb-001.jpg, thumb-002.jpg. %03d is a zero-padded counter and fps=1 samples the frame rate. Raise or lower the number to change the sampling rate."
+    },
+    {
+      "id": 5177,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf fps=1/10 thumb-%03d.jpg",
+      "desc": "Extract one frame every 10 seconds",
+      "tooltip": "Writes one JPEG every 10 seconds of video using a fractional frame rate of 1/10. Good for quickly skimming a long recording. The %03d pattern numbers files sequentially; change the digit count to match your file count."
+    },
+    {
+      "id": 5178,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -ss 00:01:00 -i input.mp4 -frames:v 1 -q:v 2 frame.jpg",
+      "desc": "Extract a single frame at a timestamp",
+      "tooltip": "Extracts exactly one frame from 1 minute into the video. -frames:v 1 stops after a single frame and -q:v 2 sets JPEG quality, with lower being better. Without -ss you get the first frame."
+    },
+    {
+      "id": 5179,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c copy output.mkv",
+      "desc": "Remux video into a new container without re-encoding",
+      "tooltip": "Remuxes, meaning it repacks the existing streams into an MKV container without re-encoding, so it is instant and lossless. -c copy copies every stream. Use remuxing to change file types without any quality loss."
+    },
+    {
+      "id": 5180,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4",
+      "desc": "Concatenate clips listed in a text file",
+      "tooltip": "Joins the files listed in list.txt, one 'file path.mp4' per line, into a single MP4. All inputs must share the same codecs, resolution, and settings or the copy will fail. -safe 0 allows absolute paths in the list. Use the concat filter instead when inputs differ."
+    },
+    {
+      "id": 5181,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -loop 1 -i image.png -i audio.mp3 -shortest -c:v libx264 -tune stillimage output.mp4",
+      "desc": "Turn an image and audio into a video",
+      "tooltip": "Builds a video from a still image plus an audio track: -loop 1 repeats the image, -shortest ends the video when the audio finishes, and -tune stillimage optimizes the x264 encode for static content. Audio is encoded as AAC by default."
+    },
+    {
+      "id": 5182,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -map 0:v -map 0:a:1 output.mp4",
+      "desc": "Select specific streams when transcoding",
+      "tooltip": "Selects which streams go into the output: 0:v means the first video stream and 0:a:1 the second audio stream. Streams that are not mapped get dropped, which is useful for keeping only a specific audio language. List stream indexes with ffprobe first."
+    },
+    {
+      "id": 5183,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf fps=15,scale=480:-1 output.gif",
+      "desc": "Convert video to an animated GIF",
+      "tooltip": "Converts a video to an animated GIF at 15 fps and 480 pixels wide. GIF is palette-based with limited colors, so quality suffers on complex footage, and the palettegen/paletteuse pair produces much better results. scale=480:-1 keeps the aspect ratio."
+    },
+    {
+      "id": 5184,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"fps=15,palettegen\" palette.png",
+      "desc": "Generate a palette for a high-quality GIF",
+      "tooltip": "First step of the two-command recipe for high-quality GIFs: writes a color palette image for the video. The later paletteuse step maps video frames onto this palette, avoiding the muddy default GIF conversion. Run the two commands back to back."
+    },
+    {
+      "id": 5185,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -i palette.png -lavfi \"fps=15,scale=480:-1[x];[x][1:v]paletteuse\" output.gif",
+      "desc": "Apply a palette to make a high-quality GIF",
+      "tooltip": "Second step of the palette GIF recipe: uses palette.png from palettegen and the -lavfi filter graph to map frames at 15 fps onto the 256-color palette. '[x][1:v]paletteuse' connects the scaled video to the palette image. The result looks far better than a plain fps/scale GIF."
+    },
+    {
+      "id": 5186,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -re -i stream.mp4 -c copy -f flv rtmp://live.example.com/app/key",
+      "desc": "Stream a file to an RTMP server",
+      "tooltip": "Streams a file to an RTMP server like a live encoder would. -re reads the file at its real-time playback speed so the stream does not outrun the audience, and -f flv is required for RTMP. Replace the example address with your stream key URL."
+    },
+    {
+      "id": 5187,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -stream_loop -1 -re -i clip.mp4 -c copy -f flv rtmp://live.example.com/app/key",
+      "desc": "Stream a clip on repeat to an RTMP server",
+      "tooltip": "Streams a short clip on repeat by looping the input with -stream_loop -1. Combined with -re, the loop plays at real-time speed for an endless live stream. Useful for 24/7 test streams, and you stop it with Ctrl-C."
+    },
+    {
+      "id": 5188,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -y -i input.mp4 output.mp4",
+      "desc": "Overwrite the output file without asking",
+      "tooltip": "Overwrites output.mp4 without the usual 'File already exists' prompt. -y is short for yes to all and is essential in scripts and cron jobs. Be careful: the old file is destroyed with no undo."
+    },
+    {
+      "id": 5189,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -v error -i input.mp4 -f null -",
+      "desc": "Test whether a video decodes without errors",
+      "tooltip": "Decodes the whole file and discards the result, so no output file is produced. -v error hides normal chatter and shows only real errors, while -f null - writes to the null muxer. An exit code of 0 means the file decodes cleanly."
+    },
+    {
+      "id": 5190,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -h",
+      "desc": "Show ffmpeg's built-in help",
+      "tooltip": "Prints ffmpeg's built-in help, including every option and its shortcut. Useful for checking exact flag syntax without internet access. ffmpeg -h full shows even more detail."
+    },
+    {
+      "id": 5191,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -encoders | grep 264",
+      "desc": "List video and audio encoders",
+      "tooltip": "Lists every encoder ffmpeg was built with, filtered by grep for names containing 264 such as libx264 and h264_nvenc. If a codec is missing, ffmpeg was not compiled with it. Use ffmpeg -formats for muxers and demuxers."
+    },
+    {
+      "id": 5192,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -formats",
+      "desc": "List supported file formats",
+      "tooltip": "Lists every file format ffmpeg can read (demux) and write (mux). Each line shows whether a format supports input, output, or both. Pair with ffmpeg -codecs to see what encoders are available."
+    },
+    {
+      "id": 5193,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -hide_banner -i input.mp4",
+      "desc": "Show media stream information quietly",
+      "tooltip": "Prints the media file's stream information, like codecs, resolution, and duration, without ffmpeg's build banner cluttering the output. The -hide_banner flag silences the version text; the stream dump appears at the end."
+    },
+    {
+      "id": 5194,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c copy -movflags +faststart output.mp4",
+      "desc": "Move metadata to the front for web playback",
+      "tooltip": "Copies all streams while moving the moov metadata to the front of the file. Browsers and players can then start playback before downloading the whole file, which is essential for web hosting. -movflags +faststart adds the flag to the existing movflags."
+    },
+    {
+      "id": 5195,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -an -c:v copy output.mp4",
+      "desc": "Remove the audio track without re-encoding",
+      "tooltip": "Removes the audio stream with -an while copying the video, so no re-encoding happens and quality is untouched. Fast enough for batch jobs over many files. Related: -sn drops subtitles and -vn drops video."
+    },
+    {
+      "id": 5196,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mkv -map 0 -c copy output.mp4",
+      "desc": "Copy all streams into an MP4 container",
+      "tooltip": "Copies every stream from an MKV into an MP4 container with -map 0 -c copy, which is a remux, so no re-encoding occurs. Fails if a stream uses a codec MP4 cannot hold, like some subtitle formats. Run ffprobe on the input to check first."
+    },
+    {
+      "id": 5197,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf transpose=1 output.mp4",
+      "desc": "Rotate video 90 degrees clockwise",
+      "tooltip": "Rotates the video 90 degrees clockwise using the transpose filter, where transpose=1 is the clockwise setting. Codes 0-3 cover the four 90-degree orientations. A re-encode is required, so this takes longer than a stream copy."
+    },
+    {
+      "id": 5198,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf hflip output.mp4",
+      "desc": "Mirror video horizontally",
+      "tooltip": "Mirrors the video horizontally, like flipping a poster over a vertical axis. Uses the hflip filter, which needs a re-encode. Related: vflip mirrors vertically."
+    },
+    {
+      "id": 5199,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"crop=640:480:100:50\" output.mp4",
+      "desc": "Crop video to a region",
+      "tooltip": "Crops to a 640x480 region starting 100 pixels from the left and 50 from the top, using the crop=width:height:x:y syntax. The coordinates count from the top-left corner. Combine with scale for a different final size."
+    },
+    {
+      "id": 5200,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -i logo.png -filter_complex \"overlay=10:10\" output.mp4",
+      "desc": "Overlay a logo image on a video",
+      "tooltip": "Places logo.png over the video at 10 pixels from the left and 10 from the top. -filter_complex lets filters take multiple inputs, here the video and the image. Adjust the x:y coordinates to move the logo."
+    },
+    {
+      "id": 5201,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"drawtext=text='Hello World':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2\" output.mp4",
+      "desc": "Burn text onto a video",
+      "tooltip": "Burns centered white text onto the video with the drawtext filter; x=(w-text_w)/2 centers it horizontally. Needs libass and fontconfig built into ffmpeg, and the filter must be quoted because it contains special characters. Change the text, size, and color freely."
+    },
+    {
+      "id": 5202,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -af \"volume=0.5\" output.mp4",
+      "desc": "Adjust the audio volume",
+      "tooltip": "Changes the audio volume by the given factor: 0.5 halves it and 2.0 doubles it. Uses the audio filter chain -af. For consistent loudness across files, use the loudnorm filter instead."
+    },
+    {
+      "id": 5203,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -af \"loudnorm=I=-16:TP=-1.5:LRA=11\" output.mp4",
+      "desc": "Normalize audio loudness to a target",
+      "tooltip": "Normalizes loudness to broadcast-style targets: I=-16 average loudness, TP=-1.5 true peak ceiling, and LRA=11 loudness range. This matches how streaming platforms master audio. The audio stream is re-encoded as part of the process."
+    },
+    {
+      "id": 5204,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"setpts=PTS/2\" -af \"atempo=2.0\" output.mp4",
+      "desc": "Speed video up to double speed",
+      "tooltip": "Speeds the video up to 2x: setpts=PTS/2 halves the presentation timestamps, and atempo=2.0 doubles the audio speed without changing pitch. atempo accepts 0.5 to 2.0 per instance, so chain two for 4x."
+    },
+    {
+      "id": 5205,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf reverse -af areverse output.mp4",
+      "desc": "Play video in reverse",
+      "tooltip": "Plays the video backward by reversing the video frames and the audio samples. Requires a full re-encode and lots of RAM because the whole file is buffered. Keep it to small clips or prepare to wait."
+    },
+    {
+      "id": 5206,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -pix_fmt yuv420p output.mp4",
+      "desc": "Force a widely compatible pixel format",
+      "tooltip": "Forces the yuv420p pixel format, the color encoding most players and web tools expect. Some sources produce formats like yuv444p that play poorly on older devices. Add this flag when a converted file looks wrong or will not play."
+    },
+    {
+      "id": 5207,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -i newaudio.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -shortest output.mp4",
+      "desc": "Replace a video's audio track",
+      "tooltip": "Swaps the video's audio for newaudio.mp3: -map 0:v takes the original video, -map 1:a the new audio, and -shortest ends at the shorter stream. The video is copied, not re-encoded. Add -af filters to adjust the new track."
+    },
+    {
+      "id": 5208,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -metadata title=\"My Video\" -c copy output.mp4",
+      "desc": "Set a metadata tag without re-encoding",
+      "tooltip": "Sets the title metadata tag while copying all streams, so no re-encoding happens. Metadata is the file's informational fields like title, artist, and date. Use -metadata author=... for other tags."
+    },
+    {
+      "id": 5209,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -f lavfi -i \"testsrc=duration=5:size=640x480:rate=30\" -pix_fmt yuv420p test.mp4",
+      "desc": "Generate a test pattern video",
+      "tooltip": "Generates a 5-second test pattern video from ffmpeg's lavfi virtual input, useful for testing pipelines and players. testsrc renders moving color bars, and size and rate set the resolution and frame rate. -pix_fmt yuv420p keeps it compatible."
+    },
+    {
+      "id": 5210,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.wav -ar 16000 output.wav",
+      "desc": "Resample audio to a new sample rate",
+      "tooltip": "Changes the audio sample rate, the number of samples per second, to 16000 Hz, which is common for speech recognition tools. -ar sets the rate and 44100 is CD quality. Downsampling loses high frequencies, so keep the original."
+    },
+    {
+      "id": 5211,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf \"thumbnail,scale=640:-1\" -frames:v 1 poster.jpg",
+      "desc": "Pick a representative frame as a poster",
+      "tooltip": "Picks a single representative frame from the video using the thumbnail filter, which scores frames for sharpness and detail. -frames:v 1 writes just one image. A quick way to make a poster image."
+    },
+    {
+      "id": 5212,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -vf subtitles=subs.srt output.mp4",
+      "desc": "Burn subtitles into the video",
+      "tooltip": "Renders subtitles from subs.srt directly into the picture with the subtitles filter, so they display on any player. Needs ffmpeg built with libass, and fonts come from fontconfig. The output is larger because the text is now part of the video."
+    },
+    {
+      "id": 5213,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -ac 1 output.mp4",
+      "desc": "Downmix audio to mono",
+      "tooltip": "Downmixes the audio to a single channel with -ac 1. Useful for podcasts, voice memos, and compatibility with mono speakers. -ac 2 converts to stereo."
+    },
+    {
+      "id": 5214,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c copy -f segment -segment_time 600 segment-%03d.mp4",
+      "desc": "Split video into 10-minute segments",
+      "tooltip": "Splits the video into 10-minute (600-second) chunks named segment-001.mp4, segment-002.mp4 and so on, using the segment muxer with -c copy for speed. Great for breaking long recordings into manageable pieces."
+    },
+    {
+      "id": 5215,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i left.mp4 -i right.mp4 -filter_complex \"[0:v]pad=iw*2:ih[bg];[bg][1:v]overlay=w\" output.mp4",
+      "desc": "Join two videos side by side",
+      "tooltip": "Joins left.mp4 and right.mp4 into one video showing both side by side. The filter graph pads the first input to double width, then overlays the second at x=w, the middle. Both inputs should share height, frame rate, and pixel format."
+    },
+    {
+      "id": 5216,
+      "category": "Media & Conversion",
+      "cmd": "ffmpeg -i input.mp4 -c:v libx264 -crf 18 -preset slow output.mp4",
+      "desc": "Encode a high-quality master file",
+      "tooltip": "Encodes a high-quality master file: CRF 18 is near-lossless for x264, and -preset slow maximizes compression at that quality. Expect big files and slow encodes, which is perfect for archiving before smaller delivery copies."
+    },
+    {
+      "id": 5217,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v quiet -print_format json -show_format -show_streams input.mp4",
+      "desc": "Show full format and stream metadata as JSON",
+      "tooltip": "Dumps every piece of metadata ffprobe can find, like format info, duration, bitrate, and all streams, as machine-readable JSON. -v quiet hides status messages and -print_format json selects the output shape. Pipe into jq to filter fields."
+    },
+    {
+      "id": 5218,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input.mp4",
+      "desc": "Print only the duration in seconds",
+      "tooltip": "Prints just the duration in seconds with nothing else, which is ideal for scripts. -show_entries format=duration limits the query to one field, and -of default=noprint_wrappers=1:nokey=1 strips the labels. -v error silences warnings."
+    },
+    {
+      "id": 5219,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 input.mp4",
+      "desc": "Print the video width and height",
+      "tooltip": "Prints the video stream's width and height, like '1920x1080'. -select_streams v:0 picks the first video stream, and -of csv=p=0 gives plain comma output. Useful in scripts for conditional processing."
+    },
+    {
+      "id": 5220,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -show_entries stream=codec_name,codec_type -of csv=p=0 input.mp4",
+      "desc": "List each stream's codec and type",
+      "tooltip": "Lists each stream's codec name and type, for example h264 and video, or aac and audio. -of csv=p=0 keeps the output terse for scripting. Add -show_entries stream=index to include stream numbers."
+    },
+    {
+      "id": 5221,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 input.mp4",
+      "desc": "Print the overall bitrate",
+      "tooltip": "Prints the file's overall bitrate in bits per second. Bitrate measures how much data each second of media uses, and higher usually means better quality. Use -select_streams v:0 to get just the video bitrate."
+    },
+    {
+      "id": 5222,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels -of csv=p=0 input.mp4",
+      "desc": "Print sample rate and channel count",
+      "tooltip": "Prints the first audio stream's sample rate and channel count, like '44100,2'. Handy before resampling or downmixing. The csv output format keeps it script-friendly."
+    },
+    {
+      "id": 5223,
+      "category": "Media & Conversion",
+      "cmd": "ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 input.mp4",
+      "desc": "Count frames by decoding the video",
+      "tooltip": "Counts the video's frames by decoding the whole stream, so it takes about as long as playback. -count_frames enables counting and nb_read_frames reports the total. Slower than reading the duration but exact."
+    },
+    {
+      "id": 5224,
+      "category": "Media & Conversion",
+      "cmd": "ffplay input.mp4",
+      "desc": "Play a media file in a window",
+      "tooltip": "Opens a window and plays the file with the same decoding engine as ffmpeg. Keys like space pause and q quits. ffplay is the fastest way to sanity-check a converted file."
+    },
+    {
+      "id": 5225,
+      "category": "Media & Conversion",
+      "cmd": "ffplay -nodisp -autoexit audio.mp3",
+      "desc": "Play audio without opening a window",
+      "tooltip": "Plays audio without opening a video window: -nodisp suppresses the display and -autoexit quits when playback ends. Good for testing audio files on headless servers. Related: ffplay video.mp4 for visuals."
+    },
+    {
+      "id": 5226,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -resize 800x600 output.png",
+      "desc": "Resize an image to exact dimensions",
+      "tooltip": "Scales the image to exactly 800 by 600 pixels; if the source has a different aspect ratio it is stretched. Append ^ to crop instead, or use a single dimension like 800 to keep proportions. magick is ImageMagick 7's command, since the legacy convert binary no longer ships on new installs."
+    },
+    {
+      "id": 5227,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -resize '50%' output.png",
+      "desc": "Resize an image by percentage",
+      "tooltip": "Rescales the image to 50% of its original size. Percentages keep the aspect ratio automatically, which makes this the safest way to shrink images. Quote the value so the shell does not interpret the % sign."
+    },
+    {
+      "id": 5228,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -resize '200x200!' output.png",
+      "desc": "Resize ignoring the aspect ratio",
+      "tooltip": "Resizes to exactly 200x200, ignoring the aspect ratio with the bang modifier, so the image is stretched if needed. Use it to force a uniform thumbnail grid. The quotes protect the bang from bash history expansion."
+    },
+    {
+      "id": 5229,
+      "category": "Media & Conversion",
+      "cmd": "magick input.jpg -quality 85 output.jpg",
+      "desc": "Set JPEG quality when saving",
+      "tooltip": "Sets JPEG quality to 85 when saving. Quality 100 is best and largest, and values below 80 start showing compression artifacts. The option only affects lossy formats like JPEG. Related: -strip removes metadata."
+    },
+    {
+      "id": 5230,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -crop 100x100+10+10 output.png",
+      "desc": "Crop an image to a region",
+      "tooltip": "Crops to a 100x100 region starting 10 pixels right and 10 down from the top-left corner, using widthxheight+x+y syntax. The + offsets are measured from the top-left. Use -gravity to anchor from another corner."
+    },
+    {
+      "id": 5231,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -rotate 90 output.png",
+      "desc": "Rotate an image 90 degrees",
+      "tooltip": "Rotates the image 90 degrees clockwise. Other angles like 45 also work and expand the canvas with the background color. Add -background white to choose the fill for non-right angles."
+    },
+    {
+      "id": 5232,
+      "category": "Media & Conversion",
+      "cmd": "magick input.jpg -colorspace Gray output.jpg",
+      "desc": "Convert an image to grayscale",
+      "tooltip": "Converts the image to grayscale by changing its color space. The result keeps one luminance channel, which shrinks files dramatically. Related: -monochrome reduces to pure black and white."
+    },
+    {
+      "id": 5233,
+      "category": "Media & Conversion",
+      "cmd": "magick *.png -append output.png",
+      "desc": "Stack images vertically into one",
+      "tooltip": "Stacks every PNG in the current directory vertically into a single image, which is useful for combining screenshots into one long picture. The shell expands *.png; use explicit names to control the order. +append joins side by side instead."
+    },
+    {
+      "id": 5234,
+      "category": "Media & Conversion",
+      "cmd": "magick -delay 10 -loop 0 frame-*.png animation.gif",
+      "desc": "Make an animated GIF from frames",
+      "tooltip": "Builds an animated GIF from numbered frames like frame-001.png. -delay 10 sets 0.1 seconds per frame and -loop 0 makes it repeat forever. For video sources, ffmpeg's palette method gives better color."
+    },
+    {
+      "id": 5235,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -thumbnail 200x200^ -gravity center -extent 200x200 output.png",
+      "desc": "Resize and crop to fill exactly",
+      "tooltip": "Resizes to cover exactly 200x200 and crops the overflow, which is the classic thumbnail recipe. ^ tells resize to fill rather than fit, -gravity center anchors the crop, and -extent forces the final canvas size. No distortion and no empty borders."
+    },
+    {
+      "id": 5236,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -strip output.png",
+      "desc": "Remove metadata from an image",
+      "tooltip": "Removes all metadata, like EXIF camera data, comments, and profiles, from the image. Stripped photos are smaller and do not leak location or camera details. Related: exiftool for inspecting tags first."
+    },
+    {
+      "id": 5237,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -format '%wx%h' info:",
+      "desc": "Print the image dimensions",
+      "tooltip": "Prints just the image dimensions, like 800x600, using -format and the info: pseudo-file. %w and %h are the width and height format tokens. Great for scripts that branch on image size."
+    },
+    {
+      "id": 5238,
+      "category": "Media & Conversion",
+      "cmd": "identify input.png",
+      "desc": "Show image format and properties",
+      "tooltip": "Prints the image's format, dimensions, color space, and file size in one line. It is the fastest way to check what a file actually is, regardless of its extension. identify -verbose shows every detail."
+    },
+    {
+      "id": 5239,
+      "category": "Media & Conversion",
+      "cmd": "identify -verbose input.png",
+      "desc": "Dump full image metadata",
+      "tooltip": "Dumps the complete property tree for the image, including resolution, bit depth, EXIF metadata, and histogram. The output is long, so pipe it to less or grep. Plain identify gives the short summary."
+    },
+    {
+      "id": 5240,
+      "category": "Media & Conversion",
+      "cmd": "compare -metric AE input.png output.png diff.png",
+      "desc": "Count differing pixels between images",
+      "tooltip": "Counts pixels that differ between two images; AE (absolute error) prints a single number, and diff.png marks the differences in red. Identical images report 0. Use -metric RMSE for a similarity score instead."
+    },
+    {
+      "id": 5241,
+      "category": "Media & Conversion",
+      "cmd": "compare -metric RMSE input.png output.png null:",
+      "desc": "Measure image difference numerically",
+      "tooltip": "Measures the difference between two images as a root-mean-square error between 0 (identical) and 1 (completely different), printing just the number. null: as the output discards the diff image. Pair with -metric AE to count differing pixels."
+    },
+    {
+      "id": 5242,
+      "category": "Media & Conversion",
+      "cmd": "magick -size 800x600 xc:white output.png",
+      "desc": "Create a solid white image",
+      "tooltip": "Creates a blank 800x600 image filled with white. xc: is the built-in color canvas generator, and any color name works, like xc:red or xc:'#336699'. Handy for placeholders and test images."
+    },
+    {
+      "id": 5243,
+      "category": "Media & Conversion",
+      "cmd": "magick -density 150 input.pdf output.png",
+      "desc": "Render a PDF page to an image",
+      "tooltip": "Renders the PDF's first page at 150 dpi to a PNG. -density must come before the input filename because it controls how the PDF is rasterized. Use -density 300 for print quality, and add -resize to shrink the output."
+    },
+    {
+      "id": 5244,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -trim +repage output.png",
+      "desc": "Trim blank borders automatically",
+      "tooltip": "Automatically removes uniform borders around the image edge and resets the canvas offset with +repage. Great for cleaning up screenshots with white margins. Add -fuzz 10% to trim borders that are nearly but not exactly one color."
+    },
+    {
+      "id": 5245,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -bordercolor black -border 10 output.png",
+      "desc": "Add a border around an image",
+      "tooltip": "Adds a 10-pixel black frame around the image. -bordercolor picks the frame color and -border the width. Combine with -gravity for asymmetric frames."
+    },
+    {
+      "id": 5246,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -flip output.png",
+      "desc": "Flip an image vertically",
+      "tooltip": "Flips the image vertically, like its mirror image in a lake. It is instant because no recompression is needed beyond the save. Related: -flop mirrors horizontally."
+    },
+    {
+      "id": 5247,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -negate output.png",
+      "desc": "Invert an image's colors",
+      "tooltip": "Inverts every color, producing a photographic negative where black becomes white and hues become their complements. An instant way to make a negative for printing or just for effect."
+    },
+    {
+      "id": 5248,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -blur 0x8 output.png",
+      "desc": "Blur an image",
+      "tooltip": "Blurs the image with a Gaussian filter; 0x8 means radius 0 with sigma 8, and sigma controls the blur strength. Heavier sigma blurs more. Related: -sharpen 0x2 does the opposite."
+    },
+    {
+      "id": 5249,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -threshold 50% output.png",
+      "desc": "Convert an image to black and white",
+      "tooltip": "Converts the image to pure black and white: every pixel brighter than 50% becomes white and everything else becomes black. The result is a 1-bit image that compresses very well. Adjust the percentage to shift the cutoff."
+    },
+    {
+      "id": 5250,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -background white -flatten output.png",
+      "desc": "Flatten transparency onto a background",
+      "tooltip": "Flattens transparency onto a white background, replacing see-through areas with white. Needed before saving to formats like JPEG that do not support transparency. -background changes the fill color."
+    },
+    {
+      "id": 5251,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -fuzz 10% -transparent white output.png",
+      "desc": "Make a range of colors transparent",
+      "tooltip": "Makes all pixels within 10% of white transparent, producing a see-through PNG. -fuzz widens the color match so anti-aliased edges are included. Great for removing solid backgrounds from logos."
+    },
+    {
+      "id": 5252,
+      "category": "Media & Conversion",
+      "cmd": "magick input.tiff -compress lzw output.tiff",
+      "desc": "Save a TIFF with LZW compression",
+      "tooltip": "Saves the TIFF with LZW lossless compression instead of leaving it uncompressed, which often shrinks files dramatically. Quality is untouched. Related: -compress jpeg for photographic TIFFs."
+    },
+    {
+      "id": 5253,
+      "category": "Media & Conversion",
+      "cmd": "magick -list format",
+      "desc": "List supported image formats",
+      "tooltip": "Prints every file format this ImageMagick build can read and write, with capability flags. Useful for confirming PDF or HEIC support before converting. Filter with grep, like magick -list format | grep PDF."
+    },
+    {
+      "id": 5254,
+      "category": "Media & Conversion",
+      "cmd": "magick input.jpg -resize 1920x1080 -strip -quality 82 output.jpg",
+      "desc": "Resize, strip, and compress for the web",
+      "tooltip": "One-liner web prep: resizes to at most 1920x1080, strips metadata, and sets JPEG quality 82, a good balance of size and quality. Adjust the resolution and quality for your use case. Run identify to verify the result."
+    },
+    {
+      "id": 5255,
+      "category": "Media & Conversion",
+      "cmd": "montage *.jpg -tile 3x2 -geometry +2+2 montage.jpg",
+      "desc": "Make a contact sheet of images",
+      "tooltip": "Builds a contact sheet from all JPEGs: -tile 3x2 lays them in a 3-wide grid and -geometry +2+2 adds 2-pixel gaps. Thumbnails are auto-sized to fit. The montage binary ships with ImageMagick 7."
+    },
+    {
+      "id": 5256,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png -auto-orient output.png",
+      "desc": "Fix rotation from EXIF data",
+      "tooltip": "Applies the rotation stored in the photo's EXIF metadata, so pictures taken sideways display upright. Many cameras write this orientation tag instead of rotating pixels. Re-encode after to bake the rotation in."
+    },
+    {
+      "id": 5257,
+      "category": "Media & Conversion",
+      "cmd": "magick input.png output.jpg",
+      "desc": "Convert an image to another format",
+      "tooltip": "Converts the image from PNG to JPEG just by changing the extension, since ImageMagick picks the format from the output name. JPEG cannot hold transparency, so white replaces it. Use -quality to control the JPEG size."
+    },
+    {
+      "id": 5258,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav rate 44100",
+      "desc": "Resample audio to a new sample rate",
+      "tooltip": "Resamples the audio to 44100 Hz, the samples-per-second rate used on CDs. Resampling never improves quality, and downsampling discards high frequencies. Related: soxi to see the current rate."
+    },
+    {
+      "id": 5259,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav trim 0 10",
+      "desc": "Keep only the first 10 seconds",
+      "tooltip": "Keeps only the first 10 seconds of audio and writes it out. The trim effect takes a start position and an optional duration. Related: trim 10 starts at the 10-second mark instead."
+    },
+    {
+      "id": 5260,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav vol 0.5",
+      "desc": "Change volume by a factor",
+      "tooltip": "Scales the volume by the given factor: 0.5 halves it and 2.0 doubles it. vol multiplies the sample amplitude directly, so values over 1.0 can clip, meaning the waveform distorts. For decibel-style changes use gain."
+    },
+    {
+      "id": 5261,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav gain -3",
+      "desc": "Cut the level by 3 decibels",
+      "tooltip": "Reduces the level by 3 decibels, roughly a 30% perceived drop. gain works in decibels, unlike vol's linear factors. Positive values boost and risk clipping, so pair with norm for safety."
+    },
+    {
+      "id": 5262,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav norm -3",
+      "desc": "Normalize peak level to minus 3 dB",
+      "tooltip": "Normalizes the audio so its peak level lands at -3 dB, giving headroom that avoids clipping in later processing. norm is an alias for gain -n, which measures the file first. Ideal as the last effect in a chain."
+    },
+    {
+      "id": 5263,
+      "category": "Media & Conversion",
+      "cmd": "sox -n output.wav synth 3 sine 440",
+      "desc": "Generate a 3-second 440 Hz tone",
+      "tooltip": "Generates a 3-second 440 Hz sine tone and writes it to output.wav. The -n null input means no source audio, and synth 3 sets the duration. Change the frequency for other pitches, or use square or noise for other waveforms."
+    },
+    {
+      "id": 5264,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav silence 1 0.1 1%",
+      "desc": "Trim leading silence from a recording",
+      "tooltip": "Removes silence at the start of the recording: above-periods 1 means trim until sound begins, 0.1 is how long the silence must last, and 1% is the volume threshold treated as silence. Combine with reverse to also trim the end."
+    },
+    {
+      "id": 5265,
+      "category": "Media & Conversion",
+      "cmd": "soxi input.wav",
+      "desc": "Show audio file information",
+      "tooltip": "Prints audio file header information: format, sample rate, channels, duration, and bit depth. It is the audio equivalent of ImageMagick's identify. soxi -d prints just the duration for scripts."
+    },
+    {
+      "id": 5266,
+      "category": "Media & Conversion",
+      "cmd": "sox input1.wav input2.wav output.wav",
+      "desc": "Concatenate audio files",
+      "tooltip": "Appends input2.wav to input1.wav into a single output file. Both files must have the same sample rate and channel count or sox errors out, so resample first with the rate effect. Concatenation is sox's default combining method."
+    },
+    {
+      "id": 5267,
+      "category": "Media & Conversion",
+      "cmd": "sox -m input1.wav input2.wav output.wav",
+      "desc": "Mix two audio files together",
+      "tooltip": "Mixes input1.wav and input2.wav together so they play simultaneously. -m selects the mix combiner, and sox auto-balances levels to avoid clipping. Related: without -m the files are concatenated instead."
+    },
+    {
+      "id": 5268,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav tempo 1.5",
+      "desc": "Change speed without changing pitch",
+      "tooltip": "Changes the playback speed by 1.5x without changing the pitch, using the WSOLA algorithm. This differs from the speed effect, which shifts pitch too. Useful for podcasts and language learning."
+    },
+    {
+      "id": 5269,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav lowpass 3000",
+      "desc": "Cut frequencies above 3000 Hz",
+      "tooltip": "Removes frequencies above 3000 Hz with a low-pass filter, dulling the sound and taming hiss. The cutoff is the -3 dB point of the filter. Related: highpass removes low frequencies instead."
+    },
+    {
+      "id": 5270,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav channels 1",
+      "desc": "Downmix audio to mono",
+      "tooltip": "Downmixes the audio to a single channel with the channels effect. Mixing combines the stereo pair, which can cancel out-of-phase content. To keep only one specific channel, use remix instead."
+    },
+    {
+      "id": 5271,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav pad 1 2",
+      "desc": "Add silence at both ends",
+      "tooltip": "Adds 1 second of silence at the start and 2 seconds at the end. The pad effect inserts silence at any position, and omitted positions mean the beginning and end of the audio. Use delay for channel-specific padding."
+    },
+    {
+      "id": 5272,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav fade 2",
+      "desc": "Fade audio in over 2 seconds",
+      "tooltip": "Ramps the volume from silence up to full over the first 2 seconds; fade 2 applies a fade-in only. The default curve is logarithmic, which sounds natural. Related: fade 0 0 3 fades out at the end."
+    },
+    {
+      "id": 5273,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav fade 0 0 3",
+      "desc": "Fade out the last 3 seconds",
+      "tooltip": "Fades the last 3 seconds down to silence: the first 0 means no fade-in, the stop position 0 means the end of the audio, and 3 is the fade-out length. Perfect for podcast outros or avoiding a click at the end."
+    },
+    {
+      "id": 5274,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav output.wav reverse",
+      "desc": "Play the audio backwards",
+      "tooltip": "Plays the audio backwards, reversing the entire file. Needs temporary disk space equal to the file size. Combine with silence trimming to strip trailing silence: reverse, trim, reverse."
+    },
+    {
+      "id": 5275,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav -n stat",
+      "desc": "Print audio statistics",
+      "tooltip": "Prints statistical measurements of the audio, like peak level, RMS, and DC offset, to the terminal without writing an output file, thanks to the -n null output. Values near the maximum warn of clipping. Related: stats prints per-channel details."
+    },
+    {
+      "id": 5276,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav -n spectrogram -o spectrogram.png",
+      "desc": "Render a spectrogram image of the audio",
+      "tooltip": "Renders a spectrogram, a graph of frequency over time, as a PNG. -o names the output file. Great for spotting clipping, noise, or silence visually. Requires sox built with spectrogram support, which needs PNG libraries."
+    },
+    {
+      "id": 5277,
+      "category": "Media & Conversion",
+      "cmd": "sox input.wav segment-%1n.wav trim 0 30 : newfile : trim 0 30",
+      "desc": "Split audio into 30-second files",
+      "tooltip": "Splits the audio into 30-second chunks named segment-01.wav, segment-02.wav and so on. The colon separates effects chains: trim 0 30 writes the first 30 seconds, then newfile starts the next chunk. %1n is the counter placeholder."
+    },
+    {
+      "id": 5278,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download a video at the default quality",
+      "tooltip": "Downloads a YouTube video at the default quality, typically the best single-file format. yt-dlp is the actively maintained fork of youtube-dl and supports hundreds of sites. The output is named after the video title."
+    },
+    {
+      "id": 5279,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -f 'bestvideo+bestaudio' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download best video and audio, then merge",
+      "tooltip": "Downloads the best video-only and best audio-only streams and merges them with ffmpeg, giving the highest quality available. The + combines formats, and yt-dlp needs ffmpeg on the PATH to merge. Add -f best to skip merging."
+    },
+    {
+      "id": 5280,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -f 'bestvideo[height<=1080]+bestaudio' --merge-output-format mp4 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download up to 1080p as a single MP4",
+      "tooltip": "Downloads the best stream up to 1080p plus its audio and merges them into a single MP4. The [height<=1080] filter caps the resolution, and --merge-output-format mp4 forces the container. Use this when you want one clean file."
+    },
+    {
+      "id": 5281,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -x --audio-format mp3 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Extract audio from a video as MP3",
+      "tooltip": "Extracts just the audio and converts it to MP3. -x (--extract-audio) picks the best audio format, and --audio-format mp3 converts with ffmpeg. Other format options include opus, flac, and m4a."
+    },
+    {
+      "id": 5282,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --list-formats 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "List available download formats",
+      "tooltip": "Lists every downloadable format with its ID, extension, resolution, and bitrate. Use the IDs with -f to pick exact streams, like -f 137+140. Run this before deciding what to download."
+    },
+    {
+      "id": 5283,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -f 137+140 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download specific format IDs",
+      "tooltip": "Downloads format 137, the 1080p video-only stream, merged with format 140, the AAC audio, which is the classic YouTube pairing. IDs come from --list-formats and differ per video. Merging needs ffmpeg installed."
+    },
+    {
+      "id": 5284,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -o '%(title)s.%(ext)s' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Save with the video title as filename",
+      "tooltip": "Names the output file with the video's title and extension. %(title)s and %(ext)s are output template fields, and hundreds exist, like %(id)s and %(uploader)s. Without -o, yt-dlp uses this pattern by default."
+    },
+    {
+      "id": 5285,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --playlist-start 1 --playlist-end 5 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download playlist items 1 through 5",
+      "tooltip": "Downloads only playlist items 1 through 5. yt-dlp treats a single video URL as a one-item playlist, so this also runs harmlessly there. Related: --playlist-items 1,3,5 picks specific positions."
+    },
+    {
+      "id": 5286,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --embed-thumbnail --embed-metadata 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Embed thumbnail and metadata in the file",
+      "tooltip": "Writes the thumbnail and metadata, like title, uploader, and description, into the file itself. --embed-thumbnail attaches the cover image and --embed-metadata the info tags; both need ffmpeg. Metadata survives moving the file between libraries."
+    },
+    {
+      "id": 5287,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -P ~/Downloads 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Save downloads to a directory",
+      "tooltip": "Saves the download into ~/Downloads instead of the current directory. -P sets the base path, and sub-options like -P temp: control intermediate files. Combine with -o templates for organized folders."
+    },
+    {
+      "id": 5288,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --cookies cookies.txt 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Use cookies for restricted videos",
+      "tooltip": "Uses cookies.txt, exported from a browser extension, to access age-restricted or members-only videos. Without it, yt-dlp sees the logged-out page. Keep the file private since it contains your session tokens."
+    },
+    {
+      "id": 5289,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -S 'res:1080' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Prefer formats up to 1080p",
+      "tooltip": "Picks the best format whose resolution is at most 1080p, using the -S sort expression. Unlike -f filters, sorting still considers quality within the limit. res:1080 means prefer 1080p or below."
+    },
+    {
+      "id": 5290,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --download-archive archive.txt 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Skip videos already downloaded",
+      "tooltip": "Records downloaded video IDs in archive.txt and skips them on future runs. This makes re-running a download job idempotent, so only new videos get fetched. Combine with a playlist URL to maintain a mirror."
+    },
+    {
+      "id": 5291,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --write-subs --sub-langs 'en.*' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download subtitles for a video",
+      "tooltip": "Downloads subtitles in every language matching 'en.*', which covers English, en-US, and friends. Subtitle files land next to the video, and --embed-subs puts them inside the container instead. Auto-generated captions need --write-auto-subs."
+    },
+    {
+      "id": 5292,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --no-playlist 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download only the video, not the playlist",
+      "tooltip": "Downloads only the single video even if the URL carries a playlist parameter like &list=. Without this flag yt-dlp would grab the whole playlist. Pair with --yes-playlist to force the opposite."
+    },
+    {
+      "id": 5293,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --dateafter 20240101 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Only download videos newer than a date",
+      "tooltip": "Skips videos published before 2024-01-01, which is handy for keeping a channel mirror recent. Dates use the YYYYMMDD form. Related: --datebefore works the other way."
+    },
+    {
+      "id": 5294,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --limit-rate 500K 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Cap the download speed",
+      "tooltip": "Caps the download speed at 500 kilobytes per second to spare your connection. Units can be K, M, or G. Useful for long playlist downloads on shared links."
+    },
+    {
+      "id": 5295,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -g 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Print the direct media URL",
+      "tooltip": "Prints the direct media URL without downloading anything. -g works with format selectors, so -g -f bestaudio gives the audio URL. Handy for piping into other players or downloaders."
+    },
+    {
+      "id": 5296,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --flat-playlist --print '%(title)s' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "List playlist titles without downloading",
+      "tooltip": "Lists every title in a playlist without resolving or downloading each video, making it fast even for huge playlists. --print '%(title)s' outputs just the names. Use --simulate for full metadata per item."
+    },
+    {
+      "id": 5297,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --download-sections '*10:00-15:00' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download only a time section of the video",
+      "tooltip": "Downloads only the time span from 10:00 to 15:00 of the video. --download-sections takes '*START-END' with a leading asterisk. Requires ffmpeg because the cut is re-encoded."
+    },
+    {
+      "id": 5298,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --sponsorblock-remove all 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Remove sponsor segments from the video",
+      "tooltip": "Removes sponsor segments, intros, and outros using the SponsorBlock database, which is crowdsourced per video. 'all' removes every category, or name specific ones like sponsor, intro. Requires ffmpeg for remuxing."
+    },
+    {
+      "id": 5299,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp --cookies-from-browser firefox 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Use the browser's login cookies",
+      "tooltip": "Reads the login cookies straight from your Firefox profile, so yt-dlp sees your logged-in state without exporting anything. The browser must be closed or the profile unlocked. Supported browsers include firefox, chrome, and chromium."
+    },
+    {
+      "id": 5300,
+      "category": "Media & Conversion",
+      "cmd": "yt-dlp -U",
+      "desc": "Update yt-dlp itself",
+      "tooltip": "Self-updates yt-dlp to the latest release. Sites change their pages constantly, so an outdated yt-dlp breaks; update before debugging other errors. On some package managers, use the distro's updater instead."
+    },
+    {
+      "id": 5301,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dQUIET -sOutputFile=output.pdf input.pdf",
+      "desc": "Reprocess and compress a PDF",
+      "tooltip": "Parses the PDF and writes a new one, cleaning internal structure and often shrinking the file. -dNOPAUSE -dBATCH make it run unattended, since without them gs pauses for input and hangs in scripts. -dQUIET silences progress, and -sOutputFile names the result."
+    },
+    {
+      "id": 5302,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=png16m -r150 -dNOPAUSE -dBATCH -o page-%d.png input.pdf",
+      "desc": "Render PDF pages to PNG images",
+      "tooltip": "Renders every page of the PDF as a 150 dpi PNG named page-1.png, page-2.png and so on. -sDEVICE=png16m is 24-bit color and -r150 sets the resolution. -o implies -dNOPAUSE -dBATCH, so it never pauses."
+    },
+    {
+      "id": 5303,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=pdfwrite -dFirstPage=2 -dLastPage=5 -o output.pdf input.pdf",
+      "desc": "Extract a page range to a new PDF",
+      "tooltip": "Copies pages 2 through 5 into a new PDF. -dFirstPage and -dLastPage bound the range, and gs processes only those pages. Combined with -o for clean batch behavior. A single page uses -dFirstPage=1 -dLastPage=1."
+    },
+    {
+      "id": 5304,
+      "category": "Media & Conversion",
+      "cmd": "gs -o combined.pdf -sDEVICE=pdfwrite input1.pdf input2.pdf",
+      "desc": "Merge PDFs into one file",
+      "tooltip": "Joins input1.pdf and input2.pdf into one combined.pdf via the pdfwrite device. Order on the command line is page order. Pages are reprocessed, so bookmarks and links may not survive, which is fine for plain documents."
+    },
+    {
+      "id": 5305,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook -o output.pdf input.pdf",
+      "desc": "Recompress a PDF for e-readers",
+      "tooltip": "Recompresses the PDF for e-readers using the /ebook preset, which means moderate image resolution and compression. -dPDFSETTINGS takes /screen, /ebook, /printer, /prepress, or /default. Text stays crisp while photos lose detail."
+    },
+    {
+      "id": 5306,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=txtwrite -o output.txt input.pdf",
+      "desc": "Extract text from a PDF",
+      "tooltip": "Extracts the text layer of a PDF as a UTF-8 text file. The txtwrite device outputs readable text with an approximation of the layout. Scanned PDFs have no text layer, so those need OCR tools instead."
+    },
+    {
+      "id": 5307,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true -dColorImageResolution=72 -o output.pdf input.pdf",
+      "desc": "Shrink embedded images in a PDF",
+      "tooltip": "Shrinks every embedded color image to 72 dpi, dramatically reducing file size at the cost of photo detail. -dDownsampleColorImages=true enables it and -dColorImageResolution=72 is the target resolution. Great for shrinking big scanned documents."
+    },
+    {
+      "id": 5308,
+      "category": "Media & Conversion",
+      "cmd": "gs -sDEVICE=nullpage -dNOPAUSE -dBATCH -sOutputFile=/dev/null input.pdf",
+      "desc": "Validate that a PDF parses cleanly",
+      "tooltip": "Parses the whole PDF and renders to nothing, so it validates the file without creating output. Errors surface as gs messages and a non-zero exit code. Faster than a full render when checking integrity."
+    },
+    {
+      "id": 5309,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -o output.pdf",
+      "desc": "Convert Markdown to PDF",
+      "tooltip": "Converts Markdown to PDF using a LaTeX engine. Pandoc needs a PDF engine installed, pdflatex by default, or one you set with --pdf-engine. The result's quality depends on that engine's fonts and layout."
+    },
+    {
+      "id": 5310,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -o output.docx",
+      "desc": "Convert Markdown to a Word document",
+      "tooltip": "Converts Markdown to a Word .docx file. The output opens in Word, LibreOffice, and Google Docs with sensible default styles. Use --reference-doc to apply your own template."
+    },
+    {
+      "id": 5311,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.docx -o output.md",
+      "desc": "Convert a Word document to Markdown",
+      "tooltip": "Converts a Word document to Markdown, preserving headings, lists, tables, and images where possible. This is the reverse direction of pandoc input.md -o output.docx. Check the output for tables that did not survive."
+    },
+    {
+      "id": 5312,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -o output.html -s",
+      "desc": "Convert Markdown to a standalone HTML page",
+      "tooltip": "Converts Markdown to a complete HTML page with head, CSS, and structure, not just a body fragment. -s (--standalone) embeds default styling. Without -s you get bare HTML suitable for splicing into a template."
+    },
+    {
+      "id": 5313,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md --reference-doc=template.docx -o output.docx",
+      "desc": "Convert Markdown to DOCX with a style template",
+      "tooltip": "Converts to DOCX using template.docx for styles like fonts, heading colors, and margins, instead of pandoc's defaults. Generate a starting template with pandoc --print-default-data-file reference.docx. Re-run to apply your styling."
+    },
+    {
+      "id": 5314,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -t pdf --pdf-engine=xelatex -o output.pdf",
+      "desc": "Convert Markdown to PDF with XeLaTeX",
+      "tooltip": "Converts Markdown to PDF with the XeLaTeX engine, which handles Unicode and system fonts better than the default pdflatex. --pdf-engine=xelatex swaps the engine, and xelatex must be installed. Use -V mainfont='DejaVu Sans' to set fonts."
+    },
+    {
+      "id": 5315,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -o output.epub",
+      "desc": "Convert Markdown to an EPUB ebook",
+      "tooltip": "Converts Markdown to an EPUB ebook readable on most e-readers and phones. EPUB is a zip of HTML pages with metadata. Add --metadata title='My Book' for proper book metadata."
+    },
+    {
+      "id": 5316,
+      "category": "Media & Conversion",
+      "cmd": "pandoc --list-input-formats",
+      "desc": "List formats pandoc can read",
+      "tooltip": "Lists every format pandoc can read, from markdown and docx to latex and rst. Use the names as the -f (from) argument. Pair with --list-output-formats for the full picture."
+    },
+    {
+      "id": 5317,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -t plain -o output.txt",
+      "desc": "Convert Markdown to plain text",
+      "tooltip": "Converts Markdown to plain text, stripping all formatting while keeping the words and structure. -t plain targets the plain output format. Good for feeding text into other tools."
+    },
+    {
+      "id": 5318,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md --toc -s -o output.html",
+      "desc": "Add a table of contents to HTML output",
+      "tooltip": "Adds a table of contents at the top of the HTML, generated from the headings. --toc needs standalone output, hence the -s. Use --toc-depth=2 to limit the nesting."
+    },
+    {
+      "id": 5319,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -f gfm -o output.html",
+      "desc": "Convert GitHub-flavored Markdown to HTML",
+      "tooltip": "Converts GitHub-flavored Markdown, the dialect GitHub renders with task lists and tables, to HTML. -f gfm sets the input format explicitly. The default markdown input handles most of the same syntax."
+    },
+    {
+      "id": 5320,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.html -o output.md",
+      "desc": "Convert an HTML page to Markdown",
+      "tooltip": "Converts an HTML page to Markdown, keeping headings, links, and lists. This is the reverse of pandoc input.md -o output.html. Handy for pulling content out of web pages."
+    },
+    {
+      "id": 5321,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md --citeproc --bibliography refs.bib -o output.html",
+      "desc": "Render citations from a BibTeX file",
+      "tooltip": "Renders citations in the text using refs.bib and appends a bibliography at the end. --citeproc is pandoc's built-in citation processor, and the .bib file holds BibTeX entries. Style citations with a CSL file via --csl."
+    },
+    {
+      "id": 5322,
+      "category": "Media & Conversion",
+      "cmd": "pandoc input.md -t revealjs -s -o slides.html",
+      "desc": "Build an HTML slideshow with reveal.js",
+      "tooltip": "Builds an HTML presentation with reveal.js, where each heading becomes a slide. -s is required for the standalone deck, and you open slides.html in a browser. The reveal.js assets load from the web by default."
+    },
+    {
+      "id": 5323,
+      "category": "Media & Conversion",
+      "cmd": "exiftool photo.jpg",
+      "desc": "Show all metadata tags of a photo",
+      "tooltip": "Prints every metadata tag in the photo, including camera model, lens, GPS coordinates, and dates. EXIF is the standard metadata format cameras embed in images. Pipe to less if the list is long."
+    },
+    {
+      "id": 5324,
+      "category": "Media & Conversion",
+      "cmd": "exiftool -all= -overwrite_original photo.jpg",
+      "desc": "Remove all metadata from a photo",
+      "tooltip": "Deletes every metadata tag, leaving only the image pixels. -all= wipes all groups and -overwrite_original skips the backup copy exiftool normally writes. Great before sharing photos publicly. Related: magick -strip does the same for batches."
+    },
+    {
+      "id": 5325,
+      "category": "Media & Conversion",
+      "cmd": "exiftool -Title='Beach Trip' -Author='Jane' photo.jpg",
+      "desc": "Write a title and author tag",
+      "tooltip": "Writes the Title and Author metadata tags into the photo. Tag names are case-insensitive, and values with spaces need quoting. Many tags, like -GPSLatitude, take special formats."
+    },
+    {
+      "id": 5326,
+      "category": "Media & Conversion",
+      "cmd": "mediainfo video.mp4",
+      "desc": "Show detailed media container information",
+      "tooltip": "Prints a readable report of the container (file format that holds streams) and every stream: codec, resolution, bitrate, and language. More detail than ffprobe's default output. Related: mediainfo --Output=JSON for machine-readable data."
+    },
+    {
+      "id": 5327,
+      "category": "Media & Conversion",
+      "cmd": "mediainfo --Output=JSON video.mp4",
+      "desc": "Dump media information as JSON",
+      "tooltip": "Outputs the full media report as JSON for scripts and tools. Pipe through jq to pull specific fields. Other output formats include XML and a CSV-ish summary."
+    },
+    {
+      "id": 5328,
+      "category": "Media & Conversion",
+      "cmd": "pdftoppm -png -r 150 input.pdf page",
+      "desc": "Render PDF pages as PNG images",
+      "tooltip": "Renders every page of the PDF at 150 dpi into page-1.png, page-2.png, and so on. -png selects the output type and -r the resolution. A fast alternative to ghostscript for plain PDFs. Related: pdfinfo for page counts."
+    },
+    {
+      "id": 5329,
+      "category": "Media & Conversion",
+      "cmd": "pdftotext -layout input.pdf output.txt",
+      "desc": "Extract text preserving layout",
+      "tooltip": "Extracts the text layer of the PDF into a text file. -layout keeps approximate line and column positions, which helps for tables. Scanned PDFs have no text layer and need OCR instead."
+    },
+    {
+      "id": 5330,
+      "category": "Media & Conversion",
+      "cmd": "pdfinfo input.pdf",
+      "desc": "Show PDF document properties",
+      "tooltip": "Prints document properties like page count, page size, title, and encryption status. Quick way to check what a PDF contains before converting it. Related: pdftoppm and pdftotext for the content."
     }
   ],
-  "total": 4842
+  "total": 5283
 }
