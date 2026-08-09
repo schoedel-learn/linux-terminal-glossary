@@ -22,6 +22,7 @@
     "GitHub CLI",
     "GitHub Copilot",
     "GitLab",
+    "Google ADK",
     "Google Cloud & Workspace",
     "I/O Redirection & Pipes",
     "IaC & Automation",
@@ -53286,7 +53287,371 @@
       "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/version\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show the installed Mailcow version via the API",
       "tooltip": "This returns the running Mailcow version, which helps confirm whether an update actually applied. Compare it with the latest release on GitHub before planning an upgrade. The version string matches what the UI shows in the bottom-left corner."
+    },
+    {
+      "id": 7653,
+      "category": "Google ADK",
+      "cmd": "adk --version",
+      "desc": "Show the installed Google ADK version",
+      "tooltip": "Prints the google-adk package version (e.g. 2.6.3). ADK 2.x is the current generation; the 1.x line (1.38.0) is still maintained in parallel for Vertex AI users. Check this before reading docs, since 2.x renamed several 1.0 commands."
+    },
+    {
+      "id": 7654,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"List running services\"",
+      "desc": "Run an agent once with a single query",
+      "tooltip": "Executes the agent in the given directory against the query and prints the conversation. AGENT is positional (the agent directory or module) and QUERY is the second positional argument — ADK 2.x removed the old --text flag from ADK 1.0. Runs as the invoking user, so test as the service user for deployed apps."
+    },
+    {
+      "id": 7655,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --session_id dev_session",
+      "desc": "Run an agent reusing a named session",
+      "tooltip": "Continues a previous session instead of starting fresh, keeping conversation history and tool state. The session ID must be a valid Python identifier (no hyphens — use underscores). Sessions persist, so the same ID resumes the same conversation across runs."
+    },
+    {
+      "id": 7656,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --save_session",
+      "desc": "Run an agent and persist the session",
+      "tooltip": "Saves the completed session so a later run with --session_id or --resume can pick it up. Use with --session_id to control the name. Useful for reproducing bugs: save the failing turn, then replay it after a code change."
+    },
+    {
+      "id": 7657,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --session_service_uri sqlite:///sessions.db",
+      "desc": "Run an agent with a SQLite session store",
+      "tooltip": "Points the session service at a SQLite database file instead of the default local storage. ADK 2.x uses SQLAlchemy connection URIs: sqlite:///path for a file, memory:// for in-memory, and agentengine:// to connect to Vertex AI Agent Engine. The same URI flag works on adk api_server."
+    },
+    {
+      "id": 7658,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --session_service_uri memory://",
+      "desc": "Run an agent with an in-memory session store",
+      "tooltip": "Forces a throwaway in-memory session service — every run starts empty and nothing persists. Ideal for automated tests and CI smoke checks where leftover state would pollute results. Sessions vanish when the process exits."
+    },
+    {
+      "id": 7659,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --replay session_input.json",
+      "desc": "Run an agent from a recorded session file",
+      "tooltip": "Replays a JSON file of initial events or session input (a SessionInput or conversation transcript) as the starting state. Combined with --save_session this gives a capture-and-replay loop for debugging: record a failing conversation, replay it against a patched agent, and compare."
+    },
+    {
+      "id": 7660,
+      "category": "Google ADK",
+      "cmd": "adk run linux_admin \"Query\" --resume session.json",
+      "desc": "Resume an agent from a saved session file",
+      "tooltip": "Continues a previously exported session (the file produced by --save_session) rather than starting a new conversation. The agent picks up its earlier context, variables, and tool results. Distinct from --replay, which injects events as the initial state."
+    },
+    {
+      "id": 7661,
+      "category": "Google ADK",
+      "cmd": "adk api_server --port 8000",
+      "desc": "Start the ADK agent API server",
+      "tooltip": "Launches the FastAPI server that exposes agents over HTTP at the given port (default 8000). Production deployments typically wrap get_fast_api_app() in a custom FastAPI app instead (the Hosty pattern) so auth and a UI can be added; the built-in server is the quick way to expose agents for testing."
+    },
+    {
+      "id": 7662,
+      "category": "Google ADK",
+      "cmd": "adk api_server --host 127.0.0.1 --port 8000",
+      "desc": "Start the ADK API server bound to localhost",
+      "tooltip": "Binds the server to a specific interface. Binding to 127.0.0.1 keeps agents private to the machine — the standard setup when a reverse proxy (Caddy, nginx) terminates TLS and forwards to the app, exactly how Hosty runs behind Caddy on port 8080."
+    },
+    {
+      "id": 7663,
+      "category": "Google ADK",
+      "cmd": "adk api_server --a2a",
+      "desc": "Start the API server with the A2A endpoint",
+      "tooltip": "Enables the Agent2Agent (A2A) protocol endpoint so other agents can discover and call this one over the standard A2A interface. A2A is Google's cross-vendor agent interoperability protocol — enable it when an orchestration agent needs to invoke this agent as a sub-agent."
+    },
+    {
+      "id": 7664,
+      "category": "Google ADK",
+      "cmd": "adk api_server --reload",
+      "desc": "Start the API server with auto-reload",
+      "tooltip": "Watches Python files and restarts the server on every change — the dev-loop equivalent of uvicorn --reload. Never enable in production (restarts drop in-flight requests and reload on every file touch). Use adk web for the full dev experience with the Web UI."
+    },
+    {
+      "id": 7665,
+      "category": "Google ADK",
+      "cmd": "adk api_server --session_service_uri sqlite:///sessions.db",
+      "desc": "Persist API server sessions in SQLite",
+      "tooltip": "Stores all HTTP sessions in a SQLite database file so conversations survive server restarts. Without it the default local storage applies. Pair with adk migrate session after upgrading ADK, since the schema can change between versions."
+    },
+    {
+      "id": 7666,
+      "category": "Google ADK",
+      "cmd": "adk api_server --allow_origins https://hosty.schoedeldesign.ai",
+      "desc": "Allow a frontend origin via CORS",
+      "tooltip": "Adds an origin to the CORS allowlist so a browser frontend on another domain can call the agent API. Pass multiple comma-separated origins. Needed when the UI is served from a different origin than the API server, as with Hosty's Caddy frontend."
+    },
+    {
+      "id": 7667,
+      "category": "Google ADK",
+      "cmd": "adk api_server --url_prefix /adk",
+      "desc": "Mount the API server under a URL prefix",
+      "tooltip": "Serves all agent endpoints below the given path (e.g. /adk/apps/...). Useful when a reverse proxy routes multiple services on one domain and each needs its own path. The prefix applies to every route the server registers."
+    },
+    {
+      "id": 7668,
+      "category": "Google ADK",
+      "cmd": "adk api_server --log_level debug",
+      "desc": "Start the API server with debug logging",
+      "tooltip": "Sets the logging verbosity; debug level prints every request, agent event, and tool call — invaluable when tracing why an agent behaves unexpectedly. The -v shortcut is equivalent to --log_level debug. Levels: debug, info, warning, error, critical."
+    },
+    {
+      "id": 7669,
+      "category": "Google ADK",
+      "cmd": "adk web --port 8000",
+      "desc": "Start the ADK Web UI dev server",
+      "tooltip": "Launches the built-in chat UI for agents — the successor to ADK 1.0's adk dev command. Explicitly a development tool: Google documents that the built-in Web UI must not be exposed in production. For a real deployment wrap get_fast_api_app() in a custom app with your own frontend (the Hosty pattern)."
+    },
+    {
+      "id": 7670,
+      "category": "Google ADK",
+      "cmd": "adk web --port 8000 --logo-text \"Hosty\"",
+      "desc": "Start the ADK Web UI with a custom logo text",
+      "tooltip": "Brands the dev UI with your own text (or a logo image via --logo-image-url) instead of the default ADK banner. Cosmetic flags for local demos and internal tools. Nothing here changes agent behavior."
+    },
+    {
+      "id": 7671,
+      "category": "Google ADK",
+      "cmd": "adk create my_agent",
+      "desc": "Scaffold a new ADK agent app",
+      "tooltip": "Creates a folder with a prepopulated agent template — the ADK 2.x replacement for ADK 1.0's adk agent command. The generated layout includes an agent module and the structure get_fast_api_app() expects (agents_dir/<name>/agent.py defining root_agent)."
+    },
+    {
+      "id": 7672,
+      "category": "Google ADK",
+      "cmd": "adk create my_agent --model gemini-2.5-flash",
+      "desc": "Scaffold an agent preconfigured with a model",
+      "tooltip": "Generates the agent template with the given model wired into the root agent. For Gemini models over the API key path, set GEMINI_API_KEY (and GOOGLE_GENAI_USE_VERTEXAI=FALSE unless using Vertex). Hosty instead uses LiteLlm with a DeepSeek model for its API routing."
+    },
+    {
+      "id": 7673,
+      "category": "Google ADK",
+      "cmd": "adk create my_agent --project my-gcp-project --region us-central1",
+      "desc": "Scaffold an agent for Vertex AI",
+      "tooltip": "Preconfigures the template for Vertex AI by baking the Google Cloud project and region into the agent's model config. Add --api_key to stay on the API-key path instead. Vertex mode needs gcloud application-default credentials at runtime."
+    },
+    {
+      "id": 7674,
+      "category": "Google ADK",
+      "cmd": "adk deploy cloud_run --project my-gcp-project --region us-central1 --service_name hosty",
+      "desc": "Deploy an agent to Cloud Run",
+      "tooltip": "Builds the agent and deploys it as a Cloud Run service in the given project and region. --with_ui additionally deploys the ADK Web UI; --port sets the container port. Requires gcloud authenticated and Docker available for the image build."
+    },
+    {
+      "id": 7675,
+      "category": "Google ADK",
+      "cmd": "adk deploy cloud_run --project my-gcp-project --region us-central1 --with_ui",
+      "desc": "Deploy an agent plus Web UI to Cloud Run",
+      "tooltip": "Same as the plain Cloud Run deploy but also ships the ADK Web UI so the deployed agent has a chat interface out of the box. For production, prefer a custom frontend — the built-in UI is dev-oriented. WARNING: deploying overwrites the target service."
+    },
+    {
+      "id": 7676,
+      "category": "Google ADK",
+      "cmd": "adk deploy agent_engine --project my-gcp-project --region us-central1 --agent_engine_id my-agent",
+      "desc": "Deploy an agent to Vertex Agent Engine",
+      "tooltip": "Registers the agent on Vertex AI Agent Engine, Google's managed agent runtime. The positional APP_NAME (the agent folder) comes after the flags. --display_name and --description control how it appears in the Agent Engine console. Requires Vertex AI enabled in the project."
+    },
+    {
+      "id": 7677,
+      "category": "Google ADK",
+      "cmd": "adk deploy gke --project my-gcp-project --region us-central1 --cluster_name hosty-cluster",
+      "desc": "Deploy an agent to a GKE cluster",
+      "tooltip": "Deploys the agent as a workload on an existing Google Kubernetes Engine cluster; --service_name and --app_name set the Kubernetes service and app name. Requires kubectl configured with cluster access. This is the path when you need cluster features Cloud Run cannot offer."
+    },
+    {
+      "id": 7678,
+      "category": "Google ADK",
+      "cmd": "adk migrate session",
+      "desc": "Migrate the session database schema",
+      "tooltip": "Upgrades a session database to the current ADK schema version. Run it after upgrading google-adk when using a persistent session store (sqlite:// or a database URI) — schema changes between releases can otherwise make old sessions unreadable. Back up the database file first."
+    },
+    {
+      "id": 7679,
+      "category": "Google ADK",
+      "cmd": "adk eval linux_admin/agent.py my_eval_set",
+      "desc": "Evaluate an agent against an eval set",
+      "tooltip": "Runs the agent over the given evaluation set (by name or file) and reports pass/fail per case. ADK evals are code-defined assertions over agent turns, carried over from ADK 1.0. Use --print_detailed_results for per-case reasoning and --eval_storage_uri to persist results."
+    },
+    {
+      "id": 7680,
+      "category": "Google ADK",
+      "cmd": "adk eval linux_admin/agent.py --config_file_path eval_config.yaml",
+      "desc": "Evaluate an agent with a config file",
+      "tooltip": "Loads evaluation configuration (models, metrics, parallelism) from a YAML file instead of flags. Lets a team share one eval config across runs and CI. Config overrides defaults; CLI flags still win where both set the same option."
+    },
+    {
+      "id": 7681,
+      "category": "Google ADK",
+      "cmd": "adk eval_set create my_eval_set",
+      "desc": "Create an empty evaluation set",
+      "tooltip": "Creates a named EvalSet that collects related eval cases. Eval sets live in the project's evals storage (default local; --eval_storage_uri overrides). New in ADK 2.x — 1.0 defined evals purely as files, while 2.x adds first-class named sets."
+    },
+    {
+      "id": 7682,
+      "category": "Google ADK",
+      "cmd": "adk eval_set add_eval_case my_eval_set --scenarios_file scenarios.json",
+      "desc": "Add eval cases from a scenarios file",
+      "tooltip": "Appends JSON-serialized scenarios (queries with expected behaviors) to an eval set. --session_input_file adds cases from a recorded SessionInput instead. Lets you grow an eval suite from captured real conversations — replay what broke, then keep it as a regression test."
+    },
+    {
+      "id": 7683,
+      "category": "Google ADK",
+      "cmd": "adk test",
+      "desc": "Run agent test JSON files",
+      "tooltip": "Executes pytest over the agent test files (agent_test.json / <agent>_test.json) in the current folder, the ADK 2.x replacement for hand-rolled test harnesses. Tests assert on events and tool calls, not just final text. --rebuild regenerates the expected outputs by running the real agent."
+    },
+    {
+      "id": 7684,
+      "category": "Google ADK",
+      "cmd": "adk test --rebuild",
+      "desc": "Rebuild agent test files from real runs",
+      "tooltip": "Regenerates the expected results of agent test files by executing the agent for real and recording its behavior. Use carefully: it rewrites what the tests assert, so a buggy agent can bake its own wrong behavior into the expectations. Review the diff before committing."
+    },
+    {
+      "id": 7685,
+      "category": "Google ADK",
+      "cmd": "adk optimize linux_admin/agent.py",
+      "desc": "Optimize the root agent instructions",
+      "tooltip": "Runs the GEPA (agent instruction optimization) loop over the agent's system instructions using an optimizer LLM and sampler configs, producing an improved instruction set. New in ADK 2.x. Pass --sampler_config_file_path and --optimizer_config_file_path to control the optimization runs."
+    },
+    {
+      "id": 7686,
+      "category": "Google ADK",
+      "cmd": "adk conformance test",
+      "desc": "Run ADK conformance tests",
+      "tooltip": "Verifies that an agent's behavior matches ADK conformance expectations (the standardized behavior contract used by the ADK test suite). Useful after framework upgrades to catch behavior drift. Requires conformance YAML files generated by adk conformance record."
+    },
+    {
+      "id": 7687,
+      "category": "Google ADK",
+      "cmd": "adk conformance record",
+      "desc": "Record conformance test YAML files",
+      "tooltip": "Generates ADK conformance test YAML from TestCaseInput definitions, capturing the expected event stream an agent should produce. The companion to adk conformance test — record on a known-good version, then test after changes."
+    },
+    {
+      "id": 7688,
+      "category": "Google ADK",
+      "cmd": "curl -X POST http://localhost:8080/apps/linux_admin/users/alice/sessions/dev_session -H 'Content-Type: application/json' -d '{}'",
+      "desc": "Create an ADK session over HTTP",
+      "tooltip": "Step one of the two-step ADK HTTP API call: creates a session for the given app, user, and session ID with an empty body. Without this step, POST /run returns 404 'Session not found'. The session ID must be a valid Python identifier (underscores, no hyphens). Sessions persist — reuse the ID for later turns."
+    },
+    {
+      "id": 7689,
+      "category": "Google ADK",
+      "cmd": "curl -X POST http://localhost:8080/run -H 'Content-Type: application/json' -H \"Authorization: Bearer $HOSTY_API_KEY\" -d '{\"app_name\":\"linux_admin\",\"user_id\":\"alice\",\"session_id\":\"dev_session\",\"new_message\":{\"parts\":[{\"text\":\"List running services\"}],\"role\":\"user\"}}'",
+      "desc": "Send a user turn to an agent over HTTP",
+      "tooltip": "Step two of the ADK API pattern: runs the agent with the new user message in an existing session and streams back events. Hosty's API-key auth accepts Authorization: Bearer with the HOSTY_API_KEY value, bypassing TOTP for automation — cron jobs and scripts use this header instead of a session cookie."
+    },
+    {
+      "id": 7690,
+      "category": "Google ADK",
+      "cmd": "curl -N -X POST http://localhost:8080/run -H 'Content-Type: application/json' -H \"Authorization: Bearer $HOSTY_API_KEY\" -d '{\"app_name\":\"linux_admin\",\"user_id\":\"alice\",\"session_id\":\"dev_session\",\"new_message\":{\"parts\":[{\"text\":\"List running services\"}],\"role\":\"user\"}}'",
+      "desc": "Stream an agent run live over SSE",
+      "tooltip": "The /run endpoint responds with a server-sent events stream; -N disables curl's buffering so each agent event (tool call, partial text, final response) prints as it arrives. Without -N curl waits for the stream to finish. Useful for watching an agent work in a terminal."
+    },
+    {
+      "id": 7691,
+      "category": "Google ADK",
+      "cmd": "curl http://localhost:8080/docs",
+      "desc": "Open the ADK API Swagger UI",
+      "tooltip": "FastAPI serves interactive API documentation at /docs — every endpoint, schema, and example is browsable and executable from the browser. The fastest way to discover the exact JSON shapes the /run and session endpoints expect. The OpenAPI schema itself lives at /openapi.json."
+    },
+    {
+      "id": 7692,
+      "category": "Google ADK",
+      "cmd": "pip install google-adk[mcp]",
+      "desc": "Install the latest google-adk with MCP support",
+      "tooltip": "Installs ADK 2.x with the mcp extra, which pulls in the MCP (Model Context Protocol) client dependencies needed by McpToolset. Without the extra, MCP tools fail to import. Prefer the pinned form (google-adk[mcp]==2.6.3) for reproducible deployments."
+    },
+    {
+      "id": 7693,
+      "category": "Google ADK",
+      "cmd": "pip install google-adk[mcp]==2.6.3",
+      "desc": "Install a pinned google-adk version",
+      "tooltip": "Pins the exact ADK version for reproducible deploys — the pattern Hosty uses (google-adk[mcp]==2.6.2). Keep requirements to direct dependencies only: ADK 2.x pulls its own transitive stack, and mixing in the old GCP SDK pins caused dependency-resolution cascades when upgrading from the 2.0.0b1 beta."
+    },
+    {
+      "id": 7694,
+      "category": "Google ADK",
+      "cmd": "pip install google-adk==1.38.0",
+      "desc": "Install the latest ADK 1.x release",
+      "tooltip": "The 1.x line is still published (1.38.0) for existing Vertex deployments and apps not yet migrated. New projects should use 2.x; adk migrate and the migration guide cover the differences. Note the CLI name changes between 1.0 and 2.x — adk dev became adk web, adk agent became adk create."
+    },
+    {
+      "id": 7695,
+      "category": "Google ADK",
+      "cmd": "uvicorn main:app --host 127.0.0.1 --port 8080",
+      "desc": "Serve the custom ADK FastAPI app with uvicorn",
+      "tooltip": "Runs a custom app built on get_fast_api_app() — the production shape Hosty uses: FastAPI + uvicorn bound to 127.0.0.1 behind Caddy, with auth middleware and a static UI added in main.py. ADK's own adk api_server covers the no-customization case; a custom app is required for real auth and branding."
+    },
+    {
+      "id": 7696,
+      "category": "Google ADK",
+      "cmd": "uvicorn main:app --reload --port 8000",
+      "desc": "Serve the ADK app with hot reload",
+      "tooltip": "Restarts the server whenever a .py file changes — the local dev form of uvicorn. Reload watches the current directory tree, so edit agent.py and the server picks it up without a manual restart. Never use --reload in production."
+    },
+    {
+      "id": 7697,
+      "category": "Google ADK",
+      "cmd": "su - adkadmin -s /bin/bash -c 'cd /opt/hosty && .venv/bin/adk run linux_admin \"List running services\"'",
+      "desc": "Test an ADK agent as the service user",
+      "tooltip": "Runs adk run as the deployed app's service account so the session database, SSH config, and env are the same ones the service uses. Testing as root instead produces wrong-owner session files ('attempt to write a readonly database') and misses ~/.ssh/config. Always chown the app directory after accidental root runs."
+    },
+    {
+      "id": 7698,
+      "category": "Google ADK",
+      "cmd": "sudo systemctl restart adk-agent",
+      "desc": "Restart the Hosty ADK agent service",
+      "tooltip": "Restarts the systemd unit that serves the ADK app. After a restart, subdirectory agents become discoverable only if no stale root-level agent.py exists in the agents directory — ADK switches to single-agent mode when one is present, hiding every subdirectory agent. Remove the stale file, then restart."
+    },
+    {
+      "id": 7699,
+      "category": "Google ADK",
+      "cmd": "sudo journalctl -u adk-agent -f",
+      "desc": "Follow the Hosty service logs",
+      "tooltip": "Streams the adk-agent systemd unit's journal live. Agent stdout, uvicorn access logs, and Python tracebacks all land here — the first place to look when a deployed agent misbehaves. Add -n 200 to see recent history before following."
+    },
+    {
+      "id": 7700,
+      "category": "Google ADK",
+      "cmd": "rsync -av --delete --delete-excluded ./ root@hosty.schoedeldesign.ai:/opt/hosty/",
+      "desc": "Deploy the ADK app via rsync",
+      "tooltip": "Pushes the app tree to the host and removes remote files that no longer exist locally. --delete-excluded additionally purges files excluded by the rsync filter — needed because plain --delete does NOT remove already-synced excluded files (e.g. secrets and caches) on the destination. Verify with a secret-pattern scan after deploying."
+    },
+    {
+      "id": 7701,
+      "category": "Node.js & npm/yarn",
+      "cmd": "npm token revoke 4f2a9c1e8b3d7f5a",
+      "desc": "Revoke an npm access token",
+      "tooltip": "Immediately invalidates the token with the given id, cutting off every system that used it. Rotate tokens when they leak or when a developer leaves the team. Find the id with npm token list before revoking."
+    },
+    {
+      "id": 7702,
+      "category": "Web App Development",
+      "cmd": "curl -H 'Authorization: Bearer TOKEN' https://api.example.com/me",
+      "desc": "Call an API with a bearer token header",
+      "tooltip": "Sends a raw Authorization header carrying a bearer token, the standard way to authenticate against modern APIs. Replace TOKEN with the value from your login response. Store it in a shell variable to avoid pasting secrets into history."
+    },
+    {
+      "id": 7703,
+      "category": "Web App Development",
+      "cmd": "wscat -c ws://localhost:3000 -H 'Authorization: Bearer TOKEN'",
+      "desc": "Connect to a local WebSocket with an auth header",
+      "tooltip": "Opens a WebSocket to your local server while sending an Authorization header with the token, matching how your app authenticates sockets. The -H flag repeats for multiple headers. If the handshake fails, check the token and the ws path."
+    },
+    {
+      "id": 7704,
+      "category": "Web App Development",
+      "cmd": "ab -n 100 -c 10 -H 'Authorization: Bearer TOKEN' http://localhost:3000/",
+      "desc": "Load test an authenticated endpoint",
+      "tooltip": "Sends 100 requests with a bearer token header on every one, exercising routes that require login. The -H flag repeats for additional headers. Watch the non-2xx count in the report to confirm auth is not failing under load."
     }
   ],
-  "total": 7605
+  "total": 7657
 }
