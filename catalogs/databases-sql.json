@@ -1,0 +1,910 @@
+{
+  "category": "Databases & SQL",
+  "commands": [
+    {
+      "cmd": "psql -U alice -d mydb -h db.example.com",
+      "desc": "Connect to a PostgreSQL database over the network",
+      "tooltip": "psql is PostgreSQL's interactive terminal client. -U sets the user, -d the database name, and -h the server host; add -p 5433 for a non-default port. Once connected, type SQL statements or backslash meta-commands like \\dt. Related: psql -d mydb for a local socket connection, pg_isready to test reachability."
+    },
+    {
+      "cmd": "psql -c 'SELECT version();'",
+      "desc": "Run one SQL statement and exit",
+      "tooltip": "The -c flag executes a single statement and returns to the shell, which makes it ideal for scripts. Wrap the SQL in single quotes so the shell does not interpret special characters. Related: psql -f to run a whole file."
+    },
+    {
+      "cmd": "psql -f schema.sql",
+      "desc": "Execute SQL statements from a file",
+      "tooltip": "Reads schema.sql and runs every statement in order. Without -v ON_ERROR_STOP=1 psql keeps going after an error, which can leave a migration half-applied. The same file can be piped in with psql < schema.sql. Related: psql -c for one statement."
+    },
+    {
+      "cmd": "psql -d mydb",
+      "desc": "Start an interactive psql session",
+      "tooltip": "Connects to the local mydb database over the default Unix socket and drops you into a REPL (read-eval-print loop) with a mydb=> prompt. Type \\? to list meta-commands and \\q to quit. Related: \\l to see which databases exist."
+    },
+    {
+      "cmd": "\\dt",
+      "desc": "List tables in the current database",
+      "tooltip": "A psql meta-command, not SQL: backslash commands run inside the psql session and talk to the server for you. \\dt shows each table's schema, name, and owner; \\dt+ adds size and description. Related: \\d users describes one table."
+    },
+    {
+      "cmd": "\\d users",
+      "desc": "Describe a table's columns and constraints",
+      "tooltip": "Shows the users table's columns with their types, nullability, defaults, and index or foreign-key notes. \\d+ adds storage details like table size. It is the psql equivalent of DESCRIBE in MySQL. Related: \\dt lists all tables."
+    },
+    {
+      "cmd": "\\l",
+      "desc": "List all databases on the server",
+      "tooltip": "Prints every database with its owner, encoding, and access privileges. \\l+ adds sizes and descriptions, and psql -l does the same from the shell. Related: \\c to switch into one of them."
+    },
+    {
+      "cmd": "\\c otherdb",
+      "desc": "Connect to another database mid-session",
+      "tooltip": "Switches the current session to the otherdb database without restarting psql. You can add a user or host, like \\c otherdb alice, and \\c alone reconnects to the same target. Related: \\conninfo shows where you are connected."
+    },
+    {
+      "cmd": "\\du",
+      "desc": "List database roles and their attributes",
+      "tooltip": "Roles are PostgreSQL's combined concept of users and groups. \\du shows each role with flags like superuser or login; \\du+ adds role memberships. Related: \\dp shows table-level privileges."
+    },
+    {
+      "cmd": "\\x",
+      "desc": "Toggle expanded output for wide rows",
+      "tooltip": "Switches between normal columnar output and vertical format, where every column prints as name: value on its own line. Turn it on when a table has too many columns to fit the screen. Related: \\pset format to fine-tune output."
+    },
+    {
+      "cmd": "\\timing",
+      "desc": "Toggle query execution timing",
+      "tooltip": "After \\timing, psql prints how long each statement took to run, which helps spot slow queries. \\timing on and \\timing off both work. Pair it with EXPLAIN ANALYZE to see where the time goes."
+    },
+    {
+      "cmd": "\\password",
+      "desc": "Change your PostgreSQL password",
+      "tooltip": "Prompts for a new password and sends it to the server hashed, so the value never appears in shell history or the process list. Add a role name to change someone else's password. Related: PGPASSWORD for scripting."
+    },
+    {
+      "cmd": "\\q",
+      "desc": "Quit the psql session",
+      "tooltip": "Exits psql and returns to the shell; Ctrl+D works too. In scripts, psql -c and psql -f exit automatically when done. Related: \\! runs a shell command without leaving psql."
+    },
+    {
+      "cmd": "\\copy users TO 'users.csv' CSV HEADER",
+      "desc": "Export a table to a CSV file",
+      "tooltip": "A psql meta-command that runs COPY on the client side: it reads the users table and writes users.csv on the machine where psql runs. HEADER adds column names as the first row. Related: \\copy users FROM 'users.csv' CSV HEADER imports it back, while server-side COPY writes to the database host's filesystem."
+    },
+    {
+      "cmd": "psql -Atc 'SELECT count(*) FROM users;'",
+      "desc": "Print bare query output for scripts",
+      "tooltip": "Combines -A (no column alignment), -t (rows only), and -c (one statement), so the output is just the number with no header or padding. Add -F ',' for comma-separated values. Related: \\copy for exporting full tables."
+    },
+    {
+      "cmd": "createdb mydb",
+      "desc": "Create a new PostgreSQL database",
+      "tooltip": "A convenience wrapper around CREATE DATABASE that uses your current user as owner. It fails if mydb already exists; --owner assigns a different owner. Related: dropdb mydb, and \\l to list databases."
+    },
+    {
+      "cmd": "dropdb mydb",
+      "desc": "Delete a PostgreSQL database permanently",
+      "tooltip": "Removes the whole database including every table, view, and function — there is no undo. The command fails while other sessions are connected; --force terminates those connections first. Back up with pg_dump before dropping."
+    },
+    {
+      "cmd": "pg_dump mydb > mydb.sql",
+      "desc": "Back up a database as plain SQL",
+      "tooltip": "Writes CREATE TABLE and INSERT statements for mydb to stdout; redirect into a file to keep it. Restore with psql -f mydb.sql or psql mydb < mydb.sql. Plain format is editable but slow to restore on large databases. Related: pg_dump -Fc for a compressed archive."
+    },
+    {
+      "cmd": "pg_dump -Fc mydb > mydb.dump",
+      "desc": "Back up a database in custom archive format",
+      "tooltip": "The -Fc custom format compresses the dump and records object metadata, so pg_restore can pick individual tables or restore in parallel. The file is binary and not human-editable. Related: pg_restore -d mydb mydb.dump."
+    },
+    {
+      "cmd": "pg_dump --table=users mydb > users.sql",
+      "desc": "Back up a single table",
+      "tooltip": "Dumps only the users table (schema plus data) as plain SQL; repeat --table for several tables. Combine with --schema-only or --data-only to split structure from rows. Related: pg_dump mydb for the whole database."
+    },
+    {
+      "cmd": "pg_dump --schema-only mydb > schema.sql",
+      "desc": "Back up table structure without data",
+      "tooltip": "Writes only DDL (data definition language) — tables, indexes, constraints, functions — with no rows, perfect for migration scripts or cloning an empty schema. The counterpart --data-only dumps rows without structure. Related: psql -f to apply it."
+    },
+    {
+      "cmd": "pg_dump -j 4 -Fd mydb -f mydb_dir",
+      "desc": "Back up with four parallel dump jobs",
+      "tooltip": "Parallel dumping only works with directory format (-Fd), which writes one file per table into the mydb_dir folder. -j 4 runs four workers and can cut backup time dramatically on big databases. Restore with pg_restore -j 4 -d mydb mydb_dir."
+    },
+    {
+      "cmd": "pg_restore -d mydb mydb.dump",
+      "desc": "Restore a custom-format backup into a database",
+      "tooltip": "Loads the archive created by pg_dump -Fc into the mydb database. Create mydb with createdb first — pg_restore does not create the target by default (use -C to make it). Related: pg_restore --list to inspect the archive."
+    },
+    {
+      "cmd": "pg_restore -j 4 -d mydb mydb.dump",
+      "desc": "Restore a backup with parallel workers",
+      "tooltip": "-j 4 restores tables concurrently, which speeds up large restores dramatically; it requires a custom or directory format dump. One worker's error does not stop the others, so add --exit-on-error for strict behavior. Related: pg_dump -Fc."
+    },
+    {
+      "cmd": "pg_restore --list mydb.dump",
+      "desc": "List the contents of an archive",
+      "tooltip": "Prints the archive's table of contents: every object with a line number. Save it to a file, delete the lines you do not want, then feed it back with -L to restore selectively. Related: pg_restore -t users restores one table."
+    },
+    {
+      "cmd": "pg_isready -h db.example.com",
+      "desc": "Check if PostgreSQL accepts connections",
+      "tooltip": "A lightweight health check that prints accepting connections or a failure reason and returns exit code 0 when ready. Useful in scripts and container healthchecks. Related: psql -c 'SELECT 1;' for a full round trip."
+    },
+    {
+      "cmd": "psql -U alice -d mydb -c 'EXPLAIN ANALYZE SELECT * FROM users WHERE id=1;'",
+      "desc": "Show a query plan with real execution timings",
+      "tooltip": "EXPLAIN ANALYZE actually runs the query and reports each plan step with actual times and row counts, revealing where the work happens. Add (ANALYZE, BUFFERS) for disk cache stats. Related: \\timing for the whole-query duration."
+    },
+    {
+      "cmd": "psql -l",
+      "desc": "List databases from the shell",
+      "tooltip": "Runs the same listing as the \\l meta-command but exits after printing, so scripts can capture it. Add -t for rows only. Related: \\l inside an interactive session."
+    },
+    {
+      "cmd": "\\i schema.sql",
+      "desc": "Run a SQL file from inside psql",
+      "tooltip": "Executes schema.sql within the current session; \\ir resolves the path relative to the script's own directory. Useful when you are already connected and want to apply a migration. Related: psql -f from the shell."
+    },
+    {
+      "cmd": "vacuumdb -d mydb",
+      "desc": "Reclaim space and refresh statistics",
+      "tooltip": "Triggers VACUUM manually; PostgreSQL's autovacuum already does this in the background, but explicit runs help after bulk deletes. A plain vacuum takes no locks; -f performs a full rebuild and -z adds ANALYZE. Related: reindexdb."
+    },
+    {
+      "cmd": "reindexdb -d mydb",
+      "desc": "Rebuild all indexes in a database",
+      "tooltip": "Recreates indexes to fix bloat or corruption; plain reindex locks the table, while --concurrently avoids the lock. Use -i to rebuild a single index. Related: vacuumdb -d mydb."
+    },
+    {
+      "cmd": "pg_dumpall > all.sql",
+      "desc": "Back up all databases plus cluster-wide settings",
+      "tooltip": "Dumps roles, tablespaces, and every database into one plain-SQL file, so it is the complete cluster backup. Restore with psql -f all.sql, and restore roles before databases. Related: pg_dump for a single database."
+    },
+    {
+      "cmd": "pg_dumpall --roles-only > roles.sql",
+      "desc": "Back up only roles and permissions",
+      "tooltip": "Dumps cluster-wide roles, including passwords and memberships, without any database data. Handy for replicating authentication on a new server. Related: pg_dumpall --globals-only adds tablespaces."
+    },
+    {
+      "cmd": "PGPASSWORD=secret psql -U alice -h db.example.com mydb",
+      "desc": "Connect with the password from an environment variable",
+      "tooltip": "Sets the password just for this command, keeping it out of shell history and the process list. For repeated use, prefer a ~/.pgpass file with mode 600. Related: \\password to change the password."
+    },
+    {
+      "cmd": "\\dn",
+      "desc": "List schemas in the current database",
+      "tooltip": "Schemas are PostgreSQL's namespaces; public is the default one, and other schemas often hold app or extension objects. \\dn+ adds owners and comments. Related: \\dt lists tables within them."
+    },
+    {
+      "cmd": "\\di",
+      "desc": "List indexes in the database",
+      "tooltip": "Shows every index with its table and columns; \\di+ adds sizes. Indexes speed up lookups but slow down writes, so watch for duplicates. Related: \\d users to see one table's indexes."
+    },
+    {
+      "cmd": "\\df",
+      "desc": "List functions",
+      "tooltip": "Shows functions with their arguments and return types; \\df+ adds the source code. Useful for finding built-ins or checking custom functions. Related: \\dT lists data types."
+    },
+    {
+      "cmd": "\\d+ users",
+      "desc": "Describe a table with extended details",
+      "tooltip": "Like \\d users but adds table size, row estimate, and comments. The + suffix works on most describe commands, such as \\dt+ and \\l+. Related: \\d users for the compact view."
+    },
+    {
+      "cmd": "\\conninfo",
+      "desc": "Show current connection details",
+      "tooltip": "Prints the host, port, database, and user of the active session — handy after \\c switches. Related: \\c otherdb to connect elsewhere."
+    },
+    {
+      "cmd": "\\watch 5",
+      "desc": "Re-run the last query every five seconds",
+      "tooltip": "Repeats the previous SQL statement every 5 seconds until you press Ctrl+C, perfect for watching a counter or a lock. Add \\timing to see each run's duration. Related: \\g re-runs it once."
+    },
+    {
+      "cmd": "\\pset pager off",
+      "desc": "Turn off the pager for long output",
+      "tooltip": "Makes psql print results straight to the terminal instead of pausing in less. Useful when you pipe output into other commands. Related: \\pset format to change layout."
+    },
+    {
+      "cmd": "\\e",
+      "desc": "Edit the last query in your text editor",
+      "tooltip": "Opens $EDITOR with the previous SQL statement; saving and closing the editor runs it. \\ef does the same for a function definition. Related: \\i to run a file."
+    },
+    {
+      "cmd": "pg_ctlcluster 16 main start",
+      "desc": "Start a PostgreSQL server cluster",
+      "tooltip": "The Debian/Ubuntu wrapper around pg_ctl; 16 is the PostgreSQL version and main the cluster name (check pg_lsclusters). The same command takes stop, restart, reload, or status actions. Related: pg_lsclusters lists clusters."
+    },
+    {
+      "cmd": "\\copy (SELECT id, email FROM users WHERE active) TO 'active_users.csv' CSV HEADER",
+      "desc": "Export a query result to a CSV file",
+      "tooltip": "Unlike \\copy with a table name, this accepts a parenthesized SELECT so you export only the rows you want. The file lands on the client machine. Related: \\copy users TO 'users.csv' CSV HEADER."
+    },
+    {
+      "cmd": "psql -o out.txt -c 'SELECT * FROM users;'",
+      "desc": "Write query output to a file",
+      "tooltip": "The -o flag sends query results to out.txt instead of the terminal, handy in scripts. Combine with -A -t for clean machine-readable files. Related: \\o inside psql does the same."
+    },
+    {
+      "cmd": "mysql -u alice -p -h db.example.com mydb",
+      "desc": "Connect to a remote MySQL database",
+      "tooltip": "mysql is MySQL and MariaDB's interactive client; -u names the user, -p prompts for the password, and -h the server host. The final argument selects the mydb database. Add -P for a custom port. Related: mysql -e for one-shot statements."
+    },
+    {
+      "cmd": "mysql -e 'SHOW DATABASES;'",
+      "desc": "List databases without entering the client",
+      "tooltip": "-e runs the statement and exits, so it slots into scripts. SHOW DATABASES lists every database you can see, like psql's \\l. Related: SHOW TABLES inside a database."
+    },
+    {
+      "cmd": "mysql -e 'CREATE DATABASE mydb CHARACTER SET utf8mb4;'",
+      "desc": "Create a database with full Unicode support",
+      "tooltip": "utf8mb4 is the full-Unicode character set that stores emoji and any script; the older utf8 only covers a subset. Add COLLATE to choose sort rules. Related: SHOW DATABASES to confirm."
+    },
+    {
+      "cmd": "mysql -e \"GRANT ALL PRIVILEGES ON mydb.* TO 'alice'@'localhost';\"",
+      "desc": "Grant all privileges on a database to a user",
+      "tooltip": "mydb.* means every table in mydb; the account is 'alice'@'localhost', and the host part matters because 'alice'@'%' would be a different account. GRANT takes effect immediately, no FLUSH needed. Related: SHOW GRANTS, REVOKE."
+    },
+    {
+      "cmd": "mysql -e 'FLUSH PRIVILEGES;'",
+      "desc": "Reload the privilege tables",
+      "tooltip": "Needed only when you edited the grant tables directly with INSERT or UPDATE; GRANT and REVOKE apply instantly. On a busy server it can briefly block new connections. Related: SHOW GRANTS FOR."
+    },
+    {
+      "cmd": "mysql mydb < dump.sql",
+      "desc": "Import a SQL dump into a database",
+      "tooltip": "Feeds dump.sql's statements into mydb through stdin, like psql mydb < file.sql. Create the database first unless the dump contains CREATE DATABASE. Related: mysqldump to produce the file."
+    },
+    {
+      "cmd": "mysqldump -u root -p mydb > mydb.sql",
+      "desc": "Back up a database to a SQL file",
+      "tooltip": "Writes CREATE TABLE and INSERT statements to stdout; redirect into mydb.sql. Restore with mysql mydb < mydb.sql. Add --routines --triggers to include stored programs and triggers. Related: mysqldump --all-databases."
+    },
+    {
+      "cmd": "mysqldump --all-databases > all.sql",
+      "desc": "Back up every database on the server",
+      "tooltip": "Dumps all databases including mysql, the system database that stores user accounts and grants, so restoring migrates authentication too. Restore with mysql < all.sql. Related: mysqldump mydb for one database."
+    },
+    {
+      "cmd": "mysqldump --single-transaction mydb > mydb.sql",
+      "desc": "Take a consistent snapshot without locking tables",
+      "tooltip": "Runs the dump inside one transaction so all tables match a single point in time; it only works for InnoDB tables, which are the default in MySQL 8. Ideal for backing up a live server. Related: --routines --triggers for full coverage."
+    },
+    {
+      "cmd": "mysqladmin ping",
+      "desc": "Check whether the MySQL server is alive",
+      "tooltip": "Prints mysqld is alive and exits 0 when the server responds; add -h and -u for remote checks. A classic healthcheck for scripts. Related: mysqladmin status, mysql -e 'SELECT 1;'."
+    },
+    {
+      "cmd": "mysqladmin status",
+      "desc": "Show server uptime and traffic counters",
+      "tooltip": "Prints uptime, threads, queries, open tables, and bytes sent or received at a glance. For the full counter set use mysqladmin extended-status. Related: SHOW STATUS."
+    },
+    {
+      "cmd": "mysqladmin processlist",
+      "desc": "List running queries and connections",
+      "tooltip": "Shows each connection with its thread ID and current statement — the same data as SHOW PROCESSLIST. Spot a long-running query, then mysqladmin kill ID terminates it. Related: SHOW FULL PROCESSLIST for full statement text."
+    },
+    {
+      "cmd": "mysql -e 'SHOW PROCESSLIST;'",
+      "desc": "List active connections and their queries",
+      "tooltip": "Prints connection IDs, users, hosts, and the statement each one is running. SHOW FULL PROCESSLIST avoids truncating long queries. Related: mysqladmin kill to stop a runaway."
+    },
+    {
+      "cmd": "mysql -e \"SELECT user, host FROM mysql.user;\"",
+      "desc": "List MySQL user accounts",
+      "tooltip": "mysql.user is the system table holding accounts; host is part of the account identity, so 'alice'@'localhost' and 'alice'@'%' are different users. Related: SHOW GRANTS FOR to inspect privileges."
+    },
+    {
+      "cmd": "mysql -B -N -e 'SELECT COUNT(*) FROM users;' mydb",
+      "desc": "Print bare query output for scripts",
+      "tooltip": "-B batch mode produces tab-separated rows and -N drops the column names, so the output is just the count. Add -r for raw bytes. The MySQL counterpart of psql -Atc. Related: mysql -t for table formatting."
+    },
+    {
+      "cmd": "mysql -e 'SHOW TABLES;' mydb",
+      "desc": "List tables in a database",
+      "tooltip": "One-shot listing of every table and view in mydb; interactive sessions can run SHOW TABLES directly at the prompt. Related: DESCRIBE users for columns."
+    },
+    {
+      "cmd": "mysql -e 'DESCRIBE users;' mydb",
+      "desc": "Show a table's columns",
+      "tooltip": "Lists column names, types, nullability, keys, and defaults for users; SHOW COLUMNS FROM users is equivalent. Related: SHOW CREATE TABLE for the full DDL."
+    },
+    {
+      "cmd": "mysql -e 'SHOW CREATE TABLE users;' mydb",
+      "desc": "Show the exact CREATE TABLE statement",
+      "tooltip": "Prints the DDL that defines users, including indexes, constraints, and table options — useful for replicating a table elsewhere. Related: mysqldump --no-data exports it with surrounding statements."
+    },
+    {
+      "cmd": "mysql -e \"SHOW GRANTS FOR 'alice'@'localhost';\"",
+      "desc": "Show a user's granted privileges",
+      "tooltip": "Lists every privilege the account holds and where it applies. Useful before and after GRANT or REVOKE. Related: GRANT ALL PRIVILEGES."
+    },
+    {
+      "cmd": "mysqldump --no-data mydb > schema.sql",
+      "desc": "Back up only table structures",
+      "tooltip": "Writes DDL without any rows — handy for migrations or standing up an empty copy of the schema. The flip side is --no-create-info, which dumps data only. Related: SHOW CREATE TABLE."
+    },
+    {
+      "cmd": "mysqldump --routines --triggers mydb > mydb.sql",
+      "desc": "Back up stored routines and triggers",
+      "tooltip": "--routines adds procedures and functions; --triggers adds triggers (on by default, but explicit is safer). Restore with mysql mydb < mydb.sql. Related: mysqldump --single-transaction."
+    },
+    {
+      "cmd": "mysqlcheck -u root -p mydb",
+      "desc": "Check tables for corruption",
+      "tooltip": "Scans every table in mydb and reports problems; --repair attempts fixes and --optimize defragments. Run a backup before repairing. Related: mysqladmin status."
+    },
+    {
+      "cmd": "mysqladmin kill 1234",
+      "desc": "Terminate a connection by thread ID",
+      "tooltip": "Takes the ID from SHOW PROCESSLIST and kills that connection, aborting its current query — the client receives an error. Useful for stopping runaway statements. Related: mysqladmin processlist."
+    },
+    {
+      "cmd": "mysql -e 'SHOW VARIABLES LIKE \"character_set_server\";'",
+      "desc": "Show a server configuration variable",
+      "tooltip": "Queries the variables table for one setting; change the LIKE pattern to match many, such as max_connections or time_zone. Related: SHOW STATUS for runtime counters."
+    },
+    {
+      "cmd": "mysql -e 'SHOW STATUS LIKE \"Threads_connected\";'",
+      "desc": "Show a runtime status counter",
+      "tooltip": "Status values are live counters and gauges; Threads_connected shows how many clients are currently connected. Related: mysqladmin extended-status for everything."
+    },
+    {
+      "cmd": "mysql -e 'SHOW ENGINES;'",
+      "desc": "List available storage engines",
+      "tooltip": "Shows every engine (InnoDB, MyISAM, MEMORY) with its support level; InnoDB is the transactional default. Related: CREATE TABLE ... ENGINE=InnoDB."
+    },
+    {
+      "cmd": "mariadb -u root -p mydb",
+      "desc": "Start the MariaDB client",
+      "tooltip": "mariadb is the renamed drop-in replacement for the mysql client on MariaDB servers (10.11+); every flag and SQL statement is identical. Related: mysql, mariadb-dump."
+    },
+    {
+      "cmd": "mysql -t -e 'SELECT * FROM users LIMIT 5;' mydb",
+      "desc": "Show query results as an ASCII table",
+      "tooltip": "Non-interactive mysql prints tab-separated rows by default; -t forces the boxed table format. Handy when you want readable output in a script. Related: -B for batch mode."
+    },
+    {
+      "cmd": "mysqldump -w \"created_at > '2024-01-01'\" mydb users > old_users.sql",
+      "desc": "Back up only rows matching a condition",
+      "tooltip": "-w (or --where) filters which rows are dumped; the condition is real SQL and must be quoted. Perfect for archiving old records. Related: --no-data, --single-transaction."
+    },
+    {
+      "cmd": "mysql -e \"REVOKE ALL PRIVILEGES ON mydb.* FROM 'alice'@'localhost';\"",
+      "desc": "Remove a user's privileges on a database",
+      "tooltip": "The counterpart to GRANT; takes effect immediately without FLUSH PRIVILEGES. Verify with SHOW GRANTS FOR 'alice'@'localhost'. Related: DROP USER removes the account entirely."
+    },
+    {
+      "cmd": "mongosh 'mongodb://localhost:27017/mydb'",
+      "desc": "Connect to a MongoDB database",
+      "tooltip": "mongosh is MongoDB's modern shell (the old mongo shell is deprecated). The connection string bundles the protocol, host, port, and database in one argument. Inside, you type JavaScript-style commands like db.users.find()."
+    },
+    {
+      "cmd": "mongosh --eval 'db.stats()'",
+      "desc": "Run a shell expression and exit",
+      "tooltip": "--eval executes the JavaScript expression against the default local server and exits, which is great for scripts. db.stats() reports storage size and object counts for the current database. Related: mongosh --file for longer scripts."
+    },
+    {
+      "cmd": "mongosh mydb --eval 'db.users.find().limit(5)'",
+      "desc": "Query a database from the shell",
+      "tooltip": "The positional mydb argument selects the database; db.users.find() returns all matching documents, and .limit(5) caps the result. Queries return a cursor, so you can chain .sort() and .count(). Related: findOne for a single match."
+    },
+    {
+      "cmd": "show dbs",
+      "desc": "List all databases",
+      "tooltip": "A mongosh helper command (not JavaScript): prints each database name and size. Databases appear only after they hold data. Related: use mydb to switch into one."
+    },
+    {
+      "cmd": "use mydb",
+      "desc": "Switch to a database",
+      "tooltip": "Sets the current database for the session. MongoDB creates databases lazily, so use mydb alone creates nothing until the first write. Related: show dbs, show collections."
+    },
+    {
+      "cmd": "show collections",
+      "desc": "List collections in the current database",
+      "tooltip": "Collections are MongoDB's tables; each stores documents (JSON-like records). show collections prints their names. Related: db.getCollectionNames() does the same."
+    },
+    {
+      "cmd": "db.users.find({age: {$gt: 30}})",
+      "desc": "Find documents matching a filter",
+      "tooltip": "Returns every user whose age is greater than 30. The filter is a JSON document and $gt is the greater-than operator; other operators include $lt, $in, and $regex. Add .limit(10) or .sort({age: 1}). Related: findOne."
+    },
+    {
+      "cmd": "db.users.findOne({email: 'a@b.com'})",
+      "desc": "Return a single matching document",
+      "tooltip": "Like find but returns the first match as a plain object, which is convenient for lookups. Returns null when nothing matches. Related: find with .limit(1)."
+    },
+    {
+      "cmd": "db.users.insertOne({name: 'Alice'})",
+      "desc": "Insert a single document",
+      "tooltip": "Adds one document to the users collection; MongoDB generates an _id field when you do not supply one. insertMany([{...}, {...}]) inserts several in one round trip. Related: updateOne, deleteOne."
+    },
+    {
+      "cmd": "db.users.updateOne({email: 'a@b.com'}, {$set: {name: 'Alice2'}})",
+      "desc": "Update the first matching document",
+      "tooltip": "The $set operator changes only the named fields; without it, MongoDB replaces the entire document. updateMany applies the change to every match. Related: replaceOne for full replacement."
+    },
+    {
+      "cmd": "db.users.deleteOne({email: 'a@b.com'})",
+      "desc": "Delete the first matching document",
+      "tooltip": "Removes one document; there is no undo, so run a find with the same filter first to confirm what matches. deleteMany({...}) removes all matches. Related: db.users.drop() for the whole collection."
+    },
+    {
+      "cmd": "db.users.deleteMany({})",
+      "desc": "Delete every document in a collection",
+      "tooltip": "The empty filter matches everything, so this wipes all documents while keeping the collection and its indexes. Extremely destructive on production — check countDocuments first. Related: drop() removes the collection itself."
+    },
+    {
+      "cmd": "db.users.createIndex({email: 1}, {unique: true})",
+      "desc": "Create a unique index on a field",
+      "tooltip": "1 means ascending order; unique rejects duplicate email values, enforcing data integrity. Indexes speed up queries but cost write performance and disk. Related: getIndexes, dropIndex."
+    },
+    {
+      "cmd": "db.users.countDocuments({})",
+      "desc": "Count documents in a collection",
+      "tooltip": "countDocuments({}) totals every document; pass a filter to count matches. It is the supported replacement for the deprecated count(). Related: find().limit(10) for a sample."
+    },
+    {
+      "cmd": "db.users.aggregate([{$group: {_id: '$city', n: {$sum: 1}}}])",
+      "desc": "Group documents and count per group",
+      "tooltip": "The aggregation pipeline's $group stage buckets documents by city ($city references the field) and $sum: 1 counts each bucket. This is MongoDB's GROUP BY. Related: find() for plain queries."
+    },
+    {
+      "cmd": "mongodump --db mydb --out ./backup",
+      "desc": "Back up a database to a directory",
+      "tooltip": "Writes one BSON file per collection plus metadata JSON (indexes) into ./backup/mydb. Restore with mongorestore. Add --gzip to compress the files. Related: mongodump --archive for a single file."
+    },
+    {
+      "cmd": "mongodump --uri 'mongodb://localhost:27017' --db mydb",
+      "desc": "Back up using a connection string",
+      "tooltip": "--uri takes the full connection string, so host, port, and credentials live in one argument; --db restricts the dump to mydb. Equivalent to the --host and --port form. Related: mongorestore --uri."
+    },
+    {
+      "cmd": "mongorestore --db mydb ./backup/mydb",
+      "desc": "Restore a dump into a database",
+      "tooltip": "Loads the BSON files produced by mongodump back into mydb, recreating collections and indexes. Without --db it restores using the original database names from the dump path. Related: mongodump --out."
+    },
+    {
+      "cmd": "mongosh admin --eval 'db.shutdownServer()'",
+      "desc": "Shut down the MongoDB server",
+      "tooltip": "Runs the shutdownServer command against the admin database; requires admin privileges and is normally executed on the server host itself. It stops mongod cleanly — not something to run casually on production. Related: mongostat to watch the server."
+    },
+    {
+      "cmd": "mongostat 5",
+      "desc": "Stream MongoDB server statistics",
+      "tooltip": "Prints operations per second, connections, memory, and queues every 5 seconds until interrupted. The first place to look when a server feels slow. Related: mongotop 5."
+    },
+    {
+      "cmd": "mongotop 5",
+      "desc": "Show per-collection read and write time",
+      "tooltip": "Ranks collections by how many milliseconds mongod spent reading or writing them in each 5-second window, surfacing hot collections. Related: mongostat for server-wide numbers."
+    },
+    {
+      "cmd": "mongosh --file seed.js",
+      "desc": "Run a JavaScript script file",
+      "tooltip": "Executes seed.js as a mongosh script; combine with --nodb to run without connecting, or with a connection string to target a server. Scripts can use db, print, and helpers like load(). Related: --eval for one-liners."
+    },
+    {
+      "cmd": "db.users.find({age: {$gt: 30}}).sort({age: -1}).limit(10)",
+      "desc": "Sort and limit query results",
+      "tooltip": "Chained cursor methods: sort by age descending (-1), then keep at most 10 documents. Both operations happen server-side, so you only transfer the final 10. Related: countDocuments."
+    },
+    {
+      "cmd": "db.users.updateMany({city: 'NYC'}, {$set: {active: true}})",
+      "desc": "Update every matching document",
+      "tooltip": "Sets active to true on all documents whose city is NYC; with no filter it would update the entire collection. Related: updateOne for a single document."
+    },
+    {
+      "cmd": "db.users.drop()",
+      "desc": "Drop a collection and all its data",
+      "tooltip": "Deletes the collection, every document, and its indexes — irreversible. Prefer deleteMany({}) if you might want the collection back. Related: db.dropDatabase()."
+    },
+    {
+      "cmd": "db.dropDatabase()",
+      "desc": "Delete the current database",
+      "tooltip": "Removes the active database and everything in it with no confirmation and no undo. Run show dbs first to be sure you are in the right place. Related: db.users.drop()."
+    },
+    {
+      "cmd": "db.users.getIndexes()",
+      "desc": "List a collection's indexes",
+      "tooltip": "Shows every index definition, including the automatic _id index that cannot be dropped. Useful before creating or removing indexes. Related: createIndex, dropIndex."
+    },
+    {
+      "cmd": "db.users.insertMany([{name: 'Alice'}, {name: 'Bob'}])",
+      "desc": "Insert several documents at once",
+      "tooltip": "Takes an array of documents and inserts them in a single round trip, far faster than looping insertOne. Related: insertOne for a single document."
+    },
+    {
+      "cmd": "mongodump --archive=mydb.archive --gzip",
+      "desc": "Back up to one compressed archive file",
+      "tooltip": "Writes the whole dump into a single gzipped file instead of a directory tree, which is convenient for shipping or storing. Restore with mongorestore --archive=mydb.archive --gzip. Related: mongodump --out."
+    },
+    {
+      "cmd": "redis-cli -h cache01.example.com -p 6380 PING",
+      "desc": "Ping a Redis server on a custom host and port",
+      "tooltip": "PING returns PONG if the server is reachable; -h and -p override the default 127.0.0.1:6379. Add REDISCLI_AUTH or -a for password-protected instances. Related: INFO for server details."
+    },
+    {
+      "cmd": "redis-cli SET user:1 'Alice'",
+      "desc": "Store a string value at a key",
+      "tooltip": "SET creates or overwrites the key. Keys are just strings; the colon-separated user:1 convention namespaces related keys. Add EX 3600 to expire the key. Related: GET, MSET."
+    },
+    {
+      "cmd": "redis-cli GET user:1",
+      "desc": "Retrieve the value stored at a key",
+      "tooltip": "Returns the value, or nil when the key does not exist. Related: MGET fetches several keys at once, EXISTS checks presence."
+    },
+    {
+      "cmd": "redis-cli DEL user:1",
+      "desc": "Delete one or more keys",
+      "tooltip": "Removes the key and returns how many were deleted; DEL user:1 user:2 removes both. Deletion is immediate and permanent. Related: EXISTS, EXPIRE."
+    },
+    {
+      "cmd": "redis-cli EXPIRE session:abc 3600",
+      "desc": "Set a key's time-to-live in seconds",
+      "tooltip": "Makes session:abc auto-delete after 3600 seconds; TTL shows the remaining time and PERSIST removes the expiry. Expiring keys is the standard session-store pattern in Redis. Related: SET ... EX 3600."
+    },
+    {
+      "cmd": "redis-cli TTL session:abc",
+      "desc": "Show a key's remaining time-to-live",
+      "tooltip": "Returns seconds left until the key expires; -1 means no expiry is set, -2 means the key is gone. Related: EXPIRE."
+    },
+    {
+      "cmd": "redis-cli INCR pageviews",
+      "desc": "Atomically increment a counter",
+      "tooltip": "INCR adds one and returns the new value; the operation is atomic, so concurrent increments never lose updates. DECR and INCRBY work the same way. Related: GET pageviews."
+    },
+    {
+      "cmd": "redis-cli HSET user:1 name Alice",
+      "desc": "Set a field inside a hash",
+      "tooltip": "Hashes store multiple fields under one key, like a mini record; HSET user:1 name Alice email a@b.com sets several at once. HGETALL reads everything back. Related: HGET, HDEL."
+    },
+    {
+      "cmd": "redis-cli HGETALL user:1",
+      "desc": "Read every field of a hash",
+      "tooltip": "Prints alternating field and value pairs for the hash. For a single field use HGET user:1 name. Related: HSET."
+    },
+    {
+      "cmd": "redis-cli KEYS 'user:*'",
+      "desc": "Find keys matching a pattern",
+      "tooltip": "KEYS scans every key in the database and blocks the server while it runs — dangerous on production with many keys. Prefer SCAN, which iterates in small non-blocking batches. Related: redis-cli --scan --pattern."
+    },
+    {
+      "cmd": "redis-cli --scan --pattern 'user:*'",
+      "desc": "Iterate keys matching a pattern safely",
+      "tooltip": "Uses the SCAN command under the hood, returning keys in small batches without blocking other clients. The safe replacement for KEYS. Related: SCAN with an explicit cursor."
+    },
+    {
+      "cmd": "redis-cli SCAN 0 MATCH 'user:*' COUNT 100",
+      "desc": "Iterate keys with a cursor",
+      "tooltip": "Returns a batch of matching keys plus a cursor; pass the cursor back as the first argument until it reaches 0 to walk the whole keyspace. COUNT hints the batch size, not an exact number. Related: --scan."
+    },
+    {
+      "cmd": "redis-cli INFO",
+      "desc": "Show server information and statistics",
+      "tooltip": "Prints sections for server, clients, memory, persistence, stats, and replication. INFO memory or INFO keyspace narrows the output. Related: CONFIG GET."
+    },
+    {
+      "cmd": "redis-cli INFO memory",
+      "desc": "Show memory usage details",
+      "tooltip": "Filters the INFO output to memory: used_memory, peak usage, fragmentation, and the maxmemory limit if set. Related: CONFIG GET maxmemory."
+    },
+    {
+      "cmd": "redis-cli CONFIG GET maxmemory",
+      "desc": "Read a configuration parameter",
+      "tooltip": "CONFIG GET takes a glob pattern, so maxmemory* matches related keys; CONFIG SET changes a value at runtime and CONFIG REWRITE persists it to the config file. Related: INFO memory."
+    },
+    {
+      "cmd": "redis-cli -n 3 SET k v",
+      "desc": "Use a specific logical database",
+      "tooltip": "Redis instances host 16 numbered databases (0-15); -n 3 targets the third one, whose keys are isolated from the others. FLUSHDB clears only the selected database. Related: DBSIZE."
+    },
+    {
+      "cmd": "redis-cli BGSAVE",
+      "desc": "Trigger a background snapshot",
+      "tooltip": "Forks a child process that writes the RDB snapshot while the server keeps serving requests. Redis also snapshots automatically according to the save configuration. Related: SAVE, INFO persistence."
+    },
+    {
+      "cmd": "redis-cli SAVE",
+      "desc": "Write a synchronous snapshot",
+      "tooltip": "Blocks the server until the RDB dump finishes writing, which can pause traffic for seconds on big datasets. Prefer BGSAVE on production. Related: SHUTDOWN writes one before exiting."
+    },
+    {
+      "cmd": "redis-cli FLUSHALL",
+      "desc": "Delete every key in every database",
+      "tooltip": "Wipes the entire instance instantly — all databases, no confirmation, no undo. FLUSHDB limits the damage to the current database. Test on a dev instance first. Related: DEL."
+    },
+    {
+      "cmd": "redis-cli MONITOR",
+      "desc": "Stream every command the server receives",
+      "tooltip": "Prints all commands in real time, useful for debugging a specific client. The overhead can double server load, so do not leave it running in production. Related: SLOWLOG GET."
+    },
+    {
+      "cmd": "redis-cli --bigkeys",
+      "desc": "Find keys holding the largest values",
+      "tooltip": "Samples keys and reports the biggest strings, lists, hashes, sets, and sorted sets; it scans in small batches so it does not block. Related: --memkeys, INFO memory."
+    },
+    {
+      "cmd": "REDISCLI_AUTH=secret redis-cli PING",
+      "desc": "Authenticate without exposing the password",
+      "tooltip": "The REDISCLI_AUTH environment variable passes the password for this one command, keeping it out of the process list — safer than -a secret. Related: the AUTH command inside interactive mode."
+    },
+    {
+      "cmd": "redis-cli EXISTS user:1",
+      "desc": "Check whether a key exists",
+      "tooltip": "Returns 1 when the key is present and 0 otherwise; EXISTS user:1 user:2 counts how many exist. Related: TYPE shows the value's data type."
+    },
+    {
+      "cmd": "redis-cli LPUSH queue job1",
+      "desc": "Push an item onto the head of a list",
+      "tooltip": "Lists are ordered collections of strings; LPUSH adds to the left end. Combined with RPOP you get a first-in-first-out queue. Related: RPUSH, LRANGE."
+    },
+    {
+      "cmd": "redis-cli LRANGE queue 0 -1",
+      "desc": "Read a range of list items",
+      "tooltip": "Returns items from index 0 through -1 (the last item), i.e. the whole list. Indices can be negative, so LRANGE queue 0 4 gives the first five. Related: LPUSH."
+    },
+    {
+      "cmd": "redis-cli RPOP queue",
+      "desc": "Remove and return the last list item",
+      "tooltip": "Pops from the tail; paired with LPUSH it forms a FIFO queue. BLPOP blocks until an item appears, which is handy for workers. Related: LPOP."
+    },
+    {
+      "cmd": "redis-cli SADD tags 'linux'",
+      "desc": "Add a member to a set",
+      "tooltip": "Sets store unique members, so adding an existing member is a no-op; SADD tags linux redis adds several at once. Related: SMEMBERS, SISMEMBER."
+    },
+    {
+      "cmd": "redis-cli SMEMBERS tags",
+      "desc": "List all members of a set",
+      "tooltip": "Returns the set's contents in unspecified order; SISMEMBER tags linux tests membership without listing everything. Related: SADD."
+    },
+    {
+      "cmd": "redis-cli ZADD scores 95 alice",
+      "desc": "Add a scored member to a sorted set",
+      "tooltip": "Sorted sets rank members by a numeric score; ZADD scores 95 alice 88 bob adds both in one call. Useful for leaderboards and rate limits. Related: ZRANGE."
+    },
+    {
+      "cmd": "redis-cli ZRANGE scores 0 -1 WITHSCORES",
+      "desc": "List sorted-set members in rank order",
+      "tooltip": "Returns members from lowest to highest score; WITHSCORES prints the scores alongside. ZREVRANGE gives the descending order. Related: ZADD."
+    },
+    {
+      "cmd": "redis-cli INCRBY pageviews 10",
+      "desc": "Increment a counter by a specific amount",
+      "tooltip": "Atomic addition for counters; DECRBY subtracts. INCR is shorthand for INCRBY 1. Related: GET pageviews."
+    },
+    {
+      "cmd": "redis-cli MSET user:1 'Alice' user:2 'Bob'",
+      "desc": "Set multiple keys in one round trip",
+      "tooltip": "Sets several keys atomically in a single network call, much faster than repeated SET. MGET fetches them back together. Related: GET."
+    },
+    {
+      "cmd": "redis-cli DBSIZE",
+      "desc": "Count keys in the selected database",
+      "tooltip": "Returns the number of keys in the currently selected database (index 0-15). Useful for spotting a database that is unexpectedly large or empty. For per-key-type breakdowns use INFO keyspace, and switch databases with redis-cli -n <index>."
+    },
+    {
+      "cmd": "redis-cli CLIENT LIST",
+      "desc": "Show connected clients",
+      "tooltip": "Lists each connection with its address, name, database, and last command. CLIENT KILL addr terminates a specific one. Related: MONITOR."
+    },
+    {
+      "cmd": "redis-cli --stat",
+      "desc": "Show live server statistics",
+      "tooltip": "Refreshes key counts, memory, clients, and operations per second every second until interrupted — a lightweight monitoring loop. Related: INFO."
+    },
+    {
+      "cmd": "redis-cli -u redis://default:secret@cache01.example.com:6379/0 PING",
+      "desc": "Connect with a full Redis URL",
+      "tooltip": "-u accepts redis://user:password@host:port/db; use rediss:// for TLS. Embedding the password in the URL still exposes it in the process list — prefer REDISCLI_AUTH. Related: -h and -p flags."
+    },
+    {
+      "cmd": "redis-cli CONFIG SET maxmemory 256mb",
+      "desc": "Change a configuration value at runtime",
+      "tooltip": "Applies immediately without a restart; CONFIG REWRITE writes it back to redis.conf so it survives a restart, otherwise it is lost. Related: CONFIG GET maxmemory."
+    },
+    {
+      "cmd": "redis-cli SLOWLOG GET 5",
+      "desc": "Show the most recent slow commands",
+      "tooltip": "Returns the last 5 commands that exceeded slowlog-log-slower-than, with their duration and timestamp. The first stop when diagnosing latency. Related: MONITOR."
+    },
+    {
+      "cmd": "redis-cli SUBSCRIBE news",
+      "desc": "Listen to a pub/sub channel",
+      "tooltip": "Blocks and prints every message published to the news channel until you press Ctrl+C. Another client sends messages with PUBLISH news 'hello'. Related: PUBLISH."
+    },
+    {
+      "cmd": "sqlite3 app.db '.tables'",
+      "desc": "List tables in a database",
+      "tooltip": "The sqlite3 CLI takes the database file followed by commands; dot-commands like .tables are CLI meta-commands rather than SQL. It lists tables and views. Related: .schema."
+    },
+    {
+      "cmd": "sqlite3 app.db '.schema users'",
+      "desc": "Show the CREATE statement for a table",
+      "tooltip": "Prints the DDL that created users, including its indexes; with no argument it dumps the whole schema. Related: .tables."
+    },
+    {
+      "cmd": "sqlite3 app.db 'SELECT * FROM users LIMIT 5;'",
+      "desc": "Run a SQL query from the shell",
+      "tooltip": "Executes the query and prints the rows, then exits. Without a command argument the CLI starts an interactive session. Related: .mode column for prettier output."
+    },
+    {
+      "cmd": "sqlite3 app.db '.mode column' '.headers on' 'SELECT * FROM users;'",
+      "desc": "Format query output as aligned columns",
+      "tooltip": ".mode column aligns values into columns and .headers on prints the column names; both are dot-commands that configure the session. Other modes include csv, json, and markdown. Related: .nullvalue."
+    },
+    {
+      "cmd": "sqlite3 app.db '.import users.csv users'",
+      "desc": "Load a CSV file into a table",
+      "tooltip": "Reads users.csv and inserts its rows into the users table, which must already exist; sqlite auto-detects CSV quoting. Run .mode csv first if parsing misbehaves. Related: .output with .dump for the reverse."
+    },
+    {
+      "cmd": "sqlite3 app.db '.output dump.sql' '.dump'",
+      "desc": "Export the whole database as SQL",
+      "tooltip": ".dump writes recreate statements for the schema and data; .output redirects them into dump.sql. Restore with sqlite3 app.db < dump.sql. Related: .backup for a binary copy."
+    },
+    {
+      "cmd": "sqlite3 app.db '.backup backup.db'",
+      "desc": "Make a consistent backup copy",
+      "tooltip": "Copies the database safely even while other connections are writing, unlike a raw file copy. Restore by copying backup.db over the original. Related: .dump for a text export."
+    },
+    {
+      "cmd": "sqlite3 app.db 'CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);'",
+      "desc": "Create a table",
+      "tooltip": "INTEGER PRIMARY KEY makes id an alias for the rowid, so it auto-increments; TEXT stores strings. SQLite is dynamically typed, so the declared types are conventions. Related: .schema to verify."
+    },
+    {
+      "cmd": "sqlite3 app.db '.indexes'",
+      "desc": "List indexes on a table",
+      "tooltip": "With a table argument it shows that table's indexes; without one, all indexes in the database. Indexes speed lookups but slow writes. Related: CREATE INDEX."
+    },
+    {
+      "cmd": "sqlite3 :memory: 'SELECT 1;'",
+      "desc": "Test queries in an in-memory database",
+      "tooltip": ":memory: opens a temporary database that exists only for the command and vanishes at exit — perfect for experiments that should not touch disk. Related: a named file database persists."
+    },
+    {
+      "cmd": "sqlite3 app.db 'PRAGMA table_info(users);'",
+      "desc": "Show a table's column definitions",
+      "tooltip": "The table_info pragma returns one row per column: name, type, nullability, default, and primary-key flag. Related: .schema users."
+    },
+    {
+      "cmd": "sqlite3 app.db -cmd '.mode csv' -cmd '.headers on' 'SELECT * FROM users;'",
+      "desc": "Output query results as CSV",
+      "tooltip": "-cmd runs a dot-command before the query; combined, .mode csv and .headers on produce a CSV with a header row, ready for piping into other tools. Related: .import."
+    },
+    {
+      "cmd": "sqlite3 -readonly app.db 'SELECT * FROM users;'",
+      "desc": "Open a database read-only",
+      "tooltip": "Guarantees the database file is never modified, even by mis-typed writes — safe for inspecting a live production file. Related: .backup."
+    },
+    {
+      "cmd": "sqlite3 app.db 'VACUUM;'",
+      "desc": "Rebuild the database to reclaim space",
+      "tooltip": "Rewrites the file, packing free pages left by deletes and shrinking it. VACUUM needs an exclusive lock, so run it when the app is idle. Related: .backup first."
+    },
+    {
+      "cmd": "sqlite3 app.db 'ANALYZE;'",
+      "desc": "Collect statistics for the query planner",
+      "tooltip": "Gathers distribution stats so SQLite can choose better query plans; run it after big data changes. Verify the effect with EXPLAIN QUERY PLAN. Related: CREATE INDEX."
+    },
+    {
+      "cmd": "sqlite3 app.db '.timer on'",
+      "desc": "Print timing for each executed statement",
+      "tooltip": "Shows CPU time per statement in the interactive session — a quick way to compare query performance. Related: EXPLAIN QUERY PLAN."
+    },
+    {
+      "cmd": "sqlite3 app.db 'PRAGMA journal_mode=WAL;'",
+      "desc": "Switch the database to WAL mode",
+      "tooltip": "WAL (write-ahead logging) lets readers keep working during writes and is the recommended journal mode for most applications. The setting persists per database file. Related: PRAGMA synchronous."
+    },
+    {
+      "cmd": "sqlite3 app.db 'CREATE INDEX idx_users_email ON users(email);'",
+      "desc": "Add an index on a column",
+      "tooltip": "Speeds up queries that filter or sort by email at the cost of slower writes and extra disk. Confirm the planner uses it with EXPLAIN QUERY PLAN. Related: .indexes."
+    },
+    {
+      "cmd": "sqlite3 app.db 'DROP TABLE users;'",
+      "desc": "Delete a table and all its data",
+      "tooltip": "Removes the table, its rows, and its indexes — irreversible. Export a .dump or .backup first if there is any doubt. Related: DELETE FROM users keeps the table."
+    },
+    {
+      "cmd": "sqlite3 app.db 'EXPLAIN QUERY PLAN SELECT * FROM users WHERE email=\"a@b.com\";'",
+      "desc": "Show how SQLite executes a query",
+      "tooltip": "Prints whether the query scans the whole table or uses an index — the essential first step when tuning slow queries. Related: CREATE INDEX."
+    },
+    {
+      "cmd": "sqlite3 app.db '.mode json' 'SELECT * FROM users;'",
+      "desc": "Output query results as JSON",
+      "tooltip": "Switches output to one JSON object per row, handy for feeding jq or a web API. Related: .mode csv, .mode markdown."
+    },
+    {
+      "cmd": "sqlite3 app.db '.nullvalue NULL'",
+      "desc": "Show NULLs as a readable marker",
+      "tooltip": "NULL displays as an empty string by default, which is easy to mistake for a value; .nullvalue NULL makes it visible. Related: .headers on."
+    },
+    {
+      "cmd": "sqlite3 app.db '.databases'",
+      "desc": "List attached databases",
+      "tooltip": "Shows the main database plus any files attached with ATTACH DATABASE. Related: ATTACH DATABASE 'archive.db' AS archive."
+    },
+    {
+      "cmd": "sqlite3 app.db \"ATTACH DATABASE 'archive.db' AS archive;\"",
+      "desc": "Attach another database to the session",
+      "tooltip": "Makes archive.db's tables reachable as archive.tablename, enabling cross-database joins in one query. Related: .databases."
+    },
+    {
+      "cmd": "sqlite3 app.db '.eqp on'",
+      "desc": "Show the query plan before every statement",
+      "tooltip": "Like EXPLAIN QUERY PLAN but automatic: each executed query prints its plan first. Flip off with .eqp off. Related: EXPLAIN QUERY PLAN."
+    },
+    {
+      "cmd": "duckdb mydb.duckdb 'SELECT * FROM users;'",
+      "desc": "Query a DuckDB database file",
+      "tooltip": "Opens mydb.duckdb (creating it if missing) and runs the SQL argument. DuckDB is an embedded analytical (OLAP) database that excels at large read-heavy queries on local files. Related: -c for scripted commands."
+    },
+    {
+      "cmd": "duckdb mydb.duckdb -c \"SELECT count(*) FROM users;\"",
+      "desc": "Run a query and exit",
+      "tooltip": "-c executes the statement and exits, which fits scripts; -s does the same, and -f runs a file of SQL. Related: positional SQL argument."
+    },
+    {
+      "cmd": "duckdb -c \"SELECT * FROM read_csv_auto('data.csv');\"",
+      "desc": "Query a CSV file directly",
+      "tooltip": "read_csv_auto infers column types and reads the file without importing it — DuckDB's signature move for quick analytics. Works with Parquet via read_parquet. Related: COPY for exports."
+    },
+    {
+      "cmd": "duckdb -c \"ATTACH 'other.duckdb' AS o;\"",
+      "desc": "Attach another database file",
+      "tooltip": "Makes other.duckdb's tables queryable as o.tablename, enabling cross-database joins in one session. Related: SHOW DATABASES lists attached databases."
+    },
+    {
+      "cmd": "duckdb -readonly mydb.duckdb 'SELECT 1;'",
+      "desc": "Open a database read-only",
+      "tooltip": "Prevents any writes to the file, which is safe for inspecting a database you should not modify. Related: opening normally allows writes."
+    },
+    {
+      "cmd": "duckdb -list -csv mydb.duckdb 'SELECT 1;'",
+      "desc": "Output results as plain CSV",
+      "tooltip": "-list and -csv produce bare CSV rows suitable for piping into other programs; -json switches to JSON and -markdown for documentation. Related: -header toggles the header row."
+    },
+    {
+      "cmd": "duckdb -json mydb.duckdb -c \"SELECT * FROM users;\"",
+      "desc": "Output results as JSON",
+      "tooltip": "Prints one JSON object per row, handy for jq pipelines or feeding web APIs. Related: -csv."
+    },
+    {
+      "cmd": "duckdb mydb.duckdb -c \"COPY users TO 'users.csv' (HEADER, DELIMITER ',');\"",
+      "desc": "Export a table to a CSV file",
+      "tooltip": "COPY writes the table to a local file; swap the options for Parquet, JSON, or other formats. The reverse is COPY users FROM 'users.csv'. Related: read_csv_auto."
+    },
+    {
+      "cmd": "duckdb -c \"SELECT * FROM read_parquet('users.parquet');\"",
+      "desc": "Query a Parquet file directly",
+      "tooltip": "Parquet's columnar layout means DuckDB reads only the columns the query touches, making scans of huge files very fast. Related: read_csv_auto."
+    },
+    {
+      "cmd": "duckdb mydb.duckdb -c \"SHOW TABLES;\"",
+      "desc": "List tables in the database",
+      "tooltip": "Prints the table names in the current database; DESCRIBE users shows one table's columns. Related: SHOW DATABASES."
+    },
+    {
+      "cmd": "duckdb mydb.duckdb -c \"DESCRIBE users;\"",
+      "desc": "Show a table's columns",
+      "tooltip": "Lists each column with its DuckDB type, the same information you would get from a database catalog. Related: SHOW TABLES."
+    },
+    {
+      "cmd": "duckdb -c \"INSTALL httpfs; LOAD httpfs;\"",
+      "desc": "Enable HTTP and S3 file extensions",
+      "tooltip": "INSTALL downloads the httpfs extension and LOAD activates it; afterwards read_csv_auto and read_parquet can read https:// and s3:// URLs. Requires network access. Related: read_parquet."
+    },
+    {
+      "cmd": "duckdb -f setup.sql",
+      "desc": "Run SQL statements from a file",
+      "tooltip": "-f reads setup.sql and executes every statement, which is convenient for schema scripts; -init runs a file before reading stdin. Related: -c."
+    }
+  ]
+}

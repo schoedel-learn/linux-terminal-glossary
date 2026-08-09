@@ -1,0 +1,795 @@
+{
+  "category": "Mail Servers & Postfix",
+  "commands": [
+    {
+      "cmd": "postconf -d",
+      "desc": "Dump every Postfix setting with its default value",
+      "tooltip": "Prints all main.cf parameters and the built-in defaults Postfix uses when a parameter is unset. Grep the output to research a setting before changing it, for example `postconf -d | grep myorigin`. Pair with `postconf -n`, which shows only what you have customized."
+    },
+    {
+      "cmd": "postconf myhostname",
+      "desc": "Show the effective value of one Postfix setting",
+      "tooltip": "Displays the resolved value of a single parameter, such as the hostname Postfix uses in its EHLO greeting and message headers. Quoting is not needed for simple lookups. Use `postconf -d` to see defaults and `postconf -e` to change values."
+    },
+    {
+      "cmd": "postconf -e 'myhostname=mail.example.com'",
+      "desc": "Change a Postfix setting in main.cf",
+      "tooltip": "Edits main.cf directly, replacing or adding the named parameter before the next reload. Values with spaces or shell metacharacters must be quoted. Run `postfix reload` afterwards so running processes pick up the change."
+    },
+    {
+      "cmd": "postconf -M",
+      "desc": "List services defined in master.cf",
+      "tooltip": "Shows every service entry in master.cf, one per line, including smtp, submission, and smtps listeners plus their command lines. Useful to confirm which daemons Postfix actually runs. Append a service name such as `postconf -M submission` to narrow the output."
+    },
+    {
+      "cmd": "postconf -X mynetworks",
+      "desc": "Delete a Postfix setting so it reverts to default",
+      "tooltip": "Removes the named parameter from main.cf entirely, so Postfix falls back to its compiled-in default. Handy for undoing an experimental change without hand-editing the file. Reload Postfix afterwards with `postfix reload`."
+    },
+    {
+      "cmd": "postfix check",
+      "desc": "Verify Postfix configuration and file permissions",
+      "tooltip": "Runs a health check over main.cf, master.cf, and the queue directories, warning about bad ownership, permissions, or syntax problems. Silent output with exit status zero means the config is sane. Run this before `postfix reload` after any manual config edit."
+    },
+    {
+      "cmd": "systemctl reload postfix",
+      "desc": "Reload Postfix config without dropping connections",
+      "tooltip": "Tells systemd to signal Postfix to re-read its configuration, which existing sessions pick up at their earliest convenience. Preferred over restart when only settings changed, since established SMTP connections stay up. Check results with `journalctl -u postfix -f`."
+    },
+    {
+      "cmd": "postfix flush",
+      "desc": "Force immediate delivery of all queued mail",
+      "tooltip": "Asks the queue manager to attempt delivery of every deferred message right now, instead of waiting for the next retry timer. Use sparingly: flushing undeliverable mail repeatedly degrades delivery performance for everything else. See `postqueue -f` for the unprivileged equivalent."
+    },
+    {
+      "cmd": "postfix start",
+      "desc": "Start the Postfix mail system",
+      "tooltip": "Launches the master daemon and its workers after running the same configuration check as `postfix check`. Requires root. Confirm it came up with `postfix status` or `systemctl status postfix`."
+    },
+    {
+      "cmd": "postfix stop",
+      "desc": "Stop Postfix after current deliveries finish",
+      "tooltip": "Shuts down the mail system in an orderly fashion, letting running processes terminate at their earliest convenience. For config changes use `postfix reload` instead of stop followed by start, which drops the queue state unnecessarily."
+    },
+    {
+      "cmd": "systemctl restart postfix",
+      "desc": "Restart Postfix via systemd",
+      "tooltip": "Stops and starts the Postfix service in one step, which is the right move after changing master.cf or installing new maps. Existing connections are dropped, so prefer `systemctl reload postfix` when only parameter values changed."
+    },
+    {
+      "cmd": "systemctl status postfix",
+      "desc": "Show Postfix service status and recent logs",
+      "tooltip": "Displays whether the service is active, its process state, and the tail of its log output. A non-zero exit means Postfix is not running. Add `-l` if log lines get truncated."
+    },
+    {
+      "cmd": "journalctl -u postfix -f",
+      "desc": "Follow Postfix log output in real time",
+      "tooltip": "Streams new Postfix log entries as they are written, which is the fastest way to watch deliveries, bounces, and rejections while testing. Press Ctrl-C to stop following. Substitute another unit name, like `-u dovecot`, for other mail services."
+    },
+    {
+      "cmd": "newaliases",
+      "desc": "Rebuild the system aliases database",
+      "tooltip": "Rebuilds the hashed alias database from /etc/aliases so changes to root, postmaster, or other alias targets take effect. Run it as root after editing the aliases file. The underlying tool is postalias; Debian systems also ship a compat wrapper."
+    },
+    {
+      "cmd": "postalias /etc/aliases",
+      "desc": "Build an alias database from a file",
+      "tooltip": "Compiles a text alias file into the hashed database Postfix consults during local delivery. Usually invoked via newaliases, but postalias is the tool to call when the file lives outside the default path. Query results with `postalias -q`."
+    },
+    {
+      "cmd": "postalias -q webmaster /etc/aliases",
+      "desc": "Look up one recipient in the aliases database",
+      "tooltip": "Asks whether a key like webmaster maps to a target in the compiled aliases file, printing the match and exiting zero when found. Useful for confirming a new alias compiled correctly. List every entry with the -s flag instead."
+    },
+    {
+      "cmd": "postmap /etc/postfix/virtual",
+      "desc": "Rebuild a Postfix lookup table database",
+      "tooltip": "Compiles the text source of any Postfix map, such as the virtual alias table, into the binary database the daemons actually read. Always run after editing the source file, then reload Postfix. Query the result with `postmap -q`."
+    },
+    {
+      "cmd": "postmap -q user@example.com /etc/postfix/virtual",
+      "desc": "Query a Postfix lookup table",
+      "tooltip": "Looks up one key in a compiled map and prints the matching value, exiting zero on a hit. This is the fastest way to confirm a virtual, transport, or access rule was built correctly. Test with `postmap -q` before reloading Postfix."
+    },
+    {
+      "cmd": "postqueue -f",
+      "desc": "Flush the mail queue as a regular user",
+      "tooltip": "Requests immediate delivery of all queued mail without needing root, because postqueue talks to the queue manager through a set-group-ID helper. Same effect as `postfix flush`. Frequent flushing of undeliverable mail hurts performance."
+    },
+    {
+      "cmd": "postqueue -j",
+      "desc": "List the mail queue as JSON for scripts",
+      "tooltip": "Outputs every queued message as one JSON object per line, with queue ID, sender, recipients, and delay reason. Scriptable, unlike the human `-p` view. Pipe through jq to select messages, then feed IDs to postsuper."
+    },
+    {
+      "cmd": "postqueue -i 4A2B3C",
+      "desc": "Schedule immediate delivery of one queued message",
+      "tooltip": "Triggers an immediate delivery attempt for a single deferred message, identified by its queue ID as shown by `postqueue -p` or `mailq`. Faster and more targeted than flushing the whole queue. Requires the message to still be in the queue."
+    },
+    {
+      "cmd": "postqueue -s example.com",
+      "desc": "Flush queued mail destined for one site",
+      "tooltip": "Attempts immediate delivery of all messages queued for a single destination domain, which is useful after a remote server outage. The site must be eligible for Postfix's fast flush service. Unprivileged users may run this command."
+    },
+    {
+      "cmd": "postsuper -d 4A2B3C",
+      "desc": "Delete one message from the Postfix queue",
+      "tooltip": "Permanently removes the message with the given queue ID from the queue; there is no undo, so inspect it first with `postcat -q 4A2B3C`. Root only. `postsuper -d ALL` deletes every message, and `postsuper -d -` reads IDs from stdin."
+    },
+    {
+      "cmd": "postsuper -r 4A2B3C",
+      "desc": "Requeue one message for a fresh delivery attempt",
+      "tooltip": "Moves a message back through the delivery pipeline so it is re-subjected to address rewriting and any current content filters. Use after changing virtual maps or transports to apply new rules to stuck mail. Root only."
+    },
+    {
+      "cmd": "postsuper -r ALL",
+      "desc": "Requeue every message in the queue",
+      "tooltip": "Re-runs every queued message through address rewriting and content filters, which is useful after major map changes but generates heavy load. Queue IDs are reused, so run it while Postfix is quiet to avoid touching wrong messages. Root only."
+    },
+    {
+      "cmd": "postsuper -h 4A2B3C",
+      "desc": "Hold one message so Postfix stops trying to deliver it",
+      "tooltip": "Moves a message into the hold queue, where no further delivery is attempted until it is released, and it never expires while held. Useful for freezing a message during an incident. Release it with `postsuper -H` or `postsuper -r`."
+    },
+    {
+      "cmd": "postsuper -H",
+      "desc": "Release all held messages back to the queue",
+      "tooltip": "Moves every message out of the hold queue back into deferred, where normal retry timing resumes. Use the uppercase form; `-h` without ALL puts specific messages on hold. Check what is held first with `postqueue -p` and look for the `!` marker."
+    },
+    {
+      "cmd": "postsuper -f 4A2B3C",
+      "desc": "Force-expire one message and return it to sender",
+      "tooltip": "Marks a message for forced expiration, so the queue manager returns it to the sender instead of delivering it, and also releases it if held. The bounce will state the reason for the delay. Root only."
+    },
+    {
+      "cmd": "postsuper -p",
+      "desc": "Purge stale temp files from the queue",
+      "tooltip": "Removes leftover temporary files in the queue directories, which accumulate after system or software crashes. Safe housekeeping to run from cron. The -p, -s, and -S operations run before any delete or requeue options."
+    },
+    {
+      "cmd": "postsuper -s",
+      "desc": "Check and repair the queue directory structure",
+      "tooltip": "Verifies queue file placement and naming, renaming or moving files that are in the wrong place. Run once after restoring the queue from backup or changing hash queue settings. Pair with `postfix stop` for a fully consistent check."
+    },
+    {
+      "cmd": "postcat -q 4A2B3C",
+      "desc": "Print a queued message's envelope and content",
+      "tooltip": "Shows the full contents of a queue file: envelope records, headers, and body. `-q` makes postcat search the queue for the ID; add `-e` for envelope only or `-h` for headers only. Essential before deleting or requeueing mail."
+    },
+    {
+      "cmd": "postfix upgrade-configuration",
+      "desc": "Add new parameters after a Postfix upgrade",
+      "tooltip": "Updates main.cf and master.cf with the services and parameters a newer Postfix expects, which the package install usually runs automatically. Run it manually after upgrading binaries by hand. It edits configuration files, so back them up first."
+    },
+    {
+      "cmd": "postfix set-permissions",
+      "desc": "Fix ownership and permissions of Postfix files",
+      "tooltip": "Restores the ownership and permissions defined in the postfix-files table, which repairs installs where files were copied or unpacked with wrong modes. Run as root, then `postfix check` to confirm a clean bill of health."
+    },
+    {
+      "cmd": "qshape deferred",
+      "desc": "Show queue volume by domain and age",
+      "tooltip": "Prints how many queued messages are stuck per recipient domain, bucketed by how long they have waited, which reveals delivery outages at a glance. Needs root or the postfix account. Swap in other queue names like `qshape incoming`."
+    },
+    {
+      "cmd": "pflogsumm -d today /var/log/mail.log",
+      "desc": "Summarize today's Postfix activity from logs",
+      "tooltip": "Parses the mail log into a daily digest: messages received and delivered, bounces, rejects, and warnings. `-d today` limits it to today's entries; `yesterday` and `last week` also work. Ideal for a cron job that mails you the report."
+    },
+    {
+      "cmd": "smtp-source -s 3 -m 10 -f sender@example.com -t user@example.com smtp.example.com",
+      "desc": "Generate test SMTP traffic against a server",
+      "tooltip": "Sends a burst of synthetic messages to a mail server to measure throughput: -s parallel sessions, -m messages per session, -f envelope sender, -t recipient. An unsupported Postfix test tool, so output formats can change between versions."
+    },
+    {
+      "cmd": "smtp-sink -u admin -v 127.0.0.1 2525 10",
+      "desc": "Run a throwaway SMTP server for testing",
+      "tooltip": "Listens on the given host and port and accepts SMTP messages, then discards them, making it a safe target for load tests. The trailing 10 is the connection backlog. `-v` shows the SMTP conversation; -u switches to the named user after binding."
+    },
+    {
+      "cmd": "doveadm user -l",
+      "desc": "List all mail users known to Dovecot",
+      "tooltip": "Iterates the configured user database and prints every user Dovecot can serve, which is the quickest way to confirm a mailbox was created. With a SQL or LDAP userdb it depends on the iterate query. Details for one account come from `doveadm user`."
+    },
+    {
+      "cmd": "doveadm user user@example.com",
+      "desc": "Show userdb details for one mailbox",
+      "tooltip": "Performs a user lookup and prints what Dovecot knows about the account: uid, gid, home directory, mail location, and any quota or plugin fields. Wildcards like `*@example.com` work too. Use it when a user cannot log in to see if the userdb entry exists."
+    },
+    {
+      "cmd": "doveadm pw -s SHA512-CRYPT",
+      "desc": "Generate a SHA512-CRYPT password hash",
+      "tooltip": "Prompts for a password and prints a hash prefixed with {SHA512-CRYPT}, ready to paste into a passwd file or database. SHA512-CRYPT is the standard scheme for Dovecot virtual users. See `doveadm pw -l` for every supported scheme."
+    },
+    {
+      "cmd": "doveadm pw -p 'secret' -s SHA512-CRYPT",
+      "desc": "Hash a password non-interactively",
+      "tooltip": "Produces the same {SHA512-CRYPT} hash as the prompting form, but takes the password on the command line for scripts. The plain password lands in your shell history, so prefer the interactive version or an environment variable. Add -V to verify the hash afterwards."
+    },
+    {
+      "cmd": "doveadm auth test user@example.com",
+      "desc": "Test a user's password against Dovecot",
+      "tooltip": "Runs a real passdb authentication for the given user, prompting for the password, and reports success or the exact failure reason. The first thing to run when a mailbox rejects credentials. Add `-x service=imap` to simulate a specific protocol login."
+    },
+    {
+      "cmd": "doveadm auth login user@example.com",
+      "desc": "Test full login including userdb lookup",
+      "tooltip": "Performs both the passdb password check and the userdb lookup that a real IMAP or POP3 login triggers, surfacing problems the plain auth test misses. Prompts for the password. `doveadm auth test` only covers the passdb half."
+    },
+    {
+      "cmd": "doveadm auth cache flush",
+      "desc": "Clear Dovecot's authentication cache",
+      "tooltip": "Drops all cached authentication results, so the next login re-reads the user database. Run this after changing a password or userdb entry if old credentials still work. Accepts an optional user mask to flush only specific users."
+    },
+    {
+      "cmd": "doveadm who",
+      "desc": "Show users currently connected to IMAP or POP3",
+      "tooltip": "Lists active sessions with the logged-in user, source IP, and protocol, which is the first step when investigating concurrent login limits or kicking someone. Follow up with `doveadm kick user@example.com` to disconnect a user."
+    },
+    {
+      "cmd": "doveadm kick user@example.com",
+      "desc": "Disconnect all sessions for one user",
+      "tooltip": "Forcefully drops every IMAP and POP3 connection belonging to the given user, which is useful after a password compromise or a stuck session. You can also kick by IP, e.g. `doveadm kick 192.0.2.50`. Clients will reconnect and re-authenticate."
+    },
+    {
+      "cmd": "doveadm reload",
+      "desc": "Reload Dovecot configuration at runtime",
+      "tooltip": "Asks the master process to re-read its configuration without dropping connections, which makes most setting changes take effect with zero downtime. Restart Dovecot only for changes that need a full restart, such as listener ports."
+    },
+    {
+      "cmd": "doveadm stop",
+      "desc": "Shut down Dovecot and all its processes",
+      "tooltip": "Terminates the master process and every child, taking mail access offline. Prefer `doveadm reload` for configuration changes. Restart with `systemctl start dovecot` or your service manager."
+    },
+    {
+      "cmd": "doveadm log errors",
+      "desc": "Show recent Dovecot errors and warnings",
+      "tooltip": "Prints up to the last thousand error and warning entries, which is the fastest way to see why logins or deliveries are failing. Empty output means no problems since the last start. `doveadm log find` tells you where the logs actually live."
+    },
+    {
+      "cmd": "doveadm log find",
+      "desc": "Locate Dovecot's log files",
+      "tooltip": "Reports where Dovecot's debug, info, warning, and error output is written, which varies by distro and logging configuration. Pass a directory to search when syslog writes elsewhere. Useful before configuring logrotate or a log collector."
+    },
+    {
+      "cmd": "doveadm log reopen",
+      "desc": "Reopen log files after rotation",
+      "tooltip": "Signals Dovecot to close and reopen its configured log files, which logrotate needs after rotating them so new entries go to a fresh file. Run it in a postrotate script instead of restarting the service."
+    },
+    {
+      "cmd": "doveconf -n",
+      "desc": "Show only non-default Dovecot settings",
+      "tooltip": "Dumps the effective configuration with every default value stripped out, giving a compact view of what this server actually customizes. The output is the canonical thing to include in bug reports. Use `doveconf -n mail_location` to filter one setting."
+    },
+    {
+      "cmd": "doveadm mailbox list -u user@example.com",
+      "desc": "List a user's mailboxes",
+      "tooltip": "Prints every mailbox for the account, including folders the client created. Add -s to show only subscribed folders. Useful before migrating or renaming mailboxes."
+    },
+    {
+      "cmd": "doveadm mailbox create -u user@example.com -s Sent",
+      "desc": "Create a mailbox and subscribe to it",
+      "tooltip": "Creates a new folder, such as Sent or Archive, for the given user. The -s flag also subscribes the user to it so IMAP clients show it immediately. Omit -s for an unsubscribed, hidden mailbox."
+    },
+    {
+      "cmd": "doveadm mailbox rename -u user@example.com OldSent Sent",
+      "desc": "Rename a user's mailbox",
+      "tooltip": "Changes a folder name while preserving all messages and flags, which IMAP clients will see on their next sync. The first argument is the current name, the second the new one. Child folders are moved along with the parent."
+    },
+    {
+      "cmd": "doveadm mailbox delete -u user@example.com -r Legacy",
+      "desc": "Delete a mailbox and all its messages",
+      "tooltip": "Permanently removes the named folder and expunges every message inside it, with no recovery. The -r flag also deletes child folders. Consider `doveadm move` or a backup first; there is no trash-bin safety net here."
+    },
+    {
+      "cmd": "doveadm mailbox status -u user@example.com messages INBOX",
+      "desc": "Show message counts for a mailbox",
+      "tooltip": "Reports the requested status field for a folder; `messages` gives the message count and you can add fields like `unseen` or `vsize` in one quoted list. Omit the mailbox argument to default to INBOX. Add -f table for aligned column output."
+    },
+    {
+      "cmd": "doveadm fetch -u user@example.com 'uid text' mailbox INBOX",
+      "desc": "Print full messages from a mailbox",
+      "tooltip": "Dumps the requested fields for every matching message; `text` is the whole message and `uid` its ID, while `hdr.subject` or `date.sent` pull single parts. Respect user privacy. Narrow the search with keys like `since` or `from`."
+    },
+    {
+      "cmd": "doveadm search -u user@example.com mailbox INBOX subject \"invoice\"",
+      "desc": "Find messages matching a search query",
+      "tooltip": "Returns the UIDs of messages matching criteria such as subject, from, or date, which is the safe way to preview what a move or expunge would touch. Combine with `doveadm fetch` to see the actual content."
+    },
+    {
+      "cmd": "doveadm move -u user@example.com Archive mailbox INBOX seen",
+      "desc": "Move read messages to another mailbox",
+      "tooltip": "Moves every message matching the search query from one folder to another, here relocating all read mail in INBOX to Archive. A cheap way to run a server-side folder policy. Preview the matches first with `doveadm search`."
+    },
+    {
+      "cmd": "doveadm expunge -u user@example.com mailbox Trash 'SEEN'",
+      "desc": "Permanently delete read messages from Trash",
+      "tooltip": "Irreversibly removes messages matching the search query, here every read message in Trash, so double-check the match with `doveadm search` first. Expunge is final and bypasses the trash can. Use `savedbefore 2w` to target only old mail."
+    },
+    {
+      "cmd": "doveadm index -u user@example.com INBOX",
+      "desc": "Rebuild the index for a mailbox",
+      "tooltip": "Forces the mailbox index to be rewritten from the stored messages, which can improve performance after importing mail or restoring from backup. Run it for a user who reports slow folder access. Corruption is a different problem, handled by force-resync."
+    },
+    {
+      "cmd": "doveadm force-resync -u user@example.com INBOX",
+      "desc": "Repair a corrupted mailbox",
+      "tooltip": "Rebuilds a mailbox's index and metadata from the raw message files when Dovecot reports corruption or a client sees wrong message lists. It can be slow on large folders and may renumber UIDs. Consider it the last resort before deleting an account."
+    },
+    {
+      "cmd": "doveadm quota get -u user@example.com",
+      "desc": "Show a user's quota usage",
+      "tooltip": "Displays the user's current storage and message usage against their quota limits, with percentages. The quota plugin must be enabled for this to return data. If the numbers look wrong, recalculate with `doveadm quota recalc`."
+    },
+    {
+      "cmd": "doveadm quota recalc -u user@example.com",
+      "desc": "Recalculate a user's quota",
+      "tooltip": "Recomputes quota usage from the actual mailboxes after manual file changes, restores, or quota plugin upgrades left the counters stale. Safe to run while the user is online. `-A` recalculates for every user."
+    },
+    {
+      "cmd": "doveadm purge -u user@example.com",
+      "desc": "Purge unreferenced messages from mdbox storage",
+      "tooltip": "Removes messages that no longer have references from the mdbox storage files, reclaiming disk space after deletions. Only meaningful when mdbox is the mail format. Run it periodically on accounts with heavy delete activity."
+    },
+    {
+      "cmd": "doveadm backup -u user@example.com remote:backup.example.com",
+      "desc": "Back up a mailbox to a remote server",
+      "tooltip": "One-way syncs the user's mail to the destination so the remote copy mirrors the source exactly; changes made on the destination are reverted. The remote: prefix runs doveadm on the other host, usually over ssh. Start with a single mailbox, then widen scope."
+    },
+    {
+      "cmd": "doveadm sync -u user@example.com remote:replica.example.com",
+      "desc": "Two-way sync a mailbox with a replica",
+      "tooltip": "Merges changes in both directions so the local mailbox and the remote replica end up identical, which suits active-active setups. Add -1 for a one-way merge that preserves extra messages on the destination. Needs doveadm remote access configured on both sides."
+    },
+    {
+      "cmd": "doveadm stats dump",
+      "desc": "Dump Dovecot statistics counters",
+      "tooltip": "Prints all counters gathered by the stats service, such as logins, commands, and session times. Add -r to reset the counters after dumping, which is handy for before-and-after measurements. Requires the stats service to be enabled."
+    },
+    {
+      "cmd": "doveadm stats top",
+      "desc": "Watch live Dovecot statistics like top",
+      "tooltip": "Continuously refreshes the busiest sessions and users with per-user CPU and I/O figures, the fastest way to spot a runaway IMAP client or a mailbox that is hammering the server. Press q or Ctrl-C to exit."
+    },
+    {
+      "cmd": "rspamadm pw",
+      "desc": "Generate a password hash for the Rspamd controller",
+      "tooltip": "Prompts for a password and prints a hash suitable for the password setting in the controller worker config, which gates the web UI and privileged commands. Paste the hash into worker-controller.inc and reload Rspamd. List hashing schemes with `rspamadm -l`."
+    },
+    {
+      "cmd": "rspamadm configdump",
+      "desc": "Print Rspamd's effective configuration",
+      "tooltip": "Dumps the fully merged configuration after all includes and local.d overrides are applied, which is the ground truth when a setting behaves unexpectedly. Pipe through less or grep. Add -j for JSON output."
+    },
+    {
+      "cmd": "rspamadm configtest",
+      "desc": "Validate Rspamd configuration syntax",
+      "tooltip": "Parses the configuration tree and reports syntax errors without touching the running daemon, printing 'syntax OK' on success. Run it before restarting Rspamd after manual edits. Add -s for strict checking with unresolved variables flagged."
+    },
+    {
+      "cmd": "rspamadm confighelp dns",
+      "desc": "Show documentation for a Rspamd module's options",
+      "tooltip": "Prints the configurable options and types for a module such as dns, actions, or milter_headers, which beats guessing option names when tuning rules. List available modules with `rspamadm -l`. The output comes from the built-in configuration schema."
+    },
+    {
+      "cmd": "rspamadm dkim_keygen -b 2048 -d example.com -s default -k /etc/rspamd/dkim/example.com.key",
+      "desc": "Generate a DKIM keypair for a domain",
+      "tooltip": "Creates a DKIM signing keypair: -d the domain, -s the selector, -b the key size, -k where to save the private key. The matching DNS TXT record is printed to stdout, ready to publish at selector._domainkey.example.com. DKIM = cryptographic signature proving mail came from your domain."
+    },
+    {
+      "cmd": "rspamadm mime sign -d example.com -s default -k /etc/rspamd/dkim/example.com.key message.eml",
+      "desc": "Sign a test message with a DKIM key",
+      "tooltip": "Applies the configured DKIM key to a sample message and writes the signed result to stdout, which proves the key and selector work before you rely on them in production. Redirect to a file and inspect the DKIM-Signature header. Related: `rspamadm dkim_keygen`."
+    },
+    {
+      "cmd": "rspamadm dnstool spf -d example.com",
+      "desc": "Check a domain's SPF record",
+      "tooltip": "Queries and decodes the domain's SPF record, showing the mechanisms and how many DNS lookups it will cost. SPF = the list of servers allowed to send for your domain. Use `dnstool spf-flatten` when a record exceeds the 10-lookup limit."
+    },
+    {
+      "cmd": "rspamadm grep -p \"BAYES_IS_SPAM\" /var/log/rspamd/rspamd.log",
+      "desc": "Search Rspamd logs for a pattern",
+      "tooltip": "Searches the log for a regex or string and prints complete grouped entries for the tasks that matched, unlike plain grep which splits multi-line log records. `-s` searches a plain string case-insensitively. Invaluable for tracing why one message scored high."
+    },
+    {
+      "cmd": "rspamadm control stat",
+      "desc": "Show Rspamd worker statistics",
+      "tooltip": "Reads the control socket and prints counters such as messages scanned and learned, which tells you whether the scanner is actually processing traffic. Add -j for JSON. Requires control socket access; on mailcow run it inside the rspamd-mailcow container."
+    },
+    {
+      "cmd": "rspamadm control reload",
+      "desc": "Reload Rspamd's dynamic data",
+      "tooltip": "Tells a running Rspamd to reload dynamic data such as maps and local.d changes without a full restart, so rule updates apply immediately. Some core options still need a restart. See `rspamadm configtest` to validate before reloading."
+    },
+    {
+      "cmd": "rspamadm control fuzzystat",
+      "desc": "Show fuzzy hash storage statistics",
+      "tooltip": "Reports the health of the fuzzy storage backend, including the number of stored hashes and memory use. Fuzzy hashes let multiple servers share spam fingerprints. Run `control fuzzysync` to force a flush to disk before backups."
+    },
+    {
+      "cmd": "rspamc symbols < message.eml",
+      "desc": "Scan a message and list matched rules",
+      "tooltip": "Sends a message to Rspamd and prints the scan verdict with every symbol that fired and its score contribution. symbols is the default command, so plain `rspamc < message.eml` does the same. Add -R for a one-line human-readable summary."
+    },
+    {
+      "cmd": "rspamc -R < message.eml",
+      "desc": "Scan a message with a score summary",
+      "tooltip": "Returns the message's total score and the action thresholds, like score/greylist/addheader/reject, on the first line, which is the fastest pass/fail verdict for a message. The default plain output lists individual symbols instead."
+    },
+    {
+      "cmd": "rspamc -i 192.0.2.50 symbols < message.eml",
+      "desc": "Scan a message pretending it came from an IP",
+      "tooltip": "Emulates the SMTP client IP so Rspamd evaluates IP-based checks such as DNS blocklists and greylisting as if the message arrived from that address. Great for testing whether a legit sender's IP is being penalized. Related flags: -u, -F, -r emulate sender identity."
+    },
+    {
+      "cmd": "rspamc --header 'X-Test: 1' symbols < message.eml",
+      "desc": "Scan a message with a custom header",
+      "tooltip": "Adds an extra HTTP header to the scan request, which some setups use to pass context into custom rules or to test header-based logic. Options come before the command name. Combine with -i and -u to fully simulate an SMTP transaction."
+    },
+    {
+      "cmd": "rspamc learn_spam message.eml",
+      "desc": "Train Rspamd that a message is spam",
+      "tooltip": "Feeds a message into the Bayes classifier as a spam example so future similar mail scores higher. Training is a privileged controller command: pass -P with the controller password when one is configured. Keep spam and ham training balanced."
+    },
+    {
+      "cmd": "rspamc learn_ham message.eml",
+      "desc": "Train Rspamd that a message is ham",
+      "tooltip": "Teaches the Bayes classifier that a message is legitimate, lowering the score of similar mail. Retrain misclassified messages so the filter corrects itself. May require -P with the controller password. Check training health with `rspamc stat`."
+    },
+    {
+      "cmd": "rspamc stat",
+      "desc": "Show Rspamd statistics including Bayes data",
+      "tooltip": "Prints scanner counters and, when Bayes is enabled, the classifier's spam/ham learn counts which reveal an unbalanced training set. A healthy classifier has comparable numbers on both sides. Add -R for human-readable formatting."
+    },
+    {
+      "cmd": "rspamc uptime",
+      "desc": "Show how long Rspamd has been running",
+      "tooltip": "Returns the Rspamd version and how long the process has been up, which is the quickest way to confirm a reload or restart actually happened. Combine with `rspamc stat` for a basic health check."
+    },
+    {
+      "cmd": "rspamc counters",
+      "desc": "Display per-symbol hit counters",
+      "tooltip": "Lists how often each symbol has fired since the counters were reset, showing which rules do the real work in your traffic. Sort with --sort hits for the busiest rules. Useful when tuning scores or deciding which rules to disable."
+    },
+    {
+      "cmd": "opendkim-genkey -D /etc/opendkim/keys/example.com -d example.com -s default",
+      "desc": "Generate a DKIM keypair with OpenDKIM",
+      "tooltip": "Creates a private key file and a TXT record file named after the selector in the -D directory. Publish the TXT record at default._domainkey.example.com and point OpenDKIM at the private key. DKIM = cryptographic signature proving an email came from your domain."
+    },
+    {
+      "cmd": "opendkim-testkey -d example.com -s default -vvv",
+      "desc": "Verify a DKIM key against DNS",
+      "tooltip": "Fetches the selector's public key from DNS and checks it against the local private key, reporting whether signing will verify. The -vvv flags give maximum detail. Run it after publishing a DKIM record; DNS propagation can take a few minutes."
+    },
+    {
+      "cmd": "opendkim-testmsg < message.eml",
+      "desc": "Verify a message's DKIM signature locally",
+      "tooltip": "Reads a raw message from stdin and verifies its DKIM signature against the key published in DNS, printing errors if verification fails. No output means the signature checks out. Handy for testing whether a received message was genuinely signed."
+    },
+    {
+      "cmd": "dig +short TXT default._domainkey.example.com",
+      "desc": "Fetch a domain's DKIM public key record",
+      "tooltip": "Returns the DKIM TXT record for the selector, which must contain v=DKIM1 and the p= public key. Empty output means the record is missing or not propagated. A different selector changes the name, e.g. mail._domainkey.example.com."
+    },
+    {
+      "cmd": "dig +short TXT example.com",
+      "desc": "Show the SPF record for a domain",
+      "tooltip": "Prints the SPF record, which lists the servers allowed to send for the domain, usually starting with v=spf1 and ending in -all or ~all. A missing record is a deliverability red flag. Use `rspamadm dnstool spf` for a decoded breakdown."
+    },
+    {
+      "cmd": "dig +short TXT _dmarc.example.com",
+      "desc": "Show a domain's DMARC policy",
+      "tooltip": "Displays the DMARC record, which tells receivers what to do with mail that fails SPF and DKIM: p=none, p=quarantine, or p=reject. Start with p=none and monitoring reports before tightening. DMARC builds on SPF and DKIM results."
+    },
+    {
+      "cmd": "dig +short MX example.com",
+      "desc": "List a domain's mail exchanger records",
+      "tooltip": "Shows which servers accept mail for the domain, with the numeric priority. Check this when mail to a domain bounces or when you expect MX to point at your mail server. Compare against `dig +short A mail.example.com` for a sanity check."
+    },
+    {
+      "cmd": "host -t MX example.com",
+      "desc": "Resolve a domain's MX records with host",
+      "tooltip": "Queries the MX records in a more verbose format than dig +short, showing the full answer section and authoritative server. Useful on minimal systems or when you prefer host's output layout. Equivalent queries: `host -t TXT example.com`."
+    },
+    {
+      "cmd": "host -t TXT example.com",
+      "desc": "Show TXT records including SPF",
+      "tooltip": "Lists every TXT record for the domain, which typically includes the SPF record and often a verification token for Google or other providers. Scan the output for v=spf1 to confirm SPF is published."
+    },
+    {
+      "cmd": "nslookup -type=TXT default._domainkey.example.com",
+      "desc": "Check a DKIM record with nslookup",
+      "tooltip": "Fetches the DKIM TXT record using nslookup's classic syntax, handy on servers where dig is not installed. The answer should contain the v=DKIM1 tag with the public key. Same record as `dig +short TXT default._domainkey.example.com`."
+    },
+    {
+      "cmd": "dig +short TXT google._domainkey.example.com",
+      "desc": "Check Google Workspace DKIM signing record",
+      "tooltip": "Fetches the DKIM record for Google's standard selector, which is what Workspace uses when you enable DKIM signing in the admin console. A populated record means Google can sign mail for the domain; an empty answer means it is not set up yet."
+    },
+    {
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml ps",
+      "desc": "List all mailcow containers and their status",
+      "tooltip": "Shows every container in the stack with its state and uptime, using the explicit compose file so it works from any directory. From /opt/mailcow-dockerized the plain `docker compose ps` is equivalent. If one container restarts repeatedly, follow its logs with `docker compose logs -f <service>`."
+    },
+    {
+      "cmd": "docker compose logs -f postfix-mailcow",
+      "desc": "Follow mailcow's Postfix logs",
+      "tooltip": "Streams log output from the Postfix container, where deliveries, rejections, and queue events appear. Run from /opt/mailcow-dockerized. Swap the service name for dovecot-mailcow, rspamd-mailcow, or clamd-mailcow to watch other components."
+    },
+    {
+      "cmd": "docker compose logs -f dovecot-mailcow",
+      "desc": "Follow mailcow's Dovecot logs",
+      "tooltip": "Tails the Dovecot container logs to watch IMAP and POP3 logins, authentication failures, and quota errors. Run from /opt/mailcow-dockerized. Combine with `doveadm who` inside the container to correlate errors with live sessions."
+    },
+    {
+      "cmd": "docker compose exec postfix-mailcow postqueue -p",
+      "desc": "View the mail queue inside mailcow",
+      "tooltip": "Runs the queue listing command inside the Postfix container, showing queued messages with IDs and delay reasons. Run from /opt/mailcow-dockerized. Use `postsuper -r` with an ID to retry a stuck message."
+    },
+    {
+      "cmd": "docker compose exec postfix-mailcow postconf -n",
+      "desc": "Show non-default Postfix settings in mailcow",
+      "tooltip": "Prints only the Postfix parameters mailcow overrides from the defaults, which is the first thing to check when delivery behavior differs from a stock install. Run from /opt/mailcow-dockerized. `postconf` without flags shows every effective value."
+    },
+    {
+      "cmd": "docker compose exec postfix-mailcow newaliases",
+      "desc": "Rebuild aliases inside mailcow's Postfix",
+      "tooltip": "Rebuilds the aliases database inside the container after the built-in aliases were changed, for example when adding catch-all local aliases. Run from /opt/mailcow-dockerized. Domain aliases are normally managed through the mailcow UI instead."
+    },
+    {
+      "cmd": "docker compose exec dovecot-mailcow doveadm user -l",
+      "desc": "List mailboxes configured in mailcow",
+      "tooltip": "Lists every mailbox account Dovecot serves, which reflects the mailcow database contents. Run from /opt/mailcow-dockerized. Useful to confirm a mailbox exists before testing login or quota problems."
+    },
+    {
+      "cmd": "docker compose exec dovecot-mailcow doveadm mailbox status -u user@example.com messages",
+      "desc": "Check a mailbox's message count in mailcow",
+      "tooltip": "Reports the message count for a user's INBOX inside the Dovecot container, defaulting to INBOX when no folder is named. Run from /opt/mailcow-dockerized. Add `unseen` or a folder name to dig further into delivery problems."
+    },
+    {
+      "cmd": "docker compose exec rspamd-mailcow rspamadm pw",
+      "desc": "Hash a password for mailcow's Rspamd",
+      "tooltip": "Generates the password hash used by the Rspamd controller inside mailcow, which guards the web UI and privileged commands. Run from /opt/mailcow-dockerized, then paste the hash into the controller config and reload Rspamd."
+    },
+    {
+      "cmd": "docker compose exec rspamd-mailcow rspamadm configdump",
+      "desc": "Dump mailcow's effective Rspamd config",
+      "tooltip": "Prints Rspamd's fully merged configuration inside the container, including every local.d override mailcow ships. Run from /opt/mailcow-dockerized. Filter with grep when hunting a specific setting, and validate edits with `rspamadm configtest`."
+    },
+    {
+      "cmd": "./generate_config.sh",
+      "desc": "Run mailcow's first-time setup wizard",
+      "tooltip": "Interactive script that creates mailcow.conf from your answers, run once in /opt/mailcow-dockerized after cloning the repository. It asks for the hostname, timezone, and compose project name. Start the stack afterwards with `docker compose up -d`."
+    },
+    {
+      "cmd": "./update.sh",
+      "desc": "Update mailcow to the latest version",
+      "tooltip": "Pulls the newest mailcow code and container images, then restarts the stack, backing up configuration first. Run it in /opt/mailcow-dockerized. When the update script itself changed, it asks you to run it a second time."
+    },
+    {
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml pull",
+      "desc": "Download the newest mailcow container images",
+      "tooltip": "Fetches updated images for every service without changing anything running, so the next up command can restart with them. Works from any directory thanks to the explicit compose file path. Check the mailcow changelog for breaking changes before updating."
+    },
+    {
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml up -d",
+      "desc": "Start the mailcow stack in the background",
+      "tooltip": "Starts all containers detached, using existing volumes and config, which also applies pulled image updates; the explicit file path makes it runnable from anywhere. Verify readiness with `docker compose ps` and the web UI before testing mail flow."
+    },
+    {
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml down",
+      "desc": "Stop all mailcow containers",
+      "tooltip": "Shuts down the entire stack, taking mail, webmail, and the admin UI offline, so schedule it for maintenance windows. Data stays in the Docker volumes, so the up command brings everything back. Prefer `docker compose restart <service>` for single-component fixes."
+    },
+    {
+      "cmd": "docker compose restart postfix-mailcow",
+      "desc": "Restart just the mailcow Postfix container",
+      "tooltip": "Reboots the Postfix container alone, which applies manual changes made to its config files or maps without touching the other services. Run from /opt/mailcow-dockerized. Watch the logs afterwards to confirm it comes back cleanly."
+    },
+    {
+      "cmd": "./helper-scripts/backup_and_restore.sh backup all --delete-days 3",
+      "desc": "Back up all mailcow data",
+      "tooltip": "Exports vmail, MySQL, Redis, and the other components into timestamped folders; the component list can be narrowed, e.g. `backup vmail crypt mysql`. Set MAILCOW_BACKUP_LOCATION first for unattended runs, and --delete-days prunes old backups."
+    },
+    {
+      "cmd": "docker compose exec mysql-mailcow mysql -u mailcow -p mailcow",
+      "desc": "Open the mailcow database shell",
+      "tooltip": "Starts a MySQL client inside the database container against the mailcow database, prompting for the DBPASS password from mailcow.conf. Run from /opt/mailcow-dockerized. Read-only queries are safe, but direct writes can break the UI, so prefer the admin panel."
+    },
+    {
+      "cmd": "swaks --to test@example.com --server smtp.example.com",
+      "desc": "Send a standard test email to a server",
+      "tooltip": "Performs a full SMTP transaction to the given server with a generated message, printing every exchange. The default target port is 25. Zero errors and a 250 response mean the server accepted the mail. Add --from to override the envelope sender."
+    },
+    {
+      "cmd": "swaks --to user@example.com --from me@example.com --header-Subject \"test\" --body \"hi\"",
+      "desc": "Send a test email with custom subject and body",
+      "tooltip": "Delivers a hand-crafted message: --from sets the envelope sender, --header-Subject adds a Subject header, and --body supplies the text. Headers use the --header-Name form, one per option. Useful for reproducing real messages against a server."
+    },
+    {
+      "cmd": "swaks --tls --to user@example.com --server smtp.example.com:587",
+      "desc": "Test SMTP submission with STARTTLS",
+      "tooltip": "Connects to the submission port and negotiates TLS before sending, which verifies both the certificate and the server's STARTTLS behavior. STARTTLS upgrades a plaintext connection to encrypted. Add --auth to also test authentication on that port."
+    },
+    {
+      "cmd": "swaks --auth --auth-user me@example.com --auth-password 'secret' --to user@example.com --server smtp.example.com:587",
+      "desc": "Test SMTP authentication and delivery",
+      "tooltip": "Authenticates with LOGIN or the server's preferred mechanism and then sends the message, proving the credentials and the authenticated path both work. The password sits in your shell history, so scrub it or read it from a file afterwards."
+    },
+    {
+      "cmd": "openssl s_client -starttls smtp -connect smtp.example.com:25 -servername smtp.example.com",
+      "desc": "Inspect the TLS certificate on port 25",
+      "tooltip": "Opens a raw TLS session over SMTP's STARTTLS and prints the certificate chain, validity dates, and cipher, which is how you confirm the MTA presents the right cert. -servername sets SNI for multi-cert servers. Type QUIT and Enter to exit."
+    },
+    {
+      "cmd": "openssl s_client -starttls smtp -connect smtp.example.com:587 -crlf",
+      "desc": "Check TLS on the submission port",
+      "tooltip": "Tests STARTTLS on the 587 submission port, where authenticated clients send mail; -crlf makes the session usable for typing SMTP commands. Look for the certificate and a Verify return code of 0. Port 465 skips STARTTLS entirely."
+    },
+    {
+      "cmd": "openssl s_client -connect smtp.example.com:465",
+      "desc": "Check TLS on the implicit SMTPS port",
+      "tooltip": "Connects to the legacy implicit-TLS SMTP port, where encryption starts immediately without STARTTLS. Prints the presented certificate and negotiated cipher. Most modern servers use 587 with STARTTLS instead, but 465 still accepts mail."
+    },
+    {
+      "cmd": "openssl s_client -starttls imap -connect imap.example.com:143",
+      "desc": "Inspect TLS on IMAP with STARTTLS",
+      "tooltip": "Tests the IMAP port's STARTTLS upgrade and shows the certificate the server offers, confirming IMAPS readiness. Type `a1 LOGIN user pass` to test credentials manually, or `a1 LOGOUT` to end the session cleanly."
+    },
+    {
+      "cmd": "openssl s_client -connect imap.example.com:993",
+      "desc": "Check TLS on the IMAPS port",
+      "tooltip": "Verifies the certificate presented on the implicit-TLS IMAP port 993, used by most mail clients. Check the validity dates and that the hostname matches the certificate. Related: port 143 uses STARTTLS instead of immediate encryption."
+    },
+    {
+      "cmd": "nc -vz smtp.example.com 25",
+      "desc": "Check if the SMTP port is reachable",
+      "tooltip": "Tests TCP connectivity to port 25: -v prints the result and -z scans without sending data. A refusal or timeout means the port is filtered or the service is down. Repeat for 587 and 465 to map which listeners are exposed."
+    },
+    {
+      "cmd": "nc -vz smtp.example.com 587",
+      "desc": "Check if the submission port is open",
+      "tooltip": "Probes TCP reachability of the 587 submission port, where mail clients authenticate before sending. A connection that succeeds but then closes is normal for -z. If 587 is blocked, clients fall back to 465 or fail to send."
+    },
+    {
+      "cmd": "nc -vz smtp.example.com 465",
+      "desc": "Check if the SMTPS port is open",
+      "tooltip": "Verifies TCP connectivity to port 465, the implicit-TLS SMTP port. Many firewalls block it in addition to 25, so test all three SMTP ports when diagnosing client timeout errors. A success means a listener accepted the TCP handshake."
+    },
+    {
+      "cmd": "curl -X POST https://api.sendgrid.com/v3/mail/send -H \"Authorization: Bearer $SENDGRID_API_KEY\" -H 'Content-Type: application/json' -d '{\"personalizations\":[{\"to\":[{\"email\":\"user@example.com\"}]}],\"from\":{\"email\":\"me@example.com\"},\"subject\":\"Hello\",\"content\":[{\"type\":\"text/plain\",\"value\":\"Hi there\"}]}'",
+      "desc": "Send an email through the SendGrid API",
+      "tooltip": "Sends mail via the v3 API using an API key in the Authorization header; a 202 Accepted response means SendGrid queued it. The JSON body has personalizations for recipients, plus from, subject, and content. Store the key in $SENDGRID_API_KEY, never in the command itself."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/suppression/bounces -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "List all bounced addresses in SendGrid",
+      "tooltip": "Returns the paginated bounce suppression list with timestamps and the SMTP error for each address. Bounces = mail the receiving server rejected permanently. Add ?limit=500 to page through results. Clear entries with the DELETE variant of this endpoint."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/suppression/bounces/email@example.com -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "Check if one address bounced",
+      "tooltip": "Queries the bounce list for a single recipient and returns the bounce record if one exists, or a 404 when the address is clean. The fastest way to explain why one recipient stopped receiving mail."
+    },
+    {
+      "cmd": "curl -X DELETE https://api.sendgrid.com/v3/suppression/bounces/email@example.com -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "Remove an address from the bounce list",
+      "tooltip": "Deletes a recipient from the bounce suppressions so future sends to them are attempted again, which is right after you fix their mailbox. Returns 404 if the address is not on the list. For mass cleanup, DELETE the whole list endpoint with a body of email addresses."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/suppression/spam_reports -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "List addresses that reported spam",
+      "tooltip": "Shows recipients who marked your mail as spam, with timestamps. High spam-report volume damages sender reputation, so review these regularly. Remove an entry with a DELETE to the same path plus the address."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/suppression/invalid_emails -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "List invalid addresses in SendGrid",
+      "tooltip": "Returns recipients that were rejected as syntactically invalid or nonexistent, which is where typo'd signups accumulate. Prune these from your lists to keep bounce rates low. Supports the same limit and offset paging as the bounces endpoint."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/global_suppressions/email@example.com -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "Check if an address is globally suppressed",
+      "tooltip": "Tests whether a recipient is on the global suppression list, which blocks all sending to them regardless of list membership. Returns 404 when the address is not suppressed. Global suppressions also include unsubscribes from transactional mail."
+    },
+    {
+      "cmd": "curl -X DELETE https://api.sendgrid.com/v3/global_suppressions/email@example.com -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "Remove an address from global suppressions",
+      "tooltip": "Lifts the global block on a recipient so your sends reach them again, which is useful after a user reports missing mail that turned out to be an old unsubscribe. Deleting a nonexistent entry returns 404, which is safe to ignore."
+    },
+    {
+      "cmd": "curl -X GET \"https://api.sendgrid.com/v3/stats?start_date=2026-08-01\" -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "Show SendGrid sending statistics from a date",
+      "tooltip": "Returns per-day aggregates of requests, delivered, bounces, and opens from the start_date onward, quoted because of the query string. The end_date parameter defaults to today. Great for graphing delivery health over time."
+    },
+    {
+      "cmd": "curl -X GET https://api.sendgrid.com/v3/verified_senders -H \"Authorization: Bearer $SENDGRID_API_KEY\"",
+      "desc": "List sender identities verified in SendGrid",
+      "tooltip": "Shows the sender identities and domains that have passed SendGrid's verification, which is what lets you send as me@example.com. A missing entry here causes 403 Forbidden on mail/send. Verify new senders via the dashboard or the senders endpoint."
+    },
+    {
+      "cmd": "sa-learn --spam spam.eml",
+      "desc": "Train the Bayes filter with a spam message",
+      "tooltip": "Feeds a message into SpamAssassin's Bayesian classifier as a spam example, so similar future mail scores higher. Train with at least a few hundred spam and ham samples, keeping the ratio balanced. Related: `sa-learn --ham` for legitimate mail."
+    },
+    {
+      "cmd": "sa-learn --ham ham.eml",
+      "desc": "Train the Bayes filter with legitimate mail",
+      "tooltip": "Teaches the Bayesian classifier what your normal, wanted mail looks like, reducing false positives. If a message was learned wrong before, re-learning it with the correct class automatically forgets the old verdict. Check the database with `sa-learn --dump magic`."
+    },
+    {
+      "cmd": "sa-learn --sync",
+      "desc": "Synchronize pending Bayes training to the database",
+      "tooltip": "Commits journaled learning entries into the Bayes database, which is the final step after batch-training with --no-sync. Run it after large training runs so the data is durable and queryable. The journal is normally synced automatically at intervals."
+    },
+    {
+      "cmd": "sa-learn --forget message.eml",
+      "desc": "Untrain a previously learned message",
+      "tooltip": "Removes a message's influence from the Bayes database, undoing a mistaken --spam or --ham learn. Run it when you discover a training sample was mislabeled. The message must match the one originally learned to be forgotten."
+    },
+    {
+      "cmd": "sa-learn --dump magic",
+      "desc": "Show Bayes database statistics",
+      "tooltip": "Prints the magic tokens of the Bayes database: counts of learned spam and ham messages, plus expiry settings. Use it to verify training took effect and to spot a lopsided corpus. Add `data` to dump tokens or a regexp to filter them."
+    },
+    {
+      "cmd": "sa-learn --clear",
+      "desc": "Wipe the entire Bayes database",
+      "tooltip": "Destroys all learned tokens and statistics, forcing the classifier to start from zero. Destructive and irreversible, so back up first with `sa-learn --backup`. Only reach for it when the database is corrupt or the corpus was garbage."
+    },
+    {
+      "cmd": "spamassassin -t < message.eml",
+      "desc": "Score a message with a full test report",
+      "tooltip": "Runs the message through every rule and appends a report of each test, its score, and the total, without modifying a live mailbox. The report assumes the message is spam, so judge by the score. Use it to see exactly why something scored high or low."
+    },
+    {
+      "cmd": "spamassassin -e < message.eml",
+      "desc": "Score a message and exit 1 if spam",
+      "tooltip": "Filters the message and exits with a non-zero status when the score crosses the spam threshold, which scripts use as a boolean spam test. The filtered message still goes to stdout. Add -t to also print the per-rule report."
+    },
+    {
+      "cmd": "spamassassin --lint",
+      "desc": "Check SpamAssassin rules and config for errors",
+      "tooltip": "Parses every rule and configuration file, reporting syntax errors, bad regexes, and unknown options. Exits zero when clean. Run it after editing local.cf or installing a new ruleset, before reloading the service."
+    },
+    {
+      "cmd": "spamc -c < message.eml",
+      "desc": "Check a message via the spamd daemon",
+      "tooltip": "Asks the always-running spamd process to evaluate a message and sets the exit code to 1 if it is spam, which is far faster than launching spamassassin per message. -c also prints the score and threshold. Requires spamd running, normally as part of the mail stack."
+    },
+    {
+      "cmd": "spamc -r < message.eml",
+      "desc": "Print the spam report for a message",
+      "tooltip": "Outputs SpamAssassin's full report text when the message is spam, and nothing when it is ham. Use -R for the report on every message. The report lists each rule and score, ideal for debugging false positives through the daemon path."
+    },
+    {
+      "cmd": "spamc -y < message.eml",
+      "desc": "List the SpamAssassin tests a message hits",
+      "tooltip": "Prints just the names of the rules the message matched, comma-separated, which is the compact version of the report. Great for grepping in scripts. The plain `spamc -c` gives the score instead."
+    },
+    {
+      "cmd": "spamc -L spam < message.eml",
+      "desc": "Learn a message as spam through spamd",
+      "tooltip": "Sends the message to spamd for Bayesian training without running the full scanner, so remote or scripted training uses the daemon. Accepts ham and forget as learn types. spamd must be started with --allow-tell for learning to work."
+    },
+    {
+      "cmd": "imapsync --host1 imap.old.example.com --user1 user@example.com --password1 secret --host2 imap.new.example.com --user2 user@example.com --password2 secret",
+      "desc": "Migrate a mailbox between IMAP servers",
+      "tooltip": "Copies all folders, messages, and flags from one IMAP account to another, skipping messages that already exist on the destination so reruns are safe. Run with --dry first to preview, and consider --useheader Message-Id when duplicates appear. No deletions happen unless --delete2 is given."
+    },
+    {
+      "cmd": "sievec /etc/dovecot/sieve/dovecot.sieve",
+      "desc": "Compile a Sieve script for Dovecot",
+      "tooltip": "Compiles a Sieve script into the binary .svbin form Dovecot's LDA executes, which also surfaces syntax errors before the script goes live. Sieve = server-side mail filtering rules. Normally the LDA compiles on demand, but precompiling catches typos early."
+    },
+    {
+      "cmd": "sieve-test script.sieve message.eml",
+      "desc": "Dry-run a Sieve script against a message",
+      "tooltip": "Executes a Sieve script against a sample message and prints which actions would run, such as fileinto or redirect, without actually delivering or forwarding anything. The essential debugger for vacation, sorting, and forwarding rules."
+    },
+    {
+      "cmd": "systemctl restart dovecot",
+      "desc": "Restart Dovecot via systemd",
+      "tooltip": "Stops and starts the Dovecot service, dropping all IMAP and POP3 connections in the process, so prefer `doveadm reload` for config tweaks. Use this after package upgrades or when listeners fail to bind. Confirm with `systemctl status dovecot`."
+    }
+  ]
+}

@@ -1,0 +1,580 @@
+{
+  "category": "Matrix & Synapse",
+  "commands": [
+    {
+      "cmd": "synctl start",
+      "desc": "Start the Synapse homeserver in the background",
+      "tooltip": "Launches Synapse as a daemon using homeserver.yaml from the current directory, so your terminal stays usable. Run it from the Synapse install directory with the virtualenv activated. First use comes after generating config with the --generate-config flag. Pair with synctl stop to shut the server down."
+    },
+    {
+      "cmd": "synctl stop",
+      "desc": "Stop a running Synapse homeserver gracefully",
+      "tooltip": "Sends a clean shutdown to the main Synapse process and any workers it manages, flushing pending database writes. Safe to run when the server is already stopped, though it prints a warning. Pair with synctl start to bring the server back up, or synctl restart to combine both."
+    },
+    {
+      "cmd": "synctl restart",
+      "desc": "Restart the Synapse homeserver process",
+      "tooltip": "Stops then starts Synapse, which is the standard step after editing homeserver.yaml so changes take effect. Run from the install directory with the virtualenv active. For worker-based deployments, restart all workers too, or use the -a flag to restart every process at once."
+    },
+    {
+      "cmd": "synctl restart -w /etc/matrix-synapse/workers/generic_worker.yaml",
+      "desc": "Restart a single Synapse worker process",
+      "tooltip": "Restarts only the worker described by the given worker config file. A worker is a separate Synapse process that handles part of the traffic (sync, federation, media) to scale a large homeserver. After upgrades, restarting every worker is safer unless you know only one changed. The -a flag with a directory of worker configs restarts them all."
+    },
+    {
+      "cmd": "synctl restart -a /etc/matrix-synapse/workers",
+      "desc": "Restart every Synapse worker in a directory",
+      "tooltip": "Restarts all worker processes whose config files live in the given directory, plus the main process, in one command. Use this after upgrading Synapse so every process runs the new code. Each worker config is a YAML file naming its worker_app and listener. The -w flag targets a single worker instead."
+    },
+    {
+      "cmd": "python3 -m synapse.app.homeserver --generate-config --server-name example.com --report-stats=yes -c homeserver.yaml",
+      "desc": "Generate an initial Synapse config file",
+      "tooltip": "Creates homeserver.yaml, a signing key, and a logging config for a new homeserver (your Matrix server). --server-name sets the domain that appears in user IDs, so it must be the DNS name you will serve Matrix from. --report-stats=yes sends anonymous usage statistics to the project; choose yes or no explicitly or the server refuses to start. Edit the generated file, then run the same module without --generate-config to start."
+    },
+    {
+      "cmd": "python3 -m synapse.app.homeserver --generate-config --server-name example.com --report-stats=no --data-directory /var/lib/matrix-synapse",
+      "desc": "Generate config with a custom data directory",
+      "tooltip": "Variant of config generation that opts out of usage statistics with --report-stats=no and stores the SQLite database, media store, and uploads under --data-directory instead of the current folder. Keep that directory backed up: it holds all user content and history. The plain --generate-config form keeps data in the working directory."
+    },
+    {
+      "cmd": "python3 -m synapse.app.homeserver --generate-keys -c homeserver.yaml",
+      "desc": "Regenerate missing Synapse signing keys",
+      "tooltip": "Writes any signing key and logging config files that homeserver.yaml references but that are missing from disk, then exits. Signing keys identify your server to the federation, so never delete or share them. Also available as --generate-missing-configs. Running the server itself creates these files on first start anyway."
+    },
+    {
+      "cmd": "python3 -m synapse.app.homeserver -c homeserver.yaml",
+      "desc": "Run the Synapse homeserver in the foreground",
+      "tooltip": "Starts Synapse attached to your terminal, streaming logs to stdout until you press Ctrl+C to stop it. The -c flag points at your config file and can be repeated to merge several YAML files. Production deployments usually prefer synctl start or a systemd unit so the server survives logout."
+    },
+    {
+      "cmd": "python3 -m synapse.app.homeserver --help",
+      "desc": "Show all Synapse homeserver CLI options",
+      "tooltip": "Prints the full flag list: -c/--config-path, --generate-config, --generate-keys, -H/--server-name, --report-stats, --data-directory, and --enable-metrics among others. Run it from the Synapse virtualenv, same as the server itself. The output confirms which generation flags your Synapse version supports."
+    },
+    {
+      "cmd": "register_new_matrix_user -c homeserver.yaml",
+      "desc": "Register a new Matrix user interactively",
+      "tooltip": "Prompts for the username localpart (the part before @), a password, and whether the user is an admin, then creates the account on a running Synapse. It authenticates with the registration_shared_secret from your homeserver.yaml, so that secret must be configured even when open registration is off. Uses http://localhost:8008 by default. Add -u, -p, and --admin or --no-admin to skip the prompts."
+    },
+    {
+      "cmd": "register_new_matrix_user -c homeserver.yaml -u alice -p 'secret' --admin",
+      "desc": "Create an admin user non-interactively",
+      "tooltip": "Creates user alice with the given password and makes her a server admin, which grants access to the Admin API endpoints. The -u flag takes only the localpart, so the full ID becomes @alice:example.com. Passing passwords on the command line leaks them into shell history, so prefer --password-file in scripts. A server admin is not the same as a room admin."
+    },
+    {
+      "cmd": "register_new_matrix_user -c homeserver.yaml -u bob -p 'secret' --no-admin",
+      "desc": "Create a regular non-admin user",
+      "tooltip": "Creates user bob with no admin rights. Always pass --no-admin (or --admin) in scripts: without either, the tool asks 'Make admin' interactively and fails on EOF in non-interactive shells. The user can log in through any Matrix client once created. See register_new_matrix_user --help for the full option list."
+    },
+    {
+      "cmd": "register_new_matrix_user -c homeserver.yaml -u carol --password-file /tmp/carol-pw.txt --no-admin",
+      "desc": "Create a user with the password read from a file",
+      "tooltip": "Reads the new password from the file instead of the command line, keeping it out of shell history and process listings. The file's trailing newline is stripped automatically. Handy for bulk user creation loops; --exists-ok makes the same script safe to rerun. The file must be readable by the account running the command."
+    },
+    {
+      "cmd": "register_new_matrix_user -c homeserver.yaml -u alice -p 'secret' --admin --exists-ok",
+      "desc": "Create a user but skip if they already exist",
+      "tooltip": "The --exists-ok flag turns a duplicate registration into a no-op instead of an error, which makes provisioning scripts idempotent. If the user exists, their password and admin status are left untouched. Combine with --password-file for safe bulk onboarding. Without the flag, an existing user aborts the script."
+    },
+    {
+      "cmd": "register_new_matrix_user -k 's3cr3t' -u dave -p 'secret' --no-admin http://localhost:8008",
+      "desc": "Register a user supplying the shared secret directly",
+      "tooltip": "Uses -k/--shared-secret to pass the registration_shared_secret inline instead of reading it from a config file, with the homeserver URL as the final argument. The secret must match the registration_shared_secret value in homeserver.yaml or registration fails. Prefer -c with the config file so the secret is not typed in the open. Works against a remote server if the admin API is reachable."
+    },
+    {
+      "cmd": "register_new_matrix_user --help",
+      "desc": "Show register_new_matrix_user options",
+      "tooltip": "Lists every flag: -u/--user, -p/--password, --password-file, -a/--admin, --no-admin, -t/--user-type, -c/--config, -k/--shared-secret, --exists-ok, and the server URL argument. The tool registers users when open registration is disabled and requires registration_shared_secret in the config. Also check hash_password for resets and the Admin API for bulk operations."
+    },
+    {
+      "cmd": "hash_password -c homeserver.yaml",
+      "desc": "Generate a bcrypt hash for a password",
+      "tooltip": "Prompts for a password twice and prints the bcrypt hash to stdout, matching the bcrypt_rounds and pepper settings in your config. That hash can replace the password_hash column in the Synapse database to reset a locked-out user's password directly. The Admin API reset_password endpoint achieves the same result without touching the database. Never store plaintext passwords."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v2/users/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Fetch details of one Matrix user",
+      "tooltip": "Returns the account record for @alice:example.com: display name, admin flag, deactivated state, creation time, and linked email or phone IDs. An access token is the secret string from an admin user's account (Element: Settings, Help & About) that authorizes Admin API calls; export ACCESS_TOKEN='syt_...' in your shell so the header expands. The URL encodes the user ID as-is, including the @ sign. Server admins differ from room admins."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v2/users/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"displayname\":\"Alice Marigold\"}'",
+      "desc": "Update a user's profile via the Admin API",
+      "tooltip": "The v2 users endpoint both creates and modifies accounts, so PUT with a displayname updates the profile of an existing user. An empty displayname string removes the name, and avatar_url accepts an mxc:// URI. Other editable fields include password, admin, deactivated, and threepids. This is the programmatic alternative to register_new_matrix_user for managing accounts."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v2/users/@bob:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"password\":\"newpass123\"}'",
+      "desc": "Reset a user's password via the Admin API",
+      "tooltip": "Sets a new password for @bob:example.com and, by default, logs out every one of their devices (set \"logout_devices\":false to keep sessions). Unlike hash_password, no database access is needed. The dedicated reset_password endpoint does the same thing. Users who authenticate only through SSO or OIDC may have no password at all."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/deactivate/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Deactivate a user account",
+      "tooltip": "WARNING: deactivation is effectively irreversible. It deletes all access tokens, devices, end-to-end encryption keys, and the password, removes the user from every room, and rejects pending invites. The empty {} body means no GDPR erase; pass {\"erase\":true} to also scrub their profile. Consider suspend instead when you only need to silence someone temporarily, since their sent messages remain in rooms either way."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/deactivate/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"erase\":true}'",
+      "desc": "Deactivate a user and GDPR-erase their data",
+      "tooltip": "Same deactivation as the plain call, plus erase=true marks the account as erased: display name, avatar, and custom profile fields are removed, and their messages are hidden from users who join the room afterwards. People present when the messages were sent still see them. This is the strongest privacy action Synapse offers and cannot be undone. Prefer the {} variant unless erasure is genuinely required."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v2/users?from=0&limit=50' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List local users with pagination",
+      "tooltip": "Returns up to 50 local accounts ordered by user ID, with fields like admin, deactivated, and creation time. Paginate by reading next_token from the response and passing it as from in the next request. Guests are included by default; add &guests=false to exclude them. The v3 endpoint varies how the deactivated filter behaves."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v2/users?from=0&limit=50&admins=true' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List only the admin users",
+      "tooltip": "The admins=true query parameter filters the user list to server administrators, which is handy for auditing who can call the Admin API. Set admins=false to exclude them. Sorting by columns other than name can load the database on large servers. The plain v2 list includes everyone."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v3/users?deactivated=true' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List deactivated users via the v3 endpoint",
+      "tooltip": "The v3 user list treats the deactivated filter differently from v2: with deactivated=true only disabled accounts are returned, and when the parameter is absent no filtering happens at all. v2 instead defaults to hiding deactivated users unless you opt in. Useful for auditing abandoned or banned accounts. Both paginate with from and limit."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/admin' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Check whether a user is a server admin",
+      "tooltip": "Returns {\"admin\":true} or {\"admin\":false} for the given local user. A server admin can call every Admin API endpoint, which is far more powerful than being a room moderator. To change the flag, PUT to the same URL. Disabled when Matrix Authentication Service integration is enabled."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/admin' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"admin\":true}'",
+      "desc": "Grant or revoke server admin rights",
+      "tooltip": "Promotes a user to server admin with {\"admin\":true} or demotes them with {\"admin\":false}, giving or removing Admin API access. You cannot demote yourself, so always keep a second admin account. This is the API equivalent of register_new_matrix_user -a. Verify with the GET admin endpoint afterwards."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/whois/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show a user's active sessions and devices",
+      "tooltip": "Lists every device and connection for the user with IP addresses, user agents, and last-seen times. The first place to look when you suspect a hijacked account or an unknown device. Session data is only as fresh as the last sync. Compare with the joined_rooms endpoint to map what an attacker accessed."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/login' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Log in as another user to get a token",
+      "tooltip": "Issues a fresh access token and device ID for the target user so you can act on their behalf while debugging, without knowing their password. Optionally set \"valid_until_ms\" in the body to make the token expire. A user cannot use this endpoint to mint tokens for themselves. Disabled when Matrix Authentication Service is enabled."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/reset_password/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"new_password\":\"hunter2\"}'",
+      "desc": "Reset another user's password via API",
+      "tooltip": "Changes the user's password and logs out all their devices by default; add \"logout_devices\":false to keep sessions alive. This is the same action as the v2 users PUT with a password field, and it is disabled with Matrix Authentication Service. Tell the user to sign in again afterwards. Nothing is sent to the user automatically, so notify them separately."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v1/suspend/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"suspend\":true}'",
+      "desc": "Suspend a user's ability to send messages",
+      "tooltip": "A suspended account cannot send messages, invite or kick, change profile data, or redact other people's events, but keeps their login and history. Much lighter than deactivation: reverse it anytime with {\"suspend\":false} on the same endpoint. Good middle ground for problem accounts that you are not ready to delete."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/shadow_ban' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Shadow-ban an abusive user",
+      "tooltip": "The user keeps getting successful responses from the server, but their events are silently never delivered to rooms, which delays them realising they have been cut off. Use only as a last resort against spammers or abusers because it is confusing for the target. Lift it with the DELETE variant. Banning or kicking is usually more appropriate."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/shadow_ban' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Remove a shadow ban from a user",
+      "tooltip": "Restores normal message delivery for a shadow-banned user by clearing the flag on their account. Their events propagate to rooms again immediately. Pair with the POST variant that applies the ban. The user ID must belong to a local account."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/joined_rooms' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List the rooms a user has joined",
+      "tooltip": "Returns the room IDs (the unique internal identifiers that start with !) the user currently participates in, plus a total count. Only current joins appear here; for invites, knocks, and rooms they left, use the memberships endpoint instead. Each room ID looks like !abc123:example.com. Useful before deactivating an account to see what they were part of."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/memberships' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List all room memberships of a user",
+      "tooltip": "Maps every room ID to the user's membership state: join, leave, invite, or knock. Unlike joined_rooms it includes rooms the user has since left, which helps reconstruct their history. Rooms vanish from this list only after being purged. Works for remote users too, limited to rooms this server knows about."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/media' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List media uploaded by a user",
+      "tooltip": "Shows local files the user uploaded: media ID, MIME type, size, upload name, and timestamps. Newest items come first by default; paginate with from and limit. To find the biggest media consumers across all users, use the statistics endpoint instead. Deleting their account does not delete this media automatically."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/media' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Delete all media uploaded by a user",
+      "tooltip": "Removes the user's local media files and thumbnails from disk, 100 items per request by default. Use the same query parameters as the list endpoint (limit, order_by, dir) to control the batch. This is permanent for local copies, so consider quarantine first to block downloads without destroying files. Media on external repositories is unaffected."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/accountdata' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Dump a user's account data",
+      "tooltip": "Returns global and per-room account data: push rules, ignored users, secret storage keys, and client settings like read markers. Useful when debugging sync or notification problems for one account. The data is stored per user and does not include room messages. The v2 users GET shows the same account's profile fields."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/username_available?username=alice' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Check if a username is free to register",
+      "tooltip": "Answers whether the localpart alice is available and valid for registration, returning {\"available\":true} or false. Unlike the client register/available endpoint it works even when registration is disabled, which makes it handy for pre-checking names in onboarding scripts. It does not create the user; use register_new_matrix_user for that."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/override_ratelimit' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show a user's rate limit override",
+      "tooltip": "Returns the custom rate limit for the user as messages_per_second and burst_count, or an empty object if none is set. Rate limits throttle how many requests a client can make, protecting the server from floods. Read this before changing anything so you can restore the previous value later. The POST variant applies a new limit."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/override_ratelimit' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"messages_per_second\":0,\"burst_count\":0}'",
+      "desc": "Disable rate limiting for a user",
+      "tooltip": "Setting both messages_per_second and burst_count to 0 removes all rate limits for that user, which is useful for trusted bots that send bursts of traffic. This override applies to every client of the account, so use it sparingly. Restore limits with the DELETE variant, which clears the override and falls back to the global configuration."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/users/@alice:example.com/override_ratelimit' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Remove a user's rate limit override",
+      "tooltip": "Deletes the custom rate limit for the user so the server's global limits apply again. Handy after a bot no longer needs unlimited throughput. Check the current value first with the GET variant. An empty response means success."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/event_reports?from=0&limit=20' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List events that users have reported",
+      "tooltip": "Shows the moderation queue: each report includes the reporter, the sender, room, reason, and an offense score. Filter with user_id, room_id, or event_sender_user_id query parameters. Paginate with from and limit. Follow up with the per-report detail endpoint, then redact the offending message or act on the sender."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/event_reports/5' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show full details of one event report",
+      "tooltip": "Returns the complete report record plus event_json, the full signed content of the reported message, which is what you need to judge a moderation case. The numeric report ID comes from the list endpoint. If the message must go, redact it with the client redaction endpoint or the bulk user redaction API."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/event_reports/5' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Delete an event report record",
+      "tooltip": "Removes the report from the moderation queue so it no longer appears in the list. It does not delete or redact the reported message itself, so handle the content separately first. Use it to clear processed reports and keep the queue focused on open cases."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/user/@alice:example.com/redact' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"rooms\":[\"!abc123:example.com\"],\"reason\":\"spam\"}'",
+      "desc": "Bulk-redact a user's events in a room",
+      "tooltip": "Starts a background task that redacts the user's messages in the listed rooms, with the reason attached to each redaction event. An empty rooms list targets every room they are in, and limit controls how many events per room are considered. The response carries a redact_id you poll for progress. Redaction replaces message content but keeps a notice that something was removed."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List all rooms on the homeserver",
+      "tooltip": "Returns up to 100 rooms with name, alias, member counts, encryption flag, and join rules. Each room appears with its room ID, the unique internal identifier starting with !. Paginate large servers with from and limit, and sort with order_by. Filter the list with the search_term variant."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms?search_term=eng&limit=50' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Search rooms by name, alias, or ID",
+      "tooltip": "Filters rooms whose name, canonical alias localpart, or room ID contains eng. This is the fastest way to find a room when you only remember part of its name. Combine with order_by=joined_members to rank by size. The plain rooms list returns everything without filtering."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show full details of one room",
+      "tooltip": "Returns the room's name, topic, avatar, version, encryption algorithm, join rules, member counts, and whether it has been tombstoned (closed and replaced). Every room has a unique room ID that starts with an exclamation mark and comes from the rooms list endpoint. Check this before deciding to purge or block a room. Member-level details live on the /members endpoint."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/members' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List all members of a room",
+      "tooltip": "Returns every user ID in the room plus a total count, including members from federated servers. A room ID is the unique internal identifier that starts with !. Useful for finding who needs to be contacted or removed before deleting a room. The client joined_members endpoint adds profile info but requires membership."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/state' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Dump the current state of a room",
+      "tooltip": "Lists all state events that define the room: creation, name, join rules, power levels, and member listings. Append ?type=m.room.join_rules to filter to one event type. This works even when you are not a member, unlike the client state endpoint. Great for diagnosing why a room behaves unexpectedly."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/messages?from=t29-57_2_0_2&limit=50&dir=b' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Read back messages in a room as admin",
+      "tooltip": "Fetches message events from a room regardless of your membership, which the normal client API would refuse. The from token is a pagination token, dir=b walks backwards through history, and limit caps the batch. Responses include an end token to continue paging. Use the timestamp_to_event endpoint to jump to a date."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/context/$143273582443PhrSn:example.org' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show the events surrounding one message",
+      "tooltip": "Returns the target event (identified by its $ event ID) plus events before and after it, giving context for abuse investigations. Also includes relevant state like the room name and join rules at that point. Pair with the event_reports endpoints to review reported messages in situ."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/block' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"block\":true}'",
+      "desc": "Block a room server-wide",
+      "tooltip": "Adds the room to a block list so users on your homeserver cannot join it, even pre-emptively for rooms your server has never seen. Unblock with {\"block\":false} on the same endpoint, and check the current state with the GET variant. Blocking is reversible and lighter than deleting the room."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/block' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Check whether a room is blocked",
+      "tooltip": "Returns {\"block\":true} plus the user ID that blocked it, or {\"block\":false} when the room is not blocked. Read this before attempting to delete a room, since blocked rooms behave differently. Pair with the PUT variant to change the block state."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"purge\":true}'",
+      "desc": "Delete and purge a room",
+      "tooltip": "WARNING: this shuts down the room and removes all local users from it, and with purge=true wipes every trace of it from your database. It can take minutes on large rooms and cannot be undone. Optionally pass new_room_user_id to move members into a replacement room instead of leaving them stranded. The v2 endpoint runs the same job asynchronously."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v2/rooms/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"purge\":true}'",
+      "desc": "Delete a room asynchronously",
+      "tooltip": "Starts the same destructive room deletion as the v1 endpoint but returns a delete_id immediately while the purge runs in the background, so your shell is not blocked for minutes. Poll the delete_status endpoint with the room ID until status reads complete. Same warning applies: purge=true removes all room history from the database permanently."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v2/rooms/!abc123:example.com/delete_status' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Check the status of a room deletion",
+      "tooltip": "Reports the background deletion jobs for the room with statuses scheduled, active, complete, or failed, plus how many users were kicked and whether a replacement room was created. Results stay available for 24 hours or until Synapse restarts. Use it after the v2 delete endpoint to know when the purge finished."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/join/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@alice:example.com\"}'",
+      "desc": "Force-join a user to a room",
+      "tooltip": "Adds a local user to the room directly with no invite or acceptance step, bypassing the client invite endpoint's strict rate limits. The admin making the call must already be in the room with invite permission. Returns the room ID on success and an error if the user is already a member. This is the recommended way to onboard users into rooms."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/make_room_admin' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@alice:example.com\"}'",
+      "desc": "Make a user an admin of a room",
+      "tooltip": "Grants the user the highest power level available to a local member of the room. If they are not in the room and it is publicly joinable, they are invited automatically. Leave the body empty to promote the calling admin instead. Useful for handing a room over to someone else."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/purge_history/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"purge_up_to_ts\":1735689600000}'",
+      "desc": "Purge room history up to a timestamp",
+      "tooltip": "WARNING: deletes room events from the database, reclaiming disk space but permanently removing history before the given millisecond timestamp. Events from remote users are removed while local users' events are kept unless you also send delete_local_events. At least one message per room is always preserved. The returned purge_id lets you poll progress."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/purge_history_status/purge_123456' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Check a history purge's progress",
+      "tooltip": "Returns active, complete, or failed for the purge job identified by the purge_id from the purge_history call. While a purge runs, users cannot paginate past the point being removed. Poll until complete before starting another purge on the same room. A failed purge includes an error message."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/rooms/!abc123:example.com/forward_extremities' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Count forward extremities of a room",
+      "tooltip": "Shows how many unmerged branches of the room's event graph exist; a high count degrades sync performance for everyone in the room. A healthy room usually has one or a few. If the count is huge, the DELETE variant can trim extras, but only after reading the linked issue. Diagnostic first, destructive second."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/fetch_event/$143273582443PhrSn:example.org' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Fetch a single event as an admin",
+      "tooltip": "Returns the full signed event JSON for any event on the server, regardless of your room membership. Event IDs start with $ and look like $143273582443PhrSn:example.org. Indispensable for abuse investigations and debugging federation issues. The context endpoint additionally shows neighbouring events."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/send_server_notice' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@alice:example.com\",\"content\":{\"msgtype\":\"m.text\",\"body\":\"Please review our terms\"}}'",
+      "desc": "Send a server notice to a user",
+      "tooltip": "Delivers a notice into the user's server notices room, which admins use for terms updates or policy messages. Requires the server_notices section to be configured in homeserver.yaml first. The body's content field follows the normal message format. Prefer the PUT form with a transaction ID when retrying to avoid duplicates."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/room/!abc123:example.com/media' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List media in a room",
+      "tooltip": "Returns the mxc:// URIs of media referenced in the room, split into local and remote. An mxc URI is Matrix's media address format, like mxc://example.com/abcde12345. Only media from unencrypted rooms or events is visible, because encrypted content hides its references. Follow up with quarantine or delete endpoints per item."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/media/example.com/abcde12345' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Inspect a single media item",
+      "tooltip": "Shows metadata for one media file: origin server, uploader, size, MIME type, creation time, and SHA-256 hash. The server name and media ID come from the mxc:// URI, for example mxc://example.com/abcde12345 splits into example.com and abcde12345. Uncached remote media returns 404. Use it before quarantining or deleting."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/media/quarantine/example.com/abcde12345' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Quarantine a single media file",
+      "tooltip": "Marks the media as inaccessible so downloads return 404, while keeping the file on disk for later review or unquarantine. Since Synapse 1.128, matching SHA-256 hashes are also flagged, catching re-uploads of the same content. Reverse with the unquarantine endpoint. Prefer this over deletion when you may need evidence."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/media/unquarantine/example.com/abcde12345' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Unquarantine a media file",
+      "tooltip": "Restores normal access to media that was previously quarantined, reversing the 404-on-download behaviour. Useful after reviewing content that turned out to be harmless. The media ID comes from the mxc:// URI. Pair with the quarantine endpoint to toggle access."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/room/!abc123:example.com/media/quarantine' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Quarantine all media in a room",
+      "tooltip": "Blocks downloads of every local and cached remote media item in the room, returning how many were quarantined. Files stay on disk, so this is reversible per item. Consider protecting legitimate shared media (such as sticker packs) first so it is not caught. The older /quarantine_media/{roomId} path still works but is deprecated."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/user/@alice:example.com/media/quarantine' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Quarantine all media uploaded by a user",
+      "tooltip": "Blocks downloads of all local media a local user has uploaded, useful when they shared something harmful. Remote users' uploads are not covered, so quarantine per-media on their origin server instead. The files remain on disk until explicitly deleted. Reverse with the per-media unquarantine endpoint."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/media/example.com/abcde12345' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Delete one local media file from disk",
+      "tooltip": "Permanently removes the media file and its thumbnails from your server's disk. Only local media can be deleted this way; cached copies of remote media are purged via the purge_media_cache endpoint instead. Confirm the item with the inspect endpoint first, since deletion cannot be undone. External media repositories are unaffected."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/purge_media_cache?before_ts=1735689600000' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Purge cached remote media older than a date",
+      "tooltip": "Deletes locally cached copies of remote media last accessed before the given millisecond timestamp, freeing disk space on federated servers. If a user later requests purged media, Synapse re-fetches it from the origin server. before_ts is a Unix timestamp in milliseconds, for example 1735689600000 is 2025-01-01. Combine with size_gt-style filters on the media delete endpoint for local files."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/media/delete?before_ts=1735689600000&size_gt=10485760' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{}'",
+      "desc": "Delete local media by age and size",
+      "tooltip": "Deletes local media files last accessed before before_ts and larger than size_gt bytes, which targets old big files while sparing small recent ones. keep_profiles defaults to true so profile avatars and room images survive. This is the cleanup command for runaway media storage. Remote caches are handled by purge_media_cache instead."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/statistics/users/media?limit=50' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show per-user media usage statistics",
+      "tooltip": "Lists every local user with their media count and total bytes, so you can spot storage hogs at a glance. Filter by time range with from_ts and until_ts, or narrow with search_term. Paginate with from and limit. Pair with the per-user media list to inspect the offending files."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/statistics/database/rooms' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Find the largest rooms in the database",
+      "tooltip": "Returns the ten rooms estimated to occupy the most database space, based on PostgreSQL planner statistics, so the numbers are approximate. Media is not included in the estimates. Use the results to decide which rooms deserve a history purge. Returns an error on SQLite, which has no planner data."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/server_version' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show the running Synapse version",
+      "tooltip": "Returns the exact Synapse build, for example 1.115.0 (b=develop, abcdef123). Useful when a reverse proxy strips the Server header that normally carries the version. Compare it against the release notes before upgrading. Requires an admin token, unlike the unauthenticated client versions endpoint."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/versions'",
+      "desc": "Check that the Matrix client API responds",
+      "tooltip": "Returns the list of Matrix spec versions the server supports, with no authentication required. This is the first thing to hit when a client cannot connect, because it proves the server is up and reachable. A non-JSON response or connection error points at DNS, TLS, or the reverse proxy. The federation version endpoint is the equivalent check for server-to-server traffic."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/federation/v1/version'",
+      "desc": "Check the federation API is reachable",
+      "tooltip": "Confirms the federation (server-to-server) listener responds, which other homeservers depend on to deliver messages to your users. Federation uses port 8448 by default or port 443 via delegation. If this fails while the client API works, other servers cannot reach you. Verify the SRV record with dig when troubleshooting."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/health'",
+      "desc": "Check the Synapse health endpoint",
+      "tooltip": "Returns HTTP 200 with the body OK when Synapse is healthy, making it ideal for uptime monitors and load balancer checks. The /health resource is mounted on every HTTP listener automatically. A non-200 response means the process is up but struggling, so pair it with the client versions check. Many deployments probe this from a monitoring tool."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/account/whoami' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Verify an access token is valid",
+      "tooltip": "Returns the user ID and device ID the token belongs to, or an M_UNKNOWN_TOKEN error if it is expired or revoked. The first debugging step when API calls suddenly return 401. Tokens can be invalidated by password resets, logouts, or admin deactivation. The access token comes from an admin user's account settings."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/login' -d '{\"type\":\"m.login.password\",\"identifier\":{\"type\":\"m.id.user\",\"user\":\"alice\"},\"password\":\"secret\"}'",
+      "desc": "Log in via the client API from the terminal",
+      "tooltip": "Authenticates with username and password and returns an access_token plus device_id to use in later requests. This is how scripts and bots authenticate without a client app. Note the token lives in the shell history, so prefer an existing token or a password prompt in production. The admin login-as-user endpoint mints tokens for other accounts."
+    },
+    {
+      "cmd": "curl -sS 'https://example.com/.well-known/matrix/server'",
+      "desc": "Check the federation delegation file",
+      "tooltip": "Fetches the .well-known/matrix/server file that tells other servers where your Matrix service actually lives, for example {\"m.server\":\"matrix.example.com:443\"}. Needed when the homeserver domain differs from the server name in user IDs. This delegation is how example.com points clients and servers at matrix.example.com. An empty or missing file means Matrix is served directly on the domain."
+    },
+    {
+      "cmd": "curl -sS 'https://example.com/.well-known/matrix/client'",
+      "desc": "Check the client discovery file",
+      "tooltip": "Returns {\"m.homeserver\":{\"base_url\":\"https://matrix.example.com\"}} so clients know which homeserver to connect to for accounts on this domain. The file must be served with CORS headers allowing matrix.org and other clients. This is the client half of delegation, while the server file handles federation. Verify it after moving a homeserver to a new subdomain."
+    },
+    {
+      "cmd": "dig +short SRV _matrix._tcp.example.com",
+      "desc": "Look up the federation SRV record",
+      "tooltip": "Asks DNS for the SRV record that points Matrix federation traffic at a host and port, typically _matrix._tcp.example.com → matrix.example.com:8448. When no record exists, servers fall back to the .well-known file or default ports. Use it to verify delegation after changing hosting. The +short flag prints just the answer line."
+    },
+    {
+      "cmd": "dig +short SRV _matrix-identity._tcp.example.com",
+      "desc": "Look up the identity server SRV record",
+      "tooltip": "Resolves the SRV record used to discover the identity server for the domain, a service that maps email addresses and phone numbers to Matrix IDs. Identity servers are optional and increasingly rare, so most domains return nothing here, which is fine. Only relevant if you actually run one. The main federation record uses _matrix._tcp instead."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/registration_tokens' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List all registration tokens",
+      "tooltip": "Shows every registration token with its allowed uses, completed registrations, pending uses, and expiry time. Registration tokens let users self-register when open registration is off, provided registration_requires_token is set in homeserver.yaml. A null uses_allowed means unlimited. Revoke leaked tokens with the DELETE variant."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/registration_tokens/abcd' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Show details of one registration token",
+      "tooltip": "Returns the usage and expiry details for a single token, identified by its token string. Use it to check how many registrations a distributed invite token has consumed. The token string is what users type into the client's registration form. The list endpoint shows all tokens at once."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/registration_tokens/new' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"uses_allowed\":10,\"expiry_time_ms\":2592000000}'",
+      "desc": "Create a registration token",
+      "tooltip": "Generates a new token good for 10 registrations that expires after 2592000000 milliseconds (30 days). Share it with people who should self-register; the server returns the full token string in the response. Set uses_allowed to null for unlimited, or omit expiry_time_ms for no expiration. Requires registration_requires_token in the config to take effect."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_synapse/admin/v1/registration_tokens/abcd' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"uses_allowed\":5}'",
+      "desc": "Update a registration token",
+      "tooltip": "Adjusts how many more uses a token allows or moves its expiry time, without revoking it. Handy when a shared invite link gets more interest than expected. Fields you omit keep their current values. The DELETE variant revokes the token outright."
+    },
+    {
+      "cmd": "curl -sS -X DELETE 'https://matrix.example.com/_synapse/admin/v1/registration_tokens/abcd' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Revoke a registration token",
+      "tooltip": "Deletes the token so no further registrations are possible with it, which is the right move when a token leaks publicly. Users who already registered through it keep their accounts. If a POST to create a token fails or times out, list tokens first, since the token may have been created anyway. The list endpoint confirms what remains."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_synapse/admin/v1/register'",
+      "desc": "Fetch a nonce for shared-secret registration",
+      "tooltip": "Requests a one-time nonce (a random single-use number) from the shared-secret registration API. Registration via this API is disabled unless registration_shared_secret is set in homeserver.yaml. Combine the nonce with the shared secret to compute the HMAC for the POST registration call. This is the protocol register_new_matrix_user uses under the hood."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_synapse/admin/v1/register' -d '{\"nonce\":\"thisisanonce\",\"username\":\"alice\",\"password\":\"secret\",\"admin\":false,\"mac\":\"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b\"}'",
+      "desc": "Register a user via shared-secret API",
+      "tooltip": "Creates the account when you include the nonce from the GET call and a mac field: the HMAC-SHA1 of nonce, username, password, and admin or notadmin, keyed by the registration shared secret. The hex digest comes from the openssl one-liner shown in the docs. Returns an access token and device ID for the new user. register_new_matrix_user automates all of this."
+    },
+    {
+      "cmd": "printf '%s\\0%s\\0%s\\0%s' \"$nonce\" \"$username\" \"$password\" \"$admin\" | openssl sha1 -hmac \"$secret\" | awk '{print $2}'",
+      "desc": "Compute the HMAC for shared-secret registration",
+      "tooltip": "Builds the MAC required by the POST register API: the nonce, username, password, and the literal string admin or notadmin, each separated by a NUL byte, hashed with HMAC-SHA1 using the registration shared secret. Set the variables first, then paste the pipeline; awk extracts just the hex digest. That digest becomes the mac field in the registration request. The same algorithm powers register_new_matrix_user."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/createRoom' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"name\":\"Dev Chat\",\"preset\":\"private_chat\"}'",
+      "desc": "Create a room via the client API",
+      "tooltip": "Creates a room named Dev Chat as the logged-in user and returns its room ID, the unique identifier starting with !. The preset private_chat makes it invite-only, while public_chat makes it discoverable in the room directory. Add invite or room_alias_name fields to pre-configure it. Room creation via the API mirrors what clients do when you click Create Room."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/send/m.room.message/txn1' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"msgtype\":\"m.text\",\"body\":\"Hello world\"}'",
+      "desc": "Send a message to a room",
+      "tooltip": "Posts a text message to the room using PUT with a unique transaction ID (txn1) so retries do not duplicate the message. The event type m.room.message with msgtype m.text is the standard chat message; m.notice renders as a system-style notice. The response contains the new event ID. Bots use this endpoint to speak in rooms."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/messages?dir=b&limit=20' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Fetch recent messages from a room",
+      "tooltip": "Returns the latest events in the room, walking backwards through history when dir=b. Each response carries a token to continue paging in the end or prev_batch fields. Requires membership in the room, unlike the admin messages endpoint which reads any room. This is the building block for custom chat archives and debugging."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/sync?timeout=30000' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Pull a full sync of joined rooms",
+      "tooltip": "Returns the entire current state of the account: joined rooms, recent events, and notifications, long-polling up to 30000 milliseconds for new activity. This is the heaviest endpoint, so clients call it once at startup then incrementally. For reading a single room's history, the messages endpoint is cheaper. Admin API alternatives work without the account's state."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/join/!abc123:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Join a room as the logged-in user",
+      "tooltip": "Adds the authenticated user to the room, which must be publicly joinable or have invited them first. Accepts a room alias like #dev:example.com as well as a room ID, though aliases need URL encoding. The admin join endpoint can add any local user regardless of join rules. Returns the room ID on success."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/invite' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@bob:example.com\"}'",
+      "desc": "Invite a user to a room",
+      "tooltip": "Sends an invite to another user, who must accept it before they appear as a member. The client invite endpoint rate-limits aggressively (roughly two invites per 30 seconds), so for bulk onboarding use the admin join API instead, which adds users directly with no acceptance step. The invitee gets a notification in their client."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/kick' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@bob:example.com\",\"reason\":\"spam\"}'",
+      "desc": "Kick a user from a room",
+      "tooltip": "Removes the user from the room; they can rejoin later if the join rules allow it. Requires sufficient power level in the room, usually moderator or admin. The reason is visible in the room's membership history. Pair with a ban to prevent rejoining, or the admin suspend endpoint to stop them messaging everywhere."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/ban' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"user_id\":\"@bob:example.com\",\"reason\":\"abuse\"}'",
+      "desc": "Ban a user from a room",
+      "tooltip": "Kicks the user and blocks them from rejoining until unbanned, which makes it the standard tool against abusers. The reason is recorded with the ban event. Unban by setting their membership to leave via the m.room.member state endpoint. Room-level bans only affect this room; server-level controls live in the Admin API."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/state/m.room.join_rules' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"join_rule\":\"invite\"}'",
+      "desc": "Set a room's join rule to invite-only",
+      "tooltip": "Changes how people can enter the room: invite means only invited users join, public means anyone can, knock lets users request entry, and restricted allows membership from specific spaces. Setting invite is the usual way to lock down a room that was public. Room state changes apply immediately to all members. The admin state endpoint can do the same without membership."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/redact/$143273582443PhrSn:example.org/txn1' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"reason\":\"spam\"}'",
+      "desc": "Redact a single message event",
+      "tooltip": "Replaces the message content with a notice that it was removed, keeping the event's place in history. The reason is attached to the redaction. Requires sufficient power level, and the transaction ID prevents duplicate redactions on retry. For bulk cleanup use the admin redact endpoint, which can redact many of a user's events at once."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/leave' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Leave a room as the logged-in user",
+      "tooltip": "Sets the authenticated user's membership to leave, removing them from the room's member list. The room stays visible in the account until it is forgotten, so leave then forget to fully clean up. Admins removing other users use the kick endpoint instead. Leaving does not delete your message history in the room."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/forget' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Forget a room you have left",
+      "tooltip": "Removes a room the user already left from their account, hiding it from their room list and stopping sync traffic for it. Only works after leaving, and forgotten rooms are re-added if someone invites you back. Pair with leave for a complete exit. The admin equivalent of removing a room for everyone is the delete endpoint."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/joined_members' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "List joined members with profiles",
+      "tooltip": "Returns every joined member of the room with their display name and avatar, which is friendlier than the admin members endpoint's bare user IDs. Requires membership in the room. Clients use this to render the member list. For a raw ID list without membership requirements, use the admin rooms members endpoint."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/rooms/!abc123:example.com/state' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Fetch the state events of a room",
+      "tooltip": "Returns the events that define the room: name, topic, join rules, power levels, and member states. Filter by type with a query parameter to isolate one kind. Requires membership, unlike the admin state endpoint. Check this to understand why a room behaves a certain way before moderating it."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/client/v3/profile/@alice:example.com' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Fetch a user's public profile",
+      "tooltip": "Returns the user's display name and avatar, usually without requiring authentication since profiles are public. The user ID format is @localpart:server, for example @alice:example.com. Useful for resolving a display name from an ID in scripts. Setting the profile requires auth and uses the displayname or avatar_url sub-endpoints."
+    },
+    {
+      "cmd": "curl -sS -X PUT 'https://matrix.example.com/_matrix/client/v3/profile/@alice:example.com/displayname' -H \"Authorization: Bearer $ACCESS_TOKEN\" -d '{\"displayname\":\"Alice Marigold\"}'",
+      "desc": "Set a user's display name",
+      "tooltip": "Updates the display name shown to others, which only works when the token belongs to that user. Empty string removes the name entirely. Admins can change other users' names via the v2 users Admin API instead. The new name propagates to all rooms the user is in."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/media/v3/upload?filename=photo.jpg' -H \"Authorization: Bearer $ACCESS_TOKEN\" -F 'file=@photo.jpg'",
+      "desc": "Upload a file to the media repository",
+      "tooltip": "Uploads photo.jpg and returns an mxc:// URI like mxc://example.com/abcde12345, which is how Matrix references media everywhere. The filename query parameter is stored as the upload name. Embed the mxc URI in messages as the url field, or share it directly with the download endpoint. Uploads count against the media store, so monitor usage with the statistics API."
+    },
+    {
+      "cmd": "curl -sS 'https://matrix.example.com/_matrix/media/v3/download/example.com/abcde12345' -o photo.jpg",
+      "desc": "Download media from its mxc URI",
+      "tooltip": "Fetches the file identified by the server name and media ID from an mxc:// URI, saving it to photo.jpg. Split mxc://example.com/abcde12345 at the slash to get the path parts. Downloads generally need no authentication. Quarantined media returns 404 here until unquarantined."
+    },
+    {
+      "cmd": "curl -sS -X POST 'https://matrix.example.com/_matrix/client/v3/logout' -H \"Authorization: Bearer $ACCESS_TOKEN\"",
+      "desc": "Log out the current session",
+      "tooltip": "Invalidates the access token used in the request, so it stops working immediately. The device remains on the account until it is deleted. To end every session of the user at once, use the logout/all endpoint instead, which is handy for rotating credentials in scripts. Password resets and deactivation also revoke tokens."
+    },
+    {
+      "cmd": "synapse_port_db --sqlite-database homeserver.db --postgres-config homeserver-postgres.yaml",
+      "desc": "Port a Synapse SQLite database to PostgreSQL",
+      "tooltip": "Migrates an existing SQLite database into a new PostgreSQL database, which is how small homeservers move to a setup that scales. --sqlite-database names the .db file to copy from, and --postgres-config is a YAML file with the target database credentials. Run it with Synapse stopped. PostgreSQL is the recommended database for production, and new installs should start there directly."
+    }
+  ]
+}
