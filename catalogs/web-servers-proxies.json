@@ -1,0 +1,680 @@
+{
+  "category": "Web Servers & Proxies",
+  "commands": [
+    {
+      "cmd": "nginx -V",
+      "desc": "Show nginx version and compiled build options",
+      "tooltip": "Prints the version plus the configure arguments the binary was built with, including enabled modules like --with-http_ssl_module. Useful to check whether a feature was compiled in before relying on it. The lowercase -v form prints only the version number."
+    },
+    {
+      "cmd": "nginx -c /etc/nginx/nginx.conf",
+      "desc": "Start nginx using a specific configuration file",
+      "tooltip": "Tells nginx to read its configuration from the given path instead of the compiled-in default, which is /etc/nginx/nginx.conf on most distros. Handy when testing an alternate config or running a second instance. Combine with -t to test a config without starting the server."
+    },
+    {
+      "cmd": "nginx -t -c /etc/nginx/nginx.conf",
+      "desc": "Test a specific nginx config file for errors",
+      "tooltip": "Runs a syntax check on the named configuration file and everything it includes, without starting nginx. Reports the file and line number of any problem, so you can fix errors before reloading a live server. Plain nginx -t tests the default config path."
+    },
+    {
+      "cmd": "nginx -s stop",
+      "desc": "Stop nginx immediately, dropping active connections",
+      "tooltip": "-s sends a signal to the running master process, and stop terminates nginx right away, cutting off in-flight requests. Prefer nginx -s quit when you want a graceful shutdown that lets workers finish. Start the server again with systemctl start nginx."
+    },
+    {
+      "cmd": "nginx -s quit",
+      "desc": "Stop nginx gracefully after current requests finish",
+      "tooltip": "Tells the master process to shut down smoothly, letting worker processes finish serving open connections before exiting. Use this instead of nginx -s stop when you can tolerate a short drain period. Equivalent to sending the QUIT signal to the master process."
+    },
+    {
+      "cmd": "nginx -s reopen",
+      "desc": "Reopen nginx log files after log rotation",
+      "tooltip": "Makes nginx close and reopen its access and error log files, which logrotate needs after moving the old logs aside. Run it from a logrotate postrotate script so nginx writes to fresh files. Equivalent to sending the USR1 signal to the master process."
+    },
+    {
+      "cmd": "nginx -g 'daemon off;'",
+      "desc": "Run nginx in the foreground for containers or debugging",
+      "tooltip": "-g passes a global configuration directive, and daemon off; keeps nginx from forking into the background. This is the pattern used by the official nginx Docker image so the process stays in the foreground and receives signals. Quote the directive so the shell passes it as one argument."
+    },
+    {
+      "cmd": "nginx -V 2>&1 | grep -- '--with-http_ssl_module'",
+      "desc": "Check whether nginx was built with the SSL module",
+      "tooltip": "nginx prints its configure arguments to stderr, so 2>&1 merges that into stdout for grep. A match confirms TLS support is compiled in, while no match means you need a distro build with the module or a recompile. The -- separator stops grep from misreading the pattern as an option."
+    },
+    {
+      "cmd": "journalctl -u nginx --since today",
+      "desc": "Show today's systemd log entries for nginx",
+      "tooltip": "Filters the journal to messages from the nginx unit since midnight, skipping older noise. Add -f to follow new lines as they arrive, or -p err to see only errors. For live tailing, journalctl -u nginx -f is the usual choice."
+    },
+    {
+      "cmd": "curl -I http://localhost",
+      "desc": "Fetch HTTP response headers from local nginx",
+      "tooltip": "-I sends a HEAD request and prints only the response headers, so you can confirm nginx is answering on port 80. Check the Server and Date headers to verify the response came from nginx rather than another service. Add --max-time to avoid hanging if nothing is listening."
+    },
+    {
+      "cmd": "curl -I -H 'Host: example.com' http://localhost",
+      "desc": "Check which virtual host answers for a domain",
+      "tooltip": "The Host header tells nginx which virtual host (vhost = one site served by one server) should handle the request, even though you connect to localhost. Useful to test a site before DNS points example.com at this machine. Compare responses across Host values to confirm each vhost is wired up."
+    },
+    {
+      "cmd": "curl -s -o /dev/null -w '%{http_code}\\n' http://localhost",
+      "desc": "Print only the HTTP status code from localhost",
+      "tooltip": "-s silences progress output, -o /dev/null discards the body, and -w prints the status code with a trailing newline. A 200 means nginx served the default site, while 404 or 502 points to a config or backend problem. Wrap it in a script for simple uptime checks."
+    },
+    {
+      "cmd": "grep -R 'server_name' /etc/nginx/sites-enabled/",
+      "desc": "Find which nginx site file defines a domain",
+      "tooltip": "Recursively greps the enabled-site symlinks for every server_name line, so you can map a domain back to its vhost (virtual host) configuration file. Enabled sites are symlinks into sites-available, so the file name shows which site is live. Append the exact domain in quotes to narrow the search."
+    },
+    {
+      "cmd": "ls /etc/nginx/sites-available/",
+      "desc": "List nginx site configs available on this host",
+      "tooltip": "Shows every site definition installed under sites-available, whether enabled or not. A site becomes active only when a symlink to it exists in sites-enabled, so the two directories can differ. New sites are usually written here first and then enabled with a symlink."
+    },
+    {
+      "cmd": "ls /etc/nginx/sites-enabled/",
+      "desc": "List nginx sites currently enabled",
+      "tooltip": "sites-enabled holds symlinks pointing back into sites-available, and each symlink is one active virtual host (vhost). Removing a symlink disables the site without deleting its config. Compare with sites-available to spot sites that exist but are not served."
+    },
+    {
+      "cmd": "apache2 -v",
+      "desc": "Show Apache version and build date",
+      "tooltip": "Prints the Apache HTTP Server version plus the compilation date of the binary. A quick way to confirm which release you run before consulting docs or filing bugs. Use apache2 -V (capital V) for full compile-time settings instead."
+    },
+    {
+      "cmd": "apache2 -V",
+      "desc": "Show Apache compile-time configuration details",
+      "tooltip": "Dumps the settings baked into the binary at build time, such as the default config path, the MPM (multi-processing module = how Apache handles requests), and compiled-in modules. Handy when debugging why a module or directive behaves unexpectedly. The lowercase -v form shows only the version."
+    },
+    {
+      "cmd": "apache2ctl -t",
+      "desc": "Test Apache configuration syntax",
+      "tooltip": "Parses the main config and every included file, reporting syntax errors with file and line numbers. Run it before every reload or restart to avoid taking the site down with a typo. Equivalent to the apache2ctl configtest alias."
+    },
+    {
+      "cmd": "apache2ctl -M",
+      "desc": "List Apache modules currently loaded",
+      "tooltip": "Prints every compiled-in and dynamically loaded module, one per line, including status flags. Use it to confirm a module really loaded after a2enmod or to spot duplicate module definitions. Modules listed here are the ones available to configuration directives."
+    },
+    {
+      "cmd": "apache2ctl -L",
+      "desc": "List Apache configuration directives",
+      "tooltip": "Dumps every configuration directive Apache understands, together with the module that provides it and where it is valid. Useful when a directive is rejected because the owning module is not loaded. Pipe the output through grep when you forget the exact directive name."
+    },
+    {
+      "cmd": "apache2ctl graceful",
+      "desc": "Reload Apache config without dropping connections",
+      "tooltip": "Tells Apache to re-read its configuration while letting existing worker processes finish current requests, so active users are not interrupted. The config is re-parsed, and a syntax error prevents the reload. Prefer this over apache2ctl restart for routine changes."
+    },
+    {
+      "cmd": "apache2ctl graceful-stop",
+      "desc": "Stop Apache gracefully after current requests finish",
+      "tooltip": "Shuts Apache down softly, allowing in-flight requests to complete before workers exit. Unlike a hard stop, this avoids errors for users mid-download. It is the graceful counterpart to a plain stop."
+    },
+    {
+      "cmd": "apache2ctl restart",
+      "desc": "Restart Apache, dropping active connections",
+      "tooltip": "Stops and starts Apache, which briefly closes all open connections, so in-flight requests are interrupted. Use apache2ctl graceful for a zero-downtime config reload. Run apache2ctl -t first to catch syntax errors before the restart."
+    },
+    {
+      "cmd": "a2ensite example.com",
+      "desc": "Enable an Apache site by symlinking its config",
+      "tooltip": "Creates the symlink that activates the site definition named example.com (or example.com.conf) from sites-available into sites-enabled. Apache picks up the change only after a reload or restart. Disable the site again with a2dissite example.com."
+    },
+    {
+      "cmd": "a2dissite example.com",
+      "desc": "Disable an Apache site by removing its symlink",
+      "tooltip": "Removes the sites-enabled symlink so Apache stops serving the site, without deleting the config file in sites-available. Run apache2ctl graceful to apply the change. Re-enable it any time with a2ensite example.com."
+    },
+    {
+      "cmd": "a2enmod ssl",
+      "desc": "Enable the Apache SSL/TLS module",
+      "tooltip": "Activates mod_ssl, which provides the Listen 443 directives and SSLEngine options needed to serve HTTPS. After enabling, add a virtual host (vhost = one site served by one server) with your certificate paths and reload Apache. Disable it with a2dismod ssl."
+    },
+    {
+      "cmd": "a2enmod proxy_http",
+      "desc": "Enable Apache's HTTP reverse proxy module",
+      "tooltip": "Loads mod_proxy_http, which lets Apache act as a reverse proxy (a server that forwards requests to a backend app) using ProxyPass and ProxyPassReverse. Load mod_proxy first if it is not already active, since proxy_http depends on it. Reload Apache after enabling."
+    },
+    {
+      "cmd": "a2enmod headers",
+      "desc": "Enable the Apache headers module",
+      "tooltip": "Loads mod_headers, which adds the Header directive for setting, modifying, or removing HTTP response headers such as Cache-Control or Strict-Transport-Security. A common companion to mod_ssl for security headers. Reload Apache after enabling."
+    },
+    {
+      "cmd": "a2dismod rewrite",
+      "desc": "Disable the Apache rewrite module",
+      "tooltip": "Unloads mod_rewrite, removing the RewriteEngine and RewriteRule directives from your configuration vocabulary. Any vhost (virtual host) still using them will fail the syntax check, so remove those directives first. Re-enable with a2enmod rewrite."
+    },
+    {
+      "cmd": "a2dismod autoindex",
+      "desc": "Disable Apache directory listing module",
+      "tooltip": "Unloads mod_autoindex, which generates the file listing you see when a directory has no index file. Disabling it is a common hardening step so Apache returns 403 instead of exposing file names. Confirm the result with apache2ctl -M."
+    },
+    {
+      "cmd": "a2enconf php8.3-fpm",
+      "desc": "Enable an Apache config snippet",
+      "tooltip": "Activates a configuration file from conf-available by symlinking it into conf-enabled, such as the php8.3-fpm snippet that wires PHP-FPM into Apache. This keeps optional config separate from the main apache2.conf. Disable it with a2disconf php8.3-fpm."
+    },
+    {
+      "cmd": "a2disconf php8.3-fpm",
+      "desc": "Disable an Apache config snippet",
+      "tooltip": "Removes the conf-enabled symlink for a config snippet, stopping Apache from loading it on the next reload. The file stays in conf-available, so you can re-enable with a2enconf php8.3-fpm. Useful to turn off optional features like the PHP-FPM integration."
+    },
+    {
+      "cmd": "a2query -m rewrite",
+      "desc": "Check whether an Apache module is enabled",
+      "tooltip": "Queries module state and prints that rewrite is enabled or that no such module is found. The exit status also reflects the answer, so scripts can branch on it. Use a2query -s example.com to check a site instead, or a2query -v for the Apache version."
+    },
+    {
+      "cmd": "a2query -s example.com",
+      "desc": "Check whether an Apache site is enabled",
+      "tooltip": "Reports whether the site named example.com is currently enabled, which is a quick way to audit your virtual hosts (vhosts). It works by inspecting the sites-enabled directory. Module state is checked with a2query -m."
+    },
+    {
+      "cmd": "a2query -c php8.3-fpm",
+      "desc": "Check whether an Apache config snippet is enabled",
+      "tooltip": "Reports the state of a conf-available file, such as whether the php8.3-fpm snippet is enabled. Useful before enabling or disabling configs to see what is already active. Site and module checks use a2query -s and a2query -m."
+    },
+    {
+      "cmd": "systemctl status apache2",
+      "desc": "Show Apache service status and recent log lines",
+      "tooltip": "Displays whether the apache2 service is active, its main process ID, memory use, and the newest journal entries. The first line tells you if the service failed to start after a config change. Add --no-pager for script-friendly output."
+    },
+    {
+      "cmd": "journalctl -u apache2 -f",
+      "desc": "Follow Apache systemd logs live",
+      "tooltip": "-u filters the journal to the apache2 unit, and -f tails new entries as they appear, like tail -f on the error log but with timestamps and service metadata. Watch it in one terminal while reloading config or generating traffic. Stop with Ctrl+C."
+    },
+    {
+      "cmd": "ls /etc/apache2/sites-enabled/",
+      "desc": "List Apache sites currently enabled",
+      "tooltip": "Each entry is a symlink into sites-available created by a2ensite, and each one is a live virtual host (vhost = one site served by one server). The link name shows which site config Apache loads. Compare with sites-available to see disabled sites."
+    },
+    {
+      "cmd": "htpasswd -c /etc/apache2/.htpasswd alice",
+      "desc": "Create an Apache basic auth password file",
+      "tooltip": "-c creates a new .htpasswd file and adds user alice, prompting for her password. Point AuthUserFile at this file to protect a directory with basic authentication. Warning: -c overwrites an existing file, so use it only for the first user."
+    },
+    {
+      "cmd": "htpasswd -B /etc/apache2/.htpasswd bob",
+      "desc": "Add a user with bcrypt password hashing",
+      "tooltip": "-B stores bob's password as a bcrypt hash, the strongest algorithm htpasswd supports and the one modern Apache configs expect. Omitting -c appends to the existing file instead of recreating it. Verify access with curl -u alice:password."
+    },
+    {
+      "cmd": "caddy run --watch",
+      "desc": "Run Caddy and auto-reload on config changes",
+      "tooltip": "Starts Caddy in the foreground and watches the Caddyfile, reloading automatically whenever the file changes. Great for development, since edits take effect without manual reloads. In production you usually run caddy run without --watch under systemd."
+    },
+    {
+      "cmd": "caddy run --config /etc/caddy/Caddyfile",
+      "desc": "Run Caddy with an explicit Caddyfile path",
+      "tooltip": "Tells Caddy which configuration file to load instead of looking for a Caddyfile in the current directory. This is how systemd and container setups point Caddy at /etc/caddy/Caddyfile. Omit the flag to use the default file discovery."
+    },
+    {
+      "cmd": "caddy reload --config /etc/caddy/Caddyfile",
+      "desc": "Reload Caddy config without downtime",
+      "tooltip": "Pushes the current Caddyfile through the admin API so Caddy swaps to the new configuration while keeping existing connections alive. Only valid for a Caddy started with caddy run, which enables the admin endpoint. Validate the file first with caddy validate."
+    },
+    {
+      "cmd": "caddy adapt --config /etc/caddy/Caddyfile --pretty",
+      "desc": "Convert a Caddyfile to pretty-printed JSON config",
+      "tooltip": "Adapts the human-friendly Caddyfile into the JSON structure Caddy actually uses, with --pretty adding indentation so it is readable. Useful to see how directives map to JSON or to debug a config error. Without --pretty the JSON comes out on one line."
+    },
+    {
+      "cmd": "caddy fmt /etc/caddy/Caddyfile",
+      "desc": "Print a Caddyfile formatted to stdout",
+      "tooltip": "Formats the Caddyfile and prints the result without modifying the file, so you can review the changes before applying them. Add --overwrite to write the formatting in place. Indentation and spacing are normalized to the canonical Caddy style."
+    },
+    {
+      "cmd": "caddy file-server --listen :8080",
+      "desc": "Serve static files from the current directory",
+      "tooltip": "Starts a static file server on port 8080 serving the working directory, with automatic gzip and sensible caching headers. Ideal for a quick preview of a site build without configuring a full vhost. Add --root /path to serve a different directory."
+    },
+    {
+      "cmd": "caddy file-server --root /srv/www --browse",
+      "desc": "Serve files with directory listing enabled",
+      "tooltip": "Serves /srv/www on the default port 2015, with --browse turning on an HTML file listing for directories without an index file. Handy for sharing a folder on a LAN. Leave --browse off in production so directory contents stay hidden."
+    },
+    {
+      "cmd": "caddy reverse-proxy --from example.com --to localhost:3000",
+      "desc": "Proxy a domain to a local backend app",
+      "tooltip": "Creates a reverse proxy (a server that forwards requests to a backend app) that accepts traffic for example.com and forwards it to an app on port 3000. Caddy automatically provisions HTTPS for the domain via Let's Encrypt. For a local test without a domain, use --from :8080 instead."
+    },
+    {
+      "cmd": "caddy reverse-proxy --from :8080 --to localhost:3000",
+      "desc": "Proxy a port to a local backend without TLS",
+      "tooltip": "Binds port 8080 and forwards every request to the app on port 3000, with no domain or HTTPS involved, which is perfect for local development. The :8080 form listens on all interfaces. Add --from localhost:8080 to restrict it to loopback only."
+    },
+    {
+      "cmd": "caddy list-modules",
+      "desc": "List all modules in the Caddy binary",
+      "tooltip": "Shows every compiled-in module, from HTTP handlers to TLS certificate issuers, in a hierarchical tree. Confirms whether a feature you need is available in your build. Packages built with xcaddy add modules that show up here."
+    },
+    {
+      "cmd": "caddy build-info",
+      "desc": "Show Go toolchain and module versions used to build Caddy",
+      "tooltip": "Prints the Go version, platform, and dependency versions embedded in the binary, which is useful when reporting bugs or checking for outdated builds. The output includes the exact Caddy module version and any xcaddy additions. Compare with caddy version for the release number."
+    },
+    {
+      "cmd": "caddy trust",
+      "desc": "Install Caddy's local CA into the system trust store",
+      "tooltip": "Registers the local certificate authority Caddy generates for its internal CA, so browsers trust locally issued certificates, typically used with the tls internal directive. Run with sudo since it modifies system trust stores. Remove the CA later with caddy untrust."
+    },
+    {
+      "cmd": "caddy untrust",
+      "desc": "Remove Caddy's local CA from the system trust store",
+      "tooltip": "Uninstalls the local CA that caddy trust added, so browsers stop trusting certificates issued by it. Useful when you finish testing local HTTPS or move a machine. Needs sudo for the same reason trust does."
+    },
+    {
+      "cmd": "caddy hash-password --plaintext 's3cret'",
+      "desc": "Hash a password for Caddyfile basic auth",
+      "tooltip": "Computes a bcrypt hash of the given password for use in a Caddyfile basic_auth directive, so plaintext passwords never sit in config files. Without --plaintext, Caddy prompts interactively instead. Paste the hash as the user:hash pair in your site block."
+    },
+    {
+      "cmd": "curl -s http://localhost:2019/config/ | jq",
+      "desc": "Dump Caddy's live JSON config from the admin API",
+      "tooltip": "The admin API on localhost:2019 exposes the running configuration, and /config/ returns it as JSON, which jq pretty-prints for inspection. Useful to see the effective config after Caddyfile adaptation. Requires a Caddy started with caddy run, which enables the admin endpoint."
+    },
+    {
+      "cmd": "systemctl status caddy",
+      "desc": "Show Caddy service status and recent log lines",
+      "tooltip": "Displays whether the caddy service is active, its main process ID, and the newest journal entries, including config errors. Check this first when a site stops answering. The Debian package runs Caddy under systemd with the config in /etc/caddy/Caddyfile."
+    },
+    {
+      "cmd": "haproxy -v",
+      "desc": "Show HAProxy version and build date",
+      "tooltip": "Prints the HAProxy release and when the binary was compiled. Version matters because 2.x and 3.x introduced different features and defaults. Use haproxy -vv for the full build details and feature list."
+    },
+    {
+      "cmd": "haproxy -vv",
+      "desc": "Show HAProxy build options and supported features",
+      "tooltip": "Displays the version plus every compile-time feature and option, such as TLS support, compression, and thread settings. Check here when a feature seems missing at runtime. The plain -v form shows just the version."
+    },
+    {
+      "cmd": "haproxy -c -f /etc/haproxy/haproxy.cfg",
+      "desc": "Validate HAProxy configuration syntax",
+      "tooltip": "-c checks the configuration files and exits before binding any ports, reporting errors with line numbers. Run it after every config edit, because a bad reload can take the proxy down. The exit status is zero only when the config is valid."
+    },
+    {
+      "cmd": "haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d/",
+      "desc": "Validate HAProxy config split across multiple files",
+      "tooltip": "HAProxy accepts repeated -f flags, and each one may name a file or a directory whose .cfg files are loaded in lexical order. This validates a main config plus an include directory in one pass. Useful for setups that keep backends in separate files."
+    },
+    {
+      "cmd": "haproxy -f /etc/haproxy/haproxy.cfg -db",
+      "desc": "Run HAProxy in the foreground for debugging",
+      "tooltip": "-db disables background mode so the process stays in the foreground and logs directly to your terminal, which is invaluable when testing a new config. It also disables multi-process mode. In production, systemd runs HAProxy as a daemon."
+    },
+    {
+      "cmd": "systemctl status haproxy",
+      "desc": "Show HAProxy service status and recent log lines",
+      "tooltip": "Reports whether the haproxy service is running, its PID, and the newest journal messages, including config warnings. Check this first when the proxy is not answering. Pair with journalctl -u haproxy -f for live log output."
+    },
+    {
+      "cmd": "systemctl reload haproxy",
+      "desc": "Reload HAProxy config gracefully via systemd",
+      "tooltip": "Tells systemd to signal HAProxy to reload its configuration, which in modern builds reuses the existing process and keeps connections flowing where possible. Validate the config with haproxy -c first to avoid a failed reload. Hard restarts with systemctl restart haproxy drop all connections."
+    },
+    {
+      "cmd": "journalctl -u haproxy -f",
+      "desc": "Follow HAProxy systemd logs live",
+      "tooltip": "Tails journal entries from the haproxy unit, showing startup messages, config warnings, and connection errors as they happen. Keep it open while reloading or testing to catch problems instantly. Stop with Ctrl+C."
+    },
+    {
+      "cmd": "curl -s http://localhost:8404/stats",
+      "desc": "Fetch HAProxy stats page over HTTP",
+      "tooltip": "Retrieves the HTML stats report, but only if your haproxy.cfg has a stats bind line listening on port 8404, since nothing listens there by default. The page exposes backend health, session counts, and queue depth. Restrict access with stats auth or an allow list, because it reveals internal topology."
+    },
+    {
+      "cmd": "echo 'show info' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Query HAProxy process info via the admin socket",
+      "tooltip": "Pipes the show info command into HAProxy's Unix admin socket, returning uptime, version, and memory stats as key-value pairs. socat bridges stdin and stdout to the socket, and the path is set by the stats socket directive, commonly /run/haproxy/admin.sock on Debian. The same pattern runs every CLI command."
+    },
+    {
+      "cmd": "echo 'show stat' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Show HAProxy backend and server statistics",
+      "tooltip": "Returns a table of every frontend, backend, and server with counters like current sessions, errors, and status. Pipe through column -t to align the CSV-style output. This is the command-line equivalent of the web stats page."
+    },
+    {
+      "cmd": "echo 'show servers state web-backend' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Show per-server state for an HAProxy backend",
+      "tooltip": "Lists each server in the web-backend pool with its administrative and operational state, such as UP, DOWN, or MAINT. Useful for confirming which nodes are in rotation after a deploy or maintenance window. Server names appear as backend/server pairs."
+    },
+    {
+      "cmd": "echo 'disable server web-backend/web01' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Take an HAProxy server out of rotation",
+      "tooltip": "Sets the named server to administrative down, so HAProxy stops sending it traffic while the process keeps running, ideal before maintenance. Re-enable with enable server web-backend/web01 once it is healthy again. The change applies immediately without a reload."
+    },
+    {
+      "cmd": "echo 'enable server web-backend/web01' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Put an HAProxy server back into rotation",
+      "tooltip": "Returns the named server to service after you fixed it or finished maintenance, letting the load balancer route traffic to it again. Confirm the server passes its health check before enabling. The counterpart to disable server."
+    },
+    {
+      "cmd": "traefik --configFile=/etc/traefik/traefik.yml",
+      "desc": "Start Traefik with an explicit static config file",
+      "tooltip": "Points Traefik at its static configuration file, which defines entrypoints, providers, and certificate resolvers. Without the flag, Traefik searches /etc/traefik and the current directory for traefik.yml. In Docker you pass it via the command or compose config."
+    },
+    {
+      "cmd": "traefik --providers.docker=true --entrypoints.web.address=:80",
+      "desc": "Start Traefik with Docker provider and a web entrypoint",
+      "tooltip": "CLI flags map to static config keys: this enables the Docker provider, which discovers containers as routing targets, and creates an entrypoint named web on port 80. Traefik hot-reloads routing when containers start or stop. Any flag can replace a line in traefik.yml."
+    },
+    {
+      "cmd": "docker compose logs traefik -f",
+      "desc": "Follow logs from the traefik compose service",
+      "tooltip": "Streams the traefik container's stdout and stderr, where Traefik logs routing errors and ACME (automatic certificate) events. The -f flag follows new lines live, mirroring docker logs -f but scoped to the compose service. Add --tail=100 to start from recent history."
+    },
+    {
+      "cmd": "curl -s http://localhost:8080/api/rawdata | jq",
+      "desc": "Dump Traefik's full routing configuration as JSON",
+      "tooltip": "The dashboard API on port 8080 serves /api/rawdata, a snapshot of all routers, services, and middlewares Traefik currently knows. Requires api.insecure=true (or a secured API entrypoint) in the static config. jq pretty-prints the JSON so you can explore it."
+    },
+    {
+      "cmd": "curl -s http://localhost:8080/api/http/routers | jq '.[].name'",
+      "desc": "List HTTP router names from Traefik's API",
+      "tooltip": "/api/http/routers returns the active HTTP routers, and jq '.[].name' extracts just their names, one per line. Compare with your compose labels or file config to see which rules actually loaded. A router missing from the list means its rule failed to parse."
+    },
+    {
+      "cmd": "curl -s http://localhost:8080/api/overview | jq",
+      "desc": "Show Traefik API overview counters",
+      "tooltip": "The /api/overview endpoint summarizes how many routers, services, and middlewares are configured, including TCP and UDP counts. A quick health snapshot of what Traefik is doing right now. Use /api/rawdata for the full detail."
+    },
+    {
+      "cmd": "curl -s http://localhost:8080/api/entrypoints | jq '.[].name'",
+      "desc": "List entrypoint names from Traefik's API",
+      "tooltip": "/api/entrypoints returns the configured entrypoints with their addresses and TLS settings, and jq '.[].name' extracts the names. Useful to confirm which ports Traefik actually listens on. Compare with your static config if a port seems unresponsive."
+    },
+    {
+      "cmd": "certbot --nginx -d example.com --redirect",
+      "desc": "Issue a cert and configure nginx with HTTPS redirect",
+      "tooltip": "Runs the nginx plugin, which obtains a certificate for example.com, installs it into the site's TLS config, and --redirect adds a rule sending HTTP traffic to HTTPS. Requires the python3-certbot-nginx package and a working nginx vhost (virtual host). Certificates renew automatically via a timer."
+    },
+    {
+      "cmd": "certbot --nginx -d example.com --dry-run",
+      "desc": "Test certificate issuance against the staging server",
+      "tooltip": "Walks through the whole ACME (automatic certificate) flow against Let's Encrypt's staging environment, which has separate rate limits, so no real certificate is issued. Confirms your domain, DNS, and web server setup work before the real run. Safe to repeat as often as needed."
+    },
+    {
+      "cmd": "certbot certonly --nginx -d example.com",
+      "desc": "Obtain a certificate without changing nginx config",
+      "tooltip": "Uses the nginx plugin only to pass the HTTP-01 challenge, then saves the certificate to /etc/letsencrypt/live/example.com without touching your server config. You wire the cert paths into the vhost yourself. Use --nginx without certonly to have certbot edit the config for you."
+    },
+    {
+      "cmd": "certbot certonly --standalone -d example.com --preferred-challenges http",
+      "desc": "Issue a cert using a temporary built-in web server",
+      "tooltip": "The standalone plugin runs its own temporary server on port 80 to answer the HTTP-01 challenge, so nothing else may be listening on that port. Stop nginx or Apache first, or the challenge fails. The temporary server shuts down once issuance completes."
+    },
+    {
+      "cmd": "certbot certonly --standalone -d example.com --preferred-challenges http --http-01-port 8080",
+      "desc": "Run the standalone challenge on a custom port",
+      "tooltip": "--http-01-port relocates the challenge server to port 8080 for setups where port 80 is taken by another service. The CA must still be able to reach that port, so you need a port-forward or firewall rule. Combine with --preferred-challenges http to force the HTTP method."
+    },
+    {
+      "cmd": "certbot certonly --webroot -w /var/www/html -d example.com",
+      "desc": "Issue a cert via a file in your web root",
+      "tooltip": "The webroot plugin drops a token file into /var/www/html and asks the CA to fetch it over HTTP, which works when your web server already serves that directory. No server restart is needed, unlike standalone. Point -w at the directory your vhost serves for the domain."
+    },
+    {
+      "cmd": "certbot certonly --dns-cloudflare -d '*.example.com' --dns-cloudflare-credentials ~/.cloudflare/credentials",
+      "desc": "Issue a wildcard cert via Cloudflare DNS challenge",
+      "tooltip": "The DNS-01 challenge proves domain ownership by creating a TXT record, which the Cloudflare plugin does automatically using an API token from the credentials file. This is the only way to get wildcard certificates covering *.example.com. Requires the python3-certbot-dns-cloudflare package."
+    },
+    {
+      "cmd": "certbot certonly --manual --preferred-challenges dns -d example.com",
+      "desc": "Issue a cert with a manually created DNS record",
+      "tooltip": "Certbot prints a TXT record and waits while you add it to your DNS provider manually, then verifies and issues. Useful when no plugin exists for your DNS provider. The record must be live before you press Enter, and DNS propagation can take minutes."
+    },
+    {
+      "cmd": "certbot renew --force-renewal",
+      "desc": "Reissue all certificates even before expiry",
+      "tooltip": "Renews every certificate immediately, ignoring the usual 30-day-before-expiry threshold, while keeping the same key and methods. Handy after changing plugin or account settings. Normal renewals run automatically on a timer, so use this sparingly to respect rate limits."
+    },
+    {
+      "cmd": "certbot renew --deploy-hook 'systemctl reload nginx'",
+      "desc": "Run a command after successful certificate renewal",
+      "tooltip": "The deploy hook fires only when a certificate was actually renewed, making it the right place to reload nginx or Apache so they pick up the new files. Renewal keeps the same paths under /etc/letsencrypt/live, so a reload is enough. Add the flag to the timer command or a cron job."
+    },
+    {
+      "cmd": "certbot register --email admin@example.com --agree-tos",
+      "desc": "Register an ACME account with Let's Encrypt",
+      "tooltip": "Creates the account used for certificate management and stores it under /etc/letsencrypt/accounts, with --agree-tos accepting the subscriber agreement non-interactively. Registration also happens automatically on first issuance. Update contact details later with certbot update_account."
+    },
+    {
+      "cmd": "certbot --version",
+      "desc": "Show the installed certbot version",
+      "tooltip": "Prints the certbot release, which matters because ACME protocol and plugin behavior change between versions. Mention it when reporting issues or checking whether an upgrade is needed. The related letsencrypt alias is deprecated."
+    },
+    {
+      "cmd": "systemctl list-timers | grep certbot",
+      "desc": "Show when the certbot renewal timer runs",
+      "tooltip": "Lists systemd timers, and the grep keeps just the certbot.timer line with its next and last trigger times. Renewal runs twice daily but only acts on certs within 30 days of expiry. If the timer is missing, check that the certbot package installed its units."
+    },
+    {
+      "cmd": "systemctl status certbot.timer",
+      "desc": "Show the certbot renewal timer status",
+      "tooltip": "Displays whether certbot.timer is active, when it last fired, and when it runs next. A failed timer means automatic renewals are not happening, so check this after any certbot upgrade. The timer triggers certbot renew twice a day."
+    },
+    {
+      "cmd": "readlink -f /etc/letsencrypt/live/example.com/cert.pem",
+      "desc": "Show the real file behind a letsencrypt live symlink",
+      "tooltip": "The live directory holds symlinks pointing into /etc/letsencrypt/archive, where each renewal creates a new numbered file. Resolving the link shows which archive version a service currently uses. Useful to confirm that a renewal actually switched the files."
+    },
+    {
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -enddate",
+      "desc": "Check a certificate's expiry date over the network",
+      "tooltip": "s_client connects to the TLS port and fetches the certificate, and the leading echo | feeds a newline so the connection closes immediately instead of hanging. x509 -noout -enddate then prints just the Not After date. Compare it with today's date to see how much time is left."
+    },
+    {
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -subject -issuer",
+      "desc": "Show who a certificate belongs to and who issued it",
+      "tooltip": "-subject prints the certificate owner's distinguished name, and -issuer prints the CA (certificate authority) that signed it, so you can confirm the cert matches the domain and comes from an expected issuer. -servername sends SNI (server name indication), which matters when one IP hosts many sites."
+    },
+    {
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -fingerprint -sha256",
+      "desc": "Print a certificate's SHA-256 fingerprint",
+      "tooltip": "Computes the SHA-256 digest of the certificate, a unique identifier you can compare against the value printed by the CA or a vendor's documentation. Matching fingerprints confirm you are looking at the exact expected certificate. The fingerprint changes on every renewal."
+    },
+    {
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com -brief",
+      "desc": "Show a concise TLS connection summary",
+      "tooltip": "-brief collapses s_client's verbose output into a few lines covering protocol version, cipher, and certificate subject and issuer. The fastest way to check which TLS version and cipher a server negotiates. Add -tls1_3 to test support for that protocol specifically."
+    },
+    {
+      "cmd": "openssl s_client -connect example.com:443 -servername example.com -showcerts </dev/null | grep -E '^ *(s:|i:)'",
+      "desc": "Inspect the full certificate chain subjects and issuers",
+      "tooltip": "-showcerts prints every certificate in the chain, and the grep keeps only the subject (s:) and issuer (i:) lines so you can see the order: leaf, intermediates, root. A complete chain here is what clients need to validate the site. The </dev/null redirect closes stdin so s_client exits immediately."
+    },
+    {
+      "cmd": "openssl x509 -in /etc/letsencrypt/live/example.com/fullchain.pem -noout -subject -issuer",
+      "desc": "Inspect a local certificate file's subject and issuer",
+      "tooltip": "Reads a PEM certificate from disk instead of the network and prints its subject and issuer. fullchain.pem contains the site certificate plus the intermediate chain, so this shows the server identity and who signed it. Works for any cert file, not just Let's Encrypt."
+    },
+    {
+      "cmd": "openssl dhparam -out /etc/ssl/dhparam.pem 2048",
+      "desc": "Generate Diffie-Hellman parameters for TLS hardening",
+      "tooltip": "Creates the DH parameters file some older TLS configs reference in their cipher settings, improving forward secrecy for key exchange. The 2048-bit generation can take a few minutes on modest hardware. Modern TLS 1.3 ignores this file, so it matters mainly for legacy clients."
+    },
+    {
+      "cmd": "openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'",
+      "desc": "Generate a self-signed certificate and private key",
+      "tooltip": "-x509 makes openssl issue a self-signed certificate instead of a CSR, and -newkey rsa:2048 creates a fresh RSA key, with -nodes leaving it unencrypted so a server can read it without a passphrase. -subj sets the subject non-interactively, perfect for scripts. Use this for local testing only, since browsers will warn about the trust chain."
+    },
+    {
+      "cmd": "update-ca-certificates",
+      "desc": "Refresh the system's trusted CA bundle",
+      "tooltip": "Rebuilds /etc/ssl/certs from the certificates in /etc/ssl/certs and /usr/local/share/ca-certificates, adding and removing entries as needed. Run it after installing a private CA so local tools and services trust it. Certificates you drop into /usr/local/share/ca-certificates must end in .crt."
+    },
+    {
+      "cmd": "update-ca-certificates --fresh",
+      "desc": "Rebuild the CA bundle from scratch, removing obsolete certs",
+      "tooltip": "--fresh deletes every existing symlink in /etc/ssl/certs first, then recreates the bundle only from the current source directories. Use it to purge certificates that were removed upstream but left stale links behind. The plain form without --fresh keeps existing links."
+    },
+    {
+      "cmd": "logrotate -f /etc/logrotate.d/nginx",
+      "desc": "Force nginx log rotation immediately",
+      "tooltip": "Runs the nginx logrotate rules now instead of waiting for the daily timer, which is handy before an audit or when disk space is tight. The postrotate script calls nginx -s reopen so the server keeps writing to fresh logs. Without -f, logrotate only rotates when the configured age or size is reached."
+    },
+    {
+      "cmd": "curl -o /dev/null -s -w '%{http_code} %{time_total}s\\n' https://example.com",
+      "desc": "Check HTTP status code and total response time",
+      "tooltip": "-w prints the status code and the total seconds the request took, with the body discarded to /dev/null. A fast 200 means the site is healthy, while a 5xx with a long time points at backend trouble. Wrap this in a loop or cron job for simple uptime monitoring."
+    },
+    {
+      "cmd": "curl -s -o /dev/null -w '%{time_connect} %{time_starttransfer} %{time_total}\\n' https://example.com",
+      "desc": "Break down connection, TTFB, and total response time",
+      "tooltip": "time_connect is the TCP handshake, time_starttransfer is when the first response byte arrives (time to first byte, often the slowest part for dynamic sites), and time_total is the whole request. Comparing them shows whether latency is network, TLS, or application-side. Run it a few times to separate cold starts from steady-state latency."
+    },
+    {
+      "cmd": "curl -s -o /dev/null -w '%{ssl_verify_result} %{ssl_version} %{cipher}\\n' https://example.com",
+      "desc": "Show TLS verification result, version, and cipher",
+      "tooltip": "ssl_verify_result is 0 when the certificate chain validates, and any other value is an error code from the trust check. ssl_version and cipher show which protocol and cipher suite the server negotiated. A quick way to confirm TLS 1.3 and a strong cipher are actually in use."
+    },
+    {
+      "cmd": "curl -v https://example.com",
+      "desc": "Show the full TLS handshake and HTTP exchange",
+      "tooltip": "-v prints every step: DNS lookup, TCP connect, TLS handshake details, request headers, and response headers, with > and < marking sent and received lines. The best first tool when a site misbehaves in browsers but not in curl. Add -k only for testing self-signed certs."
+    },
+    {
+      "cmd": "curl --resolve example.com:443:127.0.0.1 https://example.com",
+      "desc": "Test a vhost locally before DNS points to it",
+      "tooltip": "--resolve overrides DNS for this request only, connecting to 127.0.0.1 while still sending the Host header and SNI (server name indication) for example.com. Perfect for testing a new virtual host before changing DNS. Repeat for each domain a server hosts."
+    },
+    {
+      "cmd": "curl -x http://proxy.example.com:3128 https://example.com",
+      "desc": "Fetch a URL through an HTTP proxy",
+      "tooltip": "-x routes the request through the proxy at proxy.example.com:3128, which then fetches example.com on your behalf. Useful to verify a proxy works or to test how a site behaves from another network. The proxy must allow CONNECT for HTTPS targets."
+    },
+    {
+      "cmd": "wget --spider -S https://example.com",
+      "desc": "Check a URL exists without downloading it",
+      "tooltip": "--spider tells wget to check whether the URL is reachable without saving anything, and -S prints the response headers. A clean way to test links or confirm redirects by reading the Location header. The exit status is zero only when the fetch succeeds."
+    },
+    {
+      "cmd": "dig +short A example.com",
+      "desc": "Look up the IPv4 address for a domain",
+      "tooltip": "+short trims dig's verbose output to just the answer, here the A records (IPv4 addresses) for example.com. Handy for confirming DNS points at the right server before you switch traffic. Use AAAA for IPv6 and CNAME to trace aliases."
+    },
+    {
+      "cmd": "dig +short AAAA example.com",
+      "desc": "Look up the IPv6 address for a domain",
+      "tooltip": "Returns the AAAA records, the IPv6 equivalents of A records, if the domain has any. Many domains have no AAAA record at all, which is a valid answer. Check this when a site loads over IPv4 but not IPv6."
+    },
+    {
+      "cmd": "dig +short CNAME www.example.com",
+      "desc": "Resolve a CNAME alias to its target",
+      "tooltip": "Shows where the www.example.com CNAME (an alias record pointing at another name) leads, such as example.com or a CDN hostname. Useful to understand redirects and third-party hosting setups. A blank result means the name is not a CNAME."
+    },
+    {
+      "cmd": "dig +short TXT _acme-challenge.example.com",
+      "desc": "Check the ACME DNS challenge TXT record",
+      "tooltip": "Verifies that the TXT record a DNS-01 certificate challenge requires is published and correct. Compare the value against what certbot or your CA asked you to create. An empty result means propagation has not finished or the record name is wrong."
+    },
+    {
+      "cmd": "dig +short NS example.com",
+      "desc": "Show the authoritative nameservers for a domain",
+      "tooltip": "Lists the NS records naming the servers authoritative for example.com, which is the first thing to check when DNS changes do not appear. If your provider's nameservers are not listed, updates there will not take effect. Pair with dig example.com +trace to watch a query walk the tree."
+    },
+    {
+      "cmd": "getent hosts example.com",
+      "desc": "Resolve a hostname using system DNS configuration",
+      "tooltip": "getent queries the system resolver exactly like applications do, honoring /etc/hosts, mDNS, and DNS in one go. If getent resolves but dig does not, /etc/hosts or NSS settings are involved. This is the best check for what your own server will actually see."
+    },
+    {
+      "cmd": "ss -tlnp | grep :443",
+      "desc": "Find which process is listening on port 443",
+      "tooltip": "ss lists TCP sockets, with -l for listeners, -n skipping name lookups, -t for TCP, and -p showing the owning process. The grep filters to port 443, so you can see who holds the HTTPS port, often the answer when a second server fails to bind. Root is needed to show process names for other users' sockets."
+    },
+    {
+      "cmd": "awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10",
+      "desc": "Show the top 10 IPs hitting nginx",
+      "tooltip": "This pipeline counts access log lines per client IP: awk takes the first field, sort groups identical IPs, uniq -c counts each group, and sort -rn orders by count descending. The top entries reveal heavy crawlers, scanners, or your own monitoring. Repeat after an hour to spot attack patterns."
+    },
+    {
+      "cmd": "awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10",
+      "desc": "Show the most common HTTP status codes in nginx logs",
+      "tooltip": "Field 9 of the nginx access log is the status code, so this pipeline shows how many 200s, 404s, and 5xx responses the server returned. A sudden spike of 502 or 503 points to backend or proxy problems. The same pattern works on Apache logs, where the status field is also 9."
+    },
+    {
+      "cmd": "squid -v",
+      "desc": "Show Squid version and build configuration",
+      "tooltip": "Prints the Squid release plus compile-time options, such as supported authentication schemes and cache backends. Useful when a feature seems missing at runtime. The output also confirms which config file Squid will read."
+    },
+    {
+      "cmd": "squid -z",
+      "desc": "Create Squid cache directories before first start",
+      "tooltip": "Builds the on-disk cache directories declared in squid.conf's cache_dir lines, which must exist before Squid can store objects. Run it once after a fresh install or after changing cache_dir paths. Squid then initializes the cache automatically on startup."
+    },
+    {
+      "cmd": "squid -k check",
+      "desc": "Check whether a running Squid responds",
+      "tooltip": "Sends a null signal to the running Squid process to verify it is alive, without changing its state. Useful in monitoring scripts, since the exit status reflects whether Squid is up. The -k flag sends commands to the running daemon's process."
+    },
+    {
+      "cmd": "squid -k parse",
+      "desc": "Parse squid.conf and report configuration errors",
+      "tooltip": "Reads squid.conf and reports syntax or semantic problems without starting the proxy, making it the safe pre-reload check. Warnings about unknown directives appear here. Note that it does not validate every runtime aspect, so keep an eye on startup logs too."
+    },
+    {
+      "cmd": "squid -k reconfigure",
+      "desc": "Reload squid.conf into the running daemon",
+      "tooltip": "Tells the running Squid to re-read its configuration file and apply changes without dropping cached objects or active connections. Use it after editing squid.conf instead of a full restart. Equivalent to sending the HUP signal to the Squid process."
+    },
+    {
+      "cmd": "squid -k rotate",
+      "desc": "Rotate Squid log files now",
+      "tooltip": "Closes the current access and cache logs, renames them with a .0, .1, and so on sequence, and starts fresh files. This is the command logrotate cron jobs call for Squid. Check that the logfile_rotate count in squid.conf is high enough for your retention."
+    },
+    {
+      "cmd": "squid -k shutdown",
+      "desc": "Shut down Squid gracefully",
+      "tooltip": "Stops the Squid daemon cleanly, letting it finish in-flight requests and flush cached state before exiting. Prefer this over kill for routine maintenance. Start it again with systemctl start squid or the squid command itself."
+    },
+    {
+      "cmd": "varnishd -C -f /etc/varnish/default.vcl",
+      "desc": "Compile-check a VCL file without starting Varnish",
+      "tooltip": "-C compiles the VCL (Varnish Configuration Language = the caching rules file) and prints the generated C code, exiting with an error and line number on problems. Run it after every VCL edit, because a bad compile stops the cache from starting. The -f flag names the VCL file to use."
+    },
+    {
+      "cmd": "varnishd -a :8080 -f /etc/varnish/default.vcl -s malloc,256M",
+      "desc": "Start Varnish listening on a custom port with memory cache",
+      "tooltip": "-a sets the listen address and port, -f loads the VCL (caching rules) file, and -s malloc,256M gives the cache a 256 MB memory-backed store, the standard choice for most deployments. Binding ports and shared memory need privileges, so run it as root or via the varnish service. Front your web server with Varnish, not the other way around."
+    },
+    {
+      "cmd": "varnishstat",
+      "desc": "Show live Varnish cache hit and miss counters",
+      "tooltip": "Displays a continuously refreshing table of counters: cache hits, misses, backend requests, and memory use. The hit rate (cache_hit divided by cache_hit plus miss) tells you whether your VCL is actually caching. Press q to quit, or add -1 for a single snapshot."
+    },
+    {
+      "cmd": "varnishlog -g request",
+      "desc": "Follow Varnish request-level logs live",
+      "tooltip": "Shows one line per client request with the URL, cache result, and timing by grouping raw log entries per request. Great for watching live traffic and confirming whether requests hit or miss the cache. Filter with -q, for example -q 'ReqURL ~ ^/api'."
+    },
+    {
+      "cmd": "varnishadm backend.list",
+      "desc": "List Varnish backends and their health state",
+      "tooltip": "Connects to the running varnishd via the admin interface and lists each backend with its state: healthy, sick, or unknown. A sick backend explains sudden 503s, since Varnish refuses to serve it. Varnish probes backends according to the health checks in your VCL."
+    },
+    {
+      "cmd": "varnishadm vcl.list",
+      "desc": "List VCL configurations loaded in Varnish",
+      "tooltip": "Shows every compiled VCL with its state: active, available, or cold. The active one handles all traffic, while older versions stay around for rollback. Use varnishadm vcl.use main to switch back if a new VCL misbehaves."
+    },
+    {
+      "cmd": "varnishadm vcl.load main /etc/varnish/default.vcl",
+      "desc": "Compile and load a new VCL into Varnish",
+      "tooltip": "Compiles the VCL file and stores it under the name main without activating it, so a syntax error leaves the running config untouched. Errors are reported immediately with line numbers. Follow with varnishadm vcl.use main to make it active."
+    },
+    {
+      "cmd": "varnishadm vcl.use main",
+      "desc": "Activate a previously loaded VCL",
+      "tooltip": "Makes the VCL named main the active configuration, so new requests are handled by it. Because vcl.load compiles first, a bad file never goes live. Roll back by naming the previous VCL, for example vcl.use boot."
+    },
+    {
+      "cmd": "varnishadm ban 'req.url ~ ^/api/'",
+      "desc": "Invalidate cached objects matching a pattern",
+      "tooltip": "Adds a ban rule that makes Varnish discard cached objects whose URL matches the regular expression, forcing a refetch on the next request. Bans apply gradually as objects are looked up, so big caches purge over time rather than instantly. Check the ban list with varnishadm ban.list."
+    }
+  ]
+}

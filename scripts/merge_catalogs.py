@@ -2,11 +2,13 @@
 """Merge category catalogs from catalogs/*.json into commands.json.
 
 commands.json remains the single source of truth. Each catalog file adds
-commands for one category. Entries are deduplicated by cmd string
-(case-insensitive) against the whole corpus. New categories are added to the
-categories array and the array is kept sorted A-Z. New entries are appended
-at the end (preserving commands.json's human-curated display order). Ids are
-assigned sequentially starting at max(id) + 1.
+commands for one category. Entries are deduplicated by exact cmd string
+(Linux commands are case-sensitive: `apache2 -v` and `apache2 -V` are
+different flags). Case-insensitive collisions are reported as warnings but
+not skipped. New categories are added to the categories array and the array
+is kept sorted A-Z. New entries are appended at the end (preserving
+commands.json's human-curated display order). Ids are assigned sequentially
+starting at max(id) + 1.
 
 Usage:
     python3 scripts/merge_catalogs.py                # merge every catalogs/*.json
@@ -37,7 +39,8 @@ def main() -> int:
     categories: list[str] = list(data["categories"])
     commands: list[dict] = data["commands"]
 
-    existing = {str(c["cmd"]).strip().lower() for c in commands}
+    existing = {c["cmd"].strip() for c in commands}
+    existing_ci = {c["cmd"].strip().lower() for c in commands}
 
     if len(sys.argv) > 1:
         catalog_paths = [Path(a) for a in sys.argv[1:]]
@@ -74,10 +77,15 @@ def main() -> int:
             if not cmd:
                 skipped += 1
                 continue
-            key = cmd.lower()
+            key = cmd
             if key in existing:
                 skipped += 1
                 continue
+            key_ci = key.lower()
+            if key_ci in existing_ci:
+                warnings.append(
+                    f"{path.name}: case-insensitive collision (kept, not skipped): {cmd!r}"
+                )
             if not desc:
                 warnings.append(f"{path.name}: '{cmd}' has no desc")
             elif len(desc) > MAX_DESC_CHARS:
@@ -100,6 +108,7 @@ def main() -> int:
                 }
             )
             existing.add(key)
+            existing_ci.add(key_ci)
             next_id += 1
             added += 1
 

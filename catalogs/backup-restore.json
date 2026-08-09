@@ -1,0 +1,665 @@
+{
+  "category": "Backup & Restore",
+  "commands": [
+    {
+      "cmd": "restic init -r /backup/restic-repo",
+      "desc": "Initialize a repository at an explicit path",
+      "tooltip": "Creates a fresh repository (encrypted backup storage) at /backup/restic-repo, where the -r flag overrides the RESTIC_REPOSITORY environment variable. You choose a password on first run, and every later command needs it, so store it somewhere safe. Run this once before the first restic backup."
+    },
+    {
+      "cmd": "restic backup /home/user",
+      "desc": "Back up a directory into the restic repository",
+      "tooltip": "Adds a new snapshot (point-in-time copy) of /home/user to the repository. Only changed file chunks are uploaded, so repeat runs are fast thanks to deduplication. List several paths on one line to back them up together. Related: restic snapshots shows what you have."
+    },
+    {
+      "cmd": "restic backup /data --exclude \"*.tmp\" --tag nightly",
+      "desc": "Back up /data, skipping temp files, tagged nightly",
+      "tooltip": "Skips files matching the --exclude glob and stamps the snapshot with the --tag label so you can filter it later. Use --exclude for patterns and --exclude-file to read patterns from a file. Combine with restic snapshots --tag nightly to list just these runs."
+    },
+    {
+      "cmd": "restic backup -v /home/user",
+      "desc": "Run a verbose backup showing each file",
+      "tooltip": "The -v flag (repeatable, like -vv) prints every file being backed up, then a summary of new, changed and unchanged data. Start with -v on a first backup to confirm the right paths are included. Drop the flag for quiet cron runs."
+    },
+    {
+      "cmd": "restic backup --dry-run /home/user",
+      "desc": "Preview what a backup would store",
+      "tooltip": "Walks the directory and reports what would be backed up without writing anything to the repository. Ideal for testing --exclude patterns before running the real job. The summary shows would-be new and changed files."
+    },
+    {
+      "cmd": "restic backup --stdin --stdin-filename notes.txt < notes.txt",
+      "desc": "Back up a file streamed from standard input",
+      "tooltip": "Reads data from stdin, here the contents of notes.txt, and stores it in a snapshot under the name given by --stdin-filename. Handy for dumping command output or database exports straight into the repository. The original file never needs to exist on disk."
+    },
+    {
+      "cmd": "restic snapshots --compact",
+      "desc": "List snapshots in a compact table",
+      "tooltip": "Shows every backup as a short table of ID, host, tags and paths, with --compact collapsing the output to one line per snapshot. The plain restic snapshots prints a wider, multi-line view. Snapshot IDs here feed restore, diff, find and forget."
+    },
+    {
+      "cmd": "restic snapshots --latest 3",
+      "desc": "List the three most recent snapshots",
+      "tooltip": "Limits the snapshot list to the newest 3, handy once a long backup history has accumulated. Combine with --tag to filter by label at the same time. The IDs shown work with restic restore and restic diff."
+    },
+    {
+      "cmd": "restic snapshots --tag nightly",
+      "desc": "List snapshots carrying the nightly tag",
+      "tooltip": "Filters the snapshot list to backups labeled nightly when they were created with --tag. A quick way to verify a scheduled job actually ran. Combine with --latest to narrow the list further."
+    },
+    {
+      "cmd": "restic snapshots --group-by host",
+      "desc": "Group the snapshot list by hostname",
+      "tooltip": "Arranges output in sections, one per host, so a multi-machine repository stays readable. Use --group-by host,tags to group by both at once. Each section still shows full snapshot IDs for restore."
+    },
+    {
+      "cmd": "restic restore latest --target /tmp/restore",
+      "desc": "Restore the newest snapshot into /tmp/restore",
+      "tooltip": "Writes every file from the latest snapshot under the --target directory, keeping the original layout. The repository is only read, so the backup itself stays intact. To restore one folder only, add --include. Related: restic mount for browsing instead."
+    },
+    {
+      "cmd": "restic restore a1b2c3d4 --target /home/user",
+      "desc": "Restore a specific snapshot by its ID",
+      "tooltip": "Uses the snapshot ID from restic snapshots to restore that exact point-in-time copy. Files land under --target, and same-named existing files are overwritten. Run restic diff to compare two snapshots before choosing one."
+    },
+    {
+      "cmd": "restic restore --target /tmp/restore --include \"/home/user/docs\" latest",
+      "desc": "Restore only one folder from the latest snapshot",
+      "tooltip": "The --include pattern limits restoration to paths matching /home/user/docs; everything else is skipped. Patterns are relative to the backup root. Add --exclude to drop specific files from an otherwise full restore."
+    },
+    {
+      "cmd": "restic check --read-data",
+      "desc": "Verify repository plus full file contents",
+      "tooltip": "Like restic check, but also reads and verifies every data blob against its checksum, the strongest integrity test restic offers. It reads the whole repository, so it is slow on large backups. Run it monthly or after suspecting disk problems."
+    },
+    {
+      "cmd": "restic check --read-data-subset 5%",
+      "desc": "Verify a random 5% of backup data",
+      "tooltip": "Reads and verifies a random fraction of the stored data, a cheaper middle ground between restic check and full --read-data. Each run picks a different random subset, so rotating runs gradually cover everything. Pairs well with monthly scheduled checks."
+    },
+    {
+      "cmd": "restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6",
+      "desc": "Remove old snapshots by retention policy",
+      "tooltip": "Deletes snapshots outside the policy: keep 7 daily, 4 weekly and 6 monthly backups. Data files are not removed yet, so run restic prune (or add --prune) to reclaim space. This is the safe way to age out old backups."
+    },
+    {
+      "cmd": "restic forget --keep-last 5 --prune",
+      "desc": "Keep five snapshots and free their data now",
+      "tooltip": "Removes all but the 5 newest snapshots and immediately deletes their data files with --prune, freeing space in one step. The pruned data is gone permanently, so verify the policy before running. Prefer plain restic forget without --prune when testing."
+    },
+    {
+      "cmd": "restic forget --prune",
+      "desc": "Remove all snapshots and prune their data",
+      "tooltip": "With no keep policy given, restic forget removes every snapshot, and --prune deletes all their data permanently. Only run this when you deliberately want to wipe the repository's backups. There is no undo, so confirm with restic snapshots first."
+    },
+    {
+      "cmd": "restic prune",
+      "desc": "Remove unreferenced data from the repository",
+      "tooltip": "Deletes data chunks that no snapshot references anymore, reclaiming space after restic forget. It never touches data still used by a snapshot, but freed space cannot be recovered. Only needed after forget removed snapshots."
+    },
+    {
+      "cmd": "restic prune --dry-run",
+      "desc": "Preview what prune would delete",
+      "tooltip": "Shows exactly which packs and blobs prune would repack or remove without changing the repository. The safe way to check space savings before a real prune. Related: restic forget --dry-run previews snapshot removal."
+    },
+    {
+      "cmd": "restic unlock",
+      "desc": "Remove stale locks from the repository",
+      "tooltip": "Clears lock files left behind by crashed or interrupted restic processes. Normal commands fail with a repository-locked error while a lock exists, so only run this when you are sure no other restic job is active. It does not reset passwords or encryption."
+    },
+    {
+      "cmd": "restic find \"*.pdf\"",
+      "desc": "Search all snapshots for a file pattern",
+      "tooltip": "Searches every snapshot for files matching the glob pattern and prints which snapshot and path each match lives in. Quote the pattern so the shell does not expand it. Related: restic ls latest lists everything in one snapshot."
+    },
+    {
+      "cmd": "restic ls latest",
+      "desc": "List files inside the newest snapshot",
+      "tooltip": "Prints the full file tree stored in the latest snapshot, one path per line. Add --long for permissions, sizes and modification times. Handy for confirming what a backup captured before restoring from it."
+    },
+    {
+      "cmd": "restic stats",
+      "desc": "Show storage stats for the repository",
+      "tooltip": "Reports total size, file count and blob counts across all snapshots in the repository. Add --mode restore-size to see the uncompressed size you would get back on restore. Useful for capacity planning and estimating restore time."
+    },
+    {
+      "cmd": "restic stats --mode restore-size a1b2c3d4",
+      "desc": "Show the restore size of one snapshot",
+      "tooltip": "Reports the total uncompressed size of a single snapshot, which is the disk space a restore needs. The --mode flag switches between restore-size, raw-data and blobs-per-file views. Related: restic stats for whole-repository totals."
+    },
+    {
+      "cmd": "restic diff a1b2c3d4 e5f6a7b8",
+      "desc": "Compare two snapshots file by file",
+      "tooltip": "Shows files added, removed, changed or with metadata differences between two snapshots, given by ID from restic snapshots. Use it to see exactly what a backup run changed before restoring. Related: restic restore and restic find."
+    },
+    {
+      "cmd": "restic mount /mnt/restic",
+      "desc": "Browse snapshots as a filesystem at /mnt/restic",
+      "tooltip": "Exposes the repository as a FUSE filesystem, with snapshot directories under /mnt/restic/snapshots you can open and copy from with normal tools. Press Ctrl+C in the mount terminal to stop serving. Requires the fuse package. For restoring everything at once, restic restore is faster."
+    },
+    {
+      "cmd": "restic cat config",
+      "desc": "Show the repository config file",
+      "tooltip": "Prints the repository metadata: version, chunker parameters and the encryption algorithm in use. Mostly a debugging aid when a repository misbehaves or you need to confirm the repository version. Related: restic check for integrity."
+    },
+    {
+      "cmd": "restic key list",
+      "desc": "List all keys that can unlock the repository",
+      "tooltip": "Shows every password key (encryption credential) registered for the repository, with its ID. Multiple keys mean several passwords can unlock the same repo, handy when several people run backups. Related: restic key add creates another."
+    },
+    {
+      "cmd": "restic key add",
+      "desc": "Add another password to unlock the repo",
+      "tooltip": "Creates an additional key so a second password can open the same repository. You are prompted for the new password. Related: restic key list shows all keys and restic key remove deletes one."
+    },
+    {
+      "cmd": "restic key passwd",
+      "desc": "Change the repository password",
+      "tooltip": "Prompts for the current password, then a new one, and re-encrypts the repository key accordingly. All existing snapshots stay valid. Write the new password down, because losing every key means losing access to the backups."
+    },
+    {
+      "cmd": "restic tag --add important a1b2c3d4",
+      "desc": "Add a tag to an existing snapshot",
+      "tooltip": "Labels snapshot a1b2c3d4 with the tag important, alongside any tags it already has. Tags make snapshots easier to group and filter later, such as with restic snapshots --tag important. Use --remove to take a tag away."
+    },
+    {
+      "cmd": "restic copy --from-repo /old/backup a1b2c3d4",
+      "desc": "Copy a snapshot into another repository",
+      "tooltip": "Copies snapshot a1b2c3d4 from the repository given by --from-repo into the current repository set by RESTIC_REPOSITORY. Handy when migrating backup servers or consolidating repositories. Both repositories need keys, set with --from-password-file and --password-file."
+    },
+    {
+      "cmd": "restic rebuild-index",
+      "desc": "Rebuild the repository index files",
+      "tooltip": "Recreates the index that maps data blobs to pack files, useful after a repository was copied or edited by hand. Run restic check afterwards to confirm the result. Mostly a repair tool for unusual situations."
+    },
+    {
+      "cmd": "restic cache --cleanup",
+      "desc": "Remove old restic cache directories",
+      "tooltip": "Deletes stale local cache folders restic keeps to speed up repeated operations. Safe to run anytime, because the cache is only an optimization and rebuilds on demand. Related: restic check works fine without a cache."
+    },
+    {
+      "cmd": "restic self-update",
+      "desc": "Update restic to the latest release",
+      "tooltip": "Downloads and installs the newest restic binary, replacing the current one. Keeping restic current ensures repository format upgrades and fixes are available. Needs write permission to the install location, so you may need sudo."
+    },
+    {
+      "cmd": "RESTIC_PASSWORD_FILE=/etc/restic-pass restic snapshots",
+      "desc": "Supply the repo password from a file",
+      "tooltip": "Sets the RESTIC_PASSWORD_FILE environment variable so restic reads the repository password from /etc/restic-pass instead of prompting. Keep that file readable only by root, because anyone holding it can unlock the backups. This is how cron jobs run restic unattended."
+    },
+    {
+      "cmd": "borg init --encryption=repokey-blake2 /backup/repo",
+      "desc": "Initialize an encrypted borg repository",
+      "tooltip": "Creates a new repository (encrypted backup storage) at /backup/repo. repokey-blake2 stores the encryption key inside the repository and uses the fast blake2 hash; keyfile would store the key on your machine instead. You set the passphrase here, and every later command needs it."
+    },
+    {
+      "cmd": "borg create /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Create a new archive of /home/user",
+      "tooltip": "Backs up /home/user into a new archive (a single backup run) named with the {hostname} and {now} placeholders, which borg fills in with machine name and timestamp. Quote the name so the shell does not expand the braces. Later runs only store changed chunks, so they are fast."
+    },
+    {
+      "cmd": "borg create --stats --progress /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Create an archive showing stats and progress",
+      "tooltip": "Runs the same backup as plain borg create, but --stats prints how many files and how much data were added and --progress shows a live progress bar. Both flags help while watching a first full backup. Add --list to print every file as it is stored."
+    },
+    {
+      "cmd": "borg create --exclude '*.tmp' /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Back up /home/user excluding temp files",
+      "tooltip": "Skips files matching the --exclude glob pattern, here *.tmp, so scratch files never enter the archive. Patterns are shell-style globs; use --exclude-from to load them from a file. Verify the result with borg list on the new archive."
+    },
+    {
+      "cmd": "borg create --compression zstd,11 /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Back up with zstd level 11 compression",
+      "tooltip": "Sets compression for this archive to zstd at level 11, a strong default balancing speed and size. Compression happens per chunk, so compressible data shrinks well. Run borg info to see the achieved compression ratio."
+    },
+    {
+      "cmd": "borg list /backup/repo",
+      "desc": "List all archives in the repository",
+      "tooltip": "Shows every archive (backup run) with its name, start time and duration. Names like myhost-2026-08-09T12:00:00 are used with extract, diff and prune. Related: borg list REPO::ARCHIVE lists the files inside one archive."
+    },
+    {
+      "cmd": "borg list /backup/repo --last 3",
+      "desc": "List the three newest archives",
+      "tooltip": "Limits the archive listing to the 3 most recent, useful on repositories with many backups. Combine with --prefix to filter by name pattern too. Archive names still print in full for later commands."
+    },
+    {
+      "cmd": "borg list /backup/repo --prefix myhost-",
+      "desc": "List archives whose name starts with myhost-",
+      "tooltip": "Filters the archive list to names beginning with myhost-, handy when several machines share one repository. Each machine should name its archives with its own hostname token. Related: borg create with the {hostname} placeholder."
+    },
+    {
+      "cmd": "borg list /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "List the files inside one archive",
+      "tooltip": "Prints every path stored in that specific archive, mirroring the backup's directory layout. Use it to confirm a backup captured what you expected. Add --short for bare filenames. Related: borg extract restores those files."
+    },
+    {
+      "cmd": "borg extract /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Restore an entire archive to the current directory",
+      "tooltip": "Writes every file from the archive back into the current working directory, preserving the original layout, so run it from where you want the restore to land. Same-named existing files are overwritten, so extract into a scratch directory first. Related: borg mount for browsing."
+    },
+    {
+      "cmd": "borg extract --dry-run /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Preview which files an extract would write",
+      "tooltip": "Shows what borg extract would restore without writing anything to disk. Add --list to print each file name, then inspect the output before a real restore. Safer than trial extracts on a full filesystem."
+    },
+    {
+      "cmd": "borg extract /backup/repo::myhost-2026-08-09T12:00:00 home/user/file.txt",
+      "desc": "Restore a single file from an archive",
+      "tooltip": "Extracts only the paths given, here home/user/file.txt, relative to the archive root and without a leading slash. Multiple paths can follow the archive name. The file lands in the current directory under its original path."
+    },
+    {
+      "cmd": "borg info /backup/repo",
+      "desc": "Show repository-wide stats and config",
+      "tooltip": "Reports the repository's ID, encryption mode, total size, number of archives and disk usage. A quick health and capacity check before adding more backups. Related: borg info REPO::ARCHIVE zooms into one archive."
+    },
+    {
+      "cmd": "borg info /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Show stats for a single archive",
+      "tooltip": "Prints details for one archive: original and compressed size, number of files and how much is unique to it versus shared with other archives. Deduplicated (shared-chunk) space is what keeps borg repositories compact. Related: borg diff compares two archives."
+    },
+    {
+      "cmd": "borg check /backup/repo",
+      "desc": "Verify repository consistency",
+      "tooltip": "Validates the repository's internal structure and all archive metadata, reporting any corruption found. Run it regularly, as it is the main way to catch a failing disk early. Add --verify-data to also read and hash every file chunk."
+    },
+    {
+      "cmd": "borg check --verify-data /backup/repo",
+      "desc": "Verify repository and all stored data",
+      "tooltip": "Like borg check but additionally reads every data chunk and verifies its hash, the strongest integrity check borg offers. It touches the whole repository, so it is slow on large backups. Schedule it monthly or after any hardware scare."
+    },
+    {
+      "cmd": "borg check --repair /backup/repo",
+      "desc": "Attempt to repair repository damage",
+      "tooltip": "Rebuilds broken index and archive metadata where possible, salvaging what it can. It may lose data it cannot fix, so only run it after borg check reported problems. Ideally restore your most important archive elsewhere before repairing."
+    },
+    {
+      "cmd": "borg prune --keep-daily 7 --keep-weekly 4 --keep-monthly 6 /backup/repo",
+      "desc": "Delete archives outside a retention policy",
+      "tooltip": "Removes archives that fall outside keeping 7 daily, 4 weekly and 6 monthly backups, based on archive timestamps. Disk space is only reclaimed by the follow-up borg compact, which is a normal part of the workflow. Prune never touches the newest archives."
+    },
+    {
+      "cmd": "borg compact /backup/repo",
+      "desc": "Free space after pruning archives",
+      "tooltip": "Removes data segments no archive references anymore, reclaiming the disk space that borg prune or borg delete freed up. Run it after every prune for a tidy repository. It is safe, because data still used by any archive is never touched."
+    },
+    {
+      "cmd": "borg rename /backup/repo::myhost-2026-08-09 myhost-before-upgrade",
+      "desc": "Rename an archive",
+      "tooltip": "Gives archive myhost-2026-08-09 the new name myhost-before-upgrade, useful for labeling important points in time. Only the name changes, the data itself is untouched. The new name appears in borg list immediately."
+    },
+    {
+      "cmd": "borg delete /backup/repo::myhost-2026-08-09",
+      "desc": "Delete one archive permanently",
+      "tooltip": "Removes that single archive and its unique data chunks, which cannot be undone, so double-check the name in borg list first. Other archives are unaffected. Run borg compact afterwards to actually free the disk space."
+    },
+    {
+      "cmd": "borg diff /backup/repo::myhost-2026-08-09 myhost-2026-08-10",
+      "desc": "Compare two archives file by file",
+      "tooltip": "Lists files that differ between the two archives, including added, removed and content-changed entries. Both archives must live in the same repository. Handy before deciding which snapshot to restore."
+    },
+    {
+      "cmd": "borg mount /backup/repo::myhost-2026-08-09 /mnt/borg",
+      "desc": "Browse one archive as a filesystem",
+      "tooltip": "Mounts a single archive read-only at /mnt/borg via FUSE, so you can open and copy files with normal tools. Unmount with borg umount /mnt/borg when done. Requires the fuse package."
+    },
+    {
+      "cmd": "borg mount /backup/repo /mnt/borg",
+      "desc": "Browse all archives as a filesystem",
+      "tooltip": "Mounts the whole repository at /mnt/borg, with each archive appearing as a subdirectory, great for comparing versions side by side. The view is read-only by design, so nothing can be altered. Unmount with borg umount /mnt/borg."
+    },
+    {
+      "cmd": "borg umount /mnt/borg",
+      "desc": "Unmount a borg filesystem mount",
+      "tooltip": "Detaches the repository or archive mounted at /mnt/borg once you finish browsing. A convenience wrapper that calls the platform unmount command, usually umount or fusermount -u. Related: borg mount creates the mount."
+    },
+    {
+      "cmd": "borg export-tar /backup/repo::myhost-2026-08-09 backup.tar",
+      "desc": "Export an archive as a plain tar file",
+      "tooltip": "Streams the archive's contents into an ordinary, unencrypted tar file, useful for handing data to systems without borg. Add --tar-filter to compress on the fly, such as with gzip. The tar can be extracted anywhere."
+    },
+    {
+      "cmd": "borg key export /backup/repo backup-repo.key",
+      "desc": "Export the repository key to a file",
+      "tooltip": "Writes the repository's encryption key to backup-repo.key so you can keep a copy outside the repo, for example offsite. Without the key and passphrase the backup is unreadable, so this is a critical safety copy. Anyone holding key and passphrase can decrypt everything."
+    },
+    {
+      "cmd": "borg key export --paper /backup/repo",
+      "desc": "Print the key as a paper backup",
+      "tooltip": "Prints the repository key formatted as text you can print and store offline, a last-resort recovery option. Scanning it back in later uses borg key import. Pair it with the passphrase written down separately."
+    },
+    {
+      "cmd": "borg key import /backup/repo backup-repo.key",
+      "desc": "Import a saved repository key",
+      "tooltip": "Loads the key from backup-repo.key back into the repository, typically after restoring the repository from a backup. The key must match the repository's encryption, because a mismatched key makes data unreadable. Related: borg key export is the counterpart."
+    },
+    {
+      "cmd": "borg key change-passphrase /backup/repo",
+      "desc": "Change the repository passphrase",
+      "tooltip": "Prompts for the current passphrase, then a new one, and re-encrypts the key accordingly. Existing archives stay valid. Store the new passphrase securely, because losing it locks you out of every backup."
+    },
+    {
+      "cmd": "borg break-lock /backup/repo",
+      "desc": "Remove stale locks from a repository",
+      "tooltip": "Deletes leftover lock files after a crash or a killed borg process. Only run it when you are certain no other borg command is using the repository, since breaking an active lock can corrupt it. Normal lock cleanup happens automatically on the next command."
+    },
+    {
+      "cmd": "BORG_PASSPHRASE=\"secret\" borg list /backup/repo",
+      "desc": "Run borg with the passphrase inline",
+      "tooltip": "Sets the BORG_PASSPHRASE environment variable for this one command so borg does not prompt. Fine for interactive use; in scripts, prefer reading the passphrase from a file or command so it never sits in shell history. The passphrase must match the repository's."
+    },
+    {
+      "cmd": "borg config /backup/repo additional_free_space 2G",
+      "desc": "Reserve extra free space in the repository",
+      "tooltip": "Sets the repository option additional_free_space to 2G, telling borg to stop writing before the disk is completely full. Prevents no-space-left failures from corrupting a nearly-full backup disk. View current settings with borg config /backup/repo."
+    },
+    {
+      "cmd": "rsync -avn --delete /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Dry-run a mirror sync to preview deletions",
+      "tooltip": "The -n (dry-run) flag makes rsync only report what it would copy or delete, writing nothing. --delete means removing destination files that no longer exist in the source. Run this preview first, then drop the -n to execute, the recommended habit before any destructive sync."
+    },
+    {
+      "cmd": "rsync -av --delete /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror docs into backup, deleting extras",
+      "tooltip": "Copies /home/user/docs to the backup and --delete removes backup files that were deleted in the source, making the destination an exact mirror. This is destructive, since any file only in the backup is gone. Test with -n (dry run) first. Related: rsync -avn --delete previews it."
+    },
+    {
+      "cmd": "rsync -av --delete --exclude \"cache/\" /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror while excluding a subdirectory",
+      "tooltip": "Combines mirroring with --delete and the --exclude pattern cache/, so the cache directory is neither copied nor deleted. Excluded files in the destination are left alone, which protects them from --delete. Verify the effect with a dry run first."
+    },
+    {
+      "cmd": "rsync -av --delete --backup --backup-dir=/mnt/backup/deleted /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror but keep deleted files in a backup dir",
+      "tooltip": "Instead of deleting files outright, --backup moves them into --backup-dir, giving you a safety copy of everything the mirror removes. The backup directory must live outside the sync destination. A safer alternative to plain --delete for important data."
+    },
+    {
+      "cmd": "rsync -avz -e ssh /home/user/data/ user@backup.example.com:/backup/data/",
+      "desc": "Push a backup to a remote host over SSH",
+      "tooltip": "Copies /home/user/data to the remote machine, compressing with -z and tunnelling through SSH with -e ssh. The destination must be writable by that user, with authentication coming from SSH. Use -n first to preview. Related: rsync -e 'ssh -p 2222' for a custom port."
+    },
+    {
+      "cmd": "rsync -a --exclude \"node_modules\" /home/user/project/ /mnt/backup/project/",
+      "desc": "Back up a project without node_modules",
+      "tooltip": "Archives /home/user/project while skipping the --exclude pattern node_modules, keeping the backup small and fast. The -a flag preserves permissions, timestamps and symlinks. Add more --exclude flags or an --exclude-from file for bigger ignore lists."
+    },
+    {
+      "cmd": "rsync -av --progress /home/user/data/ /mnt/backup/data/",
+      "desc": "Copy with per-file progress display",
+      "tooltip": "Shows each file's transfer progress and speed as it is copied, which makes long backups feel transparent. The -a flag preserves attributes and -v lists the files. For one overall progress bar instead, see rsync -ah --info=progress2."
+    },
+    {
+      "cmd": "rsync -ah --info=progress2 /home/user/data/ /mnt/backup/data/",
+      "desc": "Copy with one overall progress bar",
+      "tooltip": "--info=progress2 shows a single progress bar for the whole transfer instead of one per file, and -h prints human-readable sizes. Ideal for huge trees where per-file progress would flood the screen. Combine with -a for attribute preservation."
+    },
+    {
+      "cmd": "rsync -av --bwlimit=5000 /home/user/data/ /mnt/backup/data/",
+      "desc": "Limit transfer speed to 5000 KB per second",
+      "tooltip": "--bwlimit caps the transfer at 5000 kilobytes per second, roughly 5 MB per second, keeping backups from saturating a shared connection. The value is per rsync process and always in KB/s. Lower it for daytime syncs and raise it for overnight runs."
+    },
+    {
+      "cmd": "rsync -av --link-dest=../prev-backup /home/user/data/ /mnt/backup/current/",
+      "desc": "Incremental backup via hardlink farm",
+      "tooltip": "Copies files unchanged since ../prev-backup as hardlinks (multiple names pointing at the same data) instead of re-copying them, so each backup looks complete but costs almost no space. Point --link-dest at the previous backup directory on each run. Every backup directory stays fully restorable on its own."
+    },
+    {
+      "cmd": "rsync -e 'ssh -p 2222' /home/user/data/ user@backup.example.com:/backup/data/",
+      "desc": "Sync to a remote host on SSH port 2222",
+      "tooltip": "-e passes the whole ssh command, here adding -p 2222 for a non-default port, the standard way to reach SSH on another port. Everything else behaves like a normal remote rsync. Related: rsync -avz -e ssh for the default port."
+    },
+    {
+      "cmd": "rsync -avz user@backup.example.com:/backup/data/ /home/user/restore/",
+      "desc": "Pull files from a remote host",
+      "tooltip": "Downloads /backup/data/ from the remote machine into /home/user/restore/, the reverse direction of a push. Useful for restoring from an offsite backup server or fetching files while travelling. Add --delete to mirror the remote exactly."
+    },
+    {
+      "cmd": "rsync -a --partial --append-verify /home/user/iso/ /mnt/backup/iso/",
+      "desc": "Resume interrupted large-file transfers",
+      "tooltip": "--partial keeps partially transferred files instead of deleting them on interruption, and --append-verify resumes by appending then checking the result. Together they make re-runs after a dropped connection cheap. Files are still verified, so a bad resume is caught."
+    },
+    {
+      "cmd": "rsync -av --checksum /home/user/data/ /mnt/backup/data/",
+      "desc": "Compare files by checksum instead of size and date",
+      "tooltip": "The -c (--checksum) flag makes rsync compare file contents by checksum rather than the default size-and-mtime heuristic. Slower, but it catches files whose timestamps were touched without content changing. Useful when clock skew or timestamp tampering is a concern."
+    },
+    {
+      "cmd": "rclone config",
+      "desc": "Run the interactive remote setup wizard",
+      "tooltip": "Walks you through creating remotes (named storage connections) for cloud services such as S3, Google Drive, SFTP and local paths. Each remote gets a name you reuse in later commands, like remote:bucket. Remotes are saved to the rclone config file, viewable with rclone config show."
+    },
+    {
+      "cmd": "rclone config show",
+      "desc": "Print all configured remotes",
+      "tooltip": "Dumps the rclone config file with every remote's type and settings, with secret values hidden by default. Good for confirming a remote name before a sync. The config file itself lives at the path printed by rclone config file."
+    },
+    {
+      "cmd": "rclone ls remote:bucket",
+      "desc": "List files and sizes in a bucket",
+      "tooltip": "Prints every file in remote:bucket with its size in bytes, one per line, recursing through subfolders. Add --max-depth 1 to limit the depth. Related: rclone lsd lists only directories."
+    },
+    {
+      "cmd": "rclone lsd remote:",
+      "desc": "List top-level directories of a remote",
+      "tooltip": "Shows only the directories at the root of the remote, with modification times, handy for exploring a bucket's layout without listing every file. Add a path like remote:folder to look inside it. Related: rclone ls lists files."
+    },
+    {
+      "cmd": "rclone copy ./files remote:bucket/files",
+      "desc": "Upload files without deleting remote extras",
+      "tooltip": "Copies ./files up to the bucket, adding or updating files but never removing anything already there. Use this when you want one-way uploading without mirror semantics. For a true mirror that deletes remote-only files, use rclone sync."
+    },
+    {
+      "cmd": "rclone copy --progress ./files remote:bucket/files",
+      "desc": "Upload files with a live progress display",
+      "tooltip": "Runs the same upload as plain rclone copy, but --progress renders a live bar showing speed and remaining time, helpful for large first uploads. The progress output updates in place. Related: rclone sync --progress for the mirroring variant."
+    },
+    {
+      "cmd": "rclone sync ./files remote:bucket/files",
+      "desc": "Mirror files to the bucket, deleting extras",
+      "tooltip": "Makes the destination exactly match the source, so files missing locally are deleted remotely, and that deletion is permanent. Always preview with rclone sync --dry-run first. This is the standard command for pushing backups to cloud storage."
+    },
+    {
+      "cmd": "rclone sync --dry-run ./files remote:bucket/files",
+      "desc": "Preview what a sync would change",
+      "tooltip": "Shows exactly which files would be copied, updated or deleted by rclone sync without touching the remote. Always run this before the real sync, especially the first time. Follow up with rclone check to confirm the real sync landed."
+    },
+    {
+      "cmd": "rclone move ./files remote:bucket/files",
+      "desc": "Upload files and delete them locally",
+      "tooltip": "Transfers files to the remote and then removes the local originals, like a cut-and-paste upload. Useful for offloading files after a successful backup, but destructive locally, so verify with a copy or dry-run first. Related: rclone copy keeps the originals."
+    },
+    {
+      "cmd": "rclone delete remote:bucket/old.tmp",
+      "desc": "Delete matching files from the remote",
+      "tooltip": "Removes files on the remote that match the given path, here any file named old.tmp in the bucket, leaving the directory structure alone. It obeys filters, so you can combine it with --exclude patterns. For emptying a whole directory, use rclone purge with care."
+    },
+    {
+      "cmd": "rclone rmdir remote:bucket/empty-dir",
+      "desc": "Remove an empty remote directory",
+      "tooltip": "Deletes the directory only if it is completely empty, otherwise rclone refuses. Use rclone rmdirs to remove a whole tree of empty directories at once. Safer than purge because it never touches files."
+    },
+    {
+      "cmd": "rclone purge remote:bucket",
+      "desc": "Delete a remote directory and everything in it",
+      "tooltip": "Permanently removes the entire remote:bucket directory with all files, and most backends offer no trash or undo. Double-check the path, ideally with rclone ls first. Prefer rclone delete or rclone rmdir for surgical removal."
+    },
+    {
+      "cmd": "rclone check ./files remote:bucket/files",
+      "desc": "Verify local and remote files match",
+      "tooltip": "Compares sizes and hashes between the local directory and the remote path, reporting any mismatches. A great post-sync verification that your upload really landed intact. Add --download to checksum by downloading rather than using remote hashes."
+    },
+    {
+      "cmd": "rclone about remote:",
+      "desc": "Show storage quota and usage for a remote",
+      "tooltip": "Reports the remote's total capacity, used space and free space, where the provider exposes them. Useful to confirm a bucket has room before a big backup. Not every backend supports it, and unsupported ones print what they can."
+    },
+    {
+      "cmd": "rclone size remote:bucket",
+      "desc": "Count files and total bytes in a bucket",
+      "tooltip": "Walks the whole path and prints the number of files and their combined size, handy for capacity planning and billing checks. Add --json for structured output. Unlike rclone about, this measures actual object contents."
+    },
+    {
+      "cmd": "rclone mount remote:bucket /mnt/rclone --vfs-cache-mode full",
+      "desc": "Mount a bucket as a local filesystem",
+      "tooltip": "Exposes remote:bucket at /mnt/rclone via FUSE so cloud storage behaves like a local disk. --vfs-cache-mode full caches file contents locally, which makes reading and writing feel responsive at the cost of local disk space. Unmount with fusermount -u /mnt/rclone. Requires fuse."
+    },
+    {
+      "cmd": "rclone copyto file.txt remote:bucket/newname.txt",
+      "desc": "Upload one file under a new name",
+      "tooltip": "Copies a single file and lets you rename it at the destination in the same command, unlike rclone copy, which preserves names. It also works in reverse for a single-file download. Related: rclone move for cut-and-paste behavior."
+    },
+    {
+      "cmd": "rclone tree remote:bucket",
+      "desc": "Print the bucket as an indented tree",
+      "tooltip": "Renders the remote's directory structure like the tree command, making the layout easy to read. Requires the tree utility installed locally. Great for a quick visual overview before a sync."
+    },
+    {
+      "cmd": "duplicity full /home/user file:///backup/duplicity",
+      "desc": "Run a full encrypted backup to a local folder",
+      "tooltip": "Makes a complete first backup of /home/user into the local store file:///backup/duplicity, encrypted with GnuPG using your key. Later runs should be duplicity incremental for speed. Restore with duplicity restore pointing at the same URL."
+    },
+    {
+      "cmd": "duplicity incremental /home/user file:///backup/duplicity",
+      "desc": "Back up only files changed since the last run",
+      "tooltip": "Adds a new incremental backup containing only data changed since the previous run, keeping each backup fast and small. Restoring still needs the full backup plus all increments. Omit the action word entirely and duplicity picks the right mode automatically."
+    },
+    {
+      "cmd": "duplicity restore file:///backup/duplicity /tmp/restore",
+      "desc": "Restore the latest backup into /tmp/restore",
+      "tooltip": "Reconstructs the most recent state by combining the full backup with all increments, writing files under /tmp/restore, which must already exist. For an older point in time, add --time to pick a restore date. Related: duplicity list-current-files previews the contents."
+    },
+    {
+      "cmd": "duplicity list-current-files file:///backup/duplicity",
+      "desc": "List files contained in the latest backup",
+      "tooltip": "Prints every file the most recent backup state contains, without restoring anything. A quick way to confirm what a restore would produce. Related: duplicity collection-status shows the whole backup chain."
+    },
+    {
+      "cmd": "duplicity verify file:///backup/duplicity /home/user",
+      "desc": "Compare live files against the backup",
+      "tooltip": "Checks whether the files in /home/user still match what the backup chain stores, reporting any differences. Catch local corruption or missing files before they cost a restore. Add --compare-data to also compare file contents."
+    },
+    {
+      "cmd": "duplicity remove-older-than 30D --force file:///backup/duplicity",
+      "desc": "Delete backups older than 30 days",
+      "tooltip": "Removes backup sets older than 30 days, keeping the newest ones, and the deletion is permanent. The --force flag is required to confirm it. Keep enough history that a valid full-plus-increment chain survives the cleanup, and duplicity warns if a chain would break."
+    },
+    {
+      "cmd": "duplicity cleanup --force file:///backup/duplicity",
+      "desc": "Remove leftover partial backup files",
+      "tooltip": "Deletes incomplete or orphaned files left behind by an interrupted backup run, freeing space, and --force confirms the action. Run collection-status first to see what cleanup would remove. It never deletes real backups."
+    },
+    {
+      "cmd": "duplicity collection-status file:///backup/duplicity",
+      "desc": "Show the full backup chain status",
+      "tooltip": "Lists every full and incremental backup set in the store, including which are needed for a complete restore and which are obsolete. The go-to command for understanding a duplicity store before pruning or restoring."
+    },
+    {
+      "cmd": "duplicity --exclude \"**/node_modules\" full /home/user file:///backup/duplicity",
+      "desc": "Full backup excluding node_modules patterns",
+      "tooltip": "Adds an --exclude glob so directories named node_modules anywhere under /home/user are skipped. The ** pattern matches any number of path levels. Duplicity also supports --exclude-filelist for longer ignore lists."
+    },
+    {
+      "cmd": "dd if=/dev/sda of=/backup/disk.img bs=4M status=progress",
+      "desc": "Clone a whole disk to an image file",
+      "tooltip": "Copies every block of /dev/sda into /backup/disk.img, a byte-for-byte disk image. bs=4M speeds up the copy with larger blocks and status=progress shows live progress. Unmount the disk first when possible. Double-check device names with lsblk, because swapping if and of destroys data."
+    },
+    {
+      "cmd": "dd if=/dev/sda bs=4M status=progress | gzip > disk.img.gz",
+      "desc": "Clone a disk and compress the image on the fly",
+      "tooltip": "Pipes the raw disk copy straight into gzip, producing a compressed disk.img.gz without needing space for the uncompressed image. Compression saves space but slows the clone. Keep the pipe intact, since interrupting it leaves a partial image."
+    },
+    {
+      "cmd": "dd if=/dev/sda bs=4M status=progress | ssh user@host \"cat > /backup/sda.img\"",
+      "desc": "Stream a disk image to a remote host",
+      "tooltip": "Sends the raw disk copy over SSH to be written as /backup/sda.img on another machine, an offsite disk backup without local staging space. The remote must have room for the full image. Restoring works in reverse with dd on the receiving side."
+    },
+    {
+      "cmd": "dd if=/dev/sda of=/dev/sdb bs=4M conv=fsync status=progress",
+      "desc": "Clone a disk directly to another disk",
+      "tooltip": "Copies /dev/sda block-for-block onto /dev/sdb, replacing everything on the target, so check both device names twice. conv=fsync flushes data to the physical disk before finishing, so the clone is truly written. status=progress shows the rate."
+    },
+    {
+      "cmd": "dd if=/backup/disk.img of=/dev/sda bs=4M status=progress",
+      "desc": "Restore a disk image back onto a disk",
+      "tooltip": "Writes the image file back over /dev/sda block-for-block, completely wiping whatever is on the disk, so confirm the target device carefully. This is how a dd backup is restored after a drive failure. Related: dd if=/dev/sda of=/backup/disk.img creates the image."
+    },
+    {
+      "cmd": "ddrescue /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Recover data from a failing disk to an image",
+      "tooltip": "Copies as much of /dev/sda as possible into /backup/disk.img, skipping bad sectors instead of aborting, and records progress in the log file. Rerun the same command to continue where it stopped. Keep the log file, since it is essential between runs."
+    },
+    {
+      "cmd": "ddrescue -r3 /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Retry bad sectors three times",
+      "tooltip": "Adds -r3 so ddrescue retries unreadable areas up to 3 extra times after the first pass, squeezing more data out of a failing disk. Retries are slow by design, so run it overnight. Combine with -d for direct disk access on stubborn drives."
+    },
+    {
+      "cmd": "ddrescue -d /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Read the disk directly, bypassing the cache",
+      "tooltip": "The -d (direct) flag reads the raw device without the operating system cache, which can reach sectors the cached path cannot and avoids polluting memory. Useful for very damaged drives. Follow up with -r retries afterwards for maximum recovery."
+    },
+    {
+      "cmd": "tar czf backup.tar.gz /home/user",
+      "desc": "Create a gzip-compressed tar archive",
+      "tooltip": "Bundles /home/user into backup.tar.gz: c creates, z compresses with gzip and f names the output file. Add v for a verbose file list. To restore, tar xzf backup.tar.gz -C /restore-dir. For stronger compression use J (xz) or --zstd."
+    },
+    {
+      "cmd": "tar xzf backup.tar.gz -C /restore-dir",
+      "desc": "Extract a tar.gz archive into a directory",
+      "tooltip": "Unpacks backup.tar.gz into /restore-dir, which must exist: x extracts, z decompresses, f names the archive and -C sets the destination. Files are written relative to that directory, overwriting same-named files. Check contents first with tar tvf backup.tar.gz."
+    },
+    {
+      "cmd": "tar tvf backup.tar.gz",
+      "desc": "List archive contents with details",
+      "tooltip": "Shows every file inside backup.tar.gz with permissions, owner, size and timestamp, without extracting anything. Handy before restoring, especially to spot absolute paths or unexpected top-level directories. Related: tar xzf to actually unpack."
+    },
+    {
+      "cmd": "tar czf backup.tar.gz --exclude \"cache\" --exclude \"*.tmp\" /home/user",
+      "desc": "Create an archive skipping excluded patterns",
+      "tooltip": "Bundles /home/user while skipping anything matching the --exclude globs, here the cache folder and .tmp files. Put --exclude before the source paths. Repeat the flag for more patterns or use --exclude-from with a file."
+    },
+    {
+      "cmd": "tar --xattrs --acls -czf backup.tar.gz /home/user",
+      "desc": "Archive while preserving ACLs and xattrs",
+      "tooltip": "The --xattrs and --acls flags store extended attributes and POSIX ACLs, the extra permissions beyond owner, group and other, inside the archive. Without them, SELinux labels and fine-grained permissions can be lost on restore. These flags require GNU tar."
+    },
+    {
+      "cmd": "tar czf - /home/user | ssh user@host \"cat > backup.tar.gz\"",
+      "desc": "Stream a tar backup to a remote host",
+      "tooltip": "The - as filename makes tar write the archive to stdout, which is piped over SSH and saved remotely, with no local archive file or disk space needed. Restore in reverse with the remote cat piping back into tar. The remote side only needs cat."
+    },
+    {
+      "cmd": "tar --zstd -cf backup.tar.zst /home/user",
+      "desc": "Create a zstd-compressed tar archive",
+      "tooltip": "Bundles /home/user into backup.tar.zst using zstd compression, which typically beats gzip on both speed and size. Requires a tar built with zstd support, common on modern distributions. Extract with tar --zstd -xf backup.tar.zst -C /restore-dir."
+    },
+    {
+      "cmd": "btrfs subvolume snapshot -r /home /backup/home-snapshot",
+      "desc": "Take a read-only snapshot of a subvolume",
+      "tooltip": "Creates an instant, space-efficient snapshot (point-in-time copy) of the /home subvolume at /backup/home-snapshot, and -r makes it read-only, which is required before sending it elsewhere. Snapshots share data with the original until files change, so they cost almost nothing at creation. Related: btrfs send moves it off-box."
+    },
+    {
+      "cmd": "btrfs send /backup/home-snapshot | btrfs receive /mnt/backup",
+      "desc": "Stream a snapshot to another disk or host",
+      "tooltip": "Pipes the read-only snapshot's data to btrfs receive, which writes it onto another filesystem, locally or, with an ssh pipe, remotely. The receiving filesystem must be btrfs. Restoring is just a snapshot of the received copy. Related: incremental sends with -p."
+    },
+    {
+      "cmd": "btrfs send -p /backup/prev-snapshot /backup/home-snapshot | btrfs receive /mnt/backup",
+      "desc": "Send only the changes since a parent snapshot",
+      "tooltip": "The -p (parent) flag makes btrfs send transfer only what changed between prev-snapshot and home-snapshot, so offsite backups stay tiny. The parent snapshot must already exist at the receiving side. Chain snapshots in order for successive incremental sends."
+    },
+    {
+      "cmd": "zfs snapshot tank/data@2026-08-09",
+      "desc": "Create an instant ZFS snapshot",
+      "tooltip": "Takes a snapshot (point-in-time copy) of the tank/data dataset, named with @date. Snapshots are nearly free initially because blocks are shared until modified. List them with zfs list -t snapshot and send them off-box with zfs send."
+    },
+    {
+      "cmd": "zfs list -t snapshot",
+      "desc": "List all ZFS snapshots",
+      "tooltip": "Shows every snapshot across datasets with used space, referenced space and creation time. The @name suffix identifies each snapshot. Use it to track snapshot retention before pruning old ones."
+    },
+    {
+      "cmd": "zfs send tank/data@2026-08-09 | zfs receive backup/data",
+      "desc": "Stream a ZFS snapshot to another pool",
+      "tooltip": "Pipes the snapshot's data to zfs receive, recreating it on the backup pool, the standard way to copy datasets off the main machine. The destination dataset must not already exist. Incremental variants use -i with an earlier snapshot."
+    }
+  ]
+}

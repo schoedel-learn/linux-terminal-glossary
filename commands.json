@@ -3,6 +3,7 @@
     "AI Agents & MCP",
     "Administration",
     "Archiving & Compression",
+    "Backup & Restore",
     "Bash Scripting",
     "Cloudflare",
     "Cron & Scheduling",
@@ -35,6 +36,7 @@
     "Text Processing",
     "VPS Management",
     "Vim/Neovim",
+    "Web Servers & Proxies",
     "tmux"
   ],
   "commands": [
@@ -29087,7 +29089,1897 @@
       "cmd": "synapse_port_db --sqlite-database homeserver.db --postgres-config homeserver-postgres.yaml",
       "desc": "Port a Synapse SQLite database to PostgreSQL",
       "tooltip": "Migrates an existing SQLite database into a new PostgreSQL database, which is how small homeservers move to a setup that scales. --sqlite-database names the .db file to copy from, and --postgres-config is a YAML file with the target database credentials. Run it with Synapse stopped. PostgreSQL is the recommended database for production, and new installs should start there directly."
+    },
+    {
+      "id": 4151,
+      "category": "Backup & Restore",
+      "cmd": "restic init -r /backup/restic-repo",
+      "desc": "Initialize a repository at an explicit path",
+      "tooltip": "Creates a fresh repository (encrypted backup storage) at /backup/restic-repo, where the -r flag overrides the RESTIC_REPOSITORY environment variable. You choose a password on first run, and every later command needs it, so store it somewhere safe. Run this once before the first restic backup."
+    },
+    {
+      "id": 4152,
+      "category": "Backup & Restore",
+      "cmd": "restic backup /home/user",
+      "desc": "Back up a directory into the restic repository",
+      "tooltip": "Adds a new snapshot (point-in-time copy) of /home/user to the repository. Only changed file chunks are uploaded, so repeat runs are fast thanks to deduplication. List several paths on one line to back them up together. Related: restic snapshots shows what you have."
+    },
+    {
+      "id": 4153,
+      "category": "Backup & Restore",
+      "cmd": "restic backup /data --exclude \"*.tmp\" --tag nightly",
+      "desc": "Back up /data, skipping temp files, tagged nightly",
+      "tooltip": "Skips files matching the --exclude glob and stamps the snapshot with the --tag label so you can filter it later. Use --exclude for patterns and --exclude-file to read patterns from a file. Combine with restic snapshots --tag nightly to list just these runs."
+    },
+    {
+      "id": 4154,
+      "category": "Backup & Restore",
+      "cmd": "restic backup -v /home/user",
+      "desc": "Run a verbose backup showing each file",
+      "tooltip": "The -v flag (repeatable, like -vv) prints every file being backed up, then a summary of new, changed and unchanged data. Start with -v on a first backup to confirm the right paths are included. Drop the flag for quiet cron runs."
+    },
+    {
+      "id": 4155,
+      "category": "Backup & Restore",
+      "cmd": "restic backup --dry-run /home/user",
+      "desc": "Preview what a backup would store",
+      "tooltip": "Walks the directory and reports what would be backed up without writing anything to the repository. Ideal for testing --exclude patterns before running the real job. The summary shows would-be new and changed files."
+    },
+    {
+      "id": 4156,
+      "category": "Backup & Restore",
+      "cmd": "restic backup --stdin --stdin-filename notes.txt < notes.txt",
+      "desc": "Back up a file streamed from standard input",
+      "tooltip": "Reads data from stdin, here the contents of notes.txt, and stores it in a snapshot under the name given by --stdin-filename. Handy for dumping command output or database exports straight into the repository. The original file never needs to exist on disk."
+    },
+    {
+      "id": 4157,
+      "category": "Backup & Restore",
+      "cmd": "restic snapshots --compact",
+      "desc": "List snapshots in a compact table",
+      "tooltip": "Shows every backup as a short table of ID, host, tags and paths, with --compact collapsing the output to one line per snapshot. The plain restic snapshots prints a wider, multi-line view. Snapshot IDs here feed restore, diff, find and forget."
+    },
+    {
+      "id": 4158,
+      "category": "Backup & Restore",
+      "cmd": "restic snapshots --latest 3",
+      "desc": "List the three most recent snapshots",
+      "tooltip": "Limits the snapshot list to the newest 3, handy once a long backup history has accumulated. Combine with --tag to filter by label at the same time. The IDs shown work with restic restore and restic diff."
+    },
+    {
+      "id": 4159,
+      "category": "Backup & Restore",
+      "cmd": "restic snapshots --tag nightly",
+      "desc": "List snapshots carrying the nightly tag",
+      "tooltip": "Filters the snapshot list to backups labeled nightly when they were created with --tag. A quick way to verify a scheduled job actually ran. Combine with --latest to narrow the list further."
+    },
+    {
+      "id": 4160,
+      "category": "Backup & Restore",
+      "cmd": "restic snapshots --group-by host",
+      "desc": "Group the snapshot list by hostname",
+      "tooltip": "Arranges output in sections, one per host, so a multi-machine repository stays readable. Use --group-by host,tags to group by both at once. Each section still shows full snapshot IDs for restore."
+    },
+    {
+      "id": 4161,
+      "category": "Backup & Restore",
+      "cmd": "restic restore latest --target /tmp/restore",
+      "desc": "Restore the newest snapshot into /tmp/restore",
+      "tooltip": "Writes every file from the latest snapshot under the --target directory, keeping the original layout. The repository is only read, so the backup itself stays intact. To restore one folder only, add --include. Related: restic mount for browsing instead."
+    },
+    {
+      "id": 4162,
+      "category": "Backup & Restore",
+      "cmd": "restic restore a1b2c3d4 --target /home/user",
+      "desc": "Restore a specific snapshot by its ID",
+      "tooltip": "Uses the snapshot ID from restic snapshots to restore that exact point-in-time copy. Files land under --target, and same-named existing files are overwritten. Run restic diff to compare two snapshots before choosing one."
+    },
+    {
+      "id": 4163,
+      "category": "Backup & Restore",
+      "cmd": "restic restore --target /tmp/restore --include \"/home/user/docs\" latest",
+      "desc": "Restore only one folder from the latest snapshot",
+      "tooltip": "The --include pattern limits restoration to paths matching /home/user/docs; everything else is skipped. Patterns are relative to the backup root. Add --exclude to drop specific files from an otherwise full restore."
+    },
+    {
+      "id": 4164,
+      "category": "Backup & Restore",
+      "cmd": "restic check --read-data",
+      "desc": "Verify repository plus full file contents",
+      "tooltip": "Like restic check, but also reads and verifies every data blob against its checksum, the strongest integrity test restic offers. It reads the whole repository, so it is slow on large backups. Run it monthly or after suspecting disk problems."
+    },
+    {
+      "id": 4165,
+      "category": "Backup & Restore",
+      "cmd": "restic check --read-data-subset 5%",
+      "desc": "Verify a random 5% of backup data",
+      "tooltip": "Reads and verifies a random fraction of the stored data, a cheaper middle ground between restic check and full --read-data. Each run picks a different random subset, so rotating runs gradually cover everything. Pairs well with monthly scheduled checks."
+    },
+    {
+      "id": 4166,
+      "category": "Backup & Restore",
+      "cmd": "restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6",
+      "desc": "Remove old snapshots by retention policy",
+      "tooltip": "Deletes snapshots outside the policy: keep 7 daily, 4 weekly and 6 monthly backups. Data files are not removed yet, so run restic prune (or add --prune) to reclaim space. This is the safe way to age out old backups."
+    },
+    {
+      "id": 4167,
+      "category": "Backup & Restore",
+      "cmd": "restic forget --keep-last 5 --prune",
+      "desc": "Keep five snapshots and free their data now",
+      "tooltip": "Removes all but the 5 newest snapshots and immediately deletes their data files with --prune, freeing space in one step. The pruned data is gone permanently, so verify the policy before running. Prefer plain restic forget without --prune when testing."
+    },
+    {
+      "id": 4168,
+      "category": "Backup & Restore",
+      "cmd": "restic forget --prune",
+      "desc": "Remove all snapshots and prune their data",
+      "tooltip": "With no keep policy given, restic forget removes every snapshot, and --prune deletes all their data permanently. Only run this when you deliberately want to wipe the repository's backups. There is no undo, so confirm with restic snapshots first."
+    },
+    {
+      "id": 4169,
+      "category": "Backup & Restore",
+      "cmd": "restic prune",
+      "desc": "Remove unreferenced data from the repository",
+      "tooltip": "Deletes data chunks that no snapshot references anymore, reclaiming space after restic forget. It never touches data still used by a snapshot, but freed space cannot be recovered. Only needed after forget removed snapshots."
+    },
+    {
+      "id": 4170,
+      "category": "Backup & Restore",
+      "cmd": "restic prune --dry-run",
+      "desc": "Preview what prune would delete",
+      "tooltip": "Shows exactly which packs and blobs prune would repack or remove without changing the repository. The safe way to check space savings before a real prune. Related: restic forget --dry-run previews snapshot removal."
+    },
+    {
+      "id": 4171,
+      "category": "Backup & Restore",
+      "cmd": "restic unlock",
+      "desc": "Remove stale locks from the repository",
+      "tooltip": "Clears lock files left behind by crashed or interrupted restic processes. Normal commands fail with a repository-locked error while a lock exists, so only run this when you are sure no other restic job is active. It does not reset passwords or encryption."
+    },
+    {
+      "id": 4172,
+      "category": "Backup & Restore",
+      "cmd": "restic find \"*.pdf\"",
+      "desc": "Search all snapshots for a file pattern",
+      "tooltip": "Searches every snapshot for files matching the glob pattern and prints which snapshot and path each match lives in. Quote the pattern so the shell does not expand it. Related: restic ls latest lists everything in one snapshot."
+    },
+    {
+      "id": 4173,
+      "category": "Backup & Restore",
+      "cmd": "restic ls latest",
+      "desc": "List files inside the newest snapshot",
+      "tooltip": "Prints the full file tree stored in the latest snapshot, one path per line. Add --long for permissions, sizes and modification times. Handy for confirming what a backup captured before restoring from it."
+    },
+    {
+      "id": 4174,
+      "category": "Backup & Restore",
+      "cmd": "restic stats",
+      "desc": "Show storage stats for the repository",
+      "tooltip": "Reports total size, file count and blob counts across all snapshots in the repository. Add --mode restore-size to see the uncompressed size you would get back on restore. Useful for capacity planning and estimating restore time."
+    },
+    {
+      "id": 4175,
+      "category": "Backup & Restore",
+      "cmd": "restic stats --mode restore-size a1b2c3d4",
+      "desc": "Show the restore size of one snapshot",
+      "tooltip": "Reports the total uncompressed size of a single snapshot, which is the disk space a restore needs. The --mode flag switches between restore-size, raw-data and blobs-per-file views. Related: restic stats for whole-repository totals."
+    },
+    {
+      "id": 4176,
+      "category": "Backup & Restore",
+      "cmd": "restic diff a1b2c3d4 e5f6a7b8",
+      "desc": "Compare two snapshots file by file",
+      "tooltip": "Shows files added, removed, changed or with metadata differences between two snapshots, given by ID from restic snapshots. Use it to see exactly what a backup run changed before restoring. Related: restic restore and restic find."
+    },
+    {
+      "id": 4177,
+      "category": "Backup & Restore",
+      "cmd": "restic mount /mnt/restic",
+      "desc": "Browse snapshots as a filesystem at /mnt/restic",
+      "tooltip": "Exposes the repository as a FUSE filesystem, with snapshot directories under /mnt/restic/snapshots you can open and copy from with normal tools. Press Ctrl+C in the mount terminal to stop serving. Requires the fuse package. For restoring everything at once, restic restore is faster."
+    },
+    {
+      "id": 4178,
+      "category": "Backup & Restore",
+      "cmd": "restic cat config",
+      "desc": "Show the repository config file",
+      "tooltip": "Prints the repository metadata: version, chunker parameters and the encryption algorithm in use. Mostly a debugging aid when a repository misbehaves or you need to confirm the repository version. Related: restic check for integrity."
+    },
+    {
+      "id": 4179,
+      "category": "Backup & Restore",
+      "cmd": "restic key list",
+      "desc": "List all keys that can unlock the repository",
+      "tooltip": "Shows every password key (encryption credential) registered for the repository, with its ID. Multiple keys mean several passwords can unlock the same repo, handy when several people run backups. Related: restic key add creates another."
+    },
+    {
+      "id": 4180,
+      "category": "Backup & Restore",
+      "cmd": "restic key add",
+      "desc": "Add another password to unlock the repo",
+      "tooltip": "Creates an additional key so a second password can open the same repository. You are prompted for the new password. Related: restic key list shows all keys and restic key remove deletes one."
+    },
+    {
+      "id": 4181,
+      "category": "Backup & Restore",
+      "cmd": "restic key passwd",
+      "desc": "Change the repository password",
+      "tooltip": "Prompts for the current password, then a new one, and re-encrypts the repository key accordingly. All existing snapshots stay valid. Write the new password down, because losing every key means losing access to the backups."
+    },
+    {
+      "id": 4182,
+      "category": "Backup & Restore",
+      "cmd": "restic tag --add important a1b2c3d4",
+      "desc": "Add a tag to an existing snapshot",
+      "tooltip": "Labels snapshot a1b2c3d4 with the tag important, alongside any tags it already has. Tags make snapshots easier to group and filter later, such as with restic snapshots --tag important. Use --remove to take a tag away."
+    },
+    {
+      "id": 4183,
+      "category": "Backup & Restore",
+      "cmd": "restic copy --from-repo /old/backup a1b2c3d4",
+      "desc": "Copy a snapshot into another repository",
+      "tooltip": "Copies snapshot a1b2c3d4 from the repository given by --from-repo into the current repository set by RESTIC_REPOSITORY. Handy when migrating backup servers or consolidating repositories. Both repositories need keys, set with --from-password-file and --password-file."
+    },
+    {
+      "id": 4184,
+      "category": "Backup & Restore",
+      "cmd": "restic rebuild-index",
+      "desc": "Rebuild the repository index files",
+      "tooltip": "Recreates the index that maps data blobs to pack files, useful after a repository was copied or edited by hand. Run restic check afterwards to confirm the result. Mostly a repair tool for unusual situations."
+    },
+    {
+      "id": 4185,
+      "category": "Backup & Restore",
+      "cmd": "restic cache --cleanup",
+      "desc": "Remove old restic cache directories",
+      "tooltip": "Deletes stale local cache folders restic keeps to speed up repeated operations. Safe to run anytime, because the cache is only an optimization and rebuilds on demand. Related: restic check works fine without a cache."
+    },
+    {
+      "id": 4186,
+      "category": "Backup & Restore",
+      "cmd": "restic self-update",
+      "desc": "Update restic to the latest release",
+      "tooltip": "Downloads and installs the newest restic binary, replacing the current one. Keeping restic current ensures repository format upgrades and fixes are available. Needs write permission to the install location, so you may need sudo."
+    },
+    {
+      "id": 4187,
+      "category": "Backup & Restore",
+      "cmd": "RESTIC_PASSWORD_FILE=/etc/restic-pass restic snapshots",
+      "desc": "Supply the repo password from a file",
+      "tooltip": "Sets the RESTIC_PASSWORD_FILE environment variable so restic reads the repository password from /etc/restic-pass instead of prompting. Keep that file readable only by root, because anyone holding it can unlock the backups. This is how cron jobs run restic unattended."
+    },
+    {
+      "id": 4188,
+      "category": "Backup & Restore",
+      "cmd": "borg init --encryption=repokey-blake2 /backup/repo",
+      "desc": "Initialize an encrypted borg repository",
+      "tooltip": "Creates a new repository (encrypted backup storage) at /backup/repo. repokey-blake2 stores the encryption key inside the repository and uses the fast blake2 hash; keyfile would store the key on your machine instead. You set the passphrase here, and every later command needs it."
+    },
+    {
+      "id": 4189,
+      "category": "Backup & Restore",
+      "cmd": "borg create /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Create a new archive of /home/user",
+      "tooltip": "Backs up /home/user into a new archive (a single backup run) named with the {hostname} and {now} placeholders, which borg fills in with machine name and timestamp. Quote the name so the shell does not expand the braces. Later runs only store changed chunks, so they are fast."
+    },
+    {
+      "id": 4190,
+      "category": "Backup & Restore",
+      "cmd": "borg create --stats --progress /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Create an archive showing stats and progress",
+      "tooltip": "Runs the same backup as plain borg create, but --stats prints how many files and how much data were added and --progress shows a live progress bar. Both flags help while watching a first full backup. Add --list to print every file as it is stored."
+    },
+    {
+      "id": 4191,
+      "category": "Backup & Restore",
+      "cmd": "borg create --exclude '*.tmp' /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Back up /home/user excluding temp files",
+      "tooltip": "Skips files matching the --exclude glob pattern, here *.tmp, so scratch files never enter the archive. Patterns are shell-style globs; use --exclude-from to load them from a file. Verify the result with borg list on the new archive."
+    },
+    {
+      "id": 4192,
+      "category": "Backup & Restore",
+      "cmd": "borg create --compression zstd,11 /backup/repo::'{hostname}-{now}' /home/user",
+      "desc": "Back up with zstd level 11 compression",
+      "tooltip": "Sets compression for this archive to zstd at level 11, a strong default balancing speed and size. Compression happens per chunk, so compressible data shrinks well. Run borg info to see the achieved compression ratio."
+    },
+    {
+      "id": 4193,
+      "category": "Backup & Restore",
+      "cmd": "borg list /backup/repo",
+      "desc": "List all archives in the repository",
+      "tooltip": "Shows every archive (backup run) with its name, start time and duration. Names like myhost-2026-08-09T12:00:00 are used with extract, diff and prune. Related: borg list REPO::ARCHIVE lists the files inside one archive."
+    },
+    {
+      "id": 4194,
+      "category": "Backup & Restore",
+      "cmd": "borg list /backup/repo --last 3",
+      "desc": "List the three newest archives",
+      "tooltip": "Limits the archive listing to the 3 most recent, useful on repositories with many backups. Combine with --prefix to filter by name pattern too. Archive names still print in full for later commands."
+    },
+    {
+      "id": 4195,
+      "category": "Backup & Restore",
+      "cmd": "borg list /backup/repo --prefix myhost-",
+      "desc": "List archives whose name starts with myhost-",
+      "tooltip": "Filters the archive list to names beginning with myhost-, handy when several machines share one repository. Each machine should name its archives with its own hostname token. Related: borg create with the {hostname} placeholder."
+    },
+    {
+      "id": 4196,
+      "category": "Backup & Restore",
+      "cmd": "borg list /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "List the files inside one archive",
+      "tooltip": "Prints every path stored in that specific archive, mirroring the backup's directory layout. Use it to confirm a backup captured what you expected. Add --short for bare filenames. Related: borg extract restores those files."
+    },
+    {
+      "id": 4197,
+      "category": "Backup & Restore",
+      "cmd": "borg extract /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Restore an entire archive to the current directory",
+      "tooltip": "Writes every file from the archive back into the current working directory, preserving the original layout, so run it from where you want the restore to land. Same-named existing files are overwritten, so extract into a scratch directory first. Related: borg mount for browsing."
+    },
+    {
+      "id": 4198,
+      "category": "Backup & Restore",
+      "cmd": "borg extract --dry-run /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Preview which files an extract would write",
+      "tooltip": "Shows what borg extract would restore without writing anything to disk. Add --list to print each file name, then inspect the output before a real restore. Safer than trial extracts on a full filesystem."
+    },
+    {
+      "id": 4199,
+      "category": "Backup & Restore",
+      "cmd": "borg extract /backup/repo::myhost-2026-08-09T12:00:00 home/user/file.txt",
+      "desc": "Restore a single file from an archive",
+      "tooltip": "Extracts only the paths given, here home/user/file.txt, relative to the archive root and without a leading slash. Multiple paths can follow the archive name. The file lands in the current directory under its original path."
+    },
+    {
+      "id": 4200,
+      "category": "Backup & Restore",
+      "cmd": "borg info /backup/repo",
+      "desc": "Show repository-wide stats and config",
+      "tooltip": "Reports the repository's ID, encryption mode, total size, number of archives and disk usage. A quick health and capacity check before adding more backups. Related: borg info REPO::ARCHIVE zooms into one archive."
+    },
+    {
+      "id": 4201,
+      "category": "Backup & Restore",
+      "cmd": "borg info /backup/repo::myhost-2026-08-09T12:00:00",
+      "desc": "Show stats for a single archive",
+      "tooltip": "Prints details for one archive: original and compressed size, number of files and how much is unique to it versus shared with other archives. Deduplicated (shared-chunk) space is what keeps borg repositories compact. Related: borg diff compares two archives."
+    },
+    {
+      "id": 4202,
+      "category": "Backup & Restore",
+      "cmd": "borg check /backup/repo",
+      "desc": "Verify repository consistency",
+      "tooltip": "Validates the repository's internal structure and all archive metadata, reporting any corruption found. Run it regularly, as it is the main way to catch a failing disk early. Add --verify-data to also read and hash every file chunk."
+    },
+    {
+      "id": 4203,
+      "category": "Backup & Restore",
+      "cmd": "borg check --verify-data /backup/repo",
+      "desc": "Verify repository and all stored data",
+      "tooltip": "Like borg check but additionally reads every data chunk and verifies its hash, the strongest integrity check borg offers. It touches the whole repository, so it is slow on large backups. Schedule it monthly or after any hardware scare."
+    },
+    {
+      "id": 4204,
+      "category": "Backup & Restore",
+      "cmd": "borg check --repair /backup/repo",
+      "desc": "Attempt to repair repository damage",
+      "tooltip": "Rebuilds broken index and archive metadata where possible, salvaging what it can. It may lose data it cannot fix, so only run it after borg check reported problems. Ideally restore your most important archive elsewhere before repairing."
+    },
+    {
+      "id": 4205,
+      "category": "Backup & Restore",
+      "cmd": "borg prune --keep-daily 7 --keep-weekly 4 --keep-monthly 6 /backup/repo",
+      "desc": "Delete archives outside a retention policy",
+      "tooltip": "Removes archives that fall outside keeping 7 daily, 4 weekly and 6 monthly backups, based on archive timestamps. Disk space is only reclaimed by the follow-up borg compact, which is a normal part of the workflow. Prune never touches the newest archives."
+    },
+    {
+      "id": 4206,
+      "category": "Backup & Restore",
+      "cmd": "borg compact /backup/repo",
+      "desc": "Free space after pruning archives",
+      "tooltip": "Removes data segments no archive references anymore, reclaiming the disk space that borg prune or borg delete freed up. Run it after every prune for a tidy repository. It is safe, because data still used by any archive is never touched."
+    },
+    {
+      "id": 4207,
+      "category": "Backup & Restore",
+      "cmd": "borg rename /backup/repo::myhost-2026-08-09 myhost-before-upgrade",
+      "desc": "Rename an archive",
+      "tooltip": "Gives archive myhost-2026-08-09 the new name myhost-before-upgrade, useful for labeling important points in time. Only the name changes, the data itself is untouched. The new name appears in borg list immediately."
+    },
+    {
+      "id": 4208,
+      "category": "Backup & Restore",
+      "cmd": "borg delete /backup/repo::myhost-2026-08-09",
+      "desc": "Delete one archive permanently",
+      "tooltip": "Removes that single archive and its unique data chunks, which cannot be undone, so double-check the name in borg list first. Other archives are unaffected. Run borg compact afterwards to actually free the disk space."
+    },
+    {
+      "id": 4209,
+      "category": "Backup & Restore",
+      "cmd": "borg diff /backup/repo::myhost-2026-08-09 myhost-2026-08-10",
+      "desc": "Compare two archives file by file",
+      "tooltip": "Lists files that differ between the two archives, including added, removed and content-changed entries. Both archives must live in the same repository. Handy before deciding which snapshot to restore."
+    },
+    {
+      "id": 4210,
+      "category": "Backup & Restore",
+      "cmd": "borg mount /backup/repo::myhost-2026-08-09 /mnt/borg",
+      "desc": "Browse one archive as a filesystem",
+      "tooltip": "Mounts a single archive read-only at /mnt/borg via FUSE, so you can open and copy files with normal tools. Unmount with borg umount /mnt/borg when done. Requires the fuse package."
+    },
+    {
+      "id": 4211,
+      "category": "Backup & Restore",
+      "cmd": "borg mount /backup/repo /mnt/borg",
+      "desc": "Browse all archives as a filesystem",
+      "tooltip": "Mounts the whole repository at /mnt/borg, with each archive appearing as a subdirectory, great for comparing versions side by side. The view is read-only by design, so nothing can be altered. Unmount with borg umount /mnt/borg."
+    },
+    {
+      "id": 4212,
+      "category": "Backup & Restore",
+      "cmd": "borg umount /mnt/borg",
+      "desc": "Unmount a borg filesystem mount",
+      "tooltip": "Detaches the repository or archive mounted at /mnt/borg once you finish browsing. A convenience wrapper that calls the platform unmount command, usually umount or fusermount -u. Related: borg mount creates the mount."
+    },
+    {
+      "id": 4213,
+      "category": "Backup & Restore",
+      "cmd": "borg export-tar /backup/repo::myhost-2026-08-09 backup.tar",
+      "desc": "Export an archive as a plain tar file",
+      "tooltip": "Streams the archive's contents into an ordinary, unencrypted tar file, useful for handing data to systems without borg. Add --tar-filter to compress on the fly, such as with gzip. The tar can be extracted anywhere."
+    },
+    {
+      "id": 4214,
+      "category": "Backup & Restore",
+      "cmd": "borg key export /backup/repo backup-repo.key",
+      "desc": "Export the repository key to a file",
+      "tooltip": "Writes the repository's encryption key to backup-repo.key so you can keep a copy outside the repo, for example offsite. Without the key and passphrase the backup is unreadable, so this is a critical safety copy. Anyone holding key and passphrase can decrypt everything."
+    },
+    {
+      "id": 4215,
+      "category": "Backup & Restore",
+      "cmd": "borg key export --paper /backup/repo",
+      "desc": "Print the key as a paper backup",
+      "tooltip": "Prints the repository key formatted as text you can print and store offline, a last-resort recovery option. Scanning it back in later uses borg key import. Pair it with the passphrase written down separately."
+    },
+    {
+      "id": 4216,
+      "category": "Backup & Restore",
+      "cmd": "borg key import /backup/repo backup-repo.key",
+      "desc": "Import a saved repository key",
+      "tooltip": "Loads the key from backup-repo.key back into the repository, typically after restoring the repository from a backup. The key must match the repository's encryption, because a mismatched key makes data unreadable. Related: borg key export is the counterpart."
+    },
+    {
+      "id": 4217,
+      "category": "Backup & Restore",
+      "cmd": "borg key change-passphrase /backup/repo",
+      "desc": "Change the repository passphrase",
+      "tooltip": "Prompts for the current passphrase, then a new one, and re-encrypts the key accordingly. Existing archives stay valid. Store the new passphrase securely, because losing it locks you out of every backup."
+    },
+    {
+      "id": 4218,
+      "category": "Backup & Restore",
+      "cmd": "borg break-lock /backup/repo",
+      "desc": "Remove stale locks from a repository",
+      "tooltip": "Deletes leftover lock files after a crash or a killed borg process. Only run it when you are certain no other borg command is using the repository, since breaking an active lock can corrupt it. Normal lock cleanup happens automatically on the next command."
+    },
+    {
+      "id": 4219,
+      "category": "Backup & Restore",
+      "cmd": "BORG_PASSPHRASE=\"secret\" borg list /backup/repo",
+      "desc": "Run borg with the passphrase inline",
+      "tooltip": "Sets the BORG_PASSPHRASE environment variable for this one command so borg does not prompt. Fine for interactive use; in scripts, prefer reading the passphrase from a file or command so it never sits in shell history. The passphrase must match the repository's."
+    },
+    {
+      "id": 4220,
+      "category": "Backup & Restore",
+      "cmd": "borg config /backup/repo additional_free_space 2G",
+      "desc": "Reserve extra free space in the repository",
+      "tooltip": "Sets the repository option additional_free_space to 2G, telling borg to stop writing before the disk is completely full. Prevents no-space-left failures from corrupting a nearly-full backup disk. View current settings with borg config /backup/repo."
+    },
+    {
+      "id": 4221,
+      "category": "Backup & Restore",
+      "cmd": "rsync -avn --delete /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Dry-run a mirror sync to preview deletions",
+      "tooltip": "The -n (dry-run) flag makes rsync only report what it would copy or delete, writing nothing. --delete means removing destination files that no longer exist in the source. Run this preview first, then drop the -n to execute, the recommended habit before any destructive sync."
+    },
+    {
+      "id": 4222,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --delete /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror docs into backup, deleting extras",
+      "tooltip": "Copies /home/user/docs to the backup and --delete removes backup files that were deleted in the source, making the destination an exact mirror. This is destructive, since any file only in the backup is gone. Test with -n (dry run) first. Related: rsync -avn --delete previews it."
+    },
+    {
+      "id": 4223,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --delete --exclude \"cache/\" /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror while excluding a subdirectory",
+      "tooltip": "Combines mirroring with --delete and the --exclude pattern cache/, so the cache directory is neither copied nor deleted. Excluded files in the destination are left alone, which protects them from --delete. Verify the effect with a dry run first."
+    },
+    {
+      "id": 4224,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --delete --backup --backup-dir=/mnt/backup/deleted /home/user/docs/ /mnt/backup/docs/",
+      "desc": "Mirror but keep deleted files in a backup dir",
+      "tooltip": "Instead of deleting files outright, --backup moves them into --backup-dir, giving you a safety copy of everything the mirror removes. The backup directory must live outside the sync destination. A safer alternative to plain --delete for important data."
+    },
+    {
+      "id": 4225,
+      "category": "Backup & Restore",
+      "cmd": "rsync -avz -e ssh /home/user/data/ user@backup.example.com:/backup/data/",
+      "desc": "Push a backup to a remote host over SSH",
+      "tooltip": "Copies /home/user/data to the remote machine, compressing with -z and tunnelling through SSH with -e ssh. The destination must be writable by that user, with authentication coming from SSH. Use -n first to preview. Related: rsync -e 'ssh -p 2222' for a custom port."
+    },
+    {
+      "id": 4226,
+      "category": "Backup & Restore",
+      "cmd": "rsync -a --exclude \"node_modules\" /home/user/project/ /mnt/backup/project/",
+      "desc": "Back up a project without node_modules",
+      "tooltip": "Archives /home/user/project while skipping the --exclude pattern node_modules, keeping the backup small and fast. The -a flag preserves permissions, timestamps and symlinks. Add more --exclude flags or an --exclude-from file for bigger ignore lists."
+    },
+    {
+      "id": 4227,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --progress /home/user/data/ /mnt/backup/data/",
+      "desc": "Copy with per-file progress display",
+      "tooltip": "Shows each file's transfer progress and speed as it is copied, which makes long backups feel transparent. The -a flag preserves attributes and -v lists the files. For one overall progress bar instead, see rsync -ah --info=progress2."
+    },
+    {
+      "id": 4228,
+      "category": "Backup & Restore",
+      "cmd": "rsync -ah --info=progress2 /home/user/data/ /mnt/backup/data/",
+      "desc": "Copy with one overall progress bar",
+      "tooltip": "--info=progress2 shows a single progress bar for the whole transfer instead of one per file, and -h prints human-readable sizes. Ideal for huge trees where per-file progress would flood the screen. Combine with -a for attribute preservation."
+    },
+    {
+      "id": 4229,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --bwlimit=5000 /home/user/data/ /mnt/backup/data/",
+      "desc": "Limit transfer speed to 5000 KB per second",
+      "tooltip": "--bwlimit caps the transfer at 5000 kilobytes per second, roughly 5 MB per second, keeping backups from saturating a shared connection. The value is per rsync process and always in KB/s. Lower it for daytime syncs and raise it for overnight runs."
+    },
+    {
+      "id": 4230,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --link-dest=../prev-backup /home/user/data/ /mnt/backup/current/",
+      "desc": "Incremental backup via hardlink farm",
+      "tooltip": "Copies files unchanged since ../prev-backup as hardlinks (multiple names pointing at the same data) instead of re-copying them, so each backup looks complete but costs almost no space. Point --link-dest at the previous backup directory on each run. Every backup directory stays fully restorable on its own."
+    },
+    {
+      "id": 4231,
+      "category": "Backup & Restore",
+      "cmd": "rsync -e 'ssh -p 2222' /home/user/data/ user@backup.example.com:/backup/data/",
+      "desc": "Sync to a remote host on SSH port 2222",
+      "tooltip": "-e passes the whole ssh command, here adding -p 2222 for a non-default port, the standard way to reach SSH on another port. Everything else behaves like a normal remote rsync. Related: rsync -avz -e ssh for the default port."
+    },
+    {
+      "id": 4232,
+      "category": "Backup & Restore",
+      "cmd": "rsync -avz user@backup.example.com:/backup/data/ /home/user/restore/",
+      "desc": "Pull files from a remote host",
+      "tooltip": "Downloads /backup/data/ from the remote machine into /home/user/restore/, the reverse direction of a push. Useful for restoring from an offsite backup server or fetching files while travelling. Add --delete to mirror the remote exactly."
+    },
+    {
+      "id": 4233,
+      "category": "Backup & Restore",
+      "cmd": "rsync -a --partial --append-verify /home/user/iso/ /mnt/backup/iso/",
+      "desc": "Resume interrupted large-file transfers",
+      "tooltip": "--partial keeps partially transferred files instead of deleting them on interruption, and --append-verify resumes by appending then checking the result. Together they make re-runs after a dropped connection cheap. Files are still verified, so a bad resume is caught."
+    },
+    {
+      "id": 4234,
+      "category": "Backup & Restore",
+      "cmd": "rsync -av --checksum /home/user/data/ /mnt/backup/data/",
+      "desc": "Compare files by checksum instead of size and date",
+      "tooltip": "The -c (--checksum) flag makes rsync compare file contents by checksum rather than the default size-and-mtime heuristic. Slower, but it catches files whose timestamps were touched without content changing. Useful when clock skew or timestamp tampering is a concern."
+    },
+    {
+      "id": 4235,
+      "category": "Backup & Restore",
+      "cmd": "rclone config",
+      "desc": "Run the interactive remote setup wizard",
+      "tooltip": "Walks you through creating remotes (named storage connections) for cloud services such as S3, Google Drive, SFTP and local paths. Each remote gets a name you reuse in later commands, like remote:bucket. Remotes are saved to the rclone config file, viewable with rclone config show."
+    },
+    {
+      "id": 4236,
+      "category": "Backup & Restore",
+      "cmd": "rclone config show",
+      "desc": "Print all configured remotes",
+      "tooltip": "Dumps the rclone config file with every remote's type and settings, with secret values hidden by default. Good for confirming a remote name before a sync. The config file itself lives at the path printed by rclone config file."
+    },
+    {
+      "id": 4237,
+      "category": "Backup & Restore",
+      "cmd": "rclone ls remote:bucket",
+      "desc": "List files and sizes in a bucket",
+      "tooltip": "Prints every file in remote:bucket with its size in bytes, one per line, recursing through subfolders. Add --max-depth 1 to limit the depth. Related: rclone lsd lists only directories."
+    },
+    {
+      "id": 4238,
+      "category": "Backup & Restore",
+      "cmd": "rclone lsd remote:",
+      "desc": "List top-level directories of a remote",
+      "tooltip": "Shows only the directories at the root of the remote, with modification times, handy for exploring a bucket's layout without listing every file. Add a path like remote:folder to look inside it. Related: rclone ls lists files."
+    },
+    {
+      "id": 4239,
+      "category": "Backup & Restore",
+      "cmd": "rclone copy ./files remote:bucket/files",
+      "desc": "Upload files without deleting remote extras",
+      "tooltip": "Copies ./files up to the bucket, adding or updating files but never removing anything already there. Use this when you want one-way uploading without mirror semantics. For a true mirror that deletes remote-only files, use rclone sync."
+    },
+    {
+      "id": 4240,
+      "category": "Backup & Restore",
+      "cmd": "rclone copy --progress ./files remote:bucket/files",
+      "desc": "Upload files with a live progress display",
+      "tooltip": "Runs the same upload as plain rclone copy, but --progress renders a live bar showing speed and remaining time, helpful for large first uploads. The progress output updates in place. Related: rclone sync --progress for the mirroring variant."
+    },
+    {
+      "id": 4241,
+      "category": "Backup & Restore",
+      "cmd": "rclone sync ./files remote:bucket/files",
+      "desc": "Mirror files to the bucket, deleting extras",
+      "tooltip": "Makes the destination exactly match the source, so files missing locally are deleted remotely, and that deletion is permanent. Always preview with rclone sync --dry-run first. This is the standard command for pushing backups to cloud storage."
+    },
+    {
+      "id": 4242,
+      "category": "Backup & Restore",
+      "cmd": "rclone sync --dry-run ./files remote:bucket/files",
+      "desc": "Preview what a sync would change",
+      "tooltip": "Shows exactly which files would be copied, updated or deleted by rclone sync without touching the remote. Always run this before the real sync, especially the first time. Follow up with rclone check to confirm the real sync landed."
+    },
+    {
+      "id": 4243,
+      "category": "Backup & Restore",
+      "cmd": "rclone move ./files remote:bucket/files",
+      "desc": "Upload files and delete them locally",
+      "tooltip": "Transfers files to the remote and then removes the local originals, like a cut-and-paste upload. Useful for offloading files after a successful backup, but destructive locally, so verify with a copy or dry-run first. Related: rclone copy keeps the originals."
+    },
+    {
+      "id": 4244,
+      "category": "Backup & Restore",
+      "cmd": "rclone delete remote:bucket/old.tmp",
+      "desc": "Delete matching files from the remote",
+      "tooltip": "Removes files on the remote that match the given path, here any file named old.tmp in the bucket, leaving the directory structure alone. It obeys filters, so you can combine it with --exclude patterns. For emptying a whole directory, use rclone purge with care."
+    },
+    {
+      "id": 4245,
+      "category": "Backup & Restore",
+      "cmd": "rclone rmdir remote:bucket/empty-dir",
+      "desc": "Remove an empty remote directory",
+      "tooltip": "Deletes the directory only if it is completely empty, otherwise rclone refuses. Use rclone rmdirs to remove a whole tree of empty directories at once. Safer than purge because it never touches files."
+    },
+    {
+      "id": 4246,
+      "category": "Backup & Restore",
+      "cmd": "rclone purge remote:bucket",
+      "desc": "Delete a remote directory and everything in it",
+      "tooltip": "Permanently removes the entire remote:bucket directory with all files, and most backends offer no trash or undo. Double-check the path, ideally with rclone ls first. Prefer rclone delete or rclone rmdir for surgical removal."
+    },
+    {
+      "id": 4247,
+      "category": "Backup & Restore",
+      "cmd": "rclone check ./files remote:bucket/files",
+      "desc": "Verify local and remote files match",
+      "tooltip": "Compares sizes and hashes between the local directory and the remote path, reporting any mismatches. A great post-sync verification that your upload really landed intact. Add --download to checksum by downloading rather than using remote hashes."
+    },
+    {
+      "id": 4248,
+      "category": "Backup & Restore",
+      "cmd": "rclone about remote:",
+      "desc": "Show storage quota and usage for a remote",
+      "tooltip": "Reports the remote's total capacity, used space and free space, where the provider exposes them. Useful to confirm a bucket has room before a big backup. Not every backend supports it, and unsupported ones print what they can."
+    },
+    {
+      "id": 4249,
+      "category": "Backup & Restore",
+      "cmd": "rclone size remote:bucket",
+      "desc": "Count files and total bytes in a bucket",
+      "tooltip": "Walks the whole path and prints the number of files and their combined size, handy for capacity planning and billing checks. Add --json for structured output. Unlike rclone about, this measures actual object contents."
+    },
+    {
+      "id": 4250,
+      "category": "Backup & Restore",
+      "cmd": "rclone mount remote:bucket /mnt/rclone --vfs-cache-mode full",
+      "desc": "Mount a bucket as a local filesystem",
+      "tooltip": "Exposes remote:bucket at /mnt/rclone via FUSE so cloud storage behaves like a local disk. --vfs-cache-mode full caches file contents locally, which makes reading and writing feel responsive at the cost of local disk space. Unmount with fusermount -u /mnt/rclone. Requires fuse."
+    },
+    {
+      "id": 4251,
+      "category": "Backup & Restore",
+      "cmd": "rclone copyto file.txt remote:bucket/newname.txt",
+      "desc": "Upload one file under a new name",
+      "tooltip": "Copies a single file and lets you rename it at the destination in the same command, unlike rclone copy, which preserves names. It also works in reverse for a single-file download. Related: rclone move for cut-and-paste behavior."
+    },
+    {
+      "id": 4252,
+      "category": "Backup & Restore",
+      "cmd": "rclone tree remote:bucket",
+      "desc": "Print the bucket as an indented tree",
+      "tooltip": "Renders the remote's directory structure like the tree command, making the layout easy to read. Requires the tree utility installed locally. Great for a quick visual overview before a sync."
+    },
+    {
+      "id": 4253,
+      "category": "Backup & Restore",
+      "cmd": "duplicity full /home/user file:///backup/duplicity",
+      "desc": "Run a full encrypted backup to a local folder",
+      "tooltip": "Makes a complete first backup of /home/user into the local store file:///backup/duplicity, encrypted with GnuPG using your key. Later runs should be duplicity incremental for speed. Restore with duplicity restore pointing at the same URL."
+    },
+    {
+      "id": 4254,
+      "category": "Backup & Restore",
+      "cmd": "duplicity incremental /home/user file:///backup/duplicity",
+      "desc": "Back up only files changed since the last run",
+      "tooltip": "Adds a new incremental backup containing only data changed since the previous run, keeping each backup fast and small. Restoring still needs the full backup plus all increments. Omit the action word entirely and duplicity picks the right mode automatically."
+    },
+    {
+      "id": 4255,
+      "category": "Backup & Restore",
+      "cmd": "duplicity restore file:///backup/duplicity /tmp/restore",
+      "desc": "Restore the latest backup into /tmp/restore",
+      "tooltip": "Reconstructs the most recent state by combining the full backup with all increments, writing files under /tmp/restore, which must already exist. For an older point in time, add --time to pick a restore date. Related: duplicity list-current-files previews the contents."
+    },
+    {
+      "id": 4256,
+      "category": "Backup & Restore",
+      "cmd": "duplicity list-current-files file:///backup/duplicity",
+      "desc": "List files contained in the latest backup",
+      "tooltip": "Prints every file the most recent backup state contains, without restoring anything. A quick way to confirm what a restore would produce. Related: duplicity collection-status shows the whole backup chain."
+    },
+    {
+      "id": 4257,
+      "category": "Backup & Restore",
+      "cmd": "duplicity verify file:///backup/duplicity /home/user",
+      "desc": "Compare live files against the backup",
+      "tooltip": "Checks whether the files in /home/user still match what the backup chain stores, reporting any differences. Catch local corruption or missing files before they cost a restore. Add --compare-data to also compare file contents."
+    },
+    {
+      "id": 4258,
+      "category": "Backup & Restore",
+      "cmd": "duplicity remove-older-than 30D --force file:///backup/duplicity",
+      "desc": "Delete backups older than 30 days",
+      "tooltip": "Removes backup sets older than 30 days, keeping the newest ones, and the deletion is permanent. The --force flag is required to confirm it. Keep enough history that a valid full-plus-increment chain survives the cleanup, and duplicity warns if a chain would break."
+    },
+    {
+      "id": 4259,
+      "category": "Backup & Restore",
+      "cmd": "duplicity cleanup --force file:///backup/duplicity",
+      "desc": "Remove leftover partial backup files",
+      "tooltip": "Deletes incomplete or orphaned files left behind by an interrupted backup run, freeing space, and --force confirms the action. Run collection-status first to see what cleanup would remove. It never deletes real backups."
+    },
+    {
+      "id": 4260,
+      "category": "Backup & Restore",
+      "cmd": "duplicity collection-status file:///backup/duplicity",
+      "desc": "Show the full backup chain status",
+      "tooltip": "Lists every full and incremental backup set in the store, including which are needed for a complete restore and which are obsolete. The go-to command for understanding a duplicity store before pruning or restoring."
+    },
+    {
+      "id": 4261,
+      "category": "Backup & Restore",
+      "cmd": "duplicity --exclude \"**/node_modules\" full /home/user file:///backup/duplicity",
+      "desc": "Full backup excluding node_modules patterns",
+      "tooltip": "Adds an --exclude glob so directories named node_modules anywhere under /home/user are skipped. The ** pattern matches any number of path levels. Duplicity also supports --exclude-filelist for longer ignore lists."
+    },
+    {
+      "id": 4262,
+      "category": "Backup & Restore",
+      "cmd": "dd if=/dev/sda of=/backup/disk.img bs=4M status=progress",
+      "desc": "Clone a whole disk to an image file",
+      "tooltip": "Copies every block of /dev/sda into /backup/disk.img, a byte-for-byte disk image. bs=4M speeds up the copy with larger blocks and status=progress shows live progress. Unmount the disk first when possible. Double-check device names with lsblk, because swapping if and of destroys data."
+    },
+    {
+      "id": 4263,
+      "category": "Backup & Restore",
+      "cmd": "dd if=/dev/sda bs=4M status=progress | gzip > disk.img.gz",
+      "desc": "Clone a disk and compress the image on the fly",
+      "tooltip": "Pipes the raw disk copy straight into gzip, producing a compressed disk.img.gz without needing space for the uncompressed image. Compression saves space but slows the clone. Keep the pipe intact, since interrupting it leaves a partial image."
+    },
+    {
+      "id": 4264,
+      "category": "Backup & Restore",
+      "cmd": "dd if=/dev/sda bs=4M status=progress | ssh user@host \"cat > /backup/sda.img\"",
+      "desc": "Stream a disk image to a remote host",
+      "tooltip": "Sends the raw disk copy over SSH to be written as /backup/sda.img on another machine, an offsite disk backup without local staging space. The remote must have room for the full image. Restoring works in reverse with dd on the receiving side."
+    },
+    {
+      "id": 4265,
+      "category": "Backup & Restore",
+      "cmd": "dd if=/dev/sda of=/dev/sdb bs=4M conv=fsync status=progress",
+      "desc": "Clone a disk directly to another disk",
+      "tooltip": "Copies /dev/sda block-for-block onto /dev/sdb, replacing everything on the target, so check both device names twice. conv=fsync flushes data to the physical disk before finishing, so the clone is truly written. status=progress shows the rate."
+    },
+    {
+      "id": 4266,
+      "category": "Backup & Restore",
+      "cmd": "dd if=/backup/disk.img of=/dev/sda bs=4M status=progress",
+      "desc": "Restore a disk image back onto a disk",
+      "tooltip": "Writes the image file back over /dev/sda block-for-block, completely wiping whatever is on the disk, so confirm the target device carefully. This is how a dd backup is restored after a drive failure. Related: dd if=/dev/sda of=/backup/disk.img creates the image."
+    },
+    {
+      "id": 4267,
+      "category": "Backup & Restore",
+      "cmd": "ddrescue /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Recover data from a failing disk to an image",
+      "tooltip": "Copies as much of /dev/sda as possible into /backup/disk.img, skipping bad sectors instead of aborting, and records progress in the log file. Rerun the same command to continue where it stopped. Keep the log file, since it is essential between runs."
+    },
+    {
+      "id": 4268,
+      "category": "Backup & Restore",
+      "cmd": "ddrescue -r3 /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Retry bad sectors three times",
+      "tooltip": "Adds -r3 so ddrescue retries unreadable areas up to 3 extra times after the first pass, squeezing more data out of a failing disk. Retries are slow by design, so run it overnight. Combine with -d for direct disk access on stubborn drives."
+    },
+    {
+      "id": 4269,
+      "category": "Backup & Restore",
+      "cmd": "ddrescue -d /dev/sda /backup/disk.img /backup/rescue.log",
+      "desc": "Read the disk directly, bypassing the cache",
+      "tooltip": "The -d (direct) flag reads the raw device without the operating system cache, which can reach sectors the cached path cannot and avoids polluting memory. Useful for very damaged drives. Follow up with -r retries afterwards for maximum recovery."
+    },
+    {
+      "id": 4270,
+      "category": "Backup & Restore",
+      "cmd": "tar czf backup.tar.gz /home/user",
+      "desc": "Create a gzip-compressed tar archive",
+      "tooltip": "Bundles /home/user into backup.tar.gz: c creates, z compresses with gzip and f names the output file. Add v for a verbose file list. To restore, tar xzf backup.tar.gz -C /restore-dir. For stronger compression use J (xz) or --zstd."
+    },
+    {
+      "id": 4271,
+      "category": "Backup & Restore",
+      "cmd": "tar xzf backup.tar.gz -C /restore-dir",
+      "desc": "Extract a tar.gz archive into a directory",
+      "tooltip": "Unpacks backup.tar.gz into /restore-dir, which must exist: x extracts, z decompresses, f names the archive and -C sets the destination. Files are written relative to that directory, overwriting same-named files. Check contents first with tar tvf backup.tar.gz."
+    },
+    {
+      "id": 4272,
+      "category": "Backup & Restore",
+      "cmd": "tar tvf backup.tar.gz",
+      "desc": "List archive contents with details",
+      "tooltip": "Shows every file inside backup.tar.gz with permissions, owner, size and timestamp, without extracting anything. Handy before restoring, especially to spot absolute paths or unexpected top-level directories. Related: tar xzf to actually unpack."
+    },
+    {
+      "id": 4273,
+      "category": "Backup & Restore",
+      "cmd": "tar czf backup.tar.gz --exclude \"cache\" --exclude \"*.tmp\" /home/user",
+      "desc": "Create an archive skipping excluded patterns",
+      "tooltip": "Bundles /home/user while skipping anything matching the --exclude globs, here the cache folder and .tmp files. Put --exclude before the source paths. Repeat the flag for more patterns or use --exclude-from with a file."
+    },
+    {
+      "id": 4274,
+      "category": "Backup & Restore",
+      "cmd": "tar --xattrs --acls -czf backup.tar.gz /home/user",
+      "desc": "Archive while preserving ACLs and xattrs",
+      "tooltip": "The --xattrs and --acls flags store extended attributes and POSIX ACLs, the extra permissions beyond owner, group and other, inside the archive. Without them, SELinux labels and fine-grained permissions can be lost on restore. These flags require GNU tar."
+    },
+    {
+      "id": 4275,
+      "category": "Backup & Restore",
+      "cmd": "tar czf - /home/user | ssh user@host \"cat > backup.tar.gz\"",
+      "desc": "Stream a tar backup to a remote host",
+      "tooltip": "The - as filename makes tar write the archive to stdout, which is piped over SSH and saved remotely, with no local archive file or disk space needed. Restore in reverse with the remote cat piping back into tar. The remote side only needs cat."
+    },
+    {
+      "id": 4276,
+      "category": "Backup & Restore",
+      "cmd": "tar --zstd -cf backup.tar.zst /home/user",
+      "desc": "Create a zstd-compressed tar archive",
+      "tooltip": "Bundles /home/user into backup.tar.zst using zstd compression, which typically beats gzip on both speed and size. Requires a tar built with zstd support, common on modern distributions. Extract with tar --zstd -xf backup.tar.zst -C /restore-dir."
+    },
+    {
+      "id": 4277,
+      "category": "Backup & Restore",
+      "cmd": "btrfs subvolume snapshot -r /home /backup/home-snapshot",
+      "desc": "Take a read-only snapshot of a subvolume",
+      "tooltip": "Creates an instant, space-efficient snapshot (point-in-time copy) of the /home subvolume at /backup/home-snapshot, and -r makes it read-only, which is required before sending it elsewhere. Snapshots share data with the original until files change, so they cost almost nothing at creation. Related: btrfs send moves it off-box."
+    },
+    {
+      "id": 4278,
+      "category": "Backup & Restore",
+      "cmd": "btrfs send /backup/home-snapshot | btrfs receive /mnt/backup",
+      "desc": "Stream a snapshot to another disk or host",
+      "tooltip": "Pipes the read-only snapshot's data to btrfs receive, which writes it onto another filesystem, locally or, with an ssh pipe, remotely. The receiving filesystem must be btrfs. Restoring is just a snapshot of the received copy. Related: incremental sends with -p."
+    },
+    {
+      "id": 4279,
+      "category": "Backup & Restore",
+      "cmd": "btrfs send -p /backup/prev-snapshot /backup/home-snapshot | btrfs receive /mnt/backup",
+      "desc": "Send only the changes since a parent snapshot",
+      "tooltip": "The -p (parent) flag makes btrfs send transfer only what changed between prev-snapshot and home-snapshot, so offsite backups stay tiny. The parent snapshot must already exist at the receiving side. Chain snapshots in order for successive incremental sends."
+    },
+    {
+      "id": 4280,
+      "category": "Backup & Restore",
+      "cmd": "zfs snapshot tank/data@2026-08-09",
+      "desc": "Create an instant ZFS snapshot",
+      "tooltip": "Takes a snapshot (point-in-time copy) of the tank/data dataset, named with @date. Snapshots are nearly free initially because blocks are shared until modified. List them with zfs list -t snapshot and send them off-box with zfs send."
+    },
+    {
+      "id": 4281,
+      "category": "Backup & Restore",
+      "cmd": "zfs list -t snapshot",
+      "desc": "List all ZFS snapshots",
+      "tooltip": "Shows every snapshot across datasets with used space, referenced space and creation time. The @name suffix identifies each snapshot. Use it to track snapshot retention before pruning old ones."
+    },
+    {
+      "id": 4282,
+      "category": "Backup & Restore",
+      "cmd": "zfs send tank/data@2026-08-09 | zfs receive backup/data",
+      "desc": "Stream a ZFS snapshot to another pool",
+      "tooltip": "Pipes the snapshot's data to zfs receive, recreating it on the backup pool, the standard way to copy datasets off the main machine. The destination dataset must not already exist. Incremental variants use -i with an earlier snapshot."
+    },
+    {
+      "id": 4283,
+      "category": "Databases & SQL",
+      "cmd": "redis-cli INFO memory",
+      "desc": "Show memory usage details",
+      "tooltip": "Filters the INFO output to memory: used_memory, peak usage, fragmentation, and the maxmemory limit if set. Related: CONFIG GET maxmemory."
+    },
+    {
+      "id": 4284,
+      "category": "Databases & SQL",
+      "cmd": "redis-cli SAVE",
+      "desc": "Write a synchronous snapshot",
+      "tooltip": "Blocks the server until the RDB dump finishes writing, which can pause traffic for seconds on big datasets. Prefer BGSAVE on production. Related: SHUTDOWN writes one before exiting."
+    },
+    {
+      "id": 4285,
+      "category": "Databases & SQL",
+      "cmd": "redis-cli MONITOR",
+      "desc": "Stream every command the server receives",
+      "tooltip": "Prints all commands in real time, useful for debugging a specific client. The overhead can double server load, so do not leave it running in production. Related: SLOWLOG GET."
+    },
+    {
+      "id": 4286,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -V",
+      "desc": "Show nginx version and compiled build options",
+      "tooltip": "Prints the version plus the configure arguments the binary was built with, including enabled modules like --with-http_ssl_module. Useful to check whether a feature was compiled in before relying on it. The lowercase -v form prints only the version number."
+    },
+    {
+      "id": 4287,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -c /etc/nginx/nginx.conf",
+      "desc": "Start nginx using a specific configuration file",
+      "tooltip": "Tells nginx to read its configuration from the given path instead of the compiled-in default, which is /etc/nginx/nginx.conf on most distros. Handy when testing an alternate config or running a second instance. Combine with -t to test a config without starting the server."
+    },
+    {
+      "id": 4288,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -t -c /etc/nginx/nginx.conf",
+      "desc": "Test a specific nginx config file for errors",
+      "tooltip": "Runs a syntax check on the named configuration file and everything it includes, without starting nginx. Reports the file and line number of any problem, so you can fix errors before reloading a live server. Plain nginx -t tests the default config path."
+    },
+    {
+      "id": 4289,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -s stop",
+      "desc": "Stop nginx immediately, dropping active connections",
+      "tooltip": "-s sends a signal to the running master process, and stop terminates nginx right away, cutting off in-flight requests. Prefer nginx -s quit when you want a graceful shutdown that lets workers finish. Start the server again with systemctl start nginx."
+    },
+    {
+      "id": 4290,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -s quit",
+      "desc": "Stop nginx gracefully after current requests finish",
+      "tooltip": "Tells the master process to shut down smoothly, letting worker processes finish serving open connections before exiting. Use this instead of nginx -s stop when you can tolerate a short drain period. Equivalent to sending the QUIT signal to the master process."
+    },
+    {
+      "id": 4291,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -s reopen",
+      "desc": "Reopen nginx log files after log rotation",
+      "tooltip": "Makes nginx close and reopen its access and error log files, which logrotate needs after moving the old logs aside. Run it from a logrotate postrotate script so nginx writes to fresh files. Equivalent to sending the USR1 signal to the master process."
+    },
+    {
+      "id": 4292,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -g 'daemon off;'",
+      "desc": "Run nginx in the foreground for containers or debugging",
+      "tooltip": "-g passes a global configuration directive, and daemon off; keeps nginx from forking into the background. This is the pattern used by the official nginx Docker image so the process stays in the foreground and receives signals. Quote the directive so the shell passes it as one argument."
+    },
+    {
+      "id": 4293,
+      "category": "Web Servers & Proxies",
+      "cmd": "nginx -V 2>&1 | grep -- '--with-http_ssl_module'",
+      "desc": "Check whether nginx was built with the SSL module",
+      "tooltip": "nginx prints its configure arguments to stderr, so 2>&1 merges that into stdout for grep. A match confirms TLS support is compiled in, while no match means you need a distro build with the module or a recompile. The -- separator stops grep from misreading the pattern as an option."
+    },
+    {
+      "id": 4294,
+      "category": "Web Servers & Proxies",
+      "cmd": "journalctl -u nginx --since today",
+      "desc": "Show today's systemd log entries for nginx",
+      "tooltip": "Filters the journal to messages from the nginx unit since midnight, skipping older noise. Add -f to follow new lines as they arrive, or -p err to see only errors. For live tailing, journalctl -u nginx -f is the usual choice."
+    },
+    {
+      "id": 4295,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -I http://localhost",
+      "desc": "Fetch HTTP response headers from local nginx",
+      "tooltip": "-I sends a HEAD request and prints only the response headers, so you can confirm nginx is answering on port 80. Check the Server and Date headers to verify the response came from nginx rather than another service. Add --max-time to avoid hanging if nothing is listening."
+    },
+    {
+      "id": 4296,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -I -H 'Host: example.com' http://localhost",
+      "desc": "Check which virtual host answers for a domain",
+      "tooltip": "The Host header tells nginx which virtual host (vhost = one site served by one server) should handle the request, even though you connect to localhost. Useful to test a site before DNS points example.com at this machine. Compare responses across Host values to confirm each vhost is wired up."
+    },
+    {
+      "id": 4297,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s -o /dev/null -w '%{http_code}\\n' http://localhost",
+      "desc": "Print only the HTTP status code from localhost",
+      "tooltip": "-s silences progress output, -o /dev/null discards the body, and -w prints the status code with a trailing newline. A 200 means nginx served the default site, while 404 or 502 points to a config or backend problem. Wrap it in a script for simple uptime checks."
+    },
+    {
+      "id": 4298,
+      "category": "Web Servers & Proxies",
+      "cmd": "grep -R 'server_name' /etc/nginx/sites-enabled/",
+      "desc": "Find which nginx site file defines a domain",
+      "tooltip": "Recursively greps the enabled-site symlinks for every server_name line, so you can map a domain back to its vhost (virtual host) configuration file. Enabled sites are symlinks into sites-available, so the file name shows which site is live. Append the exact domain in quotes to narrow the search."
+    },
+    {
+      "id": 4299,
+      "category": "Web Servers & Proxies",
+      "cmd": "ls /etc/nginx/sites-available/",
+      "desc": "List nginx site configs available on this host",
+      "tooltip": "Shows every site definition installed under sites-available, whether enabled or not. A site becomes active only when a symlink to it exists in sites-enabled, so the two directories can differ. New sites are usually written here first and then enabled with a symlink."
+    },
+    {
+      "id": 4300,
+      "category": "Web Servers & Proxies",
+      "cmd": "ls /etc/nginx/sites-enabled/",
+      "desc": "List nginx sites currently enabled",
+      "tooltip": "sites-enabled holds symlinks pointing back into sites-available, and each symlink is one active virtual host (vhost). Removing a symlink disables the site without deleting its config. Compare with sites-available to spot sites that exist but are not served."
+    },
+    {
+      "id": 4301,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2 -v",
+      "desc": "Show Apache version and build date",
+      "tooltip": "Prints the Apache HTTP Server version plus the compilation date of the binary. A quick way to confirm which release you run before consulting docs or filing bugs. Use apache2 -V (capital V) for full compile-time settings instead."
+    },
+    {
+      "id": 4302,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2 -V",
+      "desc": "Show Apache compile-time configuration details",
+      "tooltip": "Dumps the settings baked into the binary at build time, such as the default config path, the MPM (multi-processing module = how Apache handles requests), and compiled-in modules. Handy when debugging why a module or directive behaves unexpectedly. The lowercase -v form shows only the version."
+    },
+    {
+      "id": 4303,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl -t",
+      "desc": "Test Apache configuration syntax",
+      "tooltip": "Parses the main config and every included file, reporting syntax errors with file and line numbers. Run it before every reload or restart to avoid taking the site down with a typo. Equivalent to the apache2ctl configtest alias."
+    },
+    {
+      "id": 4304,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl -M",
+      "desc": "List Apache modules currently loaded",
+      "tooltip": "Prints every compiled-in and dynamically loaded module, one per line, including status flags. Use it to confirm a module really loaded after a2enmod or to spot duplicate module definitions. Modules listed here are the ones available to configuration directives."
+    },
+    {
+      "id": 4305,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl -L",
+      "desc": "List Apache configuration directives",
+      "tooltip": "Dumps every configuration directive Apache understands, together with the module that provides it and where it is valid. Useful when a directive is rejected because the owning module is not loaded. Pipe the output through grep when you forget the exact directive name."
+    },
+    {
+      "id": 4306,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl graceful",
+      "desc": "Reload Apache config without dropping connections",
+      "tooltip": "Tells Apache to re-read its configuration while letting existing worker processes finish current requests, so active users are not interrupted. The config is re-parsed, and a syntax error prevents the reload. Prefer this over apache2ctl restart for routine changes."
+    },
+    {
+      "id": 4307,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl graceful-stop",
+      "desc": "Stop Apache gracefully after current requests finish",
+      "tooltip": "Shuts Apache down softly, allowing in-flight requests to complete before workers exit. Unlike a hard stop, this avoids errors for users mid-download. It is the graceful counterpart to a plain stop."
+    },
+    {
+      "id": 4308,
+      "category": "Web Servers & Proxies",
+      "cmd": "apache2ctl restart",
+      "desc": "Restart Apache, dropping active connections",
+      "tooltip": "Stops and starts Apache, which briefly closes all open connections, so in-flight requests are interrupted. Use apache2ctl graceful for a zero-downtime config reload. Run apache2ctl -t first to catch syntax errors before the restart."
+    },
+    {
+      "id": 4309,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2ensite example.com",
+      "desc": "Enable an Apache site by symlinking its config",
+      "tooltip": "Creates the symlink that activates the site definition named example.com (or example.com.conf) from sites-available into sites-enabled. Apache picks up the change only after a reload or restart. Disable the site again with a2dissite example.com."
+    },
+    {
+      "id": 4310,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2dissite example.com",
+      "desc": "Disable an Apache site by removing its symlink",
+      "tooltip": "Removes the sites-enabled symlink so Apache stops serving the site, without deleting the config file in sites-available. Run apache2ctl graceful to apply the change. Re-enable it any time with a2ensite example.com."
+    },
+    {
+      "id": 4311,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2enmod ssl",
+      "desc": "Enable the Apache SSL/TLS module",
+      "tooltip": "Activates mod_ssl, which provides the Listen 443 directives and SSLEngine options needed to serve HTTPS. After enabling, add a virtual host (vhost = one site served by one server) with your certificate paths and reload Apache. Disable it with a2dismod ssl."
+    },
+    {
+      "id": 4312,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2enmod proxy_http",
+      "desc": "Enable Apache's HTTP reverse proxy module",
+      "tooltip": "Loads mod_proxy_http, which lets Apache act as a reverse proxy (a server that forwards requests to a backend app) using ProxyPass and ProxyPassReverse. Load mod_proxy first if it is not already active, since proxy_http depends on it. Reload Apache after enabling."
+    },
+    {
+      "id": 4313,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2enmod headers",
+      "desc": "Enable the Apache headers module",
+      "tooltip": "Loads mod_headers, which adds the Header directive for setting, modifying, or removing HTTP response headers such as Cache-Control or Strict-Transport-Security. A common companion to mod_ssl for security headers. Reload Apache after enabling."
+    },
+    {
+      "id": 4314,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2dismod rewrite",
+      "desc": "Disable the Apache rewrite module",
+      "tooltip": "Unloads mod_rewrite, removing the RewriteEngine and RewriteRule directives from your configuration vocabulary. Any vhost (virtual host) still using them will fail the syntax check, so remove those directives first. Re-enable with a2enmod rewrite."
+    },
+    {
+      "id": 4315,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2dismod autoindex",
+      "desc": "Disable Apache directory listing module",
+      "tooltip": "Unloads mod_autoindex, which generates the file listing you see when a directory has no index file. Disabling it is a common hardening step so Apache returns 403 instead of exposing file names. Confirm the result with apache2ctl -M."
+    },
+    {
+      "id": 4316,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2enconf php8.3-fpm",
+      "desc": "Enable an Apache config snippet",
+      "tooltip": "Activates a configuration file from conf-available by symlinking it into conf-enabled, such as the php8.3-fpm snippet that wires PHP-FPM into Apache. This keeps optional config separate from the main apache2.conf. Disable it with a2disconf php8.3-fpm."
+    },
+    {
+      "id": 4317,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2disconf php8.3-fpm",
+      "desc": "Disable an Apache config snippet",
+      "tooltip": "Removes the conf-enabled symlink for a config snippet, stopping Apache from loading it on the next reload. The file stays in conf-available, so you can re-enable with a2enconf php8.3-fpm. Useful to turn off optional features like the PHP-FPM integration."
+    },
+    {
+      "id": 4318,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2query -m rewrite",
+      "desc": "Check whether an Apache module is enabled",
+      "tooltip": "Queries module state and prints that rewrite is enabled or that no such module is found. The exit status also reflects the answer, so scripts can branch on it. Use a2query -s example.com to check a site instead, or a2query -v for the Apache version."
+    },
+    {
+      "id": 4319,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2query -s example.com",
+      "desc": "Check whether an Apache site is enabled",
+      "tooltip": "Reports whether the site named example.com is currently enabled, which is a quick way to audit your virtual hosts (vhosts). It works by inspecting the sites-enabled directory. Module state is checked with a2query -m."
+    },
+    {
+      "id": 4320,
+      "category": "Web Servers & Proxies",
+      "cmd": "a2query -c php8.3-fpm",
+      "desc": "Check whether an Apache config snippet is enabled",
+      "tooltip": "Reports the state of a conf-available file, such as whether the php8.3-fpm snippet is enabled. Useful before enabling or disabling configs to see what is already active. Site and module checks use a2query -s and a2query -m."
+    },
+    {
+      "id": 4321,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl status apache2",
+      "desc": "Show Apache service status and recent log lines",
+      "tooltip": "Displays whether the apache2 service is active, its main process ID, memory use, and the newest journal entries. The first line tells you if the service failed to start after a config change. Add --no-pager for script-friendly output."
+    },
+    {
+      "id": 4322,
+      "category": "Web Servers & Proxies",
+      "cmd": "journalctl -u apache2 -f",
+      "desc": "Follow Apache systemd logs live",
+      "tooltip": "-u filters the journal to the apache2 unit, and -f tails new entries as they appear, like tail -f on the error log but with timestamps and service metadata. Watch it in one terminal while reloading config or generating traffic. Stop with Ctrl+C."
+    },
+    {
+      "id": 4323,
+      "category": "Web Servers & Proxies",
+      "cmd": "ls /etc/apache2/sites-enabled/",
+      "desc": "List Apache sites currently enabled",
+      "tooltip": "Each entry is a symlink into sites-available created by a2ensite, and each one is a live virtual host (vhost = one site served by one server). The link name shows which site config Apache loads. Compare with sites-available to see disabled sites."
+    },
+    {
+      "id": 4324,
+      "category": "Web Servers & Proxies",
+      "cmd": "htpasswd -c /etc/apache2/.htpasswd alice",
+      "desc": "Create an Apache basic auth password file",
+      "tooltip": "-c creates a new .htpasswd file and adds user alice, prompting for her password. Point AuthUserFile at this file to protect a directory with basic authentication. Warning: -c overwrites an existing file, so use it only for the first user."
+    },
+    {
+      "id": 4325,
+      "category": "Web Servers & Proxies",
+      "cmd": "htpasswd -B /etc/apache2/.htpasswd bob",
+      "desc": "Add a user with bcrypt password hashing",
+      "tooltip": "-B stores bob's password as a bcrypt hash, the strongest algorithm htpasswd supports and the one modern Apache configs expect. Omitting -c appends to the existing file instead of recreating it. Verify access with curl -u alice:password."
+    },
+    {
+      "id": 4326,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy run --watch",
+      "desc": "Run Caddy and auto-reload on config changes",
+      "tooltip": "Starts Caddy in the foreground and watches the Caddyfile, reloading automatically whenever the file changes. Great for development, since edits take effect without manual reloads. In production you usually run caddy run without --watch under systemd."
+    },
+    {
+      "id": 4327,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy run --config /etc/caddy/Caddyfile",
+      "desc": "Run Caddy with an explicit Caddyfile path",
+      "tooltip": "Tells Caddy which configuration file to load instead of looking for a Caddyfile in the current directory. This is how systemd and container setups point Caddy at /etc/caddy/Caddyfile. Omit the flag to use the default file discovery."
+    },
+    {
+      "id": 4328,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy reload --config /etc/caddy/Caddyfile",
+      "desc": "Reload Caddy config without downtime",
+      "tooltip": "Pushes the current Caddyfile through the admin API so Caddy swaps to the new configuration while keeping existing connections alive. Only valid for a Caddy started with caddy run, which enables the admin endpoint. Validate the file first with caddy validate."
+    },
+    {
+      "id": 4329,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy adapt --config /etc/caddy/Caddyfile --pretty",
+      "desc": "Convert a Caddyfile to pretty-printed JSON config",
+      "tooltip": "Adapts the human-friendly Caddyfile into the JSON structure Caddy actually uses, with --pretty adding indentation so it is readable. Useful to see how directives map to JSON or to debug a config error. Without --pretty the JSON comes out on one line."
+    },
+    {
+      "id": 4330,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy fmt /etc/caddy/Caddyfile",
+      "desc": "Print a Caddyfile formatted to stdout",
+      "tooltip": "Formats the Caddyfile and prints the result without modifying the file, so you can review the changes before applying them. Add --overwrite to write the formatting in place. Indentation and spacing are normalized to the canonical Caddy style."
+    },
+    {
+      "id": 4331,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy file-server --listen :8080",
+      "desc": "Serve static files from the current directory",
+      "tooltip": "Starts a static file server on port 8080 serving the working directory, with automatic gzip and sensible caching headers. Ideal for a quick preview of a site build without configuring a full vhost. Add --root /path to serve a different directory."
+    },
+    {
+      "id": 4332,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy file-server --root /srv/www --browse",
+      "desc": "Serve files with directory listing enabled",
+      "tooltip": "Serves /srv/www on the default port 2015, with --browse turning on an HTML file listing for directories without an index file. Handy for sharing a folder on a LAN. Leave --browse off in production so directory contents stay hidden."
+    },
+    {
+      "id": 4333,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy reverse-proxy --from example.com --to localhost:3000",
+      "desc": "Proxy a domain to a local backend app",
+      "tooltip": "Creates a reverse proxy (a server that forwards requests to a backend app) that accepts traffic for example.com and forwards it to an app on port 3000. Caddy automatically provisions HTTPS for the domain via Let's Encrypt. For a local test without a domain, use --from :8080 instead."
+    },
+    {
+      "id": 4334,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy reverse-proxy --from :8080 --to localhost:3000",
+      "desc": "Proxy a port to a local backend without TLS",
+      "tooltip": "Binds port 8080 and forwards every request to the app on port 3000, with no domain or HTTPS involved, which is perfect for local development. The :8080 form listens on all interfaces. Add --from localhost:8080 to restrict it to loopback only."
+    },
+    {
+      "id": 4335,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy list-modules",
+      "desc": "List all modules in the Caddy binary",
+      "tooltip": "Shows every compiled-in module, from HTTP handlers to TLS certificate issuers, in a hierarchical tree. Confirms whether a feature you need is available in your build. Packages built with xcaddy add modules that show up here."
+    },
+    {
+      "id": 4336,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy build-info",
+      "desc": "Show Go toolchain and module versions used to build Caddy",
+      "tooltip": "Prints the Go version, platform, and dependency versions embedded in the binary, which is useful when reporting bugs or checking for outdated builds. The output includes the exact Caddy module version and any xcaddy additions. Compare with caddy version for the release number."
+    },
+    {
+      "id": 4337,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy trust",
+      "desc": "Install Caddy's local CA into the system trust store",
+      "tooltip": "Registers the local certificate authority Caddy generates for its internal CA, so browsers trust locally issued certificates, typically used with the tls internal directive. Run with sudo since it modifies system trust stores. Remove the CA later with caddy untrust."
+    },
+    {
+      "id": 4338,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy untrust",
+      "desc": "Remove Caddy's local CA from the system trust store",
+      "tooltip": "Uninstalls the local CA that caddy trust added, so browsers stop trusting certificates issued by it. Useful when you finish testing local HTTPS or move a machine. Needs sudo for the same reason trust does."
+    },
+    {
+      "id": 4339,
+      "category": "Web Servers & Proxies",
+      "cmd": "caddy hash-password --plaintext 's3cret'",
+      "desc": "Hash a password for Caddyfile basic auth",
+      "tooltip": "Computes a bcrypt hash of the given password for use in a Caddyfile basic_auth directive, so plaintext passwords never sit in config files. Without --plaintext, Caddy prompts interactively instead. Paste the hash as the user:hash pair in your site block."
+    },
+    {
+      "id": 4340,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:2019/config/ | jq",
+      "desc": "Dump Caddy's live JSON config from the admin API",
+      "tooltip": "The admin API on localhost:2019 exposes the running configuration, and /config/ returns it as JSON, which jq pretty-prints for inspection. Useful to see the effective config after Caddyfile adaptation. Requires a Caddy started with caddy run, which enables the admin endpoint."
+    },
+    {
+      "id": 4341,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl status caddy",
+      "desc": "Show Caddy service status and recent log lines",
+      "tooltip": "Displays whether the caddy service is active, its main process ID, and the newest journal entries, including config errors. Check this first when a site stops answering. The Debian package runs Caddy under systemd with the config in /etc/caddy/Caddyfile."
+    },
+    {
+      "id": 4342,
+      "category": "Web Servers & Proxies",
+      "cmd": "haproxy -v",
+      "desc": "Show HAProxy version and build date",
+      "tooltip": "Prints the HAProxy release and when the binary was compiled. Version matters because 2.x and 3.x introduced different features and defaults. Use haproxy -vv for the full build details and feature list."
+    },
+    {
+      "id": 4343,
+      "category": "Web Servers & Proxies",
+      "cmd": "haproxy -vv",
+      "desc": "Show HAProxy build options and supported features",
+      "tooltip": "Displays the version plus every compile-time feature and option, such as TLS support, compression, and thread settings. Check here when a feature seems missing at runtime. The plain -v form shows just the version."
+    },
+    {
+      "id": 4344,
+      "category": "Web Servers & Proxies",
+      "cmd": "haproxy -c -f /etc/haproxy/haproxy.cfg",
+      "desc": "Validate HAProxy configuration syntax",
+      "tooltip": "-c checks the configuration files and exits before binding any ports, reporting errors with line numbers. Run it after every config edit, because a bad reload can take the proxy down. The exit status is zero only when the config is valid."
+    },
+    {
+      "id": 4345,
+      "category": "Web Servers & Proxies",
+      "cmd": "haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d/",
+      "desc": "Validate HAProxy config split across multiple files",
+      "tooltip": "HAProxy accepts repeated -f flags, and each one may name a file or a directory whose .cfg files are loaded in lexical order. This validates a main config plus an include directory in one pass. Useful for setups that keep backends in separate files."
+    },
+    {
+      "id": 4346,
+      "category": "Web Servers & Proxies",
+      "cmd": "haproxy -f /etc/haproxy/haproxy.cfg -db",
+      "desc": "Run HAProxy in the foreground for debugging",
+      "tooltip": "-db disables background mode so the process stays in the foreground and logs directly to your terminal, which is invaluable when testing a new config. It also disables multi-process mode. In production, systemd runs HAProxy as a daemon."
+    },
+    {
+      "id": 4347,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl status haproxy",
+      "desc": "Show HAProxy service status and recent log lines",
+      "tooltip": "Reports whether the haproxy service is running, its PID, and the newest journal messages, including config warnings. Check this first when the proxy is not answering. Pair with journalctl -u haproxy -f for live log output."
+    },
+    {
+      "id": 4348,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl reload haproxy",
+      "desc": "Reload HAProxy config gracefully via systemd",
+      "tooltip": "Tells systemd to signal HAProxy to reload its configuration, which in modern builds reuses the existing process and keeps connections flowing where possible. Validate the config with haproxy -c first to avoid a failed reload. Hard restarts with systemctl restart haproxy drop all connections."
+    },
+    {
+      "id": 4349,
+      "category": "Web Servers & Proxies",
+      "cmd": "journalctl -u haproxy -f",
+      "desc": "Follow HAProxy systemd logs live",
+      "tooltip": "Tails journal entries from the haproxy unit, showing startup messages, config warnings, and connection errors as they happen. Keep it open while reloading or testing to catch problems instantly. Stop with Ctrl+C."
+    },
+    {
+      "id": 4350,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:8404/stats",
+      "desc": "Fetch HAProxy stats page over HTTP",
+      "tooltip": "Retrieves the HTML stats report, but only if your haproxy.cfg has a stats bind line listening on port 8404, since nothing listens there by default. The page exposes backend health, session counts, and queue depth. Restrict access with stats auth or an allow list, because it reveals internal topology."
+    },
+    {
+      "id": 4351,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo 'show info' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Query HAProxy process info via the admin socket",
+      "tooltip": "Pipes the show info command into HAProxy's Unix admin socket, returning uptime, version, and memory stats as key-value pairs. socat bridges stdin and stdout to the socket, and the path is set by the stats socket directive, commonly /run/haproxy/admin.sock on Debian. The same pattern runs every CLI command."
+    },
+    {
+      "id": 4352,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo 'show stat' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Show HAProxy backend and server statistics",
+      "tooltip": "Returns a table of every frontend, backend, and server with counters like current sessions, errors, and status. Pipe through column -t to align the CSV-style output. This is the command-line equivalent of the web stats page."
+    },
+    {
+      "id": 4353,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo 'show servers state web-backend' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Show per-server state for an HAProxy backend",
+      "tooltip": "Lists each server in the web-backend pool with its administrative and operational state, such as UP, DOWN, or MAINT. Useful for confirming which nodes are in rotation after a deploy or maintenance window. Server names appear as backend/server pairs."
+    },
+    {
+      "id": 4354,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo 'disable server web-backend/web01' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Take an HAProxy server out of rotation",
+      "tooltip": "Sets the named server to administrative down, so HAProxy stops sending it traffic while the process keeps running, ideal before maintenance. Re-enable with enable server web-backend/web01 once it is healthy again. The change applies immediately without a reload."
+    },
+    {
+      "id": 4355,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo 'enable server web-backend/web01' | socat stdio /run/haproxy/admin.sock",
+      "desc": "Put an HAProxy server back into rotation",
+      "tooltip": "Returns the named server to service after you fixed it or finished maintenance, letting the load balancer route traffic to it again. Confirm the server passes its health check before enabling. The counterpart to disable server."
+    },
+    {
+      "id": 4356,
+      "category": "Web Servers & Proxies",
+      "cmd": "traefik --configFile=/etc/traefik/traefik.yml",
+      "desc": "Start Traefik with an explicit static config file",
+      "tooltip": "Points Traefik at its static configuration file, which defines entrypoints, providers, and certificate resolvers. Without the flag, Traefik searches /etc/traefik and the current directory for traefik.yml. In Docker you pass it via the command or compose config."
+    },
+    {
+      "id": 4357,
+      "category": "Web Servers & Proxies",
+      "cmd": "traefik --providers.docker=true --entrypoints.web.address=:80",
+      "desc": "Start Traefik with Docker provider and a web entrypoint",
+      "tooltip": "CLI flags map to static config keys: this enables the Docker provider, which discovers containers as routing targets, and creates an entrypoint named web on port 80. Traefik hot-reloads routing when containers start or stop. Any flag can replace a line in traefik.yml."
+    },
+    {
+      "id": 4358,
+      "category": "Web Servers & Proxies",
+      "cmd": "docker compose logs traefik -f",
+      "desc": "Follow logs from the traefik compose service",
+      "tooltip": "Streams the traefik container's stdout and stderr, where Traefik logs routing errors and ACME (automatic certificate) events. The -f flag follows new lines live, mirroring docker logs -f but scoped to the compose service. Add --tail=100 to start from recent history."
+    },
+    {
+      "id": 4359,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:8080/api/rawdata | jq",
+      "desc": "Dump Traefik's full routing configuration as JSON",
+      "tooltip": "The dashboard API on port 8080 serves /api/rawdata, a snapshot of all routers, services, and middlewares Traefik currently knows. Requires api.insecure=true (or a secured API entrypoint) in the static config. jq pretty-prints the JSON so you can explore it."
+    },
+    {
+      "id": 4360,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:8080/api/http/routers | jq '.[].name'",
+      "desc": "List HTTP router names from Traefik's API",
+      "tooltip": "/api/http/routers returns the active HTTP routers, and jq '.[].name' extracts just their names, one per line. Compare with your compose labels or file config to see which rules actually loaded. A router missing from the list means its rule failed to parse."
+    },
+    {
+      "id": 4361,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:8080/api/overview | jq",
+      "desc": "Show Traefik API overview counters",
+      "tooltip": "The /api/overview endpoint summarizes how many routers, services, and middlewares are configured, including TCP and UDP counts. A quick health snapshot of what Traefik is doing right now. Use /api/rawdata for the full detail."
+    },
+    {
+      "id": 4362,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s http://localhost:8080/api/entrypoints | jq '.[].name'",
+      "desc": "List entrypoint names from Traefik's API",
+      "tooltip": "/api/entrypoints returns the configured entrypoints with their addresses and TLS settings, and jq '.[].name' extracts the names. Useful to confirm which ports Traefik actually listens on. Compare with your static config if a port seems unresponsive."
+    },
+    {
+      "id": 4363,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot --nginx -d example.com --redirect",
+      "desc": "Issue a cert and configure nginx with HTTPS redirect",
+      "tooltip": "Runs the nginx plugin, which obtains a certificate for example.com, installs it into the site's TLS config, and --redirect adds a rule sending HTTP traffic to HTTPS. Requires the python3-certbot-nginx package and a working nginx vhost (virtual host). Certificates renew automatically via a timer."
+    },
+    {
+      "id": 4364,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot --nginx -d example.com --dry-run",
+      "desc": "Test certificate issuance against the staging server",
+      "tooltip": "Walks through the whole ACME (automatic certificate) flow against Let's Encrypt's staging environment, which has separate rate limits, so no real certificate is issued. Confirms your domain, DNS, and web server setup work before the real run. Safe to repeat as often as needed."
+    },
+    {
+      "id": 4365,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --nginx -d example.com",
+      "desc": "Obtain a certificate without changing nginx config",
+      "tooltip": "Uses the nginx plugin only to pass the HTTP-01 challenge, then saves the certificate to /etc/letsencrypt/live/example.com without touching your server config. You wire the cert paths into the vhost yourself. Use --nginx without certonly to have certbot edit the config for you."
+    },
+    {
+      "id": 4366,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --standalone -d example.com --preferred-challenges http",
+      "desc": "Issue a cert using a temporary built-in web server",
+      "tooltip": "The standalone plugin runs its own temporary server on port 80 to answer the HTTP-01 challenge, so nothing else may be listening on that port. Stop nginx or Apache first, or the challenge fails. The temporary server shuts down once issuance completes."
+    },
+    {
+      "id": 4367,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --standalone -d example.com --preferred-challenges http --http-01-port 8080",
+      "desc": "Run the standalone challenge on a custom port",
+      "tooltip": "--http-01-port relocates the challenge server to port 8080 for setups where port 80 is taken by another service. The CA must still be able to reach that port, so you need a port-forward or firewall rule. Combine with --preferred-challenges http to force the HTTP method."
+    },
+    {
+      "id": 4368,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --webroot -w /var/www/html -d example.com",
+      "desc": "Issue a cert via a file in your web root",
+      "tooltip": "The webroot plugin drops a token file into /var/www/html and asks the CA to fetch it over HTTP, which works when your web server already serves that directory. No server restart is needed, unlike standalone. Point -w at the directory your vhost serves for the domain."
+    },
+    {
+      "id": 4369,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --dns-cloudflare -d '*.example.com' --dns-cloudflare-credentials ~/.cloudflare/credentials",
+      "desc": "Issue a wildcard cert via Cloudflare DNS challenge",
+      "tooltip": "The DNS-01 challenge proves domain ownership by creating a TXT record, which the Cloudflare plugin does automatically using an API token from the credentials file. This is the only way to get wildcard certificates covering *.example.com. Requires the python3-certbot-dns-cloudflare package."
+    },
+    {
+      "id": 4370,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot certonly --manual --preferred-challenges dns -d example.com",
+      "desc": "Issue a cert with a manually created DNS record",
+      "tooltip": "Certbot prints a TXT record and waits while you add it to your DNS provider manually, then verifies and issues. Useful when no plugin exists for your DNS provider. The record must be live before you press Enter, and DNS propagation can take minutes."
+    },
+    {
+      "id": 4371,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot renew --force-renewal",
+      "desc": "Reissue all certificates even before expiry",
+      "tooltip": "Renews every certificate immediately, ignoring the usual 30-day-before-expiry threshold, while keeping the same key and methods. Handy after changing plugin or account settings. Normal renewals run automatically on a timer, so use this sparingly to respect rate limits."
+    },
+    {
+      "id": 4372,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot renew --deploy-hook 'systemctl reload nginx'",
+      "desc": "Run a command after successful certificate renewal",
+      "tooltip": "The deploy hook fires only when a certificate was actually renewed, making it the right place to reload nginx or Apache so they pick up the new files. Renewal keeps the same paths under /etc/letsencrypt/live, so a reload is enough. Add the flag to the timer command or a cron job."
+    },
+    {
+      "id": 4373,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot register --email admin@example.com --agree-tos",
+      "desc": "Register an ACME account with Let's Encrypt",
+      "tooltip": "Creates the account used for certificate management and stores it under /etc/letsencrypt/accounts, with --agree-tos accepting the subscriber agreement non-interactively. Registration also happens automatically on first issuance. Update contact details later with certbot update_account."
+    },
+    {
+      "id": 4374,
+      "category": "Web Servers & Proxies",
+      "cmd": "certbot --version",
+      "desc": "Show the installed certbot version",
+      "tooltip": "Prints the certbot release, which matters because ACME protocol and plugin behavior change between versions. Mention it when reporting issues or checking whether an upgrade is needed. The related letsencrypt alias is deprecated."
+    },
+    {
+      "id": 4375,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl list-timers | grep certbot",
+      "desc": "Show when the certbot renewal timer runs",
+      "tooltip": "Lists systemd timers, and the grep keeps just the certbot.timer line with its next and last trigger times. Renewal runs twice daily but only acts on certs within 30 days of expiry. If the timer is missing, check that the certbot package installed its units."
+    },
+    {
+      "id": 4376,
+      "category": "Web Servers & Proxies",
+      "cmd": "systemctl status certbot.timer",
+      "desc": "Show the certbot renewal timer status",
+      "tooltip": "Displays whether certbot.timer is active, when it last fired, and when it runs next. A failed timer means automatic renewals are not happening, so check this after any certbot upgrade. The timer triggers certbot renew twice a day."
+    },
+    {
+      "id": 4377,
+      "category": "Web Servers & Proxies",
+      "cmd": "readlink -f /etc/letsencrypt/live/example.com/cert.pem",
+      "desc": "Show the real file behind a letsencrypt live symlink",
+      "tooltip": "The live directory holds symlinks pointing into /etc/letsencrypt/archive, where each renewal creates a new numbered file. Resolving the link shows which archive version a service currently uses. Useful to confirm that a renewal actually switched the files."
+    },
+    {
+      "id": 4378,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -enddate",
+      "desc": "Check a certificate's expiry date over the network",
+      "tooltip": "s_client connects to the TLS port and fetches the certificate, and the leading echo | feeds a newline so the connection closes immediately instead of hanging. x509 -noout -enddate then prints just the Not After date. Compare it with today's date to see how much time is left."
+    },
+    {
+      "id": 4379,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -subject -issuer",
+      "desc": "Show who a certificate belongs to and who issued it",
+      "tooltip": "-subject prints the certificate owner's distinguished name, and -issuer prints the CA (certificate authority) that signed it, so you can confirm the cert matches the domain and comes from an expected issuer. -servername sends SNI (server name indication), which matters when one IP hosts many sites."
+    },
+    {
+      "id": 4380,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -fingerprint -sha256",
+      "desc": "Print a certificate's SHA-256 fingerprint",
+      "tooltip": "Computes the SHA-256 digest of the certificate, a unique identifier you can compare against the value printed by the CA or a vendor's documentation. Matching fingerprints confirm you are looking at the exact expected certificate. The fingerprint changes on every renewal."
+    },
+    {
+      "id": 4381,
+      "category": "Web Servers & Proxies",
+      "cmd": "echo | openssl s_client -connect example.com:443 -servername example.com -brief",
+      "desc": "Show a concise TLS connection summary",
+      "tooltip": "-brief collapses s_client's verbose output into a few lines covering protocol version, cipher, and certificate subject and issuer. The fastest way to check which TLS version and cipher a server negotiates. Add -tls1_3 to test support for that protocol specifically."
+    },
+    {
+      "id": 4382,
+      "category": "Web Servers & Proxies",
+      "cmd": "openssl s_client -connect example.com:443 -servername example.com -showcerts </dev/null | grep -E '^ *(s:|i:)'",
+      "desc": "Inspect the full certificate chain subjects and issuers",
+      "tooltip": "-showcerts prints every certificate in the chain, and the grep keeps only the subject (s:) and issuer (i:) lines so you can see the order: leaf, intermediates, root. A complete chain here is what clients need to validate the site. The </dev/null redirect closes stdin so s_client exits immediately."
+    },
+    {
+      "id": 4383,
+      "category": "Web Servers & Proxies",
+      "cmd": "openssl x509 -in /etc/letsencrypt/live/example.com/fullchain.pem -noout -subject -issuer",
+      "desc": "Inspect a local certificate file's subject and issuer",
+      "tooltip": "Reads a PEM certificate from disk instead of the network and prints its subject and issuer. fullchain.pem contains the site certificate plus the intermediate chain, so this shows the server identity and who signed it. Works for any cert file, not just Let's Encrypt."
+    },
+    {
+      "id": 4384,
+      "category": "Web Servers & Proxies",
+      "cmd": "openssl dhparam -out /etc/ssl/dhparam.pem 2048",
+      "desc": "Generate Diffie-Hellman parameters for TLS hardening",
+      "tooltip": "Creates the DH parameters file some older TLS configs reference in their cipher settings, improving forward secrecy for key exchange. The 2048-bit generation can take a few minutes on modest hardware. Modern TLS 1.3 ignores this file, so it matters mainly for legacy clients."
+    },
+    {
+      "id": 4385,
+      "category": "Web Servers & Proxies",
+      "cmd": "openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'",
+      "desc": "Generate a self-signed certificate and private key",
+      "tooltip": "-x509 makes openssl issue a self-signed certificate instead of a CSR, and -newkey rsa:2048 creates a fresh RSA key, with -nodes leaving it unencrypted so a server can read it without a passphrase. -subj sets the subject non-interactively, perfect for scripts. Use this for local testing only, since browsers will warn about the trust chain."
+    },
+    {
+      "id": 4386,
+      "category": "Web Servers & Proxies",
+      "cmd": "update-ca-certificates",
+      "desc": "Refresh the system's trusted CA bundle",
+      "tooltip": "Rebuilds /etc/ssl/certs from the certificates in /etc/ssl/certs and /usr/local/share/ca-certificates, adding and removing entries as needed. Run it after installing a private CA so local tools and services trust it. Certificates you drop into /usr/local/share/ca-certificates must end in .crt."
+    },
+    {
+      "id": 4387,
+      "category": "Web Servers & Proxies",
+      "cmd": "update-ca-certificates --fresh",
+      "desc": "Rebuild the CA bundle from scratch, removing obsolete certs",
+      "tooltip": "--fresh deletes every existing symlink in /etc/ssl/certs first, then recreates the bundle only from the current source directories. Use it to purge certificates that were removed upstream but left stale links behind. The plain form without --fresh keeps existing links."
+    },
+    {
+      "id": 4388,
+      "category": "Web Servers & Proxies",
+      "cmd": "logrotate -f /etc/logrotate.d/nginx",
+      "desc": "Force nginx log rotation immediately",
+      "tooltip": "Runs the nginx logrotate rules now instead of waiting for the daily timer, which is handy before an audit or when disk space is tight. The postrotate script calls nginx -s reopen so the server keeps writing to fresh logs. Without -f, logrotate only rotates when the configured age or size is reached."
+    },
+    {
+      "id": 4389,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -o /dev/null -s -w '%{http_code} %{time_total}s\\n' https://example.com",
+      "desc": "Check HTTP status code and total response time",
+      "tooltip": "-w prints the status code and the total seconds the request took, with the body discarded to /dev/null. A fast 200 means the site is healthy, while a 5xx with a long time points at backend trouble. Wrap this in a loop or cron job for simple uptime monitoring."
+    },
+    {
+      "id": 4390,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s -o /dev/null -w '%{time_connect} %{time_starttransfer} %{time_total}\\n' https://example.com",
+      "desc": "Break down connection, TTFB, and total response time",
+      "tooltip": "time_connect is the TCP handshake, time_starttransfer is when the first response byte arrives (time to first byte, often the slowest part for dynamic sites), and time_total is the whole request. Comparing them shows whether latency is network, TLS, or application-side. Run it a few times to separate cold starts from steady-state latency."
+    },
+    {
+      "id": 4391,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -s -o /dev/null -w '%{ssl_verify_result} %{ssl_version} %{cipher}\\n' https://example.com",
+      "desc": "Show TLS verification result, version, and cipher",
+      "tooltip": "ssl_verify_result is 0 when the certificate chain validates, and any other value is an error code from the trust check. ssl_version and cipher show which protocol and cipher suite the server negotiated. A quick way to confirm TLS 1.3 and a strong cipher are actually in use."
+    },
+    {
+      "id": 4392,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -v https://example.com",
+      "desc": "Show the full TLS handshake and HTTP exchange",
+      "tooltip": "-v prints every step: DNS lookup, TCP connect, TLS handshake details, request headers, and response headers, with > and < marking sent and received lines. The best first tool when a site misbehaves in browsers but not in curl. Add -k only for testing self-signed certs."
+    },
+    {
+      "id": 4393,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl --resolve example.com:443:127.0.0.1 https://example.com",
+      "desc": "Test a vhost locally before DNS points to it",
+      "tooltip": "--resolve overrides DNS for this request only, connecting to 127.0.0.1 while still sending the Host header and SNI (server name indication) for example.com. Perfect for testing a new virtual host before changing DNS. Repeat for each domain a server hosts."
+    },
+    {
+      "id": 4394,
+      "category": "Web Servers & Proxies",
+      "cmd": "curl -x http://proxy.example.com:3128 https://example.com",
+      "desc": "Fetch a URL through an HTTP proxy",
+      "tooltip": "-x routes the request through the proxy at proxy.example.com:3128, which then fetches example.com on your behalf. Useful to verify a proxy works or to test how a site behaves from another network. The proxy must allow CONNECT for HTTPS targets."
+    },
+    {
+      "id": 4395,
+      "category": "Web Servers & Proxies",
+      "cmd": "wget --spider -S https://example.com",
+      "desc": "Check a URL exists without downloading it",
+      "tooltip": "--spider tells wget to check whether the URL is reachable without saving anything, and -S prints the response headers. A clean way to test links or confirm redirects by reading the Location header. The exit status is zero only when the fetch succeeds."
+    },
+    {
+      "id": 4396,
+      "category": "Web Servers & Proxies",
+      "cmd": "dig +short A example.com",
+      "desc": "Look up the IPv4 address for a domain",
+      "tooltip": "+short trims dig's verbose output to just the answer, here the A records (IPv4 addresses) for example.com. Handy for confirming DNS points at the right server before you switch traffic. Use AAAA for IPv6 and CNAME to trace aliases."
+    },
+    {
+      "id": 4397,
+      "category": "Web Servers & Proxies",
+      "cmd": "dig +short AAAA example.com",
+      "desc": "Look up the IPv6 address for a domain",
+      "tooltip": "Returns the AAAA records, the IPv6 equivalents of A records, if the domain has any. Many domains have no AAAA record at all, which is a valid answer. Check this when a site loads over IPv4 but not IPv6."
+    },
+    {
+      "id": 4398,
+      "category": "Web Servers & Proxies",
+      "cmd": "dig +short CNAME www.example.com",
+      "desc": "Resolve a CNAME alias to its target",
+      "tooltip": "Shows where the www.example.com CNAME (an alias record pointing at another name) leads, such as example.com or a CDN hostname. Useful to understand redirects and third-party hosting setups. A blank result means the name is not a CNAME."
+    },
+    {
+      "id": 4399,
+      "category": "Web Servers & Proxies",
+      "cmd": "dig +short TXT _acme-challenge.example.com",
+      "desc": "Check the ACME DNS challenge TXT record",
+      "tooltip": "Verifies that the TXT record a DNS-01 certificate challenge requires is published and correct. Compare the value against what certbot or your CA asked you to create. An empty result means propagation has not finished or the record name is wrong."
+    },
+    {
+      "id": 4400,
+      "category": "Web Servers & Proxies",
+      "cmd": "dig +short NS example.com",
+      "desc": "Show the authoritative nameservers for a domain",
+      "tooltip": "Lists the NS records naming the servers authoritative for example.com, which is the first thing to check when DNS changes do not appear. If your provider's nameservers are not listed, updates there will not take effect. Pair with dig example.com +trace to watch a query walk the tree."
+    },
+    {
+      "id": 4401,
+      "category": "Web Servers & Proxies",
+      "cmd": "getent hosts example.com",
+      "desc": "Resolve a hostname using system DNS configuration",
+      "tooltip": "getent queries the system resolver exactly like applications do, honoring /etc/hosts, mDNS, and DNS in one go. If getent resolves but dig does not, /etc/hosts or NSS settings are involved. This is the best check for what your own server will actually see."
+    },
+    {
+      "id": 4402,
+      "category": "Web Servers & Proxies",
+      "cmd": "ss -tlnp | grep :443",
+      "desc": "Find which process is listening on port 443",
+      "tooltip": "ss lists TCP sockets, with -l for listeners, -n skipping name lookups, -t for TCP, and -p showing the owning process. The grep filters to port 443, so you can see who holds the HTTPS port, often the answer when a second server fails to bind. Root is needed to show process names for other users' sockets."
+    },
+    {
+      "id": 4403,
+      "category": "Web Servers & Proxies",
+      "cmd": "awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10",
+      "desc": "Show the top 10 IPs hitting nginx",
+      "tooltip": "This pipeline counts access log lines per client IP: awk takes the first field, sort groups identical IPs, uniq -c counts each group, and sort -rn orders by count descending. The top entries reveal heavy crawlers, scanners, or your own monitoring. Repeat after an hour to spot attack patterns."
+    },
+    {
+      "id": 4404,
+      "category": "Web Servers & Proxies",
+      "cmd": "awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10",
+      "desc": "Show the most common HTTP status codes in nginx logs",
+      "tooltip": "Field 9 of the nginx access log is the status code, so this pipeline shows how many 200s, 404s, and 5xx responses the server returned. A sudden spike of 502 or 503 points to backend or proxy problems. The same pattern works on Apache logs, where the status field is also 9."
+    },
+    {
+      "id": 4405,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -v",
+      "desc": "Show Squid version and build configuration",
+      "tooltip": "Prints the Squid release plus compile-time options, such as supported authentication schemes and cache backends. Useful when a feature seems missing at runtime. The output also confirms which config file Squid will read."
+    },
+    {
+      "id": 4406,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -z",
+      "desc": "Create Squid cache directories before first start",
+      "tooltip": "Builds the on-disk cache directories declared in squid.conf's cache_dir lines, which must exist before Squid can store objects. Run it once after a fresh install or after changing cache_dir paths. Squid then initializes the cache automatically on startup."
+    },
+    {
+      "id": 4407,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -k check",
+      "desc": "Check whether a running Squid responds",
+      "tooltip": "Sends a null signal to the running Squid process to verify it is alive, without changing its state. Useful in monitoring scripts, since the exit status reflects whether Squid is up. The -k flag sends commands to the running daemon's process."
+    },
+    {
+      "id": 4408,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -k parse",
+      "desc": "Parse squid.conf and report configuration errors",
+      "tooltip": "Reads squid.conf and reports syntax or semantic problems without starting the proxy, making it the safe pre-reload check. Warnings about unknown directives appear here. Note that it does not validate every runtime aspect, so keep an eye on startup logs too."
+    },
+    {
+      "id": 4409,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -k reconfigure",
+      "desc": "Reload squid.conf into the running daemon",
+      "tooltip": "Tells the running Squid to re-read its configuration file and apply changes without dropping cached objects or active connections. Use it after editing squid.conf instead of a full restart. Equivalent to sending the HUP signal to the Squid process."
+    },
+    {
+      "id": 4410,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -k rotate",
+      "desc": "Rotate Squid log files now",
+      "tooltip": "Closes the current access and cache logs, renames them with a .0, .1, and so on sequence, and starts fresh files. This is the command logrotate cron jobs call for Squid. Check that the logfile_rotate count in squid.conf is high enough for your retention."
+    },
+    {
+      "id": 4411,
+      "category": "Web Servers & Proxies",
+      "cmd": "squid -k shutdown",
+      "desc": "Shut down Squid gracefully",
+      "tooltip": "Stops the Squid daemon cleanly, letting it finish in-flight requests and flush cached state before exiting. Prefer this over kill for routine maintenance. Start it again with systemctl start squid or the squid command itself."
+    },
+    {
+      "id": 4412,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishd -C -f /etc/varnish/default.vcl",
+      "desc": "Compile-check a VCL file without starting Varnish",
+      "tooltip": "-C compiles the VCL (Varnish Configuration Language = the caching rules file) and prints the generated C code, exiting with an error and line number on problems. Run it after every VCL edit, because a bad compile stops the cache from starting. The -f flag names the VCL file to use."
+    },
+    {
+      "id": 4413,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishd -a :8080 -f /etc/varnish/default.vcl -s malloc,256M",
+      "desc": "Start Varnish listening on a custom port with memory cache",
+      "tooltip": "-a sets the listen address and port, -f loads the VCL (caching rules) file, and -s malloc,256M gives the cache a 256 MB memory-backed store, the standard choice for most deployments. Binding ports and shared memory need privileges, so run it as root or via the varnish service. Front your web server with Varnish, not the other way around."
+    },
+    {
+      "id": 4414,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishstat",
+      "desc": "Show live Varnish cache hit and miss counters",
+      "tooltip": "Displays a continuously refreshing table of counters: cache hits, misses, backend requests, and memory use. The hit rate (cache_hit divided by cache_hit plus miss) tells you whether your VCL is actually caching. Press q to quit, or add -1 for a single snapshot."
+    },
+    {
+      "id": 4415,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishlog -g request",
+      "desc": "Follow Varnish request-level logs live",
+      "tooltip": "Shows one line per client request with the URL, cache result, and timing by grouping raw log entries per request. Great for watching live traffic and confirming whether requests hit or miss the cache. Filter with -q, for example -q 'ReqURL ~ ^/api'."
+    },
+    {
+      "id": 4416,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishadm backend.list",
+      "desc": "List Varnish backends and their health state",
+      "tooltip": "Connects to the running varnishd via the admin interface and lists each backend with its state: healthy, sick, or unknown. A sick backend explains sudden 503s, since Varnish refuses to serve it. Varnish probes backends according to the health checks in your VCL."
+    },
+    {
+      "id": 4417,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishadm vcl.list",
+      "desc": "List VCL configurations loaded in Varnish",
+      "tooltip": "Shows every compiled VCL with its state: active, available, or cold. The active one handles all traffic, while older versions stay around for rollback. Use varnishadm vcl.use main to switch back if a new VCL misbehaves."
+    },
+    {
+      "id": 4418,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishadm vcl.load main /etc/varnish/default.vcl",
+      "desc": "Compile and load a new VCL into Varnish",
+      "tooltip": "Compiles the VCL file and stores it under the name main without activating it, so a syntax error leaves the running config untouched. Errors are reported immediately with line numbers. Follow with varnishadm vcl.use main to make it active."
+    },
+    {
+      "id": 4419,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishadm vcl.use main",
+      "desc": "Activate a previously loaded VCL",
+      "tooltip": "Makes the VCL named main the active configuration, so new requests are handled by it. Because vcl.load compiles first, a bad file never goes live. Roll back by naming the previous VCL, for example vcl.use boot."
+    },
+    {
+      "id": 4420,
+      "category": "Web Servers & Proxies",
+      "cmd": "varnishadm ban 'req.url ~ ^/api/'",
+      "desc": "Invalidate cached objects matching a pattern",
+      "tooltip": "Adds a ban rule that makes Varnish discard cached objects whose URL matches the regular expression, forcing a refetch on the next request. Bans apply gradually as objects are looked up, so big caches purge over time rather than instantly. Check the ban list with varnishadm ban.list."
     }
   ],
-  "total": 4150
+  "total": 4420
 }
