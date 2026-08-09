@@ -25,9 +25,8 @@ ROOT = Path(__file__).resolve().parent.parent
 COMMANDS_PATH = ROOT / "commands.json"
 OUT_DIR = ROOT / "site"  # built output; uploaded as the Pages artifact root
 
-# Default stays on github.io until a custom domain is live; flip to the
-# branded domain in the deploy workflow once DNS is cut over.
-SITE_URL = sys.argv[1] if len(sys.argv) > 1 else "https://schoedel-learn.github.io/linux-terminal-glossary"
+# Custom domain (live 2026-08-09); github.io only while DNS/TLS cut over.
+SITE_URL = sys.argv[1] if len(sys.argv) > 1 else "https://linux.schoedeldesign.ai"
 
 BRAND_LINKS = f"""
 <footer class="site-footer">
