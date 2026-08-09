@@ -1,32 +1,28 @@
 # GitHub Copilot Instructions — linux-terminal-glossary
 
 This is a static single-page application (SPA) that serves a searchable glossary
-of **2,838 terminal commands** across **33 categories**. There is no build step,
-no framework, and no package.json — everything ships as three plain files.
+of **3,267 terminal commands** across **29 categories**. There is no build step,
+no framework, and no package.json — everything ships as plain files.
 
 ---
 
 ## Project structure
 
 ```
-linux-glossary/
-├── index.html          # Single-file SPA — all HTML, CSS, and JS inline
-├── commands.json       # Master data — 2,838 commands, flat list + categories array
-├── search_index.json   # TF-IDF search index (built by rebuild_search_index.py)
+linux-terminal-glossary/
+├── index.html                   # Single-file SPA — all HTML, CSS, and JS inline
+├── commands.json                # Master data — 3,267 commands, flat list + categories array
+├── search_index.json            # TF-IDF search index (built by scripts/rebuild_search_index.py)
+├── scripts/
+│   └── rebuild_search_index.py  # Regenerates search_index.json from commands.json
 └── .github/
-    └── copilot-instructions.md
-
-# Source files (workspace root, not served):
-../linux_commands_data.py      # Original command dataset
-../dokploy.py                  # Dokploy category source
-../vps.py                      # VPS Management category source
-../copilot.py                  # GitHub Copilot category source
-../npm_extra.py                # Node.js / npm category source
-../self_hosting.py             # Self-Hosting category source
-../networking_extra.py         # Networking additions source
-../rebuild_commands.py         # Merges all source files → commands.json
-../rebuild_search_index.py     # Rebuilds search_index.json from commands.json
+    ├── copilot-instructions.md  # This file
+    └── ISSUE_TEMPLATE/command-report.yml
 ```
+
+There are **no separate source files**. `commands.json` is the single source of
+truth and is edited directly. The old workflow (merging category `.py` source
+files via a `rebuild_commands.py`) was retired — do not recreate it.
 
 ---
 
@@ -49,61 +45,47 @@ Every command entry must follow this exact shape:
 - `cmd` is the deduplicated primary key — no two entries share the same `cmd` string
 - `desc` is present tense, imperative voice: "List all running containers" not "Lists..."
 - `tooltip` is mandatory — every entry must have one; never leave it empty
-- `category` must exactly match one of the 33 existing category names (case-sensitive)
+- `category` must exactly match one of the 29 existing category names (case-sensitive)
 - The top-level `categories` array in commands.json is always kept sorted A–Z
 - The top-level `total` field must equal `len(commands)` after any modification
+- **`commands.json` is always pretty-printed with `indent=2`** — never minify it.
+  A one-line JSON file makes every future git diff unreadable (git compares
+  line-by-line). If you regenerate the file, write it with `json.dump(data, f, indent=2)`.
 
 ---
 
-## The 33 categories (sorted A–Z)
+## The 29 categories (sorted A–Z)
 
 ```
-Archiving & Compression    Bash Scripting             Cron & Scheduling
-Disk & Filesystem          Docker                     Dokploy
-Environment & Config       File Operations            File Viewing & Editing
-Gemini CLI                 Git - Advanced             Git - Core
-GitHub CLI                 GitHub Copilot             I/O Redirection & Pipes
-Navigation & Directory     Networking                 Node.js & npm/yarn
-Package Management - APT/Ubuntu  Permissions & Ownership  Process Management
-Productivity & Search      Python & pip               SSH & Remote
-Self-Hosting               Shell & Bash               System Information
-System Services & Systemd  Text Processing            User & Group Management
-VPS Management             Vim/Neovim                 tmux
+Administration        AI Agents & MCP        Archiving & Compression
+Bash Scripting        Cron & Scheduling      Docker
+Dokploy               Environment & Config   File Operations
+File Viewing & Editing  Gemini CLI           Git - Advanced
+Git - Core            GitHub CLI             GitHub Copilot
+I/O Redirection & Pipes  Navigation & Directory  Networking
+Node.js & npm/yarn    Productivity & Search  Python & pip
+SSH & Remote          Self-Hosting           Shell & Bash
+Terminal Configuration  Text Processing      VPS Management
+Vim/Neovim            tmux
 ```
 
-When adding a new category: add it to the source `.py` file, run
-`rebuild_commands.py`, then `rebuild_search_index.py`, and update the
-count in all three places inside `index.html` (title tag, loading spinner
-text, history panel empty-state text).
+When adding a new category: add it to the `categories` array (keeping A–Z
+order), add entries with that category name, rebuild the search index, and
+update the command count in all three places inside `index.html` (title tag,
+loading spinner text, history panel empty-state text).
 
 ---
 
-## Source file conventions (Python category files)
+## Style rules for tooltips
 
-Each category lives in a Python source file as a list of dicts:
-
-```python
-CATEGORY_NAME = [
-    {
-        "cmd": "exact command",
-        "desc": "Short imperative description",
-        "tooltip": "Beginner-friendly explanation. Define any jargon. Explain flags. "
-                   "Note when to use vs. when not to. Point out common gotchas."
-    },
-    ...
-]
-```
-
-**Style rules for tooltips:**
 - Written for a novice who may not know what flags like `-v`, `-r`, `-f` mean
 - Also useful for intermediate users — mention when a flag is dangerous or irreversible
 - 2–4 sentences maximum; avoid bullet points inside tooltips
 - Do not start with "This command..." — start with the subject directly
 - Mention related commands when helpful (e.g. "Pair this with `borg prune` to avoid unbounded growth")
 
-**Deduplication:** The merge script skips any `cmd` string already present in
-`commands.json`. If you need to update an existing entry, edit `commands.json`
-directly rather than through a source file.
+**Deduplication:** never add a `cmd` string that already exists in
+`commands.json`. To update an existing entry, edit it in place — do not add a duplicate.
 
 ---
 
@@ -117,7 +99,7 @@ directly rather than through a source file.
   `:root` block.
 - **Key CSS variables:**
   ```css
-  --color-primary          /* indigo accent */
+  --color-primary          /* accent */
   --color-bg               /* page background */
   --color-surface          /* card background */
   --color-surface-2        /* elevated surface */
@@ -144,7 +126,7 @@ directly rather than through a source file.
 |--------------------------|-------------|
 | `COMMANDS`               | Flat array of all command objects loaded from commands.json |
 | `CATEGORIES`             | Sorted array of category name strings |
-| `SEARCH_INDEX`           | TF-IDF index array loaded from search_index.json |
+| `SEARCH_INDEX`           | TF-IDF index object loaded from search_index.json |
 | `IDF`                    | IDF weight map `{ token: float }` |
 | `SYNONYMS`               | Synonym expansion map `{ word: [word, ...] }` |
 | `selectCategory(name)`   | Filters the command grid to a category; `'All'` resets |
@@ -187,7 +169,7 @@ Defined as `QS_STEPS` — an array of 8 step objects. Each step has:
 }
 ```
 
-- The `tip` field renders as a `<div class="qs-tip">` with an indigo left border
+- The `tip` field renders as a `<div class="qs-tip">` with an accent left border
 - The `why` field renders as `.qs-cmd-why` in italic below each command label
 - Steps collapse/expand; both `.qs-tip` and `.qs-cmds` are hidden when collapsed
 - Clicking a command runs `runSearch(cmd)` and closes the drawer
@@ -196,23 +178,19 @@ Defined as `QS_STEPS` — an array of 8 step objects. Each step has:
 
 ## Build pipeline
 
-When adding a new category or expanding an existing one:
+There is no build step. To add or change commands:
 
 ```bash
-# 1. Write / edit the source .py file
-# 2. Run the merge script
-python3 rebuild_commands.py      # → updates commands.json
+# 1. Edit commands.json directly (keep it pretty-printed, indent=2)
 
-# 3. Rebuild the search index
-python3 rebuild_search_index.py  # → updates search_index.json
+# 2. Rebuild the search index
+python3 scripts/rebuild_search_index.py   # → updates search_index.json
 
-# 4. Copy both JSON files to the site folder
-cp commands.json linux-glossary/
-cp search_index.json linux-glossary/
+# 3. Update the 3 count references in index.html
+#    (title tag, loading spinner text, history panel empty-state text)
+#    to match the new len(commands)
 
-# 5. Update the 3 count references in index.html (title, spinner, history empty state)
-
-# 6. Commit, push, and deploy
+# 4. Commit, push, and deploy (GitHub Pages serves from main)
 git add commands.json search_index.json index.html
 git commit -m "feat: ..."
 git push origin main
@@ -229,6 +207,7 @@ git push origin main
 - Keep all JS vanilla — no imports, no modules, no framework suggestions
 - Maintain mobile-first CSS ordering (base → `@media min-width`)
 - Preserve the sorted A–Z order of `CATEGORIES`
+- Keep `commands.json` pretty-printed (`indent=2`) — never minify it
 
 **Do not:**
 - Suggest splitting `index.html` into separate CSS/JS files
@@ -236,4 +215,5 @@ git push origin main
 - Add commands without tooltips
 - Introduce new CSS variables without adding them to `:root`
 - Change the localStorage key names (would break existing user data)
+- Recreate the old source-file merge workflow (`rebuild_commands.py`, category `.py` files)
 - Suggest frameworks (React, Vue, Alpine) for UI changes
