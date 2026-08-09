@@ -1,2 +1,2 @@
-# Local Gemini API key config — never commit this file
-gemini-config.json
+# Generated at deploy time by scripts/build_static_pages.py — never commit.
+site/
