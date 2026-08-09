@@ -50486,7 +50486,1988 @@
       "cmd": "docker compose logs -f n8n",
       "desc": "Follow n8n service logs in Compose",
       "tooltip": "Streams the logs of the n8n service, filtering out other services such as Postgres and Redis in a compose stack. Great for watching startup errors or webhook traffic live. Press Ctrl+C to stop following without stopping the services."
+    },
+    {
+      "id": 7253,
+      "category": "GitHub CLI",
+      "cmd": "gh pr create --fill --label bug --reviewer alice",
+      "desc": "Create PR from commit info with label and reviewer",
+      "tooltip": "--fill pulls the title and body from your commit messages so you skip the editor prompts. --label attaches a label by name and --reviewer requests a review from a person or team by handle. Combine these flags to create fully-specified PRs in one shot instead of editing afterwards."
+    },
+    {
+      "id": 7254,
+      "category": "GitHub CLI",
+      "cmd": "gh pr create -H feature -B main --fill",
+      "desc": "Create PR with explicit head and base branches",
+      "tooltip": "-H (head) names the branch holding your commits, overriding the current checkout. -B (base) names the branch your code merges into, so you can target main or a release branch without switching branches locally. Issue triage stays accurate because the PR is created against exactly the branch you name."
+    },
+    {
+      "id": 7255,
+      "category": "GitHub CLI",
+      "cmd": "gh pr create --draft --title 'WIP: spike' --body 'Experimental changes'",
+      "desc": "Create a draft PR with explicit title and body",
+      "tooltip": "--draft marks the pull request as a draft, signaling work-in-progress that cannot be merged yet. Drafts still run CI checks, so reviewers can comment early. Convert to a ready PR later with gh pr ready."
+    },
+    {
+      "id": 7256,
+      "category": "GitHub CLI",
+      "cmd": "gh pr list --state merged --limit 50",
+      "desc": "List recently merged pull requests",
+      "tooltip": "--state merged filters to PRs that have been merged, one of open, closed, merged, or all. --limit caps the result set at 50 rows, which keeps the output readable in a terminal. Useful for release-note mining or checking what shipped this sprint."
+    },
+    {
+      "id": 7257,
+      "category": "GitHub CLI",
+      "cmd": "gh pr list --search 'is:open label:bug'",
+      "desc": "Search open PRs with a label via query",
+      "tooltip": "--search runs a GitHub search query with qualifiers like is:open, label:, and author: instead of using fixed filters. The query syntax mirrors the web UI's issue search box. Wrap the query in quotes so the shell does not split it."
+    },
+    {
+      "id": 7258,
+      "category": "GitHub CLI",
+      "cmd": "gh pr list --author @me --draft",
+      "desc": "List your own draft pull requests",
+      "tooltip": "--author @me is a shortcut that resolves to your authenticated login, while --draft keeps only work-in-progress PRs. Use --author with a teammate's handle to audit their open work. Combine with --state to flip between open, closed, and merged."
+    },
+    {
+      "id": 7259,
+      "category": "GitHub CLI",
+      "cmd": "gh pr list --base main --head feature-x",
+      "desc": "List PRs targeting main from a feature branch",
+      "tooltip": "--base filters by the branch the PR merges into and --head by the branch the PR comes from. Together they narrow the list to a single merge path, handy when multiple release branches are active. Values are branch names, not PR numbers."
+    },
+    {
+      "id": 7260,
+      "category": "GitHub CLI",
+      "cmd": "gh pr list --json number,title,headRefName --jq '.[] | \"\\(.number) \\(.title)\"'",
+      "desc": "List PRs as custom JSON-formatted lines",
+      "tooltip": "--json selects machine-readable fields and --jq applies a jq filter to reshape them, here printing number and title per line. The jq expression runs over the array of PR objects. This pattern feeds scripts, dashboards, and other tools without parsing gh's pretty table."
+    },
+    {
+      "id": 7261,
+      "category": "GitHub CLI",
+      "cmd": "gh pr view 123 --json title,body,files",
+      "desc": "View PR metadata as JSON including changed files",
+      "tooltip": "--json returns the requested fields as a JSON object, and files expands to the list of paths the PR touches. Automate review checks by piping the output into jq. The field names match the GitHub API naming, so body is the PR description."
+    },
+    {
+      "id": 7262,
+      "category": "GitHub CLI",
+      "cmd": "gh pr view 123 --comments",
+      "desc": "View a PR including its review comments",
+      "tooltip": "--comments appends the full comment thread to the PR view, mirroring the web page's conversation tab. Each comment shows author, timestamp, and body text. Leave the flag off for a compact summary of title, state, and checks."
+    },
+    {
+      "id": 7263,
+      "category": "GitHub CLI",
+      "cmd": "gh pr view 123 --web",
+      "desc": "Open a pull request in the browser",
+      "tooltip": "--web hands the PR URL to your default browser instead of printing a terminal summary. The browser tab lands directly on the PR conversation page. Use it when the terminal view cannot show the diff context you need."
+    },
+    {
+      "id": 7264,
+      "category": "GitHub CLI",
+      "cmd": "gh pr diff 123",
+      "desc": "Show the diff of a specific pull request",
+      "tooltip": "Prints the unified diff of all commits in the PR against its base branch, without checking anything out. Accepts a PR number, URL, or branch name. Add --name-only to list changed file paths instead of full diff content."
+    },
+    {
+      "id": 7265,
+      "category": "GitHub CLI",
+      "cmd": "gh pr checkout 123 --branch review-fix",
+      "desc": "Check out a PR into a custom local branch",
+      "tooltip": "Fetches the PR's head branch and checks it out locally. --branch names the local branch, overriding the default of using the PR's head branch name, which avoids collisions when reviewing several PRs. Add --force to overwrite an existing local branch."
+    },
+    {
+      "id": 7266,
+      "category": "GitHub CLI",
+      "cmd": "gh pr merge 123 --squash --delete-branch",
+      "desc": "Squash-merge a PR and delete its branch",
+      "tooltip": "--squash collapses all commits into one before merging, keeping history tidy. --delete-branch removes both the remote and local branch after the merge completes. The merge only happens when required checks pass unless you add --auto or --admin."
+    },
+    {
+      "id": 7267,
+      "category": "GitHub CLI",
+      "cmd": "gh pr merge 123 --rebase --auto",
+      "desc": "Auto-merge a PR once checks pass",
+      "tooltip": "--rebase replays the PR commits onto the base branch without a merge commit. --auto schedules the merge so GitHub applies it automatically the moment required checks pass, ideal for unattended CI. Verify mergeable state with gh pr view before relying on it."
+    },
+    {
+      "id": 7268,
+      "category": "GitHub CLI",
+      "cmd": "gh pr merge 123 --merge --admin",
+      "desc": "Force-merge a PR with admin privileges",
+      "tooltip": "--merge creates a standard merge commit while --admin uses repository administrator powers to merge even when required checks fail. Bypassing checks is risky and should be reserved for hotfixes where failure is understood. The merge is recorded with admin as the actor."
+    },
+    {
+      "id": 7269,
+      "category": "GitHub CLI",
+      "cmd": "gh pr ready 123 --undo",
+      "desc": "Convert a ready PR back to draft",
+      "tooltip": "gh pr ready flips a draft PR to ready-for-review, and --undo reverses the direction, returning a PR to draft status. Reverting to draft removes it from reviewers' queues. Useful when a PR regresses and needs more work before review."
+    },
+    {
+      "id": 7270,
+      "category": "GitHub CLI",
+      "cmd": "gh pr edit 123 --add-label 'needs-review'",
+      "desc": "Add a label to a pull request",
+      "tooltip": "--add-label attaches labels by name without opening the browser. Labels drive filtering and issue triage automation, so tagging needs-review routes the PR into review workflows. Multiple labels can be comma-separated in one flag value."
+    },
+    {
+      "id": 7271,
+      "category": "GitHub CLI",
+      "cmd": "gh pr edit 123 --remove-label 'wip'",
+      "desc": "Remove a label from a pull request",
+      "tooltip": "--remove-label detaches the named label from the PR, for example clearing wip once the code is ready. Labels only match exact names, so confirm spelling with gh label list. Combine --add-label and --remove-label in one command to re-tag in a single call."
+    },
+    {
+      "id": 7272,
+      "category": "GitHub CLI",
+      "cmd": "gh pr close 123 --comment 'Superseded by #9'",
+      "desc": "Close a PR with an explanatory comment",
+      "tooltip": "Closes the pull request without merging, and --comment leaves a closing note explaining why, such as pointing to a replacement PR. Closed PRs stay visible for history but drop out of open lists. Add --delete-branch to also clean up the head branch."
+    },
+    {
+      "id": 7273,
+      "category": "GitHub CLI",
+      "cmd": "gh pr comment 123 --body-file review.md",
+      "desc": "Comment on a PR with text from a file",
+      "tooltip": "--body-file reads the comment body from a file, handy for long, formatted review notes prepared in an editor. Use a dash (-) as the file to read the body from standard input. Existing comments stay untouched unless you pass --edit-last."
+    },
+    {
+      "id": 7274,
+      "category": "GitHub CLI",
+      "cmd": "gh pr review 123 --approve",
+      "desc": "Approve a pull request",
+      "tooltip": "Submits an approving review for the PR, which counts toward required review checks. Approval signals the code is ready to merge from your perspective. Add --body to include review notes alongside the approval."
+    },
+    {
+      "id": 7275,
+      "category": "GitHub CLI",
+      "cmd": "gh pr review 123 --request-changes --body 'fix tests'",
+      "desc": "Request changes on a PR with a reason",
+      "tooltip": "--request-changes submits a review that blocks merging until the author responds, and --body explains what must change. This is the polite way to reject a PR while leaving actionable feedback. The PR stays open but shows changes-requested status."
+    },
+    {
+      "id": 7276,
+      "category": "GitHub CLI",
+      "cmd": "gh pr review 123 --comment --body 'LGTM, one nit'",
+      "desc": "Leave an inline-style review comment",
+      "tooltip": "--comment submits a general review comment without approving or blocking, distinct from --approve and --request-changes. It is the neutral review type for observations that do not gate the merge. Pair with --body for the message text."
+    },
+    {
+      "id": 7277,
+      "category": "GitHub CLI",
+      "cmd": "gh pr checks 123",
+      "desc": "Show CI check status for a PR",
+      "tooltip": "Lists every status check, workflow run, and review requirement attached to the PR with its state. Required checks are flagged so you see what blocks merging. Add --watch to poll until checks finish, or --fail-fast to exit on the first failure."
+    },
+    {
+      "id": 7278,
+      "category": "GitHub CLI",
+      "cmd": "gh pr checks 123 --watch",
+      "desc": "Watch PR checks until they complete",
+      "tooltip": "--watch polls check status repeatedly and streams updates as runs finish, like following a build to completion. The command exits when every check settles, so scripts can gate on the result. Combine with --interval to tune how often it polls."
+    },
+    {
+      "id": 7279,
+      "category": "GitHub CLI",
+      "cmd": "gh pr lock 123 --reason resolved",
+      "desc": "Lock a PR conversation",
+      "tooltip": "Locks the PR so only maintainers can comment, and --reason records why: off_topic, too_heated, resolved, or spam. Locking stops drive-by noise on settled discussions. Reverse it with gh pr unlock."
+    },
+    {
+      "id": 7280,
+      "category": "GitHub CLI",
+      "cmd": "gh pr unlock 123",
+      "desc": "Unlock a PR conversation",
+      "tooltip": "Removes a previous conversation lock so everyone can comment again. Use it when a locked PR needs fresh maintainer or contributor input. Lock state is per-PR and independent of merge state."
+    },
+    {
+      "id": 7281,
+      "category": "GitHub CLI",
+      "cmd": "gh pr update-branch 123 --rebase",
+      "desc": "Update a PR branch against its base",
+      "tooltip": "Merges or rebases the base branch into the PR's head branch so the diff is current. --rebase replays your commits on top of the base instead of creating a merge commit. Useful before merging when the base moved on and conflicts are trivial."
+    },
+    {
+      "id": 7282,
+      "category": "GitHub CLI",
+      "cmd": "gh issue list --assignee @me",
+      "desc": "List issues assigned to you",
+      "tooltip": "--assignee @me resolves to your login and filters the list to issues you own. This is the go-to command for your personal work queue during issue triage. Pass a teammate's handle to see their load instead."
+    },
+    {
+      "id": 7283,
+      "category": "GitHub CLI",
+      "cmd": "gh issue list --label bug --milestone 'v2.0'",
+      "desc": "List bug issues in a milestone",
+      "tooltip": "Combines --label and --milestone filters so only issues tagged bug within milestone v2.0 appear. Milestones group issues toward a release, and labels categorize them. Useful for sprint scoping when planning what must ship."
+    },
+    {
+      "id": 7284,
+      "category": "GitHub CLI",
+      "cmd": "gh issue list --search 'is:open label:bug' --limit 30",
+      "desc": "Search open bug issues with a query",
+      "tooltip": "--search runs full issue search syntax, here matching open issues labeled bug. Search supports qualifiers label:, assignee:, milestone:, and sort:. --limit caps output at 30. Filtering this way beats stacking many --label flags."
+    },
+    {
+      "id": 7285,
+      "category": "GitHub CLI",
+      "cmd": "gh issue list --web",
+      "desc": "Open the issue list in the browser",
+      "tooltip": "--web opens the repository's issue tracker in your default browser with the current filters applied. Useful when you need the full web UI for bulk operations or saved views. The terminal list remains the faster path for simple queries."
+    },
+    {
+      "id": 7286,
+      "category": "GitHub CLI",
+      "cmd": "gh issue view 5 --comments",
+      "desc": "View an issue with its comment thread",
+      "tooltip": "Prints the issue title, body, state, labels, and --comments appends the full discussion. Each comment shows author and timestamp, mirroring the web conversation. Leave the flag off for a compact metadata summary."
+    },
+    {
+      "id": 7287,
+      "category": "GitHub CLI",
+      "cmd": "gh issue view 5 --json number,title,labels,assignees",
+      "desc": "View issue fields as JSON for scripting",
+      "tooltip": "--json emits only the requested fields so scripts can consume them, with labels and assignees as nested arrays. Pipe into jq to build custom reports. Field names follow the GitHub API, so title is the issue's summary line."
+    },
+    {
+      "id": 7288,
+      "category": "GitHub CLI",
+      "cmd": "gh issue edit 5 --add-label triage",
+      "desc": "Add a triage label to an issue",
+      "tooltip": "--add-label attaches the triage label, marking the issue as processed during issue triage workflows. Labels organize issues without changing state. Use --remove-label to strip stale tags and --milestone to slot it into a release."
+    },
+    {
+      "id": 7289,
+      "category": "GitHub CLI",
+      "cmd": "gh issue edit 5 --add-assignee @me --remove-label 'needs-triage'",
+      "desc": "Self-assign an issue and clear its triage label",
+      "tooltip": "Combines --add-assignee @me with --remove-label needs-triage in one call, claiming the issue and signaling it is being worked. @me expands to your login. This two-step triage dance happens constantly, so batching it saves a round trip."
+    },
+    {
+      "id": 7290,
+      "category": "GitHub CLI",
+      "cmd": "gh issue close 5 --comment 'fixed in #10'",
+      "desc": "Close an issue with a resolution note",
+      "tooltip": "Closes the issue and --comment leaves a note, here pointing at the PR that fixed it. Closing without a comment loses context for future readers. Use --duplicate-of to fold it into another issue instead of closing standalone."
+    },
+    {
+      "id": 7291,
+      "category": "GitHub CLI",
+      "cmd": "gh issue close 5 --duplicate-of 12",
+      "desc": "Close an issue as a duplicate",
+      "tooltip": "--duplicate-of 12 closes issue 5 and links it as a duplicate of issue 12, consolidating triage noise into one canonical thread. GitHub shows a banner pointing readers at the original. Prefer this over closing duplicates with no pointer."
+    },
+    {
+      "id": 7292,
+      "category": "GitHub CLI",
+      "cmd": "gh issue lock 5 --reason spam",
+      "desc": "Lock an issue conversation",
+      "tooltip": "Locks the issue so only maintainers can comment, with --reason spam recorded for audit. Locking is the standard response to off-topic or abusive threads during issue triage. Unlock with gh issue unlock once the situation resolves."
+    },
+    {
+      "id": 7293,
+      "category": "GitHub CLI",
+      "cmd": "gh issue unlock 5",
+      "desc": "Unlock an issue conversation",
+      "tooltip": "Removes the conversation lock, letting everyone comment again. Locking is reversible, so restoring discussion is one command away. Lock state is independent of open or closed status."
+    },
+    {
+      "id": 7294,
+      "category": "GitHub CLI",
+      "cmd": "gh issue unpin 5",
+      "desc": "Unpin an issue from the repo top",
+      "tooltip": "Removes an issue from the pinned list shown at the top of the issue tracker. Pinned issues stay prominent, so unpin once the milestone ships or the thread goes stale. The issue itself remains open and fully searchable."
+    },
+    {
+      "id": 7295,
+      "category": "GitHub CLI",
+      "cmd": "gh issue develop 5 --name fix-issue-5",
+      "desc": "Create a dev branch for an issue",
+      "tooltip": "Creates a local branch wired to issue 5 so commits reference it, and --name sets the branch name, defaulting to issue-5. Add --checkout to switch to the branch immediately. This keeps development tied to triage-tracked work items."
+    },
+    {
+      "id": 7296,
+      "category": "GitHub CLI",
+      "cmd": "gh issue comment 5 --edit-last --body 'Updated repro steps'",
+      "desc": "Replace your last comment on an issue",
+      "tooltip": "Posts a comment and --edit-last rewrites your most recent comment instead of appending, keeping threads tidy when details change. The body replaces the old text entirely. Use --delete-last to remove your previous comment instead."
+    },
+    {
+      "id": 7297,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow list --all",
+      "desc": "List every workflow including disabled ones",
+      "tooltip": "Shows all workflow files in the repo; --all includes disabled and hidden workflows that the default view omits. Each row shows the workflow ID, name, and enabled state. Use the ID with gh workflow enable or disable to toggle without typing the filename."
+    },
+    {
+      "id": 7298,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow enable 654321",
+      "desc": "Re-enable a disabled workflow by ID",
+      "tooltip": "Turns a disabled workflow back on so it runs on its triggers again. The numeric ID comes from gh workflow list --json id and is more stable than a renamed file. Disabled workflows show in gh workflow list --all with a disabled badge."
+    },
+    {
+      "id": 7299,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow disable 654321",
+      "desc": "Disable a workflow by ID",
+      "tooltip": "Stops a workflow from triggering on pushes, schedules, or manual runs without deleting its file. The numeric ID avoids filename ambiguity after renames. Re-enable anytime with gh workflow enable."
+    },
+    {
+      "id": 7300,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow run build.yml --ref main",
+      "desc": "Manually trigger a workflow on a branch",
+      "tooltip": "Dispatches a workflow_dispatch run of build.yml, and --ref selects the branch or tag the workflow runs against. Only workflows with a workflow_dispatch trigger accept manual runs. Use this to kick off builds without pushing a commit."
+    },
+    {
+      "id": 7301,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow run deploy.yml -f env=prod",
+      "desc": "Trigger a workflow with an input value",
+      "tooltip": "-f passes an input to the workflow in key=value form, here env=prod, which the workflow reads via inputs.env. Inputs must be declared in the workflow's workflow_dispatch section. Repeat -f to pass several inputs, or --json for typed values."
+    },
+    {
+      "id": 7302,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow run release.yml --ref v1.2.0 -f version=1.2.0",
+      "desc": "Trigger a release workflow on a tag with input",
+      "tooltip": "Combines --ref v1.2.0 to run against the tag with -f version=1.2.0 to feed the workflow the version string. Tag-triggered release pipelines often need the version echoed as an input. Confirm the workflow accepts the input before dispatching."
+    },
+    {
+      "id": 7303,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow view build.yml --yaml",
+      "desc": "Print a workflow's YAML definition",
+      "tooltip": "Displays the workflow file content instead of its run history. --yaml renders the raw definition, useful for reviewing triggers, jobs, and steps before editing. Without the flag, gh shows recent runs of the workflow."
+    },
+    {
+      "id": 7304,
+      "category": "GitHub CLI",
+      "cmd": "gh workflow view build.yml --web",
+      "desc": "Open a workflow's page in the browser",
+      "tooltip": "--web opens the workflow's dashboard in the default browser, showing its run history and YAML. Useful when you want the visual run timeline and logs. Terminal users get the same recent runs from gh run list --workflow."
+    },
+    {
+      "id": 7305,
+      "category": "GitHub CLI",
+      "cmd": "gh run list --workflow build.yml --branch main",
+      "desc": "List runs of one workflow on one branch",
+      "tooltip": "Narrows run history to a single workflow file and branch, cutting through noise on busy repos. --workflow accepts a filename or ID, --branch a branch name. Add --status to filter further, e.g. failure, for quick triage."
+    },
+    {
+      "id": 7306,
+      "category": "GitHub CLI",
+      "cmd": "gh run list --status failure --limit 10",
+      "desc": "List the most recent failed runs",
+      "tooltip": "--status failure filters to runs that ended in failure, and --limit 10 caps the list. This is the fastest way to find broken CI. Other status values include success, cancelled, in_progress, and timed_out."
+    },
+    {
+      "id": 7307,
+      "category": "GitHub CLI",
+      "cmd": "gh run view 123 --web",
+      "desc": "Open a workflow run in the browser",
+      "tooltip": "--web opens the run's page in the default browser, where logs, jobs, and artifacts are fully interactive. Terminal log tailing still works via gh run view --log. Use the web view when you need to retry individual failed jobs by clicking."
+    },
+    {
+      "id": 7308,
+      "category": "GitHub CLI",
+      "cmd": "gh run view 123 --job 424242 --log-failed",
+      "desc": "View failed logs of one job in a run",
+      "tooltip": "--job 424242 targets a specific job inside the run, and --log-failed prints only the failed steps' logs. Job IDs come from gh run view 123 --json jobs. This isolates the failing step without wading through the whole run log."
+    },
+    {
+      "id": 7309,
+      "category": "GitHub CLI",
+      "cmd": "gh run watch 123 --exit-status",
+      "desc": "Watch a run and exit with its status",
+      "tooltip": "Polls the run until it finishes, streaming progress. --exit-status makes the command exit nonzero if the run failed, so CI wrapper scripts can gate on the result. Without it, gh always exits zero after watching."
+    },
+    {
+      "id": 7310,
+      "category": "GitHub CLI",
+      "cmd": "gh run rerun 123 --job 424242",
+      "desc": "Rerun a single failed job",
+      "tooltip": "Re-executes one job of a run instead of the whole pipeline, saving time and compute when only that job failed. --job takes the job ID shown by gh run view. The rerun counts as a new attempt on the same run."
+    },
+    {
+      "id": 7311,
+      "category": "GitHub CLI",
+      "cmd": "gh run download 123 --pattern '*.tar.gz' --dir dist/",
+      "desc": "Download run artifacts matching a pattern",
+      "tooltip": "Downloads artifacts uploaded by the run's jobs into dist/, with --pattern filtering to files matching the glob. Artifacts are the files jobs upload for later use, such as build outputs. Without --pattern, every artifact of the run downloads."
+    },
+    {
+      "id": 7312,
+      "category": "GitHub CLI",
+      "cmd": "gh secret list --env production",
+      "desc": "List secrets scoped to an environment",
+      "tooltip": "Shows secrets configured for the production environment, separate from repository-level secrets. Environments are protected scopes where secrets override repo-level values. Omit --env to list repository secrets instead."
+    },
+    {
+      "id": 7313,
+      "category": "GitHub CLI",
+      "cmd": "gh secret set MY_SECRET --env production --body 'supersecret'",
+      "desc": "Set an environment-scoped secret",
+      "tooltip": "Creates or updates MY_SECRET inside the production environment, and --body supplies the value non-interactively for scripting. Environment secrets are visible only to jobs referencing that environment. Prefer this over repo-wide secrets for deployment credentials."
+    },
+    {
+      "id": 7314,
+      "category": "GitHub CLI",
+      "cmd": "gh secret set MY_SECRET --org myorg --visibility selected --repos myapp,myapp-api",
+      "desc": "Set an org secret for selected repositories",
+      "tooltip": "Creates an organization-level secret shared across repositories, with --visibility selected limiting it to the repos in --repos. Visibility choices are all, private, or selected. Org secrets ease rotation: update once, and every permitted repo sees the new value."
+    },
+    {
+      "id": 7315,
+      "category": "GitHub CLI",
+      "cmd": "gh secret delete MY_SECRET --env production",
+      "desc": "Delete an environment-scoped secret",
+      "tooltip": "Removes MY_SECRET from the production environment, breaking any workflow that references it, so confirm nothing depends on it first. --env scopes the deletion to that environment. Without --env, the repo-level secret is removed."
+    },
+    {
+      "id": 7316,
+      "category": "GitHub CLI",
+      "cmd": "gh variable list --env production",
+      "desc": "List variables for an environment",
+      "tooltip": "Shows plaintext variables, not secrets, configured for the production environment. Variables hold non-sensitive config like URLs or feature flags, while secrets hold values that must stay hidden. Omit --env to list repository variables."
+    },
+    {
+      "id": 7317,
+      "category": "GitHub CLI",
+      "cmd": "gh variable set MY_VAR --env production --body 'https://api.example.com'",
+      "desc": "Set an environment-scoped variable",
+      "tooltip": "Creates or updates MY_VAR for the production environment with the given plaintext value. Unlike secrets, variable values appear in plain in workflow logs when referenced. Environment variables override repo-level ones of the same name."
+    },
+    {
+      "id": 7318,
+      "category": "GitHub CLI",
+      "cmd": "gh variable set MY_VAR --org myorg --body 'value' --visibility selected --repos myapp",
+      "desc": "Set an org variable for selected repos",
+      "tooltip": "Creates an organization-level variable shared across repositories, with --visibility selected restricting it to the repos listed in --repos. Org variables centralize config like shared registry URLs. Values are stored as plaintext."
+    },
+    {
+      "id": 7319,
+      "category": "GitHub CLI",
+      "cmd": "gh variable delete MY_VAR --env production",
+      "desc": "Delete an environment-scoped variable",
+      "tooltip": "Removes MY_VAR from the production environment, so any workflow reading it must supply a fallback or fail. --env targets the environment; without it the repo-level variable is deleted. Deleting is immediate and not recoverable via gh."
+    },
+    {
+      "id": 7320,
+      "category": "GitHub CLI",
+      "cmd": "gh release create v1.1.0 --generate-notes --target main",
+      "desc": "Create a release with auto-generated notes",
+      "tooltip": "Creates release v1.1.0 from the tag, and --generate-notes has GitHub draft the changelog from merged PRs and commits since the last release. --target pins the branch or SHA the release builds from. Edit the auto notes before publishing if they need polish."
+    },
+    {
+      "id": 7321,
+      "category": "GitHub CLI",
+      "cmd": "gh release create v1.1.0 --title 'v1.1.0' --notes-file CHANGELOG.md",
+      "desc": "Create a release with notes from a file",
+      "tooltip": "--title sets the release heading while --notes-file reads the body from CHANGELOG.md, keeping long release notes out of the command line. The file's content becomes the release description verbatim. This is the standard flow for hand-maintained changelogs."
+    },
+    {
+      "id": 7322,
+      "category": "GitHub CLI",
+      "cmd": "gh release create v2.0.0-rc.1 --prerelease dist/*.tar.gz",
+      "desc": "Create a prerelease with artifacts attached",
+      "tooltip": "--prerelease marks the release as a release candidate so it is not flagged as the latest stable version, and the file arguments upload dist/*.tar.gz as assets. Prereleases stay clearly labeled in the releases list. Promote later with gh release edit --latest."
+    },
+    {
+      "id": 7323,
+      "category": "GitHub CLI",
+      "cmd": "gh release create v1.1.0 --draft --generate-notes",
+      "desc": "Create a draft release with generated notes",
+      "tooltip": "--draft creates the release without publishing it, visible only to maintainers, and --generate-notes prefills the body from merged PRs. Drafts let you review notes and assets before going public. Publish by editing --draft=false or via the web UI."
+    },
+    {
+      "id": 7324,
+      "category": "GitHub CLI",
+      "cmd": "gh release upload v1.1.0 dist/app.zip --clobber",
+      "desc": "Upload an asset replacing same-name files",
+      "tooltip": "Attaches dist/app.zip to release v1.1.0, and --clobber overwrites any existing asset with the same filename instead of erroring. Re-uploading without --clobber fails if the name is taken. Assets are the downloadable binaries, archives, and checksums of a release."
+    },
+    {
+      "id": 7325,
+      "category": "GitHub CLI",
+      "cmd": "gh release download v1.1.0 --pattern '*.tar.gz' --dir /tmp/releases",
+      "desc": "Download release assets matching a glob",
+      "tooltip": "Downloads matching assets from release v1.1.0 into /tmp/releases. --pattern filters files by glob, handy when a release carries several formats. Without --dir, files land in the current directory. Add --clobber to overwrite existing files."
+    },
+    {
+      "id": 7326,
+      "category": "GitHub CLI",
+      "cmd": "gh release download v1.1.0 --archive tar.gz",
+      "desc": "Download the source archive of a release",
+      "tooltip": "--archive tar.gz fetches the source code snapshot GitHub generates for the release, not an uploaded asset. Choose zip or tar.gz. This is the canonical way to get the exact code of a tagged version for auditing or vendoring."
+    },
+    {
+      "id": 7327,
+      "category": "GitHub CLI",
+      "cmd": "gh release view v1.1.0 --json tagName,assets,publishedAt",
+      "desc": "View release metadata as JSON",
+      "tooltip": "--json returns release fields such as tagName, assets, and publishedAt for scripts. assets expands to an array of attached files with sizes and download counts. Pair with --jq to shape the output into reports or CI checks."
+    },
+    {
+      "id": 7328,
+      "category": "GitHub CLI",
+      "cmd": "gh release view v1.1.0 --web",
+      "desc": "Open a release page in the browser",
+      "tooltip": "--web opens the release's public page, where assets, notes, and download buttons are rendered. Use it to double-check what users will see. The terminal view shows the same metadata as text."
+    },
+    {
+      "id": 7329,
+      "category": "GitHub CLI",
+      "cmd": "gh release list --limit 20",
+      "desc": "List the 20 most recent releases",
+      "tooltip": "Shows recent releases with tag, title, and date. --limit caps the list at 20 rows for terminal readability. Add --exclude-drafts and --exclude-pre-releases to show only stable, published releases."
+    },
+    {
+      "id": 7330,
+      "category": "GitHub CLI",
+      "cmd": "gh release list --exclude-drafts --exclude-pre-releases --limit 10",
+      "desc": "List only published stable releases",
+      "tooltip": "Filters out draft and prerelease entries so only fully published releases remain, capped at 10. Useful for changelogs and release dashboards where unstable versions would pollute the list. Compare with --json to script the filtered set."
+    },
+    {
+      "id": 7331,
+      "category": "GitHub CLI",
+      "cmd": "gh release edit v1.1.0 --latest --title 'v1.1.0 stable'",
+      "desc": "Mark a release as latest and retitle it",
+      "tooltip": "--latest promotes the release to be the newest stable release GitHub recommends, useful after promoting a release candidate, and --title rewrites its heading. The body and assets stay untouched. Demoting is done with --latest=false."
+    },
+    {
+      "id": 7332,
+      "category": "GitHub CLI",
+      "cmd": "gh release delete v1.1.0 --cleanup-tag --yes",
+      "desc": "Delete a release and its tag",
+      "tooltip": "Permanently removes release v1.1.0; --cleanup-tag also deletes the git tag it points to, and --yes skips the confirmation prompt. Deleting a release breaks download links and, with --cleanup-tag, the tag, so verify nothing references it. This action cannot be undone."
+    },
+    {
+      "id": 7333,
+      "category": "GitHub CLI",
+      "cmd": "gh api user/packages?package_type=container --jq '.[].name'",
+      "desc": "List your container packages via API",
+      "tooltip": "Queries the REST endpoint for packages owned by your account, filtering to container images, and --jq prints each package name. Packages are images and libraries published under your user or org. Listing via gh api unlocks filters the gh CLI has no native command for."
+    },
+    {
+      "id": 7334,
+      "category": "GitHub CLI",
+      "cmd": "gh api user/packages/container/myapp/versions --jq '.[].id'",
+      "desc": "List versions of a container package",
+      "tooltip": "Hits the package versions endpoint and prints each version ID, the handle used to delete or inspect individual image versions. Container images accumulate versions on every push. Combine with DELETE on the same endpoint to prune old images."
+    },
+    {
+      "id": 7335,
+      "category": "GitHub CLI",
+      "cmd": "gh repo create myorg/webapp --private --add-readme --clone",
+      "desc": "Create a private repo with README and clone it",
+      "tooltip": "Creates myorg/webapp under your organization, --private sets visibility, --add-readme seeds the repository with a README, and --clone checks it out locally afterwards. One command replaces several web clicks. Swap --private for --internal or --public as needed."
+    },
+    {
+      "id": 7336,
+      "category": "GitHub CLI",
+      "cmd": "gh repo create webapp --template owner/express-starter --public",
+      "desc": "Create a repo from a template",
+      "tooltip": "--template owner/express-starter scaffolds the new repository from the template's files and history, and --public sets visibility. Template repos copy starter code, CI, and docs so every new project starts consistent. Omit --clone to skip the local checkout."
+    },
+    {
+      "id": 7337,
+      "category": "GitHub CLI",
+      "cmd": "gh repo list myorg --archived --limit 50",
+      "desc": "List archived repos in an organization",
+      "tooltip": "Lists repositories owned by myorg, --archived filters to archived ones, and --limit caps output at 50. Archived repos are read-only and useful to audit for cleanup or reference. Drop --archived or add --no-archived to flip the filter."
+    },
+    {
+      "id": 7338,
+      "category": "GitHub CLI",
+      "cmd": "gh repo list --topic hacktoberfest --limit 30",
+      "desc": "List repos tagged with a topic",
+      "tooltip": "--topic hacktoberfest filters repositories by their topic tags, which are community-applied keywords on the repo page. --limit 30 keeps the table short. Combine with --language to narrow by stack. Great for finding repos participating in events."
+    },
+    {
+      "id": 7339,
+      "category": "GitHub CLI",
+      "cmd": "gh repo view owner/repo --json name,description,stargazerCount",
+      "desc": "View repo metadata as JSON",
+      "tooltip": "Fetches repository fields such as name, description, and stargazerCount as JSON for scripting. stargazerCount is the star total, a rough popularity signal. Add --jq to format or filter the fields further."
+    },
+    {
+      "id": 7340,
+      "category": "GitHub CLI",
+      "cmd": "gh repo edit owner/repo --description 'CLI tool' --homepage https://example.com",
+      "desc": "Edit repo description and homepage",
+      "tooltip": "Updates the repository's description and homepage URL in one call, both of which appear on the repo's public page. The --repo flag can target any repo you can write to. Other editable fields include topics, visibility, and merge settings."
+    },
+    {
+      "id": 7341,
+      "category": "GitHub CLI",
+      "cmd": "gh repo edit --delete-branch-on-merge=true",
+      "desc": "Auto-delete head branches on merge",
+      "tooltip": "Turns on delete-branch-on-merge for the current repository so merged PR branches are cleaned up automatically. Set to false to disable. This is a repo-level setting that keeps the branch list tidy with zero manual work."
+    },
+    {
+      "id": 7342,
+      "category": "GitHub CLI",
+      "cmd": "gh repo sync owner/repo --source upstream/repo",
+      "desc": "Sync a fork from its upstream",
+      "tooltip": "Pulls commits from --source upstream/repo into owner/repo, keeping a fork current with the project it derives from. Without --source, gh syncs from the fork's configured parent. Add --force to discard local diverging commits."
+    },
+    {
+      "id": 7343,
+      "category": "GitHub CLI",
+      "cmd": "gh repo fork owner/repo --fork-name myapp-copy",
+      "desc": "Fork a repo under a different name",
+      "tooltip": "Creates a fork of owner/repo and --fork-name names it myapp-copy, useful when the original name is taken or you want a distinct copy. The fork lands in your account by default. Add --clone to check it out locally right away."
+    },
+    {
+      "id": 7344,
+      "category": "GitHub CLI",
+      "cmd": "gh repo fork owner/repo --default-branch-only",
+      "desc": "Fork only the default branch",
+      "tooltip": "Creates a fork containing just the repository's default branch instead of every branch, saving storage and clone time. Ideal when you only need the mainline for contributions. Branches can be fetched from the original later if needed."
+    },
+    {
+      "id": 7345,
+      "category": "GitHub CLI",
+      "cmd": "gh repo set-default",
+      "desc": "Choose the default repo for gh commands",
+      "tooltip": "Prompts you to pick which repository subsequent gh commands should assume when none is specified. The choice is saved per-directory, so each project can pin its own repo. View the current selection with --view or clear it with --unset."
+    },
+    {
+      "id": 7346,
+      "category": "GitHub CLI",
+      "cmd": "gh repo clone owner/repo -- --depth 1",
+      "desc": "Shallow-clone a repo via git passthrough",
+      "tooltip": "Everything after the -- is forwarded to git clone, here --depth 1 for a shallow checkout with no history. Pass any git flag this way, such as --branch or --filter. Shallow clones are much faster for large repositories."
+    },
+    {
+      "id": 7347,
+      "category": "GitHub CLI",
+      "cmd": "gh repo rename -R owner/repo myapp-v2 --yes",
+      "desc": "Rename a repository",
+      "tooltip": "Renames owner/repo to myapp-v2; -R targets a specific repo and --yes skips the confirmation prompt. Renaming changes the URL, breaking existing clones and bookmarks, so update remotes afterwards with git remote set-url. The old URL redirects for a while."
+    },
+    {
+      "id": 7348,
+      "category": "GitHub CLI",
+      "cmd": "gh gist create - -w",
+      "desc": "Create a gist from stdin and open it",
+      "tooltip": "The dash positional reads gist content from standard input, so you can pipe output from any command into it. -w opens the newly created gist in the browser. By default gists are secret; add --public to share them."
+    },
+    {
+      "id": 7349,
+      "category": "GitHub CLI",
+      "cmd": "gh gist create script.py --public --desc 'Deploy helper'",
+      "desc": "Create a public gist with a description",
+      "tooltip": "Uploads script.py as a gist, --public makes it visible to anyone with the URL, and --desc attaches a short description. Gists are lightweight code snippets with their own git history. Secret gists remain private but are not encrypted."
+    },
+    {
+      "id": 7350,
+      "category": "GitHub CLI",
+      "cmd": "gh gist edit 1234 --add notes.md",
+      "desc": "Add a file to an existing gist",
+      "tooltip": "--add notes.md appends a new file to gist 1234, letting a gist grow from a snippet into a small project. The file content is read from your working directory. Remove files again with --remove."
+    },
+    {
+      "id": 7351,
+      "category": "GitHub CLI",
+      "cmd": "gh gist edit 1234 --remove old.txt",
+      "desc": "Remove a file from a gist",
+      "tooltip": "--remove old.txt deletes that file from gist 1234, updating the gist's content set without recreating it. Gist edits are recorded in the gist's revision history. Pair --add and --remove in one command to restructure a gist in a single step."
+    },
+    {
+      "id": 7352,
+      "category": "GitHub CLI",
+      "cmd": "gh gist list --public",
+      "desc": "List only your public gists",
+      "tooltip": "Shows your public gists, with --public filtering out secret ones. The list shows each gist's description, filename, and visibility. Add --limit to cap rows, or --secret to list only private gists."
+    },
+    {
+      "id": 7353,
+      "category": "GitHub CLI",
+      "cmd": "gh gist list --secret --limit 50",
+      "desc": "List your secret gists",
+      "tooltip": "--secret filters to gists only you can see, capped at 50 rows. Secret gists are private-by-URL but not encrypted, so avoid sensitive data. The default listing mixes both visibilities."
+    },
+    {
+      "id": 7354,
+      "category": "GitHub CLI",
+      "cmd": "gh gist view 1234 --files script.py",
+      "desc": "View one file inside a gist",
+      "tooltip": "Prints the contents of script.py from gist 1234. --files selects specific files when a gist holds several, avoiding a long concatenated dump. Without it, all files print in sequence."
+    },
+    {
+      "id": 7355,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace create --repo owner/repo --branch main",
+      "desc": "Create a codespace for a repo and branch",
+      "tooltip": "Provisions a new codespace, a cloud-hosted dev environment, for owner/repo on branch main. Codespaces run in a container configured by devcontainer.json. The machine type defaults sensibly; tune it with --machine."
+    },
+    {
+      "id": 7356,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace create --repo owner/repo --branch main --machine standardLinux32gb",
+      "desc": "Create a codespace with a specific machine",
+      "tooltip": "Adds --machine standardLinux32gb to request a 32 GB RAM instance, matching the machine names shown by gh codespace list or the web UI. Bigger machines cost more, so pick by workload. The codespace is ready to connect via ssh, code, or the web."
+    },
+    {
+      "id": 7357,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace ssh -c cs-name",
+      "desc": "SSH into a running codespace",
+      "tooltip": "-c names the codespace to connect to, as shown by gh codespace list. This drops you into a shell inside the container, identical to SSHing to a VM. Codespace names look like yourname-project-random; omit -c to pick interactively."
+    },
+    {
+      "id": 7358,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace ports -c cs-name",
+      "desc": "List forwarded ports of a codespace",
+      "tooltip": "Shows which ports inside the codespace are forwarded to your local machine and their visibility. Forwarding lets you reach dev servers running in the container via localhost. Change visibility with gh codespace ports visibility."
+    },
+    {
+      "id": 7359,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace ports visibility 3000:public -c cs-name",
+      "desc": "Expose a codespace port publicly",
+      "tooltip": "Sets port 3000's visibility to public so anyone with the URL can reach the forwarded service, not just you. Choices are public, private, and org. Public exposure is for demos; keep development ports private."
+    },
+    {
+      "id": 7360,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace delete -c cs-name",
+      "desc": "Delete a codespace",
+      "tooltip": "Permanently removes the named codespace, including its container filesystem and any uncommitted work inside it, so commit or push first. Deleted codespaces cannot be restored. Add --force to skip the confirmation prompt."
+    },
+    {
+      "id": 7361,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace stop -c cs-name",
+      "desc": "Stop a running codespace",
+      "tooltip": "Shuts down the codespace's container, stopping compute charges while preserving its filesystem. Start it again on next connection. -c targets a specific codespace; without it you pick from a list."
+    },
+    {
+      "id": 7362,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace logs -c cs-name --follow",
+      "desc": "Stream a codespace's logs",
+      "tooltip": "Prints the codespace's container logs, and --follow tails them live like tail -f. Useful when a devcontainer fails to build or a service crashes at startup. The logs come from the codespace's lifecycle and application output."
+    },
+    {
+      "id": 7363,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace rebuild -c cs-name --full",
+      "desc": "Fully rebuild a codespace container",
+      "tooltip": "Rebuilds the codespace's dev container from its definition, and --full skips cached layers for a clean build. Use it when devcontainer.json changes or the environment is corrupted. A rebuild recreates the container but keeps your files."
+    },
+    {
+      "id": 7364,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace view -c cs-name --json state,idleTimeoutMinutes",
+      "desc": "View codespace status as JSON",
+      "tooltip": "--json returns machine-readable fields like state, which is Available, Shutdown, or Building, and idleTimeoutMinutes, the idle limit before auto-stop. Pair with --jq for monitoring scripts. State tells you whether the codespace is ready to connect."
+    },
+    {
+      "id": 7365,
+      "category": "GitHub CLI",
+      "cmd": "gh codespace list --json name,repository,state",
+      "desc": "List codespaces as JSON",
+      "tooltip": "Lists your codespaces with --json fields name, repository, and state for scripting. Field names come from the codespace API, so repository is the owning repo. Add --repo to filter by project or --limit to cap rows."
+    },
+    {
+      "id": 7366,
+      "category": "GitHub CLI",
+      "cmd": "gh extension install github/gh-copilot --force",
+      "desc": "Install a gh extension, forcing upgrade",
+      "tooltip": "Installs the gh-copilot extension from the github org, and --force upgrades an existing install to the latest release instead of erroring. Extensions add new gh subcommands, here gh copilot for AI assistance. Pin a version with --pin to freeze it."
+    },
+    {
+      "id": 7367,
+      "category": "GitHub CLI",
+      "cmd": "gh extension upgrade gh-copilot --force",
+      "desc": "Upgrade a single gh extension",
+      "tooltip": "Updates the gh-copilot extension to its newest released version. --force upgrades even when the local version matches, useful after a manual edit or to escape a stuck state. Use --all to update every installed extension at once."
+    },
+    {
+      "id": 7368,
+      "category": "GitHub CLI",
+      "cmd": "gh extension remove gh-copilot",
+      "desc": "Remove a gh extension",
+      "tooltip": "Uninstalls the gh-copilot extension, removing its subcommand from gh. Extensions are user-local, so removal affects only your account. Reinstall anytime with gh extension install github/gh-copilot."
+    },
+    {
+      "id": 7369,
+      "category": "GitHub CLI",
+      "cmd": "gh extension create my-extension",
+      "desc": "Scaffold a new gh extension",
+      "tooltip": "Generates the directory layout and starter files for a gh extension named my-extension. Extensions are standalone scripts or Go binaries that add gh subcommands. Add --precompiled to scaffold a Go-based extension instead of a script."
+    },
+    {
+      "id": 7370,
+      "category": "GitHub CLI",
+      "cmd": "gh api user --jq '.login'",
+      "desc": "Print your GitHub username via API",
+      "tooltip": "GETs the authenticated user endpoint and --jq extracts the login field. The leading slash is optional in gh api paths. This is a quick identity check that also confirms your token works."
+    },
+    {
+      "id": 7371,
+      "category": "GitHub CLI",
+      "cmd": "gh api repos/owner/repo/issues?per_page=100 --jq '.[].number'",
+      "desc": "Fetch issue numbers with a page size",
+      "tooltip": "Requests the issues endpoint with per_page=100 to grab more rows per call, and --jq prints each issue number. Pagination caps REST responses at 30 by default, so raising per_page reduces round trips. Use --paginate to walk all pages automatically."
+    },
+    {
+      "id": 7372,
+      "category": "GitHub CLI",
+      "cmd": "gh api -X PATCH repos/owner/repo/issues/5 -f state=closed",
+      "desc": "Close an issue via the REST API",
+      "tooltip": "-X PATCH switches the HTTP method, and -f sends state=closed as a form parameter, closing issue 5 without gh issue close. REST endpoints map one-to-one with GitHub's API documentation. The -f flag adds string parameters; -F infers typed values."
+    },
+    {
+      "id": 7373,
+      "category": "GitHub CLI",
+      "cmd": "gh api graphql -f query='query($owner:String!,$repo:String!){ repository(owner:$owner,name:$repo){ stargazerCount } }' -f owner=cli -f repo=cli",
+      "desc": "Query stargazer count via GraphQL with variables",
+      "tooltip": "Runs a GraphQL query where every -f field except query becomes a GraphQL variable, here binding $owner and $repo. GraphQL lets you request exactly the fields you need in one round trip. Variables make queries reusable across repos."
+    },
+    {
+      "id": 7374,
+      "category": "GitHub CLI",
+      "cmd": "gh api repos/owner/repo/releases/latest --jq .tag_name",
+      "desc": "Get the latest release tag via API",
+      "tooltip": "Hits the latest-release endpoint and prints the tag name, handy for CI that must fetch the newest version. The endpoint ignores prereleases. Compare with gh release list --limit 1 for tag plus metadata."
+    },
+    {
+      "id": 7375,
+      "category": "GitHub CLI",
+      "cmd": "gh api repos/owner/repo/actions/runs/123",
+      "desc": "Fetch a workflow run record via API",
+      "tooltip": "Returns the full JSON record of run 123: status, conclusion, head SHA, and event. Scripts use this to gate deploys on CI results. It is the REST equivalent of gh run view minus the pretty formatting."
+    },
+    {
+      "id": 7376,
+      "category": "GitHub CLI",
+      "cmd": "gh api repos/owner/repo/actions/workflows --paginate",
+      "desc": "List all workflows via API, following pages",
+      "tooltip": "--paginate automatically walks every page of results until exhausted, since REST caps at 30 items per page. The workflows endpoint returns each workflow's id, name, and state. Combine with --jq to extract the fields you need from the full list."
+    },
+    {
+      "id": 7377,
+      "category": "GitHub CLI",
+      "cmd": "gh api -X POST repos/owner/repo/actions/workflows/build.yml/dispatches -f ref=main",
+      "desc": "Dispatch a workflow run via the REST API",
+      "tooltip": "POSTs a workflow_dispatch event for build.yml on ref main, the API equivalent of gh workflow run. The workflow must declare a workflow_dispatch trigger. Pass inputs as extra -f fields if the workflow defines them."
+    },
+    {
+      "id": 7378,
+      "category": "GitHub CLI",
+      "cmd": "gh api -X DELETE repos/owner/repo/actions/caches --silent",
+      "desc": "Delete all Actions caches for a repo",
+      "tooltip": "Wipes every Actions cache entry in the repository, freeing storage but forcing cold builds until caches rebuild. This is destructive and irreversible, so run it only when cache bloat is a real problem. --silent suppresses the success response body."
+    },
+    {
+      "id": 7379,
+      "category": "GitHub CLI",
+      "cmd": "gh api rate_limit --jq '.rate | \"\\(.remaining)/\\(.limit)\"'",
+      "desc": "Show your API rate limit usage",
+      "tooltip": "Queries the rate-limit endpoint and prints remaining and total requests for your token, e.g. 4800/5000. REST APIs throttle unauthenticated calls hard, so staying under the limit matters for scripts. Reset time lives in the .rate.reset field."
+    },
+    {
+      "id": 7380,
+      "category": "GitHub CLI",
+      "cmd": "gh api -X POST repos/owner/repo/issues/5/comments -f body='Fixed in #10'",
+      "desc": "Comment on an issue via the REST API",
+      "tooltip": "POSTs a comment to issue 5 with the body field, the API form of gh issue comment. Use this when automation, not a human, must post context like CI results. The comment appears in the issue thread like any other."
+    },
+    {
+      "id": 7381,
+      "category": "GitHub CLI",
+      "cmd": "gh api -X PUT user/starred/owner/repo --silent",
+      "desc": "Star a repository via the API",
+      "tooltip": "PUTs the current user's star on owner/repo, the API equivalent of clicking the star button. --silent drops the empty success body. Unstar with -X DELETE on the same endpoint. Starring is a lightweight signal of interest or approval."
+    },
+    {
+      "id": 7382,
+      "category": "GitHub CLI",
+      "cmd": "gh api repos/owner/repo/contents/README.md -H 'Accept: application/vnd.github.raw'",
+      "desc": "Fetch a file's raw contents via API",
+      "tooltip": "GETs the README through the contents endpoint, and the -H Accept header for the raw media type returns the file bytes instead of base64 JSON. Contents endpoints also list directory trees. This is a scriptable way to pull a file without cloning."
+    },
+    {
+      "id": 7383,
+      "category": "GitHub CLI",
+      "cmd": "gh auth token --hostname github.com",
+      "desc": "Print the auth token for a host",
+      "tooltip": "Outputs the OAuth token gh uses for github.com, which scripts and other tools can reuse. The token grants the same permissions as your gh login, so treat it like a password. --hostname selects among hosts when you have several accounts."
+    },
+    {
+      "id": 7384,
+      "category": "GitHub CLI",
+      "cmd": "gh auth refresh -s repo,workflow",
+      "desc": "Add scopes to the current token",
+      "tooltip": "-s requests additional scopes, here repo for full repository access and workflow for updating Actions files. Scopes are the permission grants attached to your token. Refresh interactively confirms via the browser and merges the new scopes in."
+    },
+    {
+      "id": 7385,
+      "category": "GitHub CLI",
+      "cmd": "gh auth login --hostname github.com --git-protocol ssh --web",
+      "desc": "Log in via browser with SSH git protocol",
+      "tooltip": "Authenticates gh for github.com, --git-protocol ssh makes git operations use SSH URLs, and --web completes the flow in the browser. The web flow avoids pasting tokens into the terminal. Log out anytime with gh auth logout."
+    },
+    {
+      "id": 7386,
+      "category": "GitHub CLI",
+      "cmd": "gh auth status --show-token",
+      "desc": "Show auth status including the token",
+      "tooltip": "Prints which accounts and hosts gh is authenticated as, with --show-token also revealing the token itself. The token is a live credential, so this output can be captured by shell history or logs. Prefer plain gh auth status unless a tool truly needs the token."
+    },
+    {
+      "id": 7387,
+      "category": "GitHub CLI",
+      "cmd": "gh auth logout --hostname github.com",
+      "desc": "Log out of a specific host",
+      "tooltip": "Revokes the gh credential for github.com, so gh commands requiring auth start failing until you log in again. --hostname targets one host when multiple are configured. Logging out does not delete your git credentials unless they were gh-managed."
+    },
+    {
+      "id": 7388,
+      "category": "GitHub CLI",
+      "cmd": "gh config set git_protocol ssh",
+      "desc": "Set git protocol to SSH",
+      "tooltip": "Writes git_protocol ssh into gh's config so git clone and push use SSH URLs, which need an SSH key set up on GitHub. The other value is https. Your existing remotes are not rewritten by this setting."
+    },
+    {
+      "id": 7389,
+      "category": "GitHub CLI",
+      "cmd": "gh config get git_protocol",
+      "desc": "Read the configured git protocol",
+      "tooltip": "Prints the current git_protocol value, either ssh or https. Config lookups check host-specific overrides first, then global settings. Useful in scripts that must branch on the transport gh will use."
+    },
+    {
+      "id": 7390,
+      "category": "GitHub CLI",
+      "cmd": "gh config set git_protocol https -h github.com",
+      "desc": "Override git protocol for one host",
+      "tooltip": "-h scopes the setting to github.com, so that host uses HTTPS while others keep their own protocol. Host-scoped overrides beat global config for that host. This is how you mix transports across accounts or Enterprise servers."
+    },
+    {
+      "id": 7391,
+      "category": "GitHub CLI",
+      "cmd": "gh config list -h github.com",
+      "desc": "Show config for a specific host",
+      "tooltip": "Lists resolved gh settings, with -h github.com filtering to that host's overrides. The output shows keys like git_protocol, editor, and prompt. Use it to debug why a command behaves differently on one host."
+    },
+    {
+      "id": 7392,
+      "category": "GitHub CLI",
+      "cmd": "gh config set pager 'less -FRX'",
+      "desc": "Set the pager for long gh output",
+      "tooltip": "Configures the pager gh pipes long output through, here less with -F quit-if-one-screen, -R raw color, and -X no-clear flags. A sensible pager keeps tables readable. Set it to cat to disable paging entirely."
+    },
+    {
+      "id": 7393,
+      "category": "GitHub CLI",
+      "cmd": "gh alias set prd 'pr view'",
+      "desc": "Create a short alias for a gh command",
+      "tooltip": "Defines prd as a word that expands to gh pr view, so gh prd 123 shows a PR. Aliases can embed flags, like 'pr list --state merged'. They live in gh's config and work exactly like built-in commands."
+    },
+    {
+      "id": 7394,
+      "category": "GitHub CLI",
+      "cmd": "gh alias set --shell prd 'gh pr view \"$1\"'",
+      "desc": "Create a shell-based alias with arguments",
+      "tooltip": "--shell marks the expansion as a shell expression, evaluated through a shell interpreter, so $1 captures the argument after the alias. Here gh prd 123 runs gh pr view 123. Shell aliases unlock pipes, loops, and argument manipulation plain aliases cannot do."
+    },
+    {
+      "id": 7395,
+      "category": "GitHub CLI",
+      "cmd": "gh alias set merged 'pr list --state merged --limit 20'",
+      "desc": "Alias a multi-flag pr list query",
+      "tooltip": "Bundles a full command with flags into the single word merged, so gh merged prints your last 20 merged PRs. Aliases that encode routine queries save keystrokes and enforce consistent flags. Overwrite an existing alias by adding --clobber."
+    },
+    {
+      "id": 7396,
+      "category": "GitHub CLI",
+      "cmd": "gh alias export > aliases.yml",
+      "desc": "Export all aliases to a YAML file",
+      "tooltip": "Dumps every alias as YAML to standard output, redirected here into aliases.yml. The file round-trips with gh alias import, making aliases portable across machines. Export before wiping a config or setting up a new workstation."
+    },
+    {
+      "id": 7397,
+      "category": "GitHub CLI",
+      "cmd": "gh completion -s bash > ~/.bash_completion",
+      "desc": "Install bash completion for gh",
+      "tooltip": "-s bash generates the bash completion script, redirected into ~/.bash_completion so your shell sources it at startup. Tab-completion then fills subcommands, flags, and repo names. Re-run after upgrading gh if completions go stale."
+    },
+    {
+      "id": 7398,
+      "category": "GitHub CLI",
+      "cmd": "gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh",
+      "desc": "Install zsh completion for gh",
+      "tooltip": "Writes the zsh completion script into the standard site-functions directory, which zsh loads automatically. The file must be named _gh for zsh to associate it with the gh command. Requires a zsh version of 5.7 or later."
+    },
+    {
+      "id": 7399,
+      "category": "GitHub CLI",
+      "cmd": "gh completion -s fish > ~/.config/fish/completions/gh.fish",
+      "desc": "Install fish completion for gh",
+      "tooltip": "Generates the fish completion script into fish's completions directory, where it loads on the next shell start. Fish autoloads completion files by command name, so gh.fish is picked up automatically. Works identically for powershell with -s powershell."
+    },
+    {
+      "id": 7400,
+      "category": "GitHub CLI",
+      "cmd": "gh copilot suggest -t gh 'create a release from the latest tag'",
+      "desc": "Ask Copilot to suggest a gh command",
+      "tooltip": "gh copilot suggests a command for the natural-language request, and -t gh constrains the answer to gh commands rather than shell or git. It returns the command plus an explanation, ready to copy. Requires the gh-copilot extension and a Copilot subscription."
+    },
+    {
+      "id": 7401,
+      "category": "GitHub CLI",
+      "cmd": "gh copilot explain 'git log --oneline --graph --all'",
+      "desc": "Ask Copilot to explain a git command",
+      "tooltip": "gh copilot explains what the given command does, flag by flag, in plain language. Useful for decoding unfamiliar git invocations. Add -t git to pin the target context when the command is ambiguous."
+    },
+    {
+      "id": 7402,
+      "category": "VPS Management",
+      "cmd": "ssh root@203.0.113.10",
+      "desc": "Connect to a fresh VPS as root",
+      "tooltip": "First contact with a new server: ssh (Secure Shell) logs in over the encrypted channel using the root account. The first prompt asks you to accept the server's host key (a fingerprint that identifies the machine) — verify it against the one shown in your provider's console. After login, run the update and upgrade steps below before installing anything."
+    },
+    {
+      "id": 7403,
+      "category": "VPS Management",
+      "cmd": "ssh -o StrictHostKeyChecking=accept-new root@203.0.113.10",
+      "desc": "Trust host key on first connection automatically",
+      "tooltip": "StrictHostKeyChecking=accept-new records the server's host key into ~/.ssh/known_hosts the first time you connect without asking, but still refuses to connect if the key later changes. That stops man-in-the-middle attacks from day two onward. Use it in bootstrap scripts where a trust prompt would hang automation."
+    },
+    {
+      "id": 7404,
+      "category": "VPS Management",
+      "cmd": "sudo apt update && sudo apt upgrade -y",
+      "desc": "Refresh package lists and upgrade all packages",
+      "tooltip": "The standard first step on any fresh VPS: apt update downloads the latest package lists, then apt upgrade -y installs every available update without prompting (the -y answers yes automatically). Run this before installing anything so security fixes and matching library versions are in place. Expect a reboot afterward if the kernel was updated."
+    },
+    {
+      "id": 7405,
+      "category": "VPS Management",
+      "cmd": "sudo apt upgrade -y -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\"",
+      "desc": "Upgrade keeping existing config file versions",
+      "tooltip": "Forces apt to keep your current config files when a package upgrade wants to overwrite them: confdef keeps the default only if no local edit exists, confold always keeps your version. The -o flag injects dpkg options, so headless upgrades on production boxes never hang on interactive prompts. This is the safe variant when you have tuned configs you do not want clobbered."
+    },
+    {
+      "id": 7406,
+      "category": "VPS Management",
+      "cmd": "sudo apt-get update -o Acquire::Retries=3",
+      "desc": "Update package lists retrying flaky mirrors",
+      "tooltip": "Acquire::Retries=3 makes apt retry failed downloads up to three times, which tames the transient network errors common on new VPSes. A single dropped connection aborts the whole update run, so retries matter. Re-run your normal install command afterward if this still fails."
+    },
+    {
+      "id": 7407,
+      "category": "VPS Management",
+      "cmd": "sudo apt install -y ufw fail2ban unattended-upgrades curl htop",
+      "desc": "Install firewall, intrusion guard, and auto-updates",
+      "tooltip": "One-shot bootstrap install of the core hardening stack: ufw (the uncomplicated firewall), fail2ban (an auto-banning intrusion guard for brute-force attacks), unattended-upgrades (automatic security patches), plus curl and htop for diagnostics. Each ships with sane defaults so you can enable them one by one. This keeps the later setup steps to configuration only."
+    },
+    {
+      "id": 7408,
+      "category": "VPS Management",
+      "cmd": "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ufw fail2ban unattended-upgrades curl htop",
+      "desc": "Install hardening stack without interactive prompts",
+      "tooltip": "DEBIAN_FRONTEND=noninteractive tells dpkg to skip all questions and use default answers, so the install never stalls waiting for input — the reliable form for bootstrap scripts and cloud-init user data. Add -o Dpkg::Options::=\"--force-confold\" if you also want to protect existing config files. Combine with the retry option for flaky networks."
+    },
+    {
+      "id": 7409,
+      "category": "VPS Management",
+      "cmd": "sudo apt-get install -y linux-headers-$(uname -r)",
+      "desc": "Install kernel headers for the running kernel",
+      "tooltip": "The $(uname -r) command substitution resolves to your exact kernel version, and linux-headers-<version> provides the build-time interfaces needed to compile DKMS drivers such as wireguard or GPU modules. Headers must match the running kernel exactly, which is why the substitution is used. Re-run after every kernel upgrade that needs modules rebuilt."
+    },
+    {
+      "id": 7410,
+      "category": "VPS Management",
+      "cmd": "sudo apt install -y btop",
+      "desc": "Install the btop system monitor",
+      "tooltip": "btop is a modern, GPU-accelerated resource monitor (htop's successor) showing CPU, memory, disks, network, and processes in one terminal screen. It is lighter than web dashboards and works over plain SSH. Navigate with the mouse or F-keys, and sort processes with P for CPU or M for memory."
+    },
+    {
+      "id": 7411,
+      "category": "VPS Management",
+      "cmd": "sudo timedatectl set-timezone UTC",
+      "desc": "Set the server clock to UTC",
+      "tooltip": "UTC (Coordinated Universal Time) is the VPS convention: it keeps log timestamps consistent across servers and regions, which matters when correlating failures. timedatectl is systemd's clock manager, and set-timezone persists across reboots. Confirm the result with timedatectl status."
+    },
+    {
+      "id": 7412,
+      "category": "VPS Management",
+      "cmd": "sudo dpkg-reconfigure --frontend noninteractive unattended-upgrades",
+      "desc": "Enable automatic security updates non-interactively",
+      "tooltip": "dpkg-reconfigure reruns a package's configuration step; for unattended-upgrades it flips on automatic security patching. The --frontend noninteractive flag answers its yes/no prompt with defaults so the command works in scripts. After this, the apt-daily-upgrade timer applies security updates nightly — check the log under /var/log/unattended-upgrades/."
+    },
+    {
+      "id": 7413,
+      "category": "VPS Management",
+      "cmd": "sudo ufw allow OpenSSH",
+      "desc": "Allow SSH through the firewall by app profile",
+      "tooltip": "OpenSSH is a ufw application profile (a named rule bundle) covering the port your SSH server listens on, normally 22/tcp. Allowing SSH first is the golden rule of firewall setup, because enabling ufw with no SSH rule locks you out of the box. Verify the profile's ports with ufw app info OpenSSH."
+    },
+    {
+      "id": 7414,
+      "category": "VPS Management",
+      "cmd": "sudo ufw allow proto tcp to any port 80,443 comment 'web traffic'",
+      "desc": "Allow HTTP and HTTPS on one rule with comment",
+      "tooltip": "One rule opens both web ports: the comma-separated list expands to 80 and 443, and proto tcp restricts it to TCP so UDP traffic stays blocked. The comment flag labels the rule for later audits and shows up in ufw status. Delete the whole list later with ufw delete followed by its number from ufw status numbered."
+    },
+    {
+      "id": 7415,
+      "category": "VPS Management",
+      "cmd": "sudo ufw limit 22/tcp comment 'SSH rate limit'",
+      "desc": "Rate-limit SSH connections to block brute force",
+      "tooltip": "limit applies ufw's rate limiter: connections are normally allowed, but an IP that opens 6 or more connections within 30 seconds is dropped, blunting brute-force password attacks without a full firewall ban. This is the firewall-level complement to fail2ban. The comment flag names the rule in ufw status output."
+    },
+    {
+      "id": 7416,
+      "category": "VPS Management",
+      "cmd": "sudo ufw delete 3",
+      "desc": "Delete firewall rule by its number",
+      "tooltip": "Deletes the rule shown as number 3 in ufw status numbered, the fastest way to remove a specific rule when several look identical. Always re-run ufw status numbered first, since numbers shift as rules change. Deleting by number removes only that one rule — the IPv6 twin of a dual-stack rule stays put."
+    },
+    {
+      "id": 7417,
+      "category": "VPS Management",
+      "cmd": "sudo ufw app info OpenSSH",
+      "desc": "Show ports opened by the OpenSSH app profile",
+      "tooltip": "Prints the definition of the OpenSSH application profile — the port and protocol it maps to — so you know exactly what ufw allow OpenSSH will open. Application profiles are the readable names ufw app list shows, letting you avoid remembering port numbers. Custom profiles live in /etc/ufw/applications.d/."
+    },
+    {
+      "id": 7418,
+      "category": "VPS Management",
+      "cmd": "sudo ufw insert 1 deny from 203.0.113.99",
+      "desc": "Insert a deny rule at the top of the list",
+      "tooltip": "insert 1 places the rule first, and that ordering matters because ufw evaluates rules in order and the first match wins — a top deny beats a later allow for the same traffic. This is the quick way to block a specific abusive IP without reordering everything. Verify the new order with ufw status numbered."
+    },
+    {
+      "id": 7419,
+      "category": "VPS Management",
+      "cmd": "sudo ufw --dry-run allow 8080/tcp",
+      "desc": "Preview a firewall rule without applying it",
+      "tooltip": "ufw --dry-run prints exactly what the rule would do — the underlying iptables commands — without changing anything, so you can sanity-check syntax before touching the live firewall. The same flag works with delete, insert, and enable. Run it as a rehearsal, then repeat without the flag."
+    },
+    {
+      "id": 7420,
+      "category": "VPS Management",
+      "cmd": "sudo ufw allow from 198.51.100.0/24 to any port 22 proto tcp comment 'office ssh'",
+      "desc": "Restrict SSH to an office IP range",
+      "tooltip": "Whitelists only the 198.51.100.0/24 subnet for SSH, so logins from anywhere else are refused at the firewall — stronger than rate limiting alone. The full-rule syntax adds from (source) and to (destination) with an optional comment. Combine with a deny-by-default incoming policy for a locked-down box."
+    },
+    {
+      "id": 7421,
+      "category": "VPS Management",
+      "cmd": "sudo ufw reject 23/tcp",
+      "desc": "Reject telnet port with a refusal response",
+      "tooltip": "Unlike deny, which silently drops packets, reject answers with a connection-refused response so the client fails fast instead of timing out — useful on ports you want to signal as closed. Port 23 (telnet) is plaintext and should be rejected or denied on any modern server. Note the distinction when diagnosing connectivity."
+    },
+    {
+      "id": 7422,
+      "category": "VPS Management",
+      "cmd": "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak.$(date +%F)",
+      "desc": "Back up sshd config with today's date suffix",
+      "tooltip": "Snapshots the SSH daemon config before you edit it: $(date +%F) expands to today's date (YYYY-MM-DD), so the backup file keeps a recognizable timestamp. If a hardening edit locks you out, restore by copying the backup back over sshd_config. Keep the backup until the new config has survived a restart."
+    },
+    {
+      "id": 7423,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config",
+      "desc": "Disable root login over SSH",
+      "tooltip": "sed edits the file in place (-i): the pattern ^#PermitRootLogin.* matches the commented-out default line and rewrites it as PermitRootLogin no, which refuses direct root logins. Admins then use a normal user plus sudo instead, so brute-forcing root becomes pointless. Run sudo sshd -t and restart ssh afterward."
+    },
+    {
+      "id": 7424,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config",
+      "desc": "Enable SSH public key authentication",
+      "tooltip": "Uncomments PubkeyAuthentication to yes, allowing login with a key pair — a private key you hold and a public key stored in the account's authorized_keys file. Keys are the recommended SSH credential because they cannot be guessed like passwords. This is the prerequisite before disabling password auth."
+    },
+    {
+      "id": 7425,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "desc": "Disable SSH password authentication (lockout risk)",
+      "tooltip": "WARNING — this command can lock you out: it turns off password logins, so only key-based access works. Apply it only after testing that your key logs in successfully, and never close the current SSH session until you have confirmed reconnection. Also check /etc/ssh/sshd_config.d/*.conf for a PasswordAuthentication line, since those fragments override this file."
+    },
+    {
+      "id": 7426,
+      "category": "VPS Management",
+      "cmd": "sudo sshd -t -f /etc/ssh/sshd_config",
+      "desc": "Test sshd config syntax before restarting",
+      "tooltip": "sshd -t parses the configuration and reports errors without touching the running daemon — the mandatory safety check after any sshd_config edit. The -f flag names the config file to test explicitly. If it prints nothing, the config is valid and safe to apply with sudo systemctl restart ssh."
+    },
+    {
+      "id": 7427,
+      "category": "VPS Management",
+      "cmd": "sudo sshd -T | grep -iE 'permitrootlogin|passwordauthentication|pubkeyauthentication'",
+      "desc": "Show effective SSH auth settings after overrides",
+      "tooltip": "sshd -T dumps the effective configuration the daemon would actually use, merging the main file and all drop-in fragments under /etc/ssh/sshd_config.d/. Grepping the three auth directives confirms what the server will really enforce — essential because later files can override earlier ones. Compare this output with your intended settings."
+    },
+    {
+      "id": 7428,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl restart ssh",
+      "desc": "Restart the SSH daemon to apply config",
+      "tooltip": "Applies sshd_config changes by restarting the ssh service (Ubuntu's unit name is ssh; Debian uses sshd — either works via alias). Only restart after sudo sshd -t passes, because a bad config can kill the daemon and lock you out. Do not close your current session until a fresh login succeeds."
+    },
+    {
+      "id": 7429,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl status ssh --no-pager",
+      "desc": "Check SSH daemon status and recent log lines",
+      "tooltip": "Shows whether the ssh service is running, enabled at boot, and its most recent log entries; --no-pager prints directly instead of opening a pager, which matters over SSH where pagers can hang. A green 'active (running)' line plus 'Loaded: enabled' is the healthy state. Use is-active for a script-friendly yes/no answer."
+    },
+    {
+      "id": 7430,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl is-active ssh",
+      "desc": "Report whether SSH service is running",
+      "tooltip": "Prints a single word — active, inactive, or failed — that scripts can parse, unlike the verbose status output. is-active checks only the current state, while is-enabled asks whether the unit starts at boot. Both exit non-zero when the answer is no, which makes them natural if conditions in shell scripts."
+    },
+    {
+      "id": 7431,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl is-enabled ssh",
+      "desc": "Check whether SSH starts at boot",
+      "tooltip": "Prints enabled, disabled, or static — the boot-time policy for the ssh service rather than its current state. On fresh VPSes ssh should already be enabled, but a minimal image may disable it. Pair with sudo systemctl enable ssh if the answer is disabled."
+    },
+    {
+      "id": 7432,
+      "category": "VPS Management",
+      "cmd": "ssh -o PasswordAuthentication=no root@203.0.113.10",
+      "desc": "Test that key-only SSH login works",
+      "tooltip": "Forces the client to attempt only key authentication: if your key is set up the login succeeds, and if the server would need a password the attempt fails fast instead of prompting. This is the safe pre-flight test before disabling password auth server-side. A successful exit means the server is ready for hardening."
+    },
+    {
+      "id": 7433,
+      "category": "VPS Management",
+      "cmd": "ssh -p 22 -i ~/.ssh/id_ed25519 deploy@203.0.113.10",
+      "desc": "Connect with explicit port and identity key",
+      "tooltip": "Logs in as deploy using the private key at ~/.ssh/id_ed25519 (the -i flag selects the identity file) and the explicit -p 22 port. Being explicit sidesteps surprises from ~/.ssh/config aliases or non-standard ports. The matching public key must be listed in the server's ~/.ssh/authorized_keys."
+    },
+    {
+      "id": 7434,
+      "category": "VPS Management",
+      "cmd": "ssh -o ServerAliveInterval=60 deploy@203.0.113.10",
+      "desc": "Keep idle SSH sessions alive with pings",
+      "tooltip": "ServerAliveInterval=60 makes the client send a keepalive every 60 seconds, so NAT gateways and firewalls that drop idle connections won't silently kill your session — common during long deploys and tail -f monitoring. The server-side counterpart is ClientAliveInterval. Without it, a quiet session can freeze and only respond after a long timeout."
+    },
+    {
+      "id": 7435,
+      "category": "VPS Management",
+      "cmd": "ssh -A deploy@203.0.113.10",
+      "desc": "Forward SSH agent for key chaining (caution)",
+      "tooltip": "WARNING — agent forwarding (-A) lets the remote host use your local SSH agent to authenticate onward, which is convenient for git pulls from the server but hands your key to anyone who compromises it. Prefer ssh -J (ProxyJump) or a dedicated deploy key instead. Only enable it transiently on trusted hosts."
+    },
+    {
+      "id": 7436,
+      "category": "VPS Management",
+      "cmd": "ssh -J bastion.example.com deploy@203.0.113.10",
+      "desc": "Jump through a bastion host to reach the server",
+      "tooltip": "ProxyJump (-J) chains connections: it opens an SSH session to bastion.example.com and tunnels through it to the destination, so the target only ever sees the bastion's IP. This is the standard way to reach servers on private networks without agent forwarding. Multiple jumps can be comma-separated."
+    },
+    {
+      "id": 7437,
+      "category": "VPS Management",
+      "cmd": "ssh -t deploy@203.0.113.10 sudo systemctl status nginx",
+      "desc": "Run sudo remotely with a forced pseudo-terminal",
+      "tooltip": "The -t flag allocates a pseudo-terminal, which sudo requires when prompting for a password — without it you get 'sudo: no tty present'. This runs one command on the server and returns, the building block of remote administration. Add -tt if even the sudo prompt needs a TTY."
+    },
+    {
+      "id": 7438,
+      "category": "VPS Management",
+      "cmd": "ssh -G deploy@203.0.113.10",
+      "desc": "Dump the effective SSH client configuration",
+      "tooltip": "ssh -G prints the resolved client configuration for the given host — which hostname, port, identity files, and options would actually be used — without connecting. It is the debugger for mysterious ssh behavior caused by ~/.ssh/config rules. Pipe to grep to inspect specific settings."
+    },
+    {
+      "id": 7439,
+      "category": "VPS Management",
+      "cmd": "ssh-keyscan -t ed25519 203.0.113.10 >> ~/.ssh/known_hosts",
+      "desc": "Pre-record a host key into known_hosts",
+      "tooltip": "ssh-keyscan fetches the server's public host keys and appends them to known_hosts, pre-answering the first-connection trust prompt — handy in provisioning scripts that run non-interactively. The -t ed25519 flag limits the scan to that key type. Since it trusts without verification, compare the key against your provider's console fingerprint."
+    },
+    {
+      "id": 7440,
+      "category": "VPS Management",
+      "cmd": "scp -P 22 -i ~/.ssh/id_ed25519 deploy.tar.gz deploy@203.0.113.10:/home/deploy/",
+      "desc": "Copy a file to the server over SSH",
+      "tooltip": "scp (secure copy) transfers files inside an SSH connection; note the uppercase -P for the port, unlike ssh's lowercase -p, and -i selects the identity key. The destination is user@host:/path. This is the manual deploy step — a tar of your app or a config file — that scripts later replace with rsync or git."
+    },
+    {
+      "id": 7441,
+      "category": "VPS Management",
+      "cmd": "sudo adduser --disabled-password --gecos '' deploy",
+      "desc": "Create a deploy user for key-only login",
+      "tooltip": "Adds a deploy account with no password (--disabled-password) and an empty comment field (--gecos ''), so it can only be reached with an SSH key — the safest shape for an app-deploying service account. Add the key with mkdir -p /home/deploy/.ssh and echo into authorized_keys. Grant sudo separately with usermod -aG sudo."
+    },
+    {
+      "id": 7442,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#AllowUsers.*/AllowUsers deploy/' /etc/ssh/sshd_config",
+      "desc": "Restrict SSH logins to named users only",
+      "tooltip": "AllowUsers whitelists which accounts may log in over SSH — here only deploy — so every other user (including root) is refused even with a valid key. It is defense in depth after PermitRootLogin no. Keep the setting commented out on hosts where LDAP or other tools manage access."
+    },
+    {
+      "id": 7443,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 3/' /etc/ssh/sshd_config",
+      "desc": "Limit SSH authentication attempts to three",
+      "tooltip": "MaxAuthTries 3 cuts the number of failed auth attempts before the connection is dropped, slowing brute-force guessing at the daemon level (fail2ban handles repeat offenders at the firewall). Each attempt can also be a key offer, so generous key agents can hit the limit. Re-test after applying."
+    },
+    {
+      "id": 7444,
+      "category": "VPS Management",
+      "cmd": "sudo sed -i 's/^#ClientAliveInterval.*/ClientAliveInterval 300/' /etc/ssh/sshd_config",
+      "desc": "Drop SSH connections idle for five minutes",
+      "tooltip": "ClientAliveInterval 300 makes the server send keepalives every 300 seconds and disconnect clients that never answer — cleaning up abandoned sessions that otherwise hold connections and processes. This is the server-side counterpart to the client's ServerAliveInterval. Choose a value larger than your slowest legitimate operation."
+    },
+    {
+      "id": 7445,
+      "category": "VPS Management",
+      "cmd": "ssh -o ExitOnForwardFailure=yes -L 3000:localhost:3000 deploy@203.0.113.10",
+      "desc": "Tunnel a remote port with fail-fast forwarding",
+      "tooltip": "Local forwarding (-L 3000:localhost:3000) exposes the server's port 3000 on your machine's port 3000, as if the app ran locally — the classic way to reach admin UIs bound to localhost. ExitOnForwardFailure=yes aborts the session if the forward cannot be established instead of silently continuing. The left port is local; the right side resolves on the server."
+    },
+    {
+      "id": 7446,
+      "category": "VPS Management",
+      "cmd": "ssh-add -L",
+      "desc": "List public keys currently loaded in the agent",
+      "tooltip": "Prints the public keys your SSH agent holds, which is what gets offered to servers when authenticating (and forwarded with -A). If a server keeps asking for a passphrase, the key is probably not loaded — add it with ssh-add. The -l variant shows fingerprints instead of full keys."
+    },
+    {
+      "id": 7447,
+      "category": "VPS Management",
+      "cmd": "nano ~/.ssh/config",
+      "desc": "Edit the SSH client config file",
+      "tooltip": "~/.ssh/config defines per-host shortcuts and options: Host aliases, IdentityFile paths, ProxyJump chains, and default ports, so a plain 'ssh web' expands to a full connection recipe. Settings here are the client-side mirror of the server hardening you just did. Keep permissions at 600 — the file may reference private keys."
+    },
+    {
+      "id": 7448,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client restart",
+      "desc": "Restart the fail2ban server",
+      "tooltip": "fail2ban-client is the control socket for the fail2ban-server daemon, and restart re-runs it, re-reading all jails (per-service ban configurations) from disk. Use it after editing jail.local when a plain reload is not enough. Bans tracked only in memory are lost; the persistent database survives."
+    },
+    {
+      "id": 7449,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd maxretry 5",
+      "desc": "Change failed-attempt threshold for sshd jail",
+      "tooltip": "set <jail> <variable> <value> tunes a running jail without editing files: maxretry 5 means five matching failures within the findtime window trigger a ban. Changes apply immediately but revert on restart unless mirrored in jail.local. This is the live-tuning counterpart to editing the config."
+    },
+    {
+      "id": 7450,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd findtime 600",
+      "desc": "Set the ban trigger window to ten minutes",
+      "tooltip": "findtime is the sliding window in seconds over which failures are counted — 600 means the maxretry failures must happen within ten minutes to earn a ban. Longer windows catch slow scanners, shorter ones avoid false positives from your own typos. The value applies to the running jail only."
+    },
+    {
+      "id": 7451,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd addignoreip 192.0.2.10",
+      "desc": "Whitelist an IP for the sshd jail",
+      "tooltip": "addignoreip exempts an address from bans for that jail — essential for your own office IP, which might otherwise trip the threshold during maintenance. 192.0.2.10 is the documentation-range stand-in for your real address. Remove the exemption with the matching delignoreip command."
+    },
+    {
+      "id": 7452,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd delignoreip 192.0.2.10",
+      "desc": "Remove an IP from the sshd ignore list",
+      "tooltip": "Undoes a previous addignoreip, so the address becomes eligible for banning again. Useful when an IP that was whitelisted for maintenance should no longer be trusted. Verify the current ignore list via sudo fail2ban-client status sshd."
+    },
+    {
+      "id": 7453,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client get sshd maxretry",
+      "desc": "Read the current maxretry value for sshd",
+      "tooltip": "get <jail> <variable> queries the running jail's effective settings — useful to confirm a live set command took effect before it is lost on restart. The value shown is what the daemon is enforcing right now, which may differ from jail.local if you tuned it live. Other readable variables include findtime and bantime."
+    },
+    {
+      "id": 7454,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client status sshd | grep -E 'Currently banned|Banned IP list'",
+      "desc": "Show only the banned IPs for the sshd jail",
+      "tooltip": "Filters the verbose status output down to the two lines that matter: how many IPs are banned right now and which addresses they are. If the list shows your own IP, you tripped the threshold and need unbanip. This is the first command to run when diagnosing an unreachable server."
+    },
+    {
+      "id": 7455,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client status | grep 'Jail list'",
+      "desc": "List which fail2ban jails are active",
+      "tooltip": "The plain status command prints one summary block per jail plus a 'Jail list:' line naming every enabled jail (sshd, nginx-http-auth, and so on). Grepping for that line gives a compact overview of what fail2ban is actually protecting. A jail missing from the list means its config did not load."
+    },
+    {
+      "id": 7456,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd banip 203.0.113.5",
+      "desc": "Manually ban an IP in the sshd jail",
+      "tooltip": "Instantly bans the address without waiting for it to trip the failure threshold — the right move when you spot an attacker in the logs. The ban is applied through the jail's firewall action, so it behaves like an automatic ban. Lift it with the matching unbanip when the threat is over."
+    },
+    {
+      "id": 7457,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client set sshd unbanip 203.0.113.5",
+      "desc": "Manually unban an IP in the sshd jail",
+      "tooltip": "Removes an existing ban immediately, whether it was set manually or automatically — the fix when a legitimate user gets locked out by too many failed attempts. Use get sshd banned to confirm the address was banned before issuing this. The ban returns if the offending behavior continues."
+    },
+    {
+      "id": 7458,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client status sshd short",
+      "desc": "Show a compact banned-IP summary for sshd",
+      "tooltip": "The short flavor (a positional argument, not a flag) condenses the jail status into just the banned count and IP list, made for quick eyeballing and scripts. Newer fail2ban versions also support basic, cymru, and stats flavors. This is the lightest way to poll ban state in a monitoring loop."
+    },
+    {
+      "id": 7459,
+      "category": "VPS Management",
+      "cmd": "sudo fail2ban-client stats",
+      "desc": "Show fail2ban ban statistics table",
+      "tooltip": "Prints a table of statistics across all jails — matches, bans, and other counters that reveal whether the intrusion guard is actually catching anything. A jail with zero bans after weeks of uptime may have a broken filter or log path. Reset the counters by restarting the fail2ban server."
+    },
+    {
+      "id": 7460,
+      "category": "VPS Management",
+      "cmd": "sudo tail -f /var/log/fail2ban.log",
+      "desc": "Follow fail2ban log live",
+      "tooltip": "Streams new log lines as they are written, showing bans, unbans, and jail actions in real time — the way to watch an attack unfold or debug a jail that never triggers. tail -f (follow) keeps the file open; Ctrl-C stops it. The log is also the first place to look when fail2ban silently does nothing."
+    },
+    {
+      "id": 7461,
+      "category": "VPS Management",
+      "cmd": "sudo grep -E '^(bantime|findtime|maxretry)' /etc/fail2ban/jail.local",
+      "desc": "Show ban tuning values from jail.local",
+      "tooltip": "jail.local is the override file where local fail2ban settings belong (jail.conf holds the shipped defaults). This grep pulls the three tuning knobs — bantime (ban duration), findtime (counting window), maxretry (failure threshold) — so you can see the effective policy at a glance. Values here override the defaults in jail.conf."
+    },
+    {
+      "id": 7462,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl enable --now fail2ban",
+      "desc": "Start fail2ban and enable it at boot",
+      "tooltip": "enable --now combines two steps: it registers the service to start automatically at boot (enable) and starts it immediately (now). Fail2ban only protects what is running, so a server that reboots without this enabled loses its ban behavior entirely. Confirm with sudo fail2ban-client status."
+    },
+    {
+      "id": 7463,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl reload fail2ban",
+      "desc": "Reload fail2ban config without dropping bans",
+      "tooltip": "Signals the service to re-read its configuration through fail2ban-client reload, applying jail changes while keeping current bans and the daemon running — gentler than restart. Use this after editing jail.local when you don't want to lose in-memory state. Deeper config changes may still need a full restart."
+    },
+    {
+      "id": 7464,
+      "category": "VPS Management",
+      "cmd": "sudo unattended-upgrade",
+      "desc": "Run automatic security upgrades now",
+      "tooltip": "unattended-upgrade (singular binary) applies the security and allowed-origin updates configured in /etc/apt/apt.conf.d/50unattended-upgrades right now, outside its normal nightly schedule. It resolves dependencies and handles dpkg config-file prompts automatically. Output lands in /var/log/unattended-upgrades/unattended-upgrades.log."
+    },
+    {
+      "id": 7465,
+      "category": "VPS Management",
+      "cmd": "sudo unattended-upgrade --dry-run",
+      "desc": "Simulate automatic upgrades without applying",
+      "tooltip": "The --dry-run flag simulates the whole upgrade pass and prints what would be installed without changing anything — the safe way to test new Allowed-Origins entries before trusting them to run unattended. Nothing is downloaded and nothing is modified. Run this after editing 50unattended-upgrades."
+    },
+    {
+      "id": 7466,
+      "category": "VPS Management",
+      "cmd": "sudo unattended-upgrade -d",
+      "desc": "Run automatic upgrades with debug logging",
+      "tooltip": "The -d flag (short for --debug) repeats the upgrade with extra diagnostic detail written to the log — including why specific packages were skipped, which is the first thing to check when updates silently don't happen. It is debugging output, not a dry run: real updates are applied. Use --dry-run when you want a simulation instead."
+    },
+    {
+      "id": 7467,
+      "category": "VPS Management",
+      "cmd": "sudo grep -n 'Automatic-Reboot' /etc/apt/apt.conf.d/50unattended-upgrades",
+      "desc": "Find the auto-reboot settings in the config",
+      "tooltip": "grep -n prints matching lines with their line numbers so you can jump straight to the Automatic-Reboot options (which control whether the server reboots itself after kernel updates) in the 50unattended-upgrades config file. Most lines there ship commented out — uncomment and set to true only if you accept unattended reboots. The line numbers make the follow-up edit trivial."
+    },
+    {
+      "id": 7468,
+      "category": "VPS Management",
+      "cmd": "sudo nano /etc/apt/apt.conf.d/50unattended-upgrades",
+      "desc": "Edit the unattended-upgrades policy file",
+      "tooltip": "This is the master config for automatic updates: Allowed-Origins lists which package origins may install themselves (security by default), and Automatic-Reboot governs post-update reboots. Changes apply on the next run, no restart needed. Commented lines are examples — uncomment the section you actually want."
+    },
+    {
+      "id": 7469,
+      "category": "VPS Management",
+      "cmd": "sudo tail -n 30 /var/log/unattended-upgrades/unattended-upgrades.log",
+      "desc": "Read the tail of the auto-update log",
+      "tooltip": "Shows the last 30 lines of the log where every automatic run records its decisions — packages upgraded, skipped, or held back. The final line usually reports when the next run is scheduled. If your server hasn't updated in weeks, this log shows why."
+    },
+    {
+      "id": 7470,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl status unattended-upgrades",
+      "desc": "Check the auto-update service status",
+      "tooltip": "unattended-upgrades runs as a one-shot systemd service that applies updates when triggered by the apt-daily-upgrade timer. Status shows whether recent runs succeeded and any error output. A failed unit explains missing security patches; restart it and re-check the log."
+    },
+    {
+      "id": 7471,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl restart unattended-upgrades",
+      "desc": "Restart the auto-update service",
+      "tooltip": "Re-runs the one-shot service immediately, the nudge to apply pending updates without waiting for the timer — useful after editing 50unattended-upgrades or when a previous run died mid-way. The service exits once the update pass completes. Log output goes to the usual unattended-upgrades log."
+    },
+    {
+      "id": 7472,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl status apt-daily-upgrade.timer",
+      "desc": "Check when automatic updates are scheduled",
+      "tooltip": "apt-daily-upgrade.timer is the systemd timer that wakes the unattended-upgrades service on a randomized daily schedule — the random offset keeps thousands of servers from hitting mirrors at once. Status shows the next trigger time and the countdown. If the timer is inactive, nothing updates automatically."
+    },
+    {
+      "id": 7473,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl mask apt-daily-upgrade.timer",
+      "desc": "Pause automatic updates (undo with unmask)",
+      "tooltip": "WARNING — this stops automatic security patching: mask makes the timer unstartable by anything, including other units that try to pull it in, so no updates apply until you unmask. It is the deliberate choice for maintenance windows or fully manual update policies. Re-enable with sudo systemctl unmask apt-daily-upgrade.timer."
+    },
+    {
+      "id": 7474,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl unmask apt-daily-upgrade.timer",
+      "desc": "Restore the automatic update timer",
+      "tooltip": "Removes the mask so apt-daily-upgrade.timer can run again and automatic security updates resume. The timer still honors its randomized daily schedule — run sudo systemctl start apt-daily-upgrade.timer if you want it immediately. Confirm the change with sudo systemctl list-timers."
+    },
+    {
+      "id": 7475,
+      "category": "VPS Management",
+      "cmd": "sudo apt list --upgradable | grep -v '^Listing'",
+      "desc": "List upgradable packages without the header",
+      "tooltip": "apt list --upgradable prints every package with a newer version available; the grep -v '^Listing' strips the informational first line, leaving clean package:version output. This is the pre-upgrade reconnaissance step. Pipe to wc -l for a simple count of pending updates."
+    },
+    {
+      "id": 7476,
+      "category": "VPS Management",
+      "cmd": "sudo apt-get -s upgrade | grep -c '^Inst'",
+      "desc": "Count pending upgrades without applying",
+      "tooltip": "apt-get -s (simulate) computes the upgrade and prints one Inst line per package to be installed; grep -c counts them. The result is the number of pending updates — ideal for monitoring scripts and deciding when to schedule a maintenance reboot. Nothing is downloaded or changed."
+    },
+    {
+      "id": 7477,
+      "category": "VPS Management",
+      "cmd": "sudo do-release-upgrade",
+      "desc": "Upgrade the server to the next release (caution)",
+      "tooltip": "WARNING — this performs a major OS release upgrade (for example Ubuntu 22.04 to 24.04) with reboots and service interruptions, and it can take a long time over SSH. Always snapshot the VPS or take a full backup first, and keep the session alive — a dropped connection mid-upgrade is painful. Run it from a screen or tmux session."
+    },
+    {
+      "id": 7478,
+      "category": "VPS Management",
+      "cmd": "sudo apt-get dist-upgrade",
+      "desc": "Upgrade with new dependencies and removals",
+      "tooltip": "dist-upgrade is a smarter upgrade: it installs new dependencies and removes conflicting packages when needed, going beyond plain upgrade's conservative policy. That makes it slightly riskier on production boxes — it can remove packages you use. On Debian-based systems it is how kernel and library transitions get applied."
+    },
+    {
+      "id": 7479,
+      "category": "VPS Management",
+      "cmd": "sudo shutdown -r now",
+      "desc": "Reboot the server immediately",
+      "tooltip": "shutdown -r now schedules an immediate reboot, gracefully stopping services first — the polite form after kernel or library upgrades. The now argument skips the default one-minute warning; use shutdown -r +5 to delay. Always verify services come back with sudo systemctl status or uptime afterward."
+    },
+    {
+      "id": 7480,
+      "category": "VPS Management",
+      "cmd": "sudo apt install -y apt-listchanges",
+      "desc": "Install the upgrade changelog viewer",
+      "tooltip": "apt-listchanges intercepts apt operations and shows the changelog of packages being upgraded, so unattended and manual updates stop being a mystery. It runs in non-interactive mode for unattended-upgrades and can display or email summaries. This is the standard companion that makes auto-updates auditable."
+    },
+    {
+      "id": 7481,
+      "category": "VPS Management",
+      "cmd": "sudo fallocate -l 2G /swapfile",
+      "desc": "Create a 2GB swap file (size first)",
+      "tooltip": "fallocate instantly reserves a 2G file for swap — disk-backed memory overflow — without writing zeros, which makes it faster than dd. The file must then be secured (chmod 600), formatted (mkswap), and activated (swapon). On filesystems without fallocate support, use dd if=/dev/zero of=/swapfile bs=1M count=2048 instead."
+    },
+    {
+      "id": 7482,
+      "category": "VPS Management",
+      "cmd": "sudo chmod 600 /swapfile",
+      "desc": "Restrict swap file permissions to root",
+      "tooltip": "Swap files contain memory pages, so they must not be world-readable — 600 grants read/write only to root. Both mkswap and swapon warn or refuse on a too-permissive swapfile. Run this immediately after creating the file and before formatting it."
+    },
+    {
+      "id": 7483,
+      "category": "VPS Management",
+      "cmd": "sudo mkswap /swapfile",
+      "desc": "Format the file as swap space",
+      "tooltip": "mkswap writes a swap filesystem signature into the file — the formatting step that turns a plain file into usable swap. WARNING: the command erases whatever the target previously contained, so point it only at your fresh swapfile. After this, swapon activates it and swapon --show confirms the size."
+    },
+    {
+      "id": 7484,
+      "category": "VPS Management",
+      "cmd": "sudo swapon /swapfile",
+      "desc": "Activate the swap file now",
+      "tooltip": "swapon enables the swap file for the current session, so the kernel can page memory out to it immediately. This is step four of the swap sequence (fallocate, chmod 600, mkswap, swapon). Activation does not survive reboot until you add a line to /etc/fstab."
+    },
+    {
+      "id": 7485,
+      "category": "VPS Management",
+      "cmd": "sudo swapoff /swapfile",
+      "desc": "Deactivate swap before resizing or removal",
+      "tooltip": "swapoff moves swapped-out pages back into RAM and disables the swap file — the required prelude to resizing or deleting it. WARNING: if RAM is full, this can stall or OOM-kill processes, so do it when memory is comfortable. Afterward you can safely delete the file and recreate it larger."
+    },
+    {
+      "id": 7486,
+      "category": "VPS Management",
+      "cmd": "echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf",
+      "desc": "Persist a low swappiness setting",
+      "tooltip": "Appends vm.swappiness=10 to /etc/sysctl.conf so the kernel keeps a calm 10% preference for swap (swappiness is the 0-100 eagerness to swap; servers often prefer 10 over the default 60). tee -a writes the echoed line with root privileges, appending without touching existing content. The value takes effect after sudo sysctl --system or a reboot."
+    },
+    {
+      "id": 7487,
+      "category": "VPS Management",
+      "cmd": "sudo sysctl -w vm.swappiness=10",
+      "desc": "Set swappiness immediately without reboot",
+      "tooltip": "The -w flag writes a kernel parameter live: vm.swappiness=10 tells the kernel to prefer RAM and swap less aggressively, which helps latency-sensitive services. This change is temporary — it resets on reboot unless persisted in /etc/sysctl.conf. Check the current value with cat /proc/sys/vm/swappiness."
+    },
+    {
+      "id": 7488,
+      "category": "VPS Management",
+      "cmd": "sudo sysctl --system",
+      "desc": "Reload all sysctl settings from files",
+      "tooltip": "Re-reads every file in the sysctl configuration tree (/etc/sysctl.conf plus /etc/sysctl.d/*.conf) and applies the settings — how you activate persisted tunables without rebooting. Later files override earlier ones in the read order. Run this after appending to sysctl.conf to confirm your values took."
+    },
+    {
+      "id": 7489,
+      "category": "VPS Management",
+      "cmd": "git clone https://github.com/example/myapp.git /opt/myapp",
+      "desc": "Clone the app repository to the server",
+      "tooltip": "Copies the example/myapp repository from GitHub into /opt/myapp (the conventional location for self-contained server applications) over HTTPS. The clone contains the full history, enabling clean pull-based deploys afterward. For private repos, use an SSH remote or a deploy token instead of interactive credentials."
+    },
+    {
+      "id": 7490,
+      "category": "VPS Management",
+      "cmd": "sudo mkdir -p /opt/myapp && sudo chown deploy:deploy /opt/myapp",
+      "desc": "Create app directory owned by the deploy user",
+      "tooltip": "mkdir -p creates /opt/myapp (and parents, if missing), then chown hands ownership to the deploy account so that user can write, build, and pull without sudo. Keeping the service user as owner avoids running the app as root. If the directory already existed, only the ownership changes."
+    },
+    {
+      "id": 7491,
+      "category": "VPS Management",
+      "cmd": "cd /opt/myapp && sudo npm ci --omit=dev",
+      "desc": "Install production npm dependencies cleanly",
+      "tooltip": "npm ci installs dependencies exactly from package-lock.json (the pinned dependency manifest), wiping node_modules first — the reproducible, CI-grade install for deploys. --omit=dev skips development packages, shrinking the footprint and the attack surface. The cd first positions you in the app directory; every later deploy step runs from here."
+    },
+    {
+      "id": 7492,
+      "category": "VPS Management",
+      "cmd": "sudo -u deploy bash -lc 'cd /opt/myapp && npm ci --omit=dev && npm run build'",
+      "desc": "Install deps and build as the deploy user",
+      "tooltip": "Runs the install-and-build pipeline as the deploy user via sudo -u, with bash -lc giving it a login shell so PATH and nvm settings apply. The single-quoted chain does a clean npm ci, then npm run build for compiled frontends. Building as a non-root user keeps the artifacts owned by deploy, not root."
+    },
+    {
+      "id": 7493,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl enable --now myapp.service",
+      "desc": "Start the app service and enable it at boot",
+      "tooltip": "enable --now registers myapp.service to start on boot and launches it immediately — the one command that turns a fresh systemd unit (defined in /etc/systemd/system/myapp.service) into a running, reboot-safe service. The .service suffix is optional but explicit. Confirm with sudo systemctl status myapp."
+    },
+    {
+      "id": 7494,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl restart myapp",
+      "desc": "Restart the app service to apply a deploy",
+      "tooltip": "The core deploy step: restarts the systemd unit so it loads the newly pulled code, rebuilt assets, or edited environment. systemd stops the old process, starts the new one, and reports failure if the unit cannot come up. For zero-downtime patterns prefer an ExecReload or a rolling restart."
+    },
+    {
+      "id": 7495,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl status myapp --no-pager -l",
+      "desc": "Inspect app service state with full log lines",
+      "tooltip": "Shows the unit's current state, uptime, and recent log output; -l disables line truncation and --no-pager prints directly — both matter when debugging a crash over SSH. 'Active: active (running)' plus a recent Main PID is the healthy signature. This is the first stop after every deploy."
+    },
+    {
+      "id": 7496,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl reset-failed myapp",
+      "desc": "Clear a crashed service's failed state",
+      "tooltip": "After too many quick restarts, systemd marks a unit as 'failed' and refuses to start it until reset — reset-failed clears that state so you can retry. It does not fix the underlying crash, but it unblocks the restart loop during debugging. The unit reverts to failed again if the next start also dies."
+    },
+    {
+      "id": 7497,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl cat myapp",
+      "desc": "Print the service unit file in full",
+      "tooltip": "Shows the complete unit definition — ExecStart command, user, environment, restart policy — exactly as systemd loaded it, including any drop-in overrides from systemctl edit. This is the fastest way to answer 'what is this service actually running?'. It only reads, so it is safe to run anytime."
+    },
+    {
+      "id": 7498,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl show myapp -p MainPID",
+      "desc": "Show the service's main process ID",
+      "tooltip": "systemctl show exposes machine-readable unit properties; -p MainPID filters to just the process ID of the service's main process. That PID is what you target with ps, strace, or kill when investigating a specific worker. A value of 0 means the service is not currently running."
+    },
+    {
+      "id": 7499,
+      "category": "VPS Management",
+      "cmd": "journalctl -u myapp -f",
+      "desc": "Follow the app's logs live",
+      "tooltip": "journalctl -u filters the systemd journal (the binary log store) to one unit, and -f follows new lines as they appear — the standard 'watch the deploy roll out' command. Every stdout/stderr line the service writes lands here. Ctrl-C stops following; the filter also applies to plain reads, so you can scroll back."
+    },
+    {
+      "id": 7500,
+      "category": "VPS Management",
+      "cmd": "journalctl -u myapp -n 100 --no-pager",
+      "desc": "Show the last 100 app log lines",
+      "tooltip": "Prints the newest 100 journal entries for the unit (the -n count, short for --lines) without opening a pager, which is the first diagnostic after a crash or failed deploy. Because the journal is ordered newest-last, this is the tail of the app's story. Add --since '30 min ago' to narrow the window."
+    },
+    {
+      "id": 7501,
+      "category": "VPS Management",
+      "cmd": "sudo journalctl -u myapp --since today -p warning",
+      "desc": "Show today's app warnings and errors",
+      "tooltip": "Combines two filters: --since today limits the window to the current day, and -p warning keeps only entries at warning priority or higher, hiding routine info chatter. The result is a short list of things that actually need attention after a deploy. Raise to -p err for errors only."
+    },
+    {
+      "id": 7502,
+      "category": "VPS Management",
+      "cmd": "sudo nginx -t && sudo systemctl reload nginx",
+      "desc": "Validate nginx config then reload it",
+      "tooltip": "The safe config-change ritual: nginx -t tests the syntax first, and only if it passes (the && short-circuit) does systemctl reload apply it — reload gracefully restarts workers without dropping connections. If the test fails, nothing changes and your current config stays live. Never reload on a failing test."
+    },
+    {
+      "id": 7503,
+      "category": "VPS Management",
+      "cmd": "sudo apt install -y nginx",
+      "desc": "Install nginx web server",
+      "tooltip": "Installs the nginx reverse proxy and static file server that fronts your app on ports 80 and 443 in the classic VPS layout. The -y flag answers the install prompt automatically. After install, the service starts and is enabled by default on Ubuntu; your site config goes in /etc/nginx/sites-available/."
+    },
+    {
+      "id": 7504,
+      "category": "VPS Management",
+      "cmd": "cd /opt/myapp && git pull --ff-only origin main && sudo systemctl restart myapp",
+      "desc": "Pull latest code and restart the service",
+      "tooltip": "The minimal deploy loop: fast-forward pull the main branch (--ff-only refuses merges, so a diverged local tree fails loudly instead of creating a mess), then restart the systemd unit to load the new code. In one line it updates, verifies, and applies. For compiled apps, add the build step between pull and restart."
+    },
+    {
+      "id": 7505,
+      "category": "VPS Management",
+      "cmd": "sudo -u deploy git -C /opt/myapp pull origin main",
+      "desc": "Pull latest code as the deploy user",
+      "tooltip": "git -C runs the command in the given directory without a cd; sudo -u deploy runs it as the deploy user, who owns the checkout — necessary when the repo was cloned by that account and root would otherwise hit ownership errors. A clean pull here means the working tree matched, keeping deploy state predictable."
+    },
+    {
+      "id": 7506,
+      "category": "VPS Management",
+      "cmd": "git -C /opt/myapp rev-parse --short HEAD",
+      "desc": "Show the deployed commit hash",
+      "tooltip": "Prints the abbreviated commit SHA currently checked out in /opt/myapp — the exact code version running in production. Compare it with your CI's latest build to prove a deploy actually landed. The full hash (drop --short) is what you would record in a deployment log."
+    },
+    {
+      "id": 7507,
+      "category": "VPS Management",
+      "cmd": "git -C /opt/myapp log --oneline -5",
+      "desc": "Show the last five commits on the server",
+      "tooltip": "Lists the five most recent commits in the deployed checkout, one per line, giving a quick sense of how far behind (or ahead) production is. Each line is the short hash plus the commit subject. Combined with rev-parse, this turns git into a poor man's deployment history."
+    },
+    {
+      "id": 7508,
+      "category": "VPS Management",
+      "cmd": "ssh deploy@203.0.113.10 'cd /opt/myapp && git pull && sudo systemctl restart myapp'",
+      "desc": "Deploy remotely in a single SSH command",
+      "tooltip": "Runs the whole update-and-restart sequence on the server without an interactive shell: ssh executes the quoted command list remotely and returns its exit status. Quoting matters — the remote shell must see the && chain intact. This one-liner is the seed of every deploy script that follows."
+    },
+    {
+      "id": 7509,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl restart myapp && sleep 3 && curl -sf http://localhost:3000/health && echo DEPLOY_OK",
+      "desc": "Restart app and verify health endpoint",
+      "tooltip": "The deploy acceptance test: restart the service, wait 3 seconds for startup, then curl the health endpoint with -sf (silent, fail on error) so a non-200 response aborts the chain — DEPLOY_OK prints only when the app is genuinely up. Extend the sleep for slower boots. This turns 'it restarted' into 'it works'."
+    },
+    {
+      "id": 7510,
+      "category": "VPS Management",
+      "cmd": "sudo mkdir -p /var/www/example.com/html",
+      "desc": "Create the web root for a site",
+      "tooltip": "mkdir -p creates the document root for example.com, including any missing parent directories — the standard location nginx serves static files from. The -p flag makes the command idempotent: it succeeds even if the directory already exists. Ownership typically moves to www-data next."
+    },
+    {
+      "id": 7511,
+      "category": "VPS Management",
+      "cmd": "sudo chown -R www-data:www-data /var/www/example.com",
+      "desc": "Give the web server ownership of the site",
+      "tooltip": "chown -R recursively hands /var/www/example.com to www-data, the user nginx workers run as, so the server can read (and if configured, write) the site files. Files owned by root would still be readable if permissions allow, but www-data ownership is the convention. Use -R with care on trees containing secrets."
+    },
+    {
+      "id": 7512,
+      "category": "VPS Management",
+      "cmd": "curl -I https://example.com | grep -iE '^HTTP'",
+      "desc": "Verify the site answers with HTTP 200",
+      "tooltip": "curl -I sends a HEAD request (headers only), and the grep filters for the HTTP status line — the quick post-deploy proof that nginx, the app, and the certificate all answer. 200 means the site is live; 502 or 503 points at the app behind the proxy. Use -k to test before the certificate is valid."
+    },
+    {
+      "id": 7513,
+      "category": "VPS Management",
+      "cmd": "sudo nginx -T | grep -E 'server_name|listen'",
+      "desc": "Audit all virtual hosts in one pass",
+      "tooltip": "nginx -T dumps every loaded config file as one merged document, and the grep pulls out the server_name (hostname) and listen (port) lines — a full map of what the server answers for. It reveals overlapping server blocks that can cause traffic to hit the wrong site. This is the config-level site inventory."
+    },
+    {
+      "id": 7514,
+      "category": "VPS Management",
+      "cmd": "sudo systemctl daemon-reload && sudo systemctl restart myapp",
+      "desc": "Reload unit definitions then restart the app",
+      "tooltip": "After editing a service file, daemon-reload tells systemd to re-read unit definitions — restart alone would use the stale version. Chaining them applies new ExecStart lines, environment variables, or resource limits, then restarts the app under the new unit. Run the reload first or the restart silently keeps old settings."
+    },
+    {
+      "id": 7515,
+      "category": "VPS Management",
+      "cmd": "sudo certbot renew --cert-name example.com",
+      "desc": "Renew a single named certificate",
+      "tooltip": "certbot renew normally processes every certificate on the box; --cert-name example.com narrows it to one, selected by the name shown in certbot certificates. It still respects the 30-day renewal window — nothing happens if the certificate is not close to expiring. This is the targeted form for per-site renewal scripts."
+    },
+    {
+      "id": 7516,
+      "category": "VPS Management",
+      "cmd": "sudo certbot renew --quiet --deploy-hook 'systemctl reload nginx'",
+      "desc": "Renew silently and reload nginx on success",
+      "tooltip": "The cron-friendly form: --quiet suppresses all output except errors, and --deploy-hook runs the quoted command only when a certificate was actually renewed — the hook makes nginx pick up the new certificate files. Because it runs only on real renewal, it is safe on a nightly schedule. This mirrors what the packaged certbot timer does."
+    },
+    {
+      "id": 7517,
+      "category": "VPS Management",
+      "cmd": "sudo certbot renew --standalone --pre-hook 'systemctl stop nginx' --post-hook 'systemctl start nginx'",
+      "desc": "Renew with a standalone server and service hooks",
+      "tooltip": "For renewals when nginx holds port 80: --standalone makes certbot run its own temporary web server on port 80 to answer the challenge, so nginx must be stopped first (--pre-hook) and started again after (--post-hook). The pre/post hooks bracket the whole run. Expect a brief downtime during the swap."
+    },
+    {
+      "id": 7518,
+      "category": "VPS Management",
+      "cmd": "15 3 * * * /usr/bin/certbot renew --quiet --deploy-hook 'systemctl reload nginx'",
+      "desc": "Schedule nightly certbot renewal via cron",
+      "tooltip": "A crontab line: at 03:15 daily, run certbot renew quietly and reload nginx only when a renewal actually happens (the --quiet and --deploy-hook pattern from the Certbot docs). The five fields are minute, hour, day-of-month, month, day-of-week. Note that the packaged certbot.timer already does this on Ubuntu — add this only if you manage cron yourself."
+    },
+    {
+      "id": 7519,
+      "category": "VPS Management",
+      "cmd": "sudo certbot certonly --nginx --cert-name example.com -d example.com -d www.example.com",
+      "desc": "Issue a cert for two domains under one name",
+      "tooltip": "certonly obtains certificates without touching nginx site config — the --nginx flag only handles the ACME challenge, while the -d flags list every domain to cover (example.com and www.example.com become SAN, subject-alternative-name entries). --cert-name gives the bundle a stable name for later renew --cert-name calls. Renewal continues automatically via the timer."
+    },
+    {
+      "id": 7520,
+      "category": "VPS Management",
+      "cmd": "sudo certbot certificates | grep -E 'Certificate Name|Expiry Date'",
+      "desc": "List certificate names and expiry dates",
+      "tooltip": "Filters certbot certificates down to the two lines that matter per certificate: the name and the expiration date. Scanning this output tells you at a glance whether any certificate is creeping toward its 30-day renewal window. Pair with a calendar reminder for manual review."
+    },
+    {
+      "id": 7521,
+      "category": "VPS Management",
+      "cmd": "sudo certbot reconfigure --cert-name example.com",
+      "desc": "Change a certificate's renewal options",
+      "tooltip": "reconfigure rewrites how one certificate is renewed — webroot path, plugins, hooks — using the options you pass, then validates the change with a test renewal against the staging server before saving. It is the supported way to fix a certificate whose renewal method changed (say, nginx to webroot). See certbot certificates for valid names."
+    },
+    {
+      "id": 7522,
+      "category": "VPS Management",
+      "cmd": "sudo crontab -e",
+      "desc": "Edit the root user's crontab",
+      "tooltip": "Opens root's cron table (the crontab) in the default editor — the place for system-level jobs like nightly renewals, backups, and cleanup scripts that need privileges. Each line is a schedule plus a command. Jobs here run as root, so review them with the care root deserves."
+    },
+    {
+      "id": 7523,
+      "category": "VPS Management",
+      "cmd": "sudo crontab -l",
+      "desc": "List the root user's scheduled jobs",
+      "tooltip": "Prints every cron job scheduled for root, one per line, with the five time fields followed by the command. This is the audit command when you inherit a server: you see at a glance what runs automatically. Compare it against your mental model of the server's maintenance."
+    },
+    {
+      "id": 7524,
+      "category": "VPS Management",
+      "cmd": "crontab -l | grep -v '^#'",
+      "desc": "Show cron jobs excluding comments",
+      "tooltip": "The pipe strips blank and comment lines (those starting with #) from the crontab output, leaving only active job lines — the clean view for auditing. Commented lines are disabled jobs, so the filtered list is what actually executes. Add -w to also skip whitespace-only lines if you prefer."
+    },
+    {
+      "id": 7525,
+      "category": "VPS Management",
+      "cmd": "systemctl list-timers --all | grep -iE 'apt|unattended|certbot'",
+      "desc": "Show scheduled maintenance timers",
+      "tooltip": "list-timers --all shows every systemd timer with its next run time and the unit it triggers; grepping for apt, unattended, and certbot surfaces exactly the maintenance schedule — automatic updates and certificate renewals. If a timer is missing here, that maintenance silently isn't happening. Timers are systemd's modern replacement for cron."
+    },
+    {
+      "id": 7526,
+      "category": "VPS Management",
+      "cmd": "sudo tar -czf /root/backups/etc-$(date +%F).tar.gz /etc/ssh /etc/ufw /etc/fail2ban",
+      "desc": "Snapshot server configs before changes",
+      "tooltip": "Bundles the SSH, firewall, and fail2ban config trees into one compressed archive (czf = create, gzip, file) named with today's date via $(date +%F). Restoring is a tar -xzf of the same file. A five-second backup before a hardening session turns a mistake into a one-command rollback."
+    },
+    {
+      "id": 7527,
+      "category": "VPS Management",
+      "cmd": "sudo journalctl -b -1 -p err",
+      "desc": "Show errors from the previous boot",
+      "tooltip": "journalctl -b -1 addresses the boot before the current one (-b alone is the current boot, -b -1 the previous), and -p err filters to errors and above. This is the first stop when a server came back unhealthy after a reboot: it shows what went wrong during the previous session. Combine with -u myapp to scope it to one service."
+    },
+    {
+      "id": 7528,
+      "category": "VPS Management",
+      "cmd": "sudo journalctl -u ssh -b | grep -i 'failed password'",
+      "desc": "Show SSH brute-force attempts from the journal",
+      "tooltip": "Filters the SSH service's current-boot journal entries for failed password lines, revealing how much password guessing the box is absorbing — the justification for key-only auth and fail2ban. The journal often holds lines that log rotation has already purged from /var/log/auth.log. Pair with wc -l for a count."
+    },
+    {
+      "id": 7529,
+      "category": "VPS Management",
+      "cmd": "sudo grep 'Accepted publickey' /var/log/auth.log | tail -10",
+      "desc": "Show the last ten successful key logins",
+      "tooltip": "Every successful key-based SSH login writes an Accepted publickey line to auth.log; this shows the ten most recent, with user, source IP, and key fingerprint. It is the audit trail for 'who actually logged in' — compare it with your expectations after an incident. For password logins, grep Accepted password instead."
+    },
+    {
+      "id": 7530,
+      "category": "VPS Management",
+      "cmd": "last -x shutdown reboot",
+      "desc": "List server shutdown and reboot history",
+      "tooltip": "The last command reads the wtmp log of login sessions; -x includes system events, and filtering by the shutdown and reboot record types shows the box's restart history with timestamps. An unexpected reboot pattern here hints at crashes, kernel panics, or OOM-triggered resets. Check dmesg for the cause."
+    },
+    {
+      "id": 7531,
+      "category": "VPS Management",
+      "cmd": "sudo ss -tlnp | grep :22",
+      "desc": "Confirm SSH is listening on port 22",
+      "tooltip": "ss -tlnp lists listening (-l) TCP (-t) sockets with process names (-p, hence sudo); grepping for :22 confirms sshd bound to the port after a restart. The output includes the listening address and the owning process — the same check applies to any port when diagnosing 'can't connect'. Compare with ss -tlnp | grep :443 for the web stack."
+    },
+    {
+      "id": 7532,
+      "category": "VPS Management",
+      "cmd": "sudo apt-get autoremove --purge -y",
+      "desc": "Remove orphaned packages and their configs",
+      "tooltip": "autoremove deletes packages that became unneeded after upgrades or removals (dangling dependencies), and --purge also deletes their config files — a periodic hygiene step that frees disk and reduces attack surface. The -y flag skips the confirmation. It never touches explicitly installed packages, so it is safe after deploys."
+    },
+    {
+      "id": 7533,
+      "category": "VPS Management",
+      "cmd": "sudo du -sh /var/log/* | sort -rh | head -10",
+      "desc": "Find the largest log files",
+      "tooltip": "du -sh reports each log's total size in human units; sort -rh orders by size descending; head -10 keeps the top ten. A log that has grown to gigabytes is usually a chatty service or a broken rotation — the fix is usually logrotate config. This is disk-forensics 101 on a full server."
+    },
+    {
+      "id": 7534,
+      "category": "VPS Management",
+      "cmd": "sudo lsof -iTCP -sTCP:LISTEN -P -n",
+      "desc": "List all listening TCP sockets with processes",
+      "tooltip": "lsof with -iTCP -sTCP:LISTEN shows every open listening socket and the owning process; -P disables port-name lookups and -n disables hostname lookups for speed and accuracy. The output maps each open port to its process — the definitive answer to 'what is running on port X'. Compare with ss -tlnp, which shows the same picture differently."
+    },
+    {
+      "id": 7535,
+      "category": "VPS Management",
+      "cmd": "sudo visudo -f /etc/sudoers.d/deploy",
+      "desc": "Edit a sudo drop-in file safely",
+      "tooltip": "visudo validates syntax before saving — the -f flag points it at a drop-in file in /etc/sudoers.d/, the clean way to grant the deploy user specific sudo rights (like a no-password restart of myapp) without touching the main sudoers file. A broken sudoers file can lock everyone out of sudo, which is exactly what visudo prevents."
     }
   ],
-  "total": 7205
+  "total": 7488
 }
