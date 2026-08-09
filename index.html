@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Terminal Glossary — 3,267 Commands</title>
+<title>Linux Terminal Glossary</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1520,7 +1520,7 @@ body.chat-mode .main{height:100dvh;overflow:hidden}
     <div class="content" id="content">
       <div class="loading-state">
         <div class="spinner"></div>
-        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading 3,267 commands…</div>
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted)">Loading commands…</div>
       </div>
     </div>
   </main>
@@ -1667,6 +1667,17 @@ let SEARCH_INDEX = null;
 let IDF = {};
 let SYNONYMS = {};
 
+// ─── SEMANTIC SEARCH STATE ─────────────────────────────────────────
+let SEARCH_VECTORS = null;   // {ids, dim, vecs: Float32Array, rowById}
+let SEM_READY = false;
+let SEM_LOADING = false;
+let SEM_PIPELINE = null;
+let FUZZY_TOKENS = null;     // Set of known cmd tokens (typo correction)
+let semCache = null;         // {query, cat, results, mode} fused cache
+const SEM_MODEL_ID = 'Xenova/multilingual-e5-small';
+const RRF_K = 60;
+const SEM_TOP_K = 100;
+
 let activeCategory = 'All';
 let searchQuery = '';
 let searchTimeout = null;
@@ -1739,7 +1750,7 @@ function renderHistoryPanel() {
   const list = document.getElementById('historyList');
   const arr = historyLoad();
   if (arr.length === 0) {
-    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search 3,267 commands.</div>`;
+    list.innerHTML = `<div class="history-empty">No recent searches yet.<br>Start typing to search ${COMMANDS.length} commands.</div>`;
     return;
   }
   list.innerHTML = arr.map(e => `
@@ -2170,8 +2181,20 @@ async function loadData() {
   IDF = idxData.idf;
   SYNONYMS = idxData.synonyms;
 
+  // Semantic vectors (fp16 embeddings, precomputed by scripts/build_embeddings.py)
+  try {
+    const vecRes = await fetch('search_vectors.json');
+    if (vecRes.ok) {
+      SEARCH_VECTORS = decodeVectors(await vecRes.json());
+    }
+  } catch (e) {
+    console.warn('semantic vectors unavailable — keyword mode only:', e);
+  }
+  buildFuzzyIndex();
+
   document.getElementById('totalCount').textContent = `${COMMANDS.length} commands`;
   document.getElementById('catCount').textContent = `${CATEGORIES.length} categories`;
+  document.title = `Linux Terminal Glossary — ${COMMANDS.length} Commands`;
   buildSidebar();
   buildFilterBar();
   renderAll();
@@ -2363,19 +2386,201 @@ function search(query) {
   if (qTokens.length === 0) return null; // show all
 
   const expanded = getExpanded(qTokens);
+
+  // Typo correction: REPLACE typo tokens with their corrected form so the
+  // raw typo can't substring-match unrelated words (e.g. "gerp" inside
+  // "fingerprint"). The correction keeps normal keyword weight.
+  let effTokens = qTokens;
+  for (let i = 0; i < qTokens.length; i++) {
+    const fix = fuzzyCorrect(qTokens[i]);
+    if (fix && fix !== qTokens[i]) {
+      if (effTokens === qTokens) effTokens = [...qTokens];
+      effTokens[i] = fix;
+    }
+  }
+
   let results = COMMANDS
     .filter(c => activeCategory === 'All' || c.category === activeCategory)
-    .map(c => ({ cmd: c, score: scoreCommand(c, qTokens, expanded) }))
+    .map(c => ({ cmd: c, score: scoreCommand(c, effTokens, expanded) }))
     .filter(r => r.score > 2)  // tiny threshold filters noise but allows desc-only TF-IDF hits
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => b.score - a.score)
+    .slice(0, SEM_TOP_K);
 
-  // Determine mode
+  // Determine lexical mode
   const isSemantic = expanded.length > 0 && results.some(r => {
     const tokens = tokenize(r.cmd.cmd + ' ' + r.cmd.desc);
     return qTokens.every(qt => !tokens.includes(qt)) && r.score > 0;
   });
+  let mode = isSemantic ? 'semantic' : 'keyword';
 
-  return { results: results.map(r => r.cmd), mode: isSemantic ? 'semantic' : 'keyword', expanded };
+  // Serve cached fused results if we already have them for this exact query
+  if (semCache && semCache.query === query && semCache.cat === activeCategory) {
+    return { results: semCache.results, mode: semCache.mode, expanded };
+  }
+
+  // Semantic fusion (background): warm the model once, then fuse + re-render
+  if (SEARCH_VECTORS) {
+    if (!SEM_READY && !SEM_LOADING) {
+      initSemantic().then(() => { if (searchQuery.trim() === query) renderAll(); });
+    } else if (SEM_READY) {
+      enhanceWithSemantic(query, results).then(fused => {
+        semCache = { query, cat: activeCategory, results: fused, mode: 'hybrid' };
+        if (searchQuery.trim() === query) renderAll();
+      });
+    }
+  }
+
+  return { results: results.map(r => r.cmd), mode, expanded };
+}
+
+// ─── SEMANTIC ENGINE (embeddings + fuzzy + RRF fusion) ─────────────
+function decodeVectors(vd) {
+  const bin = atob(vd.vectors_b64);
+  const buf = new ArrayBuffer(bin.length);
+  const u8 = new Uint8Array(buf);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const dv = new DataView(buf);
+  const n = vd.ids.length;
+  const vecs = new Float32Array(n * vd.dim);
+  for (let i = 0; i < vecs.length; i++) vecs[i] = dv.getFloat16(i * 2, true);
+  const rowById = new Map();
+  vd.ids.forEach((id, row) => rowById.set(id, row));
+  return { ids: vd.ids, dim: vd.dim, vecs, rowById };
+}
+
+function buildFuzzyIndex() {
+  FUZZY_TOKENS = new Set();
+  for (const c of COMMANDS) {
+    tokenize(c.cmd).forEach(t => { if (t.length >= 3) FUZZY_TOKENS.add(t); });
+  }
+}
+
+function editDistance(a, b) {
+  // Damerau-Levenshtein (optimal string alignment): transpositions count as
+  // one edit, so common typos like "gerp"→"grep" are distance 1.
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Uint8Array(n + 1));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        dp[i][j] = Math.min(dp[i][j], dp[i - 2][j - 2] + 1);
+      }
+    }
+  }
+  return dp[m][n];
+}
+
+function fuzzyCorrect(token) {
+  if (token.length < 3 || !FUZZY_TOKENS || FUZZY_TOKENS.has(token)) return null;
+  const maxD = token.length >= 6 ? 2 : 1;
+  let best = null, bestD = Infinity;
+  for (const cand of FUZZY_TOKENS) {
+    const d = editDistance(token, cand);
+    if (d < bestD) { bestD = d; best = cand; }
+    if (bestD === 1 && token.length <= 5) break;
+  }
+  return bestD <= maxD ? best : null;
+}
+
+async function initSemantic() {
+  if (SEM_READY || SEM_LOADING) return;
+  // Back off after a failure so offline browsing doesn't spam retries
+  if (window.__ltgSemFailedAt && Date.now() - window.__ltgSemFailedAt < 60000) return;
+  SEM_LOADING = true;
+  try {
+    if (!window.__ltgTransformers) {
+      // transformers.js v3 is ESM — load via dynamic import (CDN)
+      window.__ltgTransformers = await import(
+        'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1'
+      );
+    }
+    const { pipeline, env } = window.__ltgTransformers;
+    env.allowLocalModels = false;
+    SEM_PIPELINE = await pipeline('feature-extraction', SEM_MODEL_ID, { dtype: 'q8' });
+    SEM_READY = true;
+  } catch (e) {
+    window.__ltgSemFailedAt = Date.now();
+    console.warn('semantic search unavailable — keyword mode only:', e);
+  } finally {
+    SEM_LOADING = false;
+  }
+}
+
+async function semanticQueryVector(query) {
+  const out = await SEM_PIPELINE('query: ' + query, { pooling: 'mean', normalize: true });
+  return out.data; // Float32Array(384)
+}
+
+function semanticRank(qvec) {
+  const { ids, dim, vecs } = SEARCH_VECTORS;
+  const n = ids.length;
+  const scores = new Float32Array(n);
+  for (let row = 0; row < n; row++) {
+    let dot = 0;
+    const base = row * dim;
+    for (let d = 0; d < dim; d++) dot += vecs[base + d] * qvec[d];
+    scores[row] = dot;
+  }
+  const order = new Uint32Array(n);
+  for (let i = 0; i < n; i++) order[i] = i;
+  order.sort((a, b) => scores[b] - scores[a]);
+  const top = [];
+  for (let i = 0; i < Math.min(SEM_TOP_K, n); i++) top.push({ id: ids[order[i]], score: scores[order[i]] });
+  return top;
+}
+
+async function enhanceWithSemantic(query, lexicalResults) {
+  try {
+    const qvec = await semanticQueryVector(query);
+    const byId = new Map(COMMANDS.map(c => [c.id, c]));
+    const top = semanticRank(qvec).filter(t => {
+      const c = byId.get(t.id);
+      return c && (activeCategory === 'All' || c.category === activeCategory);
+    });
+    return rrfFuse(lexicalResults, top, query);
+  } catch (e) {
+    console.warn('semantic fusion failed:', e);
+    return lexicalResults.map(r => r.cmd);
+  }
+}
+
+function rrfFuse(lexicalResults, semanticTop, rawQuery) {
+  const rrf = new Map();
+  const add = (list, limit) => {
+    list.slice(0, limit).forEach((item, idx) => {
+      const id = item.cmd ? item.cmd.id : item.id;
+      rrf.set(id, (rrf.get(id) || 0) + 1 / (RRF_K + idx + 1));
+    });
+  };
+  add(lexicalResults, SEM_TOP_K);
+  add(semanticTop, SEM_TOP_K);
+
+  const byId = new Map(COMMANDS.map(c => [c.id, c]));
+  const merged = [...rrf.entries()]
+    .map(([id, score]) => ({ cmd: byId.get(id), score }))
+    .filter(x => x.cmd)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.cmd);
+
+  // Exact cmd-string match pinned first (when in scope of the active category)
+  const raw = rawQuery.trim().toLowerCase();
+  const exact = COMMANDS.find(c => c.cmd.toLowerCase() === raw
+    && (activeCategory === 'All' || c.category === activeCategory));
+  if (exact && merged[0] !== exact) {
+    const rest = merged.filter(c => c !== exact);
+    merged.length = 0;
+    merged.push(exact, ...rest);
+  }
+  return merged;
 }
 
 // ─── HIGHLIGHT ────────────────────────────────────────────────────
@@ -2411,10 +2616,13 @@ function renderAll() {
     displayCommands = searchResult ? searchResult.results : [];
     highlightTokens = tokenize(searchQuery);
     badge.textContent = searchResult?.mode || 'keyword';
-    badge.style.background = searchResult?.mode === 'semantic'
-      ? 'var(--color-warn-dim)' : 'var(--color-surface-3)';
-    badge.style.color = searchResult?.mode === 'semantic'
-      ? 'var(--color-warn)' : 'var(--color-text-muted)';
+    const m = searchResult?.mode || 'keyword';
+    badge.style.background = m === 'semantic'
+      ? 'var(--color-warn-dim)' : m === 'hybrid'
+      ? 'var(--color-accent-dim)' : 'var(--color-surface-3)';
+    badge.style.color = m === 'semantic'
+      ? 'var(--color-warn)' : m === 'hybrid'
+      ? 'var(--color-accent)' : 'var(--color-text-muted)';
   } else {
     displayCommands = COMMANDS.filter(c =>
       activeCategory === 'All' || c.category === activeCategory

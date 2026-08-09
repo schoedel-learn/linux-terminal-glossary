@@ -11,18 +11,23 @@ no framework, and no package.json — everything ships as plain files.
 ```
 linux-terminal-glossary/
 ├── index.html                   # Single-file SPA — all HTML, CSS, and JS inline
-├── commands.json                # Master data — 3,267 commands, flat list + categories array
-├── search_index.json            # TF-IDF search index (built by scripts/rebuild_search_index.py)
+├── commands.json                # Master data — 4,800+ commands, flat list + categories array
+├── search_index.json            # TF-IDF search index + synonyms (built by scripts/rebuild_search_index.py)
+├── search_vectors.json          # fp16 semantic embeddings, one 384-dim vector per command (built by scripts/build_embeddings.py)
+├── catalogs/                    # Per-category source files folded into commands.json by scripts/merge_catalogs.py
 ├── scripts/
-│   └── rebuild_search_index.py  # Regenerates search_index.json from commands.json
+│   ├── rebuild_search_index.py  # Regenerates search_index.json from commands.json
+│   ├── build_embeddings.py      # Regenerates search_vectors.json (needs onnxruntime+tokenizers venv, model files)
+│   └── merge_catalogs.py        # Folds catalogs/*.json into commands.json (exact-match dedup)
 └── .github/
     ├── copilot-instructions.md  # This file
     └── ISSUE_TEMPLATE/command-report.yml
 ```
 
-There are **no separate source files**. `commands.json` is the single source of
-truth and is edited directly. The old workflow (merging category `.py` source
-files via a `rebuild_commands.py`) was retired — do not recreate it.
+There are **no separate source files** for command data — `catalogs/*.json`
+feed `commands.json`, which is the single source of truth. The old workflow
+(merging category `.py` source files via a `rebuild_commands.py`) was retired —
+do not recreate it.
 
 ---
 
@@ -178,23 +183,48 @@ Defined as `QS_STEPS` — an array of 8 step objects. Each step has:
 
 ## Build pipeline
 
-There is no build step. To add or change commands:
+There is no build step for the site itself. To add or change commands:
 
 ```bash
-# 1. Edit commands.json directly (keep it pretty-printed, indent=2)
+# 1. Edit the catalog in catalogs/<category>.json (or commands.json directly for
+#    small fixes — keep it pretty-printed, indent=2)
 
-# 2. Rebuild the search index
+# 2. Merge catalogs into the master
+python3 scripts/merge_catalogs.py     # → updates commands.json
+
+# 3. Rebuild the search index
 python3 scripts/rebuild_search_index.py   # → updates search_index.json
 
-# 3. Update the 3 count references in index.html
-#    (title tag, loading spinner text, history panel empty-state text)
-#    to match the new len(commands)
+# 4. Rebuild the semantic vectors (only when the command set changed)
+MODEL_DIR=/tmp/ltg-emb/models /tmp/ltg-emb/bin/python scripts/build_embeddings.py  # → search_vectors.json
 
-# 4. Commit, push, and deploy (GitHub Pages serves from main)
-git add commands.json search_index.json index.html
+# 5. Commit and push (GitHub Pages serves from main)
+git add commands.json search_index.json search_vectors.json index.html catalogs/
 git commit -m "feat: ..."
 git push origin main
 ```
+
+The command count in index.html is **dynamic** (title and empty-state are set
+from `COMMANDS.length`; the loading spinner has no count) — do not hardcode it.
+
+## Semantic search (hybrid)
+
+- Corpus vectors are precomputed (fp16, `search_vectors.json`) with the
+  multilingual `Xenova/multilingual-e5-small` model — passages use the
+  `passage: ` prefix in `scripts/build_embeddings.py`.
+- The browser loads the same model via transformers.js (CDN, cached) and
+  embeds only the QUERY (with the `query: ` prefix), then dot-products against
+  the precomputed vectors.
+- Two signals are fused with Reciprocal Rank Fusion (RRF, k=60): the semantic
+  cosine list and the lexical list (TF-IDF + synonyms + exact pinning).
+- Typo correction uses Damerau-Levenshtein (transposition = 1 edit) against
+  the set of known cmd tokens; corrected tokens REPLACE the typo in scoring.
+- Key JS: `SEARCH_VECTORS`, `SEM_READY/SEM_LOADING/SEM_PIPELINE`, `semCache`,
+  `decodeVectors()`, `buildFuzzyIndex()`, `fuzzyCorrect()`, `initSemantic()`,
+  `semanticRank()`, `rrfFuse()`, `enhanceWithSemantic()`.
+- Do not change the model id without regenerating `search_vectors.json`.
+- New synonyms (including Spanish terms — `borrar`, `procesos`, `archivos`,
+  etc.) go in the `SEARCH_SYNONYMS` map inside `scripts/rebuild_search_index.py`.
 
 ---
 

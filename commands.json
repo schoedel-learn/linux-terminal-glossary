@@ -5875,13 +5875,6 @@
       "tooltip": "Schedules a command to run at midnight tonight."
     },
     {
-      "id": 736,
-      "category": "Cron & Scheduling",
-      "cmd": "atq",
-      "desc": "List all pending at jobs",
-      "tooltip": "Lists all pending jobs scheduled with the 'at' command."
-    },
-    {
       "id": 737,
       "category": "Cron & Scheduling",
       "cmd": "atrm 5",
@@ -5924,13 +5917,6 @@
       "tooltip": "Manually triggers all scripts in the daily cron directory right now, without waiting for the scheduled time."
     },
     {
-      "id": 743,
-      "category": "Cron & Scheduling",
-      "cmd": "batch",
-      "desc": "Run a command when system load drops below threshold",
-      "tooltip": "Queues a command to run when the system's CPU load average falls below a threshold, for low-priority work."
-    },
-    {
       "id": 744,
       "category": "Cron & Scheduling",
       "cmd": "anacron -f -n",
@@ -5943,13 +5929,6 @@
       "cmd": "cat /var/log/syslog | grep CRON",
       "desc": "Check syslog for cron job execution history",
       "tooltip": "Filters the system log for CRON-related entries to see a history of cron job executions."
-    },
-    {
-      "id": 746,
-      "category": "Cron & Scheduling",
-      "cmd": "systemctl list-timers",
-      "desc": "List systemd timers as a modern cron alternative",
-      "tooltip": "Lists systemd timers — the modern replacement for cron. Shows when each timer last ran and when it will next run."
     },
     {
       "id": 747,
@@ -7891,13 +7870,6 @@
       "tooltip": "Moves the cursor one position to the right."
     },
     {
-      "id": 1024,
-      "category": "User & Group Management",
-      "cmd": "w",
-      "desc": "Move forward to the start of the next word",
-      "tooltip": "Jumps the cursor forward to the start of the next word."
-    },
-    {
       "id": 1025,
       "category": "Vim/Neovim",
       "cmd": "b",
@@ -9011,13 +8983,6 @@
       "tooltip": "Opens your .bashrc file for editing so you can add aliases, change settings, or modify PATH."
     },
     {
-      "id": 1184,
-      "category": "Environment & Config",
-      "cmd": "source ~/.bashrc",
-      "desc": "Apply changes to .bashrc in the current shell session",
-      "tooltip": "Reloads your .bashrc so changes you just made take effect in the current terminal without reopening it."
-    },
-    {
       "id": 1185,
       "category": "Environment & Config",
       "cmd": "cat ~/.bash_profile",
@@ -9093,13 +9058,6 @@
       "cmd": "printenv HOME",
       "desc": "Print the value of a specific environment variable",
       "tooltip": "Prints the value of a single specific environment variable."
-    },
-    {
-      "id": 1196,
-      "category": "Environment & Config",
-      "cmd": "env",
-      "desc": "Display all environment variables (similar to printenv)",
-      "tooltip": "Prints all environment variables — functionally similar to printenv with no arguments."
     },
     {
       "id": 1197,
@@ -9242,13 +9200,6 @@
       "tooltip": "Includes hidden files in fd's search."
     },
     {
-      "id": 1217,
-      "category": "Productivity & Search",
-      "cmd": "bat file.txt",
-      "desc": "View file with syntax highlighting (cat replacement)",
-      "tooltip": "Shows a file with syntax highlighting, line numbers, and a styled border using bat. A more readable alternative to cat."
-    },
-    {
       "id": 1218,
       "category": "Productivity & Search",
       "cmd": "bat --list-languages",
@@ -9310,20 +9261,6 @@
       "cmd": "apropos keyword",
       "desc": "Search all man page descriptions for a keyword",
       "tooltip": "Searches all man page short descriptions for a keyword. Same as man -k."
-    },
-    {
-      "id": 1227,
-      "category": "Productivity & Search",
-      "cmd": "locate filename",
-      "desc": "Quickly find a file by name using the locate database",
-      "tooltip": "Finds files by name using a pre-built database. Much faster than find for simple name lookups."
-    },
-    {
-      "id": 1228,
-      "category": "Productivity & Search",
-      "cmd": "updatedb",
-      "desc": "Update the locate/mlocate database for fast searches",
-      "tooltip": "Rebuilds the locate database by scanning the filesystem. Run after creating new files."
     },
     {
       "id": 1229,
@@ -9984,13 +9921,6 @@
       "tooltip": "Imports a container filesystem tar as a new image — different from docker image load."
     },
     {
-      "id": 1323,
-      "category": "Docker",
-      "cmd": "docker build -t myapp:latest .",
-      "desc": "Build an image from the Dockerfile in the current directory",
-      "tooltip": "Builds a Docker image from the Dockerfile in the current directory."
-    },
-    {
       "id": 1324,
       "category": "Docker",
       "cmd": "docker build -f Dockerfile.prod -t myapp:prod .",
@@ -10215,13 +10145,6 @@
       "tooltip": "Creates a network with no external connectivity — containers can talk to each other but not the internet."
     },
     {
-      "id": 1356,
-      "category": "Docker",
-      "cmd": "docker network ls",
-      "desc": "List all Docker networks on the host",
-      "tooltip": "Lists all Docker networks on the host."
-    },
-    {
       "id": 1357,
       "category": "Docker",
       "cmd": "docker network inspect mynet",
@@ -10276,13 +10199,6 @@
       "cmd": "docker volume create --driver local mydata",
       "desc": "Create a volume using the local storage driver",
       "tooltip": "Creates a volume using the local driver (the default behavior)."
-    },
-    {
-      "id": 1365,
-      "category": "Docker",
-      "cmd": "docker volume ls",
-      "desc": "List all Docker volumes on the host",
-      "tooltip": "Lists all Docker volumes on the host."
     },
     {
       "id": 1366,
@@ -10362,32 +10278,11 @@
       "tooltip": "Mounts a volume as read-only. The container can read data but cannot modify it."
     },
     {
-      "id": 1377,
-      "category": "Docker",
-      "cmd": "docker system df",
-      "desc": "Show disk usage by images, containers, volumes, and build cache",
-      "tooltip": "Shows disk usage broken down by images, containers, volumes, and build cache."
-    },
-    {
       "id": 1378,
       "category": "Docker",
       "cmd": "docker system df -v",
       "desc": "Show verbose disk usage with per-item breakdown",
       "tooltip": "Shows detailed disk usage with per-item breakdown (each image and container listed separately)."
-    },
-    {
-      "id": 1379,
-      "category": "Docker",
-      "cmd": "docker system prune",
-      "desc": "Remove all stopped containers, unused networks, dangling images, and build cache",
-      "tooltip": "Removes stopped containers, unused networks, dangling images, and build cache."
-    },
-    {
-      "id": 1380,
-      "category": "Docker",
-      "cmd": "docker system prune -a",
-      "desc": "Remove all unused resources including untagged images and volumes",
-      "tooltip": "More aggressive: also removes untagged images (not just dangling)."
     },
     {
       "id": 1381,
@@ -10432,20 +10327,6 @@
       "tooltip": "Shows Docker events that occurred in the past hour."
     },
     {
-      "id": 1387,
-      "category": "Docker",
-      "cmd": "docker compose up",
-      "desc": "Create and start all services defined in compose.yaml",
-      "tooltip": "Starts all services defined in compose.yaml, creating containers, networks, and volumes as needed."
-    },
-    {
-      "id": 1388,
-      "category": "Docker",
-      "cmd": "docker compose up -d",
-      "desc": "Start all services in detached (background) mode",
-      "tooltip": "Starts all compose services in the background."
-    },
-    {
       "id": 1389,
       "category": "Docker",
       "cmd": "docker compose up --build",
@@ -10488,20 +10369,6 @@
       "tooltip": "Starts services and waits until all health checks pass before returning."
     },
     {
-      "id": 1395,
-      "category": "Docker",
-      "cmd": "docker compose down",
-      "desc": "Stop and remove containers, networks defined in compose.yaml",
-      "tooltip": "Stops and removes all containers and networks created by compose."
-    },
-    {
-      "id": 1396,
-      "category": "Docker",
-      "cmd": "docker compose down -v",
-      "desc": "Stop and remove containers, networks, and volumes",
-      "tooltip": "Stops and removes containers, networks, and all named volumes."
-    },
-    {
       "id": 1397,
       "category": "Docker",
       "cmd": "docker compose down --rmi all",
@@ -10514,13 +10381,6 @@
       "cmd": "docker compose down --remove-orphans",
       "desc": "Also remove orphaned containers not in current compose file",
       "tooltip": "Also removes containers that were created by a previous compose version but aren't in the current file."
-    },
-    {
-      "id": 1399,
-      "category": "Docker",
-      "cmd": "docker compose ps",
-      "desc": "List containers for the current compose project",
-      "tooltip": "Lists all containers in the compose project and their status."
     },
     {
       "id": 1400,
@@ -10544,13 +10404,6 @@
       "tooltip": "Shows the combined log output from all services."
     },
     {
-      "id": 1403,
-      "category": "Docker",
-      "cmd": "docker compose logs -f",
-      "desc": "Follow (tail) logs from all services in real time",
-      "tooltip": "Follows (tails) logs from all services in real time."
-    },
-    {
       "id": 1404,
       "category": "Docker",
       "cmd": "docker compose logs -f web",
@@ -10563,13 +10416,6 @@
       "cmd": "docker compose logs --tail=50 web",
       "desc": "Show the last 50 lines from a specific service",
       "tooltip": "Shows only the last 50 log lines from a service."
-    },
-    {
-      "id": 1406,
-      "category": "Docker",
-      "cmd": "docker compose build",
-      "desc": "Build or rebuild service images",
-      "tooltip": "Builds or rebuilds service images defined in the compose file."
     },
     {
       "id": 1407,
@@ -10647,13 +10493,6 @@
       "cmd": "docker compose unpause",
       "desc": "Unpause all paused service containers",
       "tooltip": "Resumes all paused containers."
-    },
-    {
-      "id": 1418,
-      "category": "Docker",
-      "cmd": "docker compose exec web bash",
-      "desc": "Open an interactive shell in the running web service",
-      "tooltip": "Opens an interactive shell in the web service container."
     },
     {
       "id": 1419,
@@ -11608,13 +11447,6 @@
       "tooltip": "Runs a Python library module as a script. -m lets you run things like http.server or json.tool without writing a file."
     },
     {
-      "id": 1555,
-      "category": "Python & pip",
-      "cmd": "python3 -i script.py",
-      "desc": "Run script.py then drop into an interactive REPL with its namespace",
-      "tooltip": "Runs script.py and then stays in the interactive Python prompt so you can explore the script's variables."
-    },
-    {
       "id": 1556,
       "category": "Python & pip",
       "cmd": "python3 -u script.py",
@@ -11692,13 +11524,6 @@
       "tooltip": "Measures how long a Python statement takes to execute, averaging over many runs."
     },
     {
-      "id": 1567,
-      "category": "Python & pip",
-      "cmd": "python3 -m json.tool file.json",
-      "desc": "Pretty-print and validate a JSON file",
-      "tooltip": "Reads a JSON file, validates it for syntax errors, and prints it formatted with indentation."
-    },
-    {
       "id": 1568,
       "category": "Python & pip",
       "cmd": "python3 -m http.server 8080",
@@ -11762,32 +11587,11 @@
       "tooltip": "Installs a package version that satisfies a range constraint (>= 1.0 but < 2.0)."
     },
     {
-      "id": 1577,
-      "category": "Python & pip",
-      "cmd": "pip install -r requirements.txt",
-      "desc": "Install all packages listed in a requirements file",
-      "tooltip": "Reads a requirements file (list of packages with versions) and installs all of them."
-    },
-    {
-      "id": 1578,
-      "category": "Python & pip",
-      "cmd": "pip install -e .",
-      "desc": "Install the current directory as an editable (development) package",
-      "tooltip": "Installs the current directory as an editable package — code changes take effect without reinstalling."
-    },
-    {
       "id": 1579,
       "category": "Python & pip",
       "cmd": "pip install --upgrade package",
       "desc": "Upgrade a package to the latest available version",
       "tooltip": "Upgrades a package to the latest version available on PyPI."
-    },
-    {
-      "id": 1580,
-      "category": "Python & pip",
-      "cmd": "pip install --upgrade pip",
-      "desc": "Upgrade pip itself to the latest version",
-      "tooltip": "Upgrades pip itself (the package installer) to the latest version."
     },
     {
       "id": 1581,
@@ -11860,20 +11664,6 @@
       "tooltip": "Uninstalls all packages listed in a requirements file without asking for confirmation. -y means 'yes to all'."
     },
     {
-      "id": 1591,
-      "category": "Python & pip",
-      "cmd": "pip list",
-      "desc": "List all installed packages and their versions",
-      "tooltip": "Lists all installed packages and their versions."
-    },
-    {
-      "id": 1592,
-      "category": "Python & pip",
-      "cmd": "pip list --outdated",
-      "desc": "List packages that have newer versions available on PyPI",
-      "tooltip": "Lists packages that have newer versions available on PyPI."
-    },
-    {
       "id": 1593,
       "category": "Python & pip",
       "cmd": "pip list --format=freeze",
@@ -11886,20 +11676,6 @@
       "cmd": "pip show package",
       "desc": "Show metadata for an installed package (version, location, deps)",
       "tooltip": "Shows metadata for an installed package: version, author, location, and dependencies."
-    },
-    {
-      "id": 1595,
-      "category": "Python & pip",
-      "cmd": "pip freeze",
-      "desc": "Output installed packages in requirements.txt format",
-      "tooltip": "Outputs all installed packages in package==version format, ready to use as a requirements file."
-    },
-    {
-      "id": 1596,
-      "category": "Python & pip",
-      "cmd": "pip freeze > requirements.txt",
-      "desc": "Save current environment's packages to requirements.txt",
-      "tooltip": "Saves all installed packages and their versions to requirements.txt for reproducibility."
     },
     {
       "id": 1597,
@@ -11972,25 +11748,11 @@
       "tooltip": "Shows debugging information about pip: platform, Python version, paths — useful for troubleshooting."
     },
     {
-      "id": 1607,
-      "category": "Python & pip",
-      "cmd": "python3 -m venv .venv",
-      "desc": "Create a virtual environment in .venv using the stdlib venv module",
-      "tooltip": "Creates a virtual environment in .venv using Python's built-in venv module."
-    },
-    {
       "id": 1608,
       "category": "Python & pip",
       "cmd": "source .venv/bin/activate",
       "desc": "Activate a virtual environment (bash/zsh)",
       "tooltip": "Activates the .venv virtual environment in bash or zsh. After this, python and pip use the venv."
-    },
-    {
-      "id": 1609,
-      "category": "Python & pip",
-      "cmd": "deactivate",
-      "desc": "Deactivate the currently active virtual environment",
-      "tooltip": "Deactivates the active virtual environment and returns to the system Python."
     },
     {
       "id": 1610,
@@ -13533,13 +13295,6 @@
       "tooltip": "Searches all module docstrings for the keyword 'compress' to find relevant modules."
     },
     {
-      "id": 1830,
-      "category": "GitHub CLI",
-      "cmd": "gh auth login",
-      "desc": "Authenticate gh CLI with GitHub via browser or token prompt",
-      "tooltip": "Authenticates the gh CLI with GitHub via a browser or token prompt."
-    },
-    {
       "id": 1831,
       "category": "GitHub CLI",
       "cmd": "gh auth login --with-token < token.txt",
@@ -13552,20 +13307,6 @@
       "cmd": "gh auth login --hostname github.example.com",
       "desc": "Authenticate against a GitHub Enterprise Server instance",
       "tooltip": "Authenticates against a GitHub Enterprise Server instance with a custom hostname."
-    },
-    {
-      "id": 1833,
-      "category": "GitHub CLI",
-      "cmd": "gh auth logout",
-      "desc": "Remove stored credentials and log out of GitHub",
-      "tooltip": "Removes stored credentials and logs out of GitHub from the gh CLI."
-    },
-    {
-      "id": 1834,
-      "category": "GitHub CLI",
-      "cmd": "gh auth status",
-      "desc": "Show current authentication state, account, and permissions",
-      "tooltip": "Shows which GitHub account you're authenticated as and what permissions the token has."
     },
     {
       "id": 1835,
@@ -13967,13 +13708,6 @@
       "tooltip": "Merges the latest base branch commits into the PR branch to bring it up to date."
     },
     {
-      "id": 1892,
-      "category": "GitHub CLI",
-      "cmd": "gh run list",
-      "desc": "List recent GitHub Actions workflow runs for the repo",
-      "tooltip": "Lists recent GitHub Actions workflow runs in the repository."
-    },
-    {
       "id": 1893,
       "category": "GitHub CLI",
       "cmd": "gh run list --workflow=ci.yml",
@@ -14051,13 +13785,6 @@
       "tooltip": "Downloads a named artifact (build output file) from a workflow run to your local machine."
     },
     {
-      "id": 1904,
-      "category": "GitHub CLI",
-      "cmd": "gh workflow list",
-      "desc": "List all workflows in the repository",
-      "tooltip": "Permanently deletes a workflow run from the repository's run history."
-    },
-    {
       "id": 1905,
       "category": "GitHub CLI",
       "cmd": "gh workflow view ci.yml",
@@ -14098,13 +13825,6 @@
       "cmd": "gh workflow disable ci.yml",
       "desc": "Disable a workflow without deleting it",
       "tooltip": "Enables a workflow that was previously disabled via gh or the GitHub UI."
-    },
-    {
-      "id": 1911,
-      "category": "GitHub CLI",
-      "cmd": "gh release list",
-      "desc": "List all releases for the current repository",
-      "tooltip": "Disables a workflow so it won't run automatically, without deleting the file."
     },
     {
       "id": 1912,
@@ -14184,13 +13904,6 @@
       "tooltip": "Deletes a specific release without showing a confirmation prompt."
     },
     {
-      "id": 1923,
-      "category": "GitHub CLI",
-      "cmd": "gh secret set API_KEY",
-      "desc": "Set a repository Actions secret (prompts for value)",
-      "tooltip": "Removes a specific asset file from a release by name."
-    },
-    {
       "id": 1924,
       "category": "GitHub CLI",
       "cmd": "gh secret set API_KEY --body 'myvalue'",
@@ -14203,13 +13916,6 @@
       "cmd": "gh secret set API_KEY --env production",
       "desc": "Set a secret scoped to a specific deployment environment",
       "tooltip": "Sets a secret with the value provided directly on the command line (useful in scripts)."
-    },
-    {
-      "id": 1926,
-      "category": "GitHub CLI",
-      "cmd": "gh secret list",
-      "desc": "List all Actions secrets for the repository",
-      "tooltip": "Sets a secret that is only available to deployments to a specific environment (e.g., production)."
     },
     {
       "id": 1927,
@@ -14378,13 +14084,6 @@
       "cmd": "gh gist create --public -d 'My script' script.sh",
       "desc": "Create a public Gist with a description",
       "tooltip": "Creates a public Gist with an optional description."
-    },
-    {
-      "id": 1951,
-      "category": "GitHub CLI",
-      "cmd": "gh gist list",
-      "desc": "List your GitHub Gists",
-      "tooltip": "Lists your GitHub Gists with their IDs, descriptions, and file counts."
     },
     {
       "id": 1952,
@@ -15206,13 +14905,6 @@
       "tooltip": "Enables sandbox mode for all Gemini CLI sessions by default via an environment variable."
     },
     {
-      "id": 2069,
-      "category": "Gemini CLI",
-      "cmd": "cat ~/.config/gemini/settings.json",
-      "desc": "View the full Gemini CLI configuration file (model, theme, MCP servers, etc.)",
-      "tooltip": "Views the full Gemini CLI settings.json file showing model, theme, MCP server config, and other preferences."
-    },
-    {
       "id": 2070,
       "category": "Gemini CLI",
       "cmd": "# settings.json: { \"theme\": \"dark\", \"defaultModel\": \"gemini-3.1-pro-preview\" }",
@@ -15234,13 +14926,6 @@
       "tooltip": "Shows the JSON config for enabling token caching — reuses cached context (like large codebases) to cut cost and latency."
     },
     {
-      "id": 2073,
-      "category": "Gemini CLI",
-      "cmd": "gemini --sandbox",
-      "desc": "Start Gemini CLI in sandbox mode — all shell commands run inside a container",
-      "tooltip": "Starts Gemini CLI with --sandbox so all shell tool calls run inside an isolated container instead of your real system."
-    },
-    {
       "id": 2074,
       "category": "Gemini CLI",
       "cmd": "docker pull gemini-sandbox-image",
@@ -15260,13 +14945,6 @@
       "cmd": "# Enable tokenCache in settings.json for repeated large-context sessions",
       "desc": "Token caching reuses cached prompt context (e.g. large codebases) to save cost and latency",
       "tooltip": "Explains the token caching feature — repeated large-context sessions reuse cached prompts to save cost and speed up responses."
-    },
-    {
-      "id": 2077,
-      "category": "Gemini CLI",
-      "cmd": "gemini --checkpointing",
-      "desc": "Enable checkpointing to save and restore long-running agentic sessions",
-      "tooltip": "Starts Gemini CLI with --checkpointing so long multi-step agentic sessions can be saved and resumed later."
     },
     {
       "id": 2078,
@@ -21742,13 +21420,6 @@
       "cmd": "# Set ANTHROPIC_API_KEY in a project .env, add .env to .gitignore",
       "desc": "Best practice: never commit API keys to Git",
       "tooltip": "API keys in Git history are a serious security risk — even deleted keys can be found in history. Use a .env file, add it to .gitignore, and load with dotenv. For CI/CD, use GitHub Secrets or your platform's secret management."
-    },
-    {
-      "id": 3003,
-      "category": "AI Agents & MCP",
-      "cmd": "claude /cost",
-      "desc": "Check token usage and cost breakdown for the Claude session",
-      "tooltip": "Shows cumulative token usage and estimated API spend for the current Claude Code session. Agentic sessions can consume tokens quickly — especially when the agent reads many files. Set a budget alert in your Anthropic account dashboard."
     },
     {
       "id": 3004,
@@ -34267,5 +33938,5 @@
       "tooltip": "Compares /proc entries with the output of ps to find processes a rootkit or kernel module is hiding. Hidden processes often mean the box is compromised. Other tests include unhide sys, which checks against system calls. Run it alongside rkhunter --check for a deeper sweep."
     }
   ],
-  "total": 4889
+  "total": 4842
 }

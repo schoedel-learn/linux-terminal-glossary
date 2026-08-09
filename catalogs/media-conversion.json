@@ -1,0 +1,865 @@
+{
+  "category": "Media & Conversion",
+  "commands": [
+    {
+      "cmd": "ffmpeg -i input.mp4 output.avi",
+      "desc": "Transcode a video to a different container and codec",
+      "tooltip": "Converts input.mp4 to AVI, guessing the output format and default codecs (video and audio compression algorithms) from the .avi extension. Defaults are rarely optimal, so serious work usually names codecs explicitly with -c:v and -c:a as in the H.264 example. Run ffprobe first to see what streams the file contains."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v libx264 -preset medium -crf 23 -c:a aac output.mp4",
+      "desc": "Transcode video to H.264 with CRF quality",
+      "tooltip": "Re-encodes the video with the libx264 codec (algorithm that compresses video) and audio with AAC. The -crf 23 flag sets quality: lower numbers give better quality and bigger files, 18-28 is the usual range. -preset medium trades encoding speed against file size, since slower presets compress better at the same CRF. A solid all-purpose conversion recipe."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v libx265 -crf 28 -c:a aac output.mp4",
+      "desc": "Transcode video to H.265 for smaller files",
+      "tooltip": "Encodes with H.265 (HEVC), which typically halves file size at quality similar to H.264. The CRF scale differs from x264: 28 here is roughly equivalent to 23 in the H.264 recipe. Expect much slower encoding, and check that your players support HEVC."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v libvpx-vp9 -crf 30 -b:v 0 output.webm",
+      "desc": "Encode a WebM video with the VP9 codec",
+      "tooltip": "Encodes a WebM file with the VP9 codec, a common choice for web video. The -crf 30 controls quality while -b:v 0 switches the encoder into constant-quality mode, since without it CRF is ignored. VP9 is slower than x264 but compresses better at the same quality."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v libaom-av1 -crf 30 -b:v 0 -c:a libopus output.mkv",
+      "desc": "Encode video with AV1 for maximum compression",
+      "tooltip": "Encodes with the AV1 codec, the most efficient codec widely supported today, using the libaom encoder. -crf 30 sets quality and -b:v 0 enables constant-quality mode; -c:a libopus picks an efficient audio codec. Encoding is very slow, so a small clip can take many minutes."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v h264_nvenc -preset p4 -cq 23 output.mp4",
+      "desc": "Encode video with the NVIDIA hardware encoder",
+      "tooltip": "Encodes using the NVIDIA GPU hardware encoder instead of the CPU, which is much faster but produces larger files at the same quality. -cq 23 works like CRF, with lower meaning better. Only works on machines with an NVIDIA GPU and the nvenc libraries installed."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vn -c:a libmp3lame -q:a 2 output.mp3",
+      "desc": "Extract the audio track as an MP3 file",
+      "tooltip": "Drops the video stream with -vn and encodes the audio as MP3 with the libmp3lame codec. -q:a 2 selects VBR quality on a 0-9 scale where lower is better, and 2 is a good music default. To copy audio without re-encoding use -c:a copy instead."
+    },
+    {
+      "cmd": "ffmpeg -i input.flac -c:a libmp3lame -q:a 2 output.mp3",
+      "desc": "Convert a FLAC file to an MP3 file",
+      "tooltip": "Decodes the lossless FLAC file and encodes it as MP3. FLAC is lossless (bit-perfect) while MP3 is lossy, so keep the original if you may want higher quality later. -q:a 2 is the VBR quality setting, where 0 is best."
+    },
+    {
+      "cmd": "ffmpeg -i input.wav -c:a flac output.flac",
+      "desc": "Convert a WAV file to lossless FLAC",
+      "tooltip": "Compresses a WAV file to FLAC without losing any audio data, so the output plays back identically. FLAC typically shrinks music to roughly half its WAV size, which makes it great for archiving. Use soxi or ffprobe to confirm the output."
+    },
+    {
+      "cmd": "ffmpeg -i input.wav -c:a libopus -b:a 96k output.opus",
+      "desc": "Encode audio as Opus at a target bitrate",
+      "tooltip": "Encodes audio with the Opus codec at a target bitrate of 96 kbps. Opus beats MP3 at low bitrates and is the default for web audio and many chat apps. -b:a sets the bitrate, so higher values mean better quality and bigger files."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vn -sn -c:a copy output.m4a",
+      "desc": "Extract audio to M4A without re-encoding",
+      "tooltip": "Copies the audio stream into an M4A container (file format that holds streams) without re-encoding, so quality is untouched and the job is nearly instant. -vn drops video and -sn drops subtitles. The audio codec must be one M4A supports, like the AAC that is common in MP4 files."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -ss 00:01:00 -t 30 -c copy output.mp4",
+      "desc": "Trim a clip without re-encoding for speed",
+      "tooltip": "Cuts from 1 minute in for 30 seconds, copying streams with -c copy so nothing is re-encoded. -ss placed before -i seeks fast, and -t sets the duration. Because it copies, the cut snaps to the nearest keyframe (a frame that can be decoded alone), so the start may be a bit early. Re-encode for frame-exact cuts."
+    },
+    {
+      "cmd": "ffmpeg -ss 00:02:00 -i input.mp4 -t 60 -c:v libx264 -crf 23 -c:a aac output.mp4",
+      "desc": "Trim a clip precisely by re-encoding",
+      "tooltip": "Cuts 60 seconds starting 2 minutes in, re-encoding with libx264 and AAC so the cut is frame-accurate. -ss before -i seeks first, then only the requested span is decoded. Slower than -c copy trimming but exact."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -sseof -30 -c copy output.mp4",
+      "desc": "Take the last 30 seconds of a video",
+      "tooltip": "Takes the last 30 seconds of the file using -sseof, which seeks relative to the end of the stream, so the negative value counts backward. Streams are copied, meaning no quality is lost and the job is fast. Related: -ss seeks from the start instead."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf scale=1280:720 output.mp4",
+      "desc": "Resize video to a fixed resolution",
+      "tooltip": "Scales the video to exactly 1280 by 720 pixels with the scale filter in -vf. Stretching an odd-shaped source distorts it, so pair it with force_original_aspect_ratio to letterbox instead. See the scale=-2 variant to keep the aspect ratio."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf scale=-2:720 output.mp4",
+      "desc": "Resize video keeping the aspect ratio",
+      "tooltip": "Scales the video to 720 pixels tall while auto-computing the width from the aspect ratio. -2 (not -1) rounds the computed dimension to an even number, which the common yuv420p pixel format requires. Use -2:1080 or scale=1920:-2 for other targets."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2\" output.mp4",
+      "desc": "Scale and letterbox video to a fixed size",
+      "tooltip": "Fits the video inside 1280x720 with black bars rather than stretching it. force_original_aspect_ratio=decrease shrinks it to fit, and pad fills the rest while (ow-iw)/2 centers the image. The comma chains two filters in one -vf graph."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf fps=1 thumb-%03d.jpg",
+      "desc": "Extract one frame per second as JPEGs",
+      "tooltip": "Writes one JPEG per second of video into numbered files like thumb-001.jpg, thumb-002.jpg. %03d is a zero-padded counter and fps=1 samples the frame rate. Raise or lower the number to change the sampling rate."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf fps=1/10 thumb-%03d.jpg",
+      "desc": "Extract one frame every 10 seconds",
+      "tooltip": "Writes one JPEG every 10 seconds of video using a fractional frame rate of 1/10. Good for quickly skimming a long recording. The %03d pattern numbers files sequentially; change the digit count to match your file count."
+    },
+    {
+      "cmd": "ffmpeg -ss 00:01:00 -i input.mp4 -frames:v 1 -q:v 2 frame.jpg",
+      "desc": "Extract a single frame at a timestamp",
+      "tooltip": "Extracts exactly one frame from 1 minute into the video. -frames:v 1 stops after a single frame and -q:v 2 sets JPEG quality, with lower being better. Without -ss you get the first frame."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c copy output.mkv",
+      "desc": "Remux video into a new container without re-encoding",
+      "tooltip": "Remuxes, meaning it repacks the existing streams into an MKV container without re-encoding, so it is instant and lossless. -c copy copies every stream. Use remuxing to change file types without any quality loss."
+    },
+    {
+      "cmd": "ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4",
+      "desc": "Concatenate clips listed in a text file",
+      "tooltip": "Joins the files listed in list.txt, one 'file path.mp4' per line, into a single MP4. All inputs must share the same codecs, resolution, and settings or the copy will fail. -safe 0 allows absolute paths in the list. Use the concat filter instead when inputs differ."
+    },
+    {
+      "cmd": "ffmpeg -loop 1 -i image.png -i audio.mp3 -shortest -c:v libx264 -tune stillimage output.mp4",
+      "desc": "Turn an image and audio into a video",
+      "tooltip": "Builds a video from a still image plus an audio track: -loop 1 repeats the image, -shortest ends the video when the audio finishes, and -tune stillimage optimizes the x264 encode for static content. Audio is encoded as AAC by default."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -map 0:v -map 0:a:1 output.mp4",
+      "desc": "Select specific streams when transcoding",
+      "tooltip": "Selects which streams go into the output: 0:v means the first video stream and 0:a:1 the second audio stream. Streams that are not mapped get dropped, which is useful for keeping only a specific audio language. List stream indexes with ffprobe first."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf fps=15,scale=480:-1 output.gif",
+      "desc": "Convert video to an animated GIF",
+      "tooltip": "Converts a video to an animated GIF at 15 fps and 480 pixels wide. GIF is palette-based with limited colors, so quality suffers on complex footage, and the palettegen/paletteuse pair produces much better results. scale=480:-1 keeps the aspect ratio."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"fps=15,palettegen\" palette.png",
+      "desc": "Generate a palette for a high-quality GIF",
+      "tooltip": "First step of the two-command recipe for high-quality GIFs: writes a color palette image for the video. The later paletteuse step maps video frames onto this palette, avoiding the muddy default GIF conversion. Run the two commands back to back."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -i palette.png -lavfi \"fps=15,scale=480:-1[x];[x][1:v]paletteuse\" output.gif",
+      "desc": "Apply a palette to make a high-quality GIF",
+      "tooltip": "Second step of the palette GIF recipe: uses palette.png from palettegen and the -lavfi filter graph to map frames at 15 fps onto the 256-color palette. '[x][1:v]paletteuse' connects the scaled video to the palette image. The result looks far better than a plain fps/scale GIF."
+    },
+    {
+      "cmd": "ffmpeg -re -i stream.mp4 -c copy -f flv rtmp://live.example.com/app/key",
+      "desc": "Stream a file to an RTMP server",
+      "tooltip": "Streams a file to an RTMP server like a live encoder would. -re reads the file at its real-time playback speed so the stream does not outrun the audience, and -f flv is required for RTMP. Replace the example address with your stream key URL."
+    },
+    {
+      "cmd": "ffmpeg -stream_loop -1 -re -i clip.mp4 -c copy -f flv rtmp://live.example.com/app/key",
+      "desc": "Stream a clip on repeat to an RTMP server",
+      "tooltip": "Streams a short clip on repeat by looping the input with -stream_loop -1. Combined with -re, the loop plays at real-time speed for an endless live stream. Useful for 24/7 test streams, and you stop it with Ctrl-C."
+    },
+    {
+      "cmd": "ffmpeg -y -i input.mp4 output.mp4",
+      "desc": "Overwrite the output file without asking",
+      "tooltip": "Overwrites output.mp4 without the usual 'File already exists' prompt. -y is short for yes to all and is essential in scripts and cron jobs. Be careful: the old file is destroyed with no undo."
+    },
+    {
+      "cmd": "ffmpeg -v error -i input.mp4 -f null -",
+      "desc": "Test whether a video decodes without errors",
+      "tooltip": "Decodes the whole file and discards the result, so no output file is produced. -v error hides normal chatter and shows only real errors, while -f null - writes to the null muxer. An exit code of 0 means the file decodes cleanly."
+    },
+    {
+      "cmd": "ffmpeg -h",
+      "desc": "Show ffmpeg's built-in help",
+      "tooltip": "Prints ffmpeg's built-in help, including every option and its shortcut. Useful for checking exact flag syntax without internet access. ffmpeg -h full shows even more detail."
+    },
+    {
+      "cmd": "ffmpeg -encoders | grep 264",
+      "desc": "List video and audio encoders",
+      "tooltip": "Lists every encoder ffmpeg was built with, filtered by grep for names containing 264 such as libx264 and h264_nvenc. If a codec is missing, ffmpeg was not compiled with it. Use ffmpeg -formats for muxers and demuxers."
+    },
+    {
+      "cmd": "ffmpeg -formats",
+      "desc": "List supported file formats",
+      "tooltip": "Lists every file format ffmpeg can read (demux) and write (mux). Each line shows whether a format supports input, output, or both. Pair with ffmpeg -codecs to see what encoders are available."
+    },
+    {
+      "cmd": "ffmpeg -hide_banner -i input.mp4",
+      "desc": "Show media stream information quietly",
+      "tooltip": "Prints the media file's stream information, like codecs, resolution, and duration, without ffmpeg's build banner cluttering the output. The -hide_banner flag silences the version text; the stream dump appears at the end."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c copy -movflags +faststart output.mp4",
+      "desc": "Move metadata to the front for web playback",
+      "tooltip": "Copies all streams while moving the moov metadata to the front of the file. Browsers and players can then start playback before downloading the whole file, which is essential for web hosting. -movflags +faststart adds the flag to the existing movflags."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -an -c:v copy output.mp4",
+      "desc": "Remove the audio track without re-encoding",
+      "tooltip": "Removes the audio stream with -an while copying the video, so no re-encoding happens and quality is untouched. Fast enough for batch jobs over many files. Related: -sn drops subtitles and -vn drops video."
+    },
+    {
+      "cmd": "ffmpeg -i input.mkv -map 0 -c copy output.mp4",
+      "desc": "Copy all streams into an MP4 container",
+      "tooltip": "Copies every stream from an MKV into an MP4 container with -map 0 -c copy, which is a remux, so no re-encoding occurs. Fails if a stream uses a codec MP4 cannot hold, like some subtitle formats. Run ffprobe on the input to check first."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf transpose=1 output.mp4",
+      "desc": "Rotate video 90 degrees clockwise",
+      "tooltip": "Rotates the video 90 degrees clockwise using the transpose filter, where transpose=1 is the clockwise setting. Codes 0-3 cover the four 90-degree orientations. A re-encode is required, so this takes longer than a stream copy."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf hflip output.mp4",
+      "desc": "Mirror video horizontally",
+      "tooltip": "Mirrors the video horizontally, like flipping a poster over a vertical axis. Uses the hflip filter, which needs a re-encode. Related: vflip mirrors vertically."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"crop=640:480:100:50\" output.mp4",
+      "desc": "Crop video to a region",
+      "tooltip": "Crops to a 640x480 region starting 100 pixels from the left and 50 from the top, using the crop=width:height:x:y syntax. The coordinates count from the top-left corner. Combine with scale for a different final size."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -i logo.png -filter_complex \"overlay=10:10\" output.mp4",
+      "desc": "Overlay a logo image on a video",
+      "tooltip": "Places logo.png over the video at 10 pixels from the left and 10 from the top. -filter_complex lets filters take multiple inputs, here the video and the image. Adjust the x:y coordinates to move the logo."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"drawtext=text='Hello World':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2\" output.mp4",
+      "desc": "Burn text onto a video",
+      "tooltip": "Burns centered white text onto the video with the drawtext filter; x=(w-text_w)/2 centers it horizontally. Needs libass and fontconfig built into ffmpeg, and the filter must be quoted because it contains special characters. Change the text, size, and color freely."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -af \"volume=0.5\" output.mp4",
+      "desc": "Adjust the audio volume",
+      "tooltip": "Changes the audio volume by the given factor: 0.5 halves it and 2.0 doubles it. Uses the audio filter chain -af. For consistent loudness across files, use the loudnorm filter instead."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -af \"loudnorm=I=-16:TP=-1.5:LRA=11\" output.mp4",
+      "desc": "Normalize audio loudness to a target",
+      "tooltip": "Normalizes loudness to broadcast-style targets: I=-16 average loudness, TP=-1.5 true peak ceiling, and LRA=11 loudness range. This matches how streaming platforms master audio. The audio stream is re-encoded as part of the process."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"setpts=PTS/2\" -af \"atempo=2.0\" output.mp4",
+      "desc": "Speed video up to double speed",
+      "tooltip": "Speeds the video up to 2x: setpts=PTS/2 halves the presentation timestamps, and atempo=2.0 doubles the audio speed without changing pitch. atempo accepts 0.5 to 2.0 per instance, so chain two for 4x."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf reverse -af areverse output.mp4",
+      "desc": "Play video in reverse",
+      "tooltip": "Plays the video backward by reversing the video frames and the audio samples. Requires a full re-encode and lots of RAM because the whole file is buffered. Keep it to small clips or prepare to wait."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -pix_fmt yuv420p output.mp4",
+      "desc": "Force a widely compatible pixel format",
+      "tooltip": "Forces the yuv420p pixel format, the color encoding most players and web tools expect. Some sources produce formats like yuv444p that play poorly on older devices. Add this flag when a converted file looks wrong or will not play."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -i newaudio.mp3 -map 0:v -map 1:a -c:v copy -c:a aac -shortest output.mp4",
+      "desc": "Replace a video's audio track",
+      "tooltip": "Swaps the video's audio for newaudio.mp3: -map 0:v takes the original video, -map 1:a the new audio, and -shortest ends at the shorter stream. The video is copied, not re-encoded. Add -af filters to adjust the new track."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -metadata title=\"My Video\" -c copy output.mp4",
+      "desc": "Set a metadata tag without re-encoding",
+      "tooltip": "Sets the title metadata tag while copying all streams, so no re-encoding happens. Metadata is the file's informational fields like title, artist, and date. Use -metadata author=... for other tags."
+    },
+    {
+      "cmd": "ffmpeg -f lavfi -i \"testsrc=duration=5:size=640x480:rate=30\" -pix_fmt yuv420p test.mp4",
+      "desc": "Generate a test pattern video",
+      "tooltip": "Generates a 5-second test pattern video from ffmpeg's lavfi virtual input, useful for testing pipelines and players. testsrc renders moving color bars, and size and rate set the resolution and frame rate. -pix_fmt yuv420p keeps it compatible."
+    },
+    {
+      "cmd": "ffmpeg -i input.wav -ar 16000 output.wav",
+      "desc": "Resample audio to a new sample rate",
+      "tooltip": "Changes the audio sample rate, the number of samples per second, to 16000 Hz, which is common for speech recognition tools. -ar sets the rate and 44100 is CD quality. Downsampling loses high frequencies, so keep the original."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf \"thumbnail,scale=640:-1\" -frames:v 1 poster.jpg",
+      "desc": "Pick a representative frame as a poster",
+      "tooltip": "Picks a single representative frame from the video using the thumbnail filter, which scores frames for sharpness and detail. -frames:v 1 writes just one image. A quick way to make a poster image."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -vf subtitles=subs.srt output.mp4",
+      "desc": "Burn subtitles into the video",
+      "tooltip": "Renders subtitles from subs.srt directly into the picture with the subtitles filter, so they display on any player. Needs ffmpeg built with libass, and fonts come from fontconfig. The output is larger because the text is now part of the video."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -ac 1 output.mp4",
+      "desc": "Downmix audio to mono",
+      "tooltip": "Downmixes the audio to a single channel with -ac 1. Useful for podcasts, voice memos, and compatibility with mono speakers. -ac 2 converts to stereo."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c copy -f segment -segment_time 600 segment-%03d.mp4",
+      "desc": "Split video into 10-minute segments",
+      "tooltip": "Splits the video into 10-minute (600-second) chunks named segment-001.mp4, segment-002.mp4 and so on, using the segment muxer with -c copy for speed. Great for breaking long recordings into manageable pieces."
+    },
+    {
+      "cmd": "ffmpeg -i left.mp4 -i right.mp4 -filter_complex \"[0:v]pad=iw*2:ih[bg];[bg][1:v]overlay=w\" output.mp4",
+      "desc": "Join two videos side by side",
+      "tooltip": "Joins left.mp4 and right.mp4 into one video showing both side by side. The filter graph pads the first input to double width, then overlays the second at x=w, the middle. Both inputs should share height, frame rate, and pixel format."
+    },
+    {
+      "cmd": "ffmpeg -i input.mp4 -c:v libx264 -crf 18 -preset slow output.mp4",
+      "desc": "Encode a high-quality master file",
+      "tooltip": "Encodes a high-quality master file: CRF 18 is near-lossless for x264, and -preset slow maximizes compression at that quality. Expect big files and slow encodes, which is perfect for archiving before smaller delivery copies."
+    },
+    {
+      "cmd": "ffprobe -v quiet -print_format json -show_format -show_streams input.mp4",
+      "desc": "Show full format and stream metadata as JSON",
+      "tooltip": "Dumps every piece of metadata ffprobe can find, like format info, duration, bitrate, and all streams, as machine-readable JSON. -v quiet hides status messages and -print_format json selects the output shape. Pipe into jq to filter fields."
+    },
+    {
+      "cmd": "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input.mp4",
+      "desc": "Print only the duration in seconds",
+      "tooltip": "Prints just the duration in seconds with nothing else, which is ideal for scripts. -show_entries format=duration limits the query to one field, and -of default=noprint_wrappers=1:nokey=1 strips the labels. -v error silences warnings."
+    },
+    {
+      "cmd": "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 input.mp4",
+      "desc": "Print the video width and height",
+      "tooltip": "Prints the video stream's width and height, like '1920x1080'. -select_streams v:0 picks the first video stream, and -of csv=p=0 gives plain comma output. Useful in scripts for conditional processing."
+    },
+    {
+      "cmd": "ffprobe -v error -show_entries stream=codec_name,codec_type -of csv=p=0 input.mp4",
+      "desc": "List each stream's codec and type",
+      "tooltip": "Lists each stream's codec name and type, for example h264 and video, or aac and audio. -of csv=p=0 keeps the output terse for scripting. Add -show_entries stream=index to include stream numbers."
+    },
+    {
+      "cmd": "ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 input.mp4",
+      "desc": "Print the overall bitrate",
+      "tooltip": "Prints the file's overall bitrate in bits per second. Bitrate measures how much data each second of media uses, and higher usually means better quality. Use -select_streams v:0 to get just the video bitrate."
+    },
+    {
+      "cmd": "ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels -of csv=p=0 input.mp4",
+      "desc": "Print sample rate and channel count",
+      "tooltip": "Prints the first audio stream's sample rate and channel count, like '44100,2'. Handy before resampling or downmixing. The csv output format keeps it script-friendly."
+    },
+    {
+      "cmd": "ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 input.mp4",
+      "desc": "Count frames by decoding the video",
+      "tooltip": "Counts the video's frames by decoding the whole stream, so it takes about as long as playback. -count_frames enables counting and nb_read_frames reports the total. Slower than reading the duration but exact."
+    },
+    {
+      "cmd": "ffplay input.mp4",
+      "desc": "Play a media file in a window",
+      "tooltip": "Opens a window and plays the file with the same decoding engine as ffmpeg. Keys like space pause and q quits. ffplay is the fastest way to sanity-check a converted file."
+    },
+    {
+      "cmd": "ffplay -nodisp -autoexit audio.mp3",
+      "desc": "Play audio without opening a window",
+      "tooltip": "Plays audio without opening a video window: -nodisp suppresses the display and -autoexit quits when playback ends. Good for testing audio files on headless servers. Related: ffplay video.mp4 for visuals."
+    },
+    {
+      "cmd": "magick input.png -resize 800x600 output.png",
+      "desc": "Resize an image to exact dimensions",
+      "tooltip": "Scales the image to exactly 800 by 600 pixels; if the source has a different aspect ratio it is stretched. Append ^ to crop instead, or use a single dimension like 800 to keep proportions. magick is ImageMagick 7's command, since the legacy convert binary no longer ships on new installs."
+    },
+    {
+      "cmd": "magick input.png -resize '50%' output.png",
+      "desc": "Resize an image by percentage",
+      "tooltip": "Rescales the image to 50% of its original size. Percentages keep the aspect ratio automatically, which makes this the safest way to shrink images. Quote the value so the shell does not interpret the % sign."
+    },
+    {
+      "cmd": "magick input.png -resize '200x200!' output.png",
+      "desc": "Resize ignoring the aspect ratio",
+      "tooltip": "Resizes to exactly 200x200, ignoring the aspect ratio with the bang modifier, so the image is stretched if needed. Use it to force a uniform thumbnail grid. The quotes protect the bang from bash history expansion."
+    },
+    {
+      "cmd": "magick input.jpg -quality 85 output.jpg",
+      "desc": "Set JPEG quality when saving",
+      "tooltip": "Sets JPEG quality to 85 when saving. Quality 100 is best and largest, and values below 80 start showing compression artifacts. The option only affects lossy formats like JPEG. Related: -strip removes metadata."
+    },
+    {
+      "cmd": "magick input.png -crop 100x100+10+10 output.png",
+      "desc": "Crop an image to a region",
+      "tooltip": "Crops to a 100x100 region starting 10 pixels right and 10 down from the top-left corner, using widthxheight+x+y syntax. The + offsets are measured from the top-left. Use -gravity to anchor from another corner."
+    },
+    {
+      "cmd": "magick input.png -rotate 90 output.png",
+      "desc": "Rotate an image 90 degrees",
+      "tooltip": "Rotates the image 90 degrees clockwise. Other angles like 45 also work and expand the canvas with the background color. Add -background white to choose the fill for non-right angles."
+    },
+    {
+      "cmd": "magick input.jpg -colorspace Gray output.jpg",
+      "desc": "Convert an image to grayscale",
+      "tooltip": "Converts the image to grayscale by changing its color space. The result keeps one luminance channel, which shrinks files dramatically. Related: -monochrome reduces to pure black and white."
+    },
+    {
+      "cmd": "magick *.png -append output.png",
+      "desc": "Stack images vertically into one",
+      "tooltip": "Stacks every PNG in the current directory vertically into a single image, which is useful for combining screenshots into one long picture. The shell expands *.png; use explicit names to control the order. +append joins side by side instead."
+    },
+    {
+      "cmd": "magick -delay 10 -loop 0 frame-*.png animation.gif",
+      "desc": "Make an animated GIF from frames",
+      "tooltip": "Builds an animated GIF from numbered frames like frame-001.png. -delay 10 sets 0.1 seconds per frame and -loop 0 makes it repeat forever. For video sources, ffmpeg's palette method gives better color."
+    },
+    {
+      "cmd": "magick input.png -thumbnail 200x200^ -gravity center -extent 200x200 output.png",
+      "desc": "Resize and crop to fill exactly",
+      "tooltip": "Resizes to cover exactly 200x200 and crops the overflow, which is the classic thumbnail recipe. ^ tells resize to fill rather than fit, -gravity center anchors the crop, and -extent forces the final canvas size. No distortion and no empty borders."
+    },
+    {
+      "cmd": "magick input.png -strip output.png",
+      "desc": "Remove metadata from an image",
+      "tooltip": "Removes all metadata, like EXIF camera data, comments, and profiles, from the image. Stripped photos are smaller and do not leak location or camera details. Related: exiftool for inspecting tags first."
+    },
+    {
+      "cmd": "magick input.png -format '%wx%h' info:",
+      "desc": "Print the image dimensions",
+      "tooltip": "Prints just the image dimensions, like 800x600, using -format and the info: pseudo-file. %w and %h are the width and height format tokens. Great for scripts that branch on image size."
+    },
+    {
+      "cmd": "identify input.png",
+      "desc": "Show image format and properties",
+      "tooltip": "Prints the image's format, dimensions, color space, and file size in one line. It is the fastest way to check what a file actually is, regardless of its extension. identify -verbose shows every detail."
+    },
+    {
+      "cmd": "identify -verbose input.png",
+      "desc": "Dump full image metadata",
+      "tooltip": "Dumps the complete property tree for the image, including resolution, bit depth, EXIF metadata, and histogram. The output is long, so pipe it to less or grep. Plain identify gives the short summary."
+    },
+    {
+      "cmd": "compare -metric AE input.png output.png diff.png",
+      "desc": "Count differing pixels between images",
+      "tooltip": "Counts pixels that differ between two images; AE (absolute error) prints a single number, and diff.png marks the differences in red. Identical images report 0. Use -metric RMSE for a similarity score instead."
+    },
+    {
+      "cmd": "compare -metric RMSE input.png output.png null:",
+      "desc": "Measure image difference numerically",
+      "tooltip": "Measures the difference between two images as a root-mean-square error between 0 (identical) and 1 (completely different), printing just the number. null: as the output discards the diff image. Pair with -metric AE to count differing pixels."
+    },
+    {
+      "cmd": "magick -size 800x600 xc:white output.png",
+      "desc": "Create a solid white image",
+      "tooltip": "Creates a blank 800x600 image filled with white. xc: is the built-in color canvas generator, and any color name works, like xc:red or xc:'#336699'. Handy for placeholders and test images."
+    },
+    {
+      "cmd": "magick -density 150 input.pdf output.png",
+      "desc": "Render a PDF page to an image",
+      "tooltip": "Renders the PDF's first page at 150 dpi to a PNG. -density must come before the input filename because it controls how the PDF is rasterized. Use -density 300 for print quality, and add -resize to shrink the output."
+    },
+    {
+      "cmd": "magick input.png -trim +repage output.png",
+      "desc": "Trim blank borders automatically",
+      "tooltip": "Automatically removes uniform borders around the image edge and resets the canvas offset with +repage. Great for cleaning up screenshots with white margins. Add -fuzz 10% to trim borders that are nearly but not exactly one color."
+    },
+    {
+      "cmd": "magick input.png -bordercolor black -border 10 output.png",
+      "desc": "Add a border around an image",
+      "tooltip": "Adds a 10-pixel black frame around the image. -bordercolor picks the frame color and -border the width. Combine with -gravity for asymmetric frames."
+    },
+    {
+      "cmd": "magick input.png -flip output.png",
+      "desc": "Flip an image vertically",
+      "tooltip": "Flips the image vertically, like its mirror image in a lake. It is instant because no recompression is needed beyond the save. Related: -flop mirrors horizontally."
+    },
+    {
+      "cmd": "magick input.png -negate output.png",
+      "desc": "Invert an image's colors",
+      "tooltip": "Inverts every color, producing a photographic negative where black becomes white and hues become their complements. An instant way to make a negative for printing or just for effect."
+    },
+    {
+      "cmd": "magick input.png -blur 0x8 output.png",
+      "desc": "Blur an image",
+      "tooltip": "Blurs the image with a Gaussian filter; 0x8 means radius 0 with sigma 8, and sigma controls the blur strength. Heavier sigma blurs more. Related: -sharpen 0x2 does the opposite."
+    },
+    {
+      "cmd": "magick input.png -threshold 50% output.png",
+      "desc": "Convert an image to black and white",
+      "tooltip": "Converts the image to pure black and white: every pixel brighter than 50% becomes white and everything else becomes black. The result is a 1-bit image that compresses very well. Adjust the percentage to shift the cutoff."
+    },
+    {
+      "cmd": "magick input.png -background white -flatten output.png",
+      "desc": "Flatten transparency onto a background",
+      "tooltip": "Flattens transparency onto a white background, replacing see-through areas with white. Needed before saving to formats like JPEG that do not support transparency. -background changes the fill color."
+    },
+    {
+      "cmd": "magick input.png -fuzz 10% -transparent white output.png",
+      "desc": "Make a range of colors transparent",
+      "tooltip": "Makes all pixels within 10% of white transparent, producing a see-through PNG. -fuzz widens the color match so anti-aliased edges are included. Great for removing solid backgrounds from logos."
+    },
+    {
+      "cmd": "magick input.tiff -compress lzw output.tiff",
+      "desc": "Save a TIFF with LZW compression",
+      "tooltip": "Saves the TIFF with LZW lossless compression instead of leaving it uncompressed, which often shrinks files dramatically. Quality is untouched. Related: -compress jpeg for photographic TIFFs."
+    },
+    {
+      "cmd": "magick -list format",
+      "desc": "List supported image formats",
+      "tooltip": "Prints every file format this ImageMagick build can read and write, with capability flags. Useful for confirming PDF or HEIC support before converting. Filter with grep, like magick -list format | grep PDF."
+    },
+    {
+      "cmd": "magick input.jpg -resize 1920x1080 -strip -quality 82 output.jpg",
+      "desc": "Resize, strip, and compress for the web",
+      "tooltip": "One-liner web prep: resizes to at most 1920x1080, strips metadata, and sets JPEG quality 82, a good balance of size and quality. Adjust the resolution and quality for your use case. Run identify to verify the result."
+    },
+    {
+      "cmd": "montage *.jpg -tile 3x2 -geometry +2+2 montage.jpg",
+      "desc": "Make a contact sheet of images",
+      "tooltip": "Builds a contact sheet from all JPEGs: -tile 3x2 lays them in a 3-wide grid and -geometry +2+2 adds 2-pixel gaps. Thumbnails are auto-sized to fit. The montage binary ships with ImageMagick 7."
+    },
+    {
+      "cmd": "magick input.png -auto-orient output.png",
+      "desc": "Fix rotation from EXIF data",
+      "tooltip": "Applies the rotation stored in the photo's EXIF metadata, so pictures taken sideways display upright. Many cameras write this orientation tag instead of rotating pixels. Re-encode after to bake the rotation in."
+    },
+    {
+      "cmd": "magick input.png output.jpg",
+      "desc": "Convert an image to another format",
+      "tooltip": "Converts the image from PNG to JPEG just by changing the extension, since ImageMagick picks the format from the output name. JPEG cannot hold transparency, so white replaces it. Use -quality to control the JPEG size."
+    },
+    {
+      "cmd": "sox input.wav output.wav rate 44100",
+      "desc": "Resample audio to a new sample rate",
+      "tooltip": "Resamples the audio to 44100 Hz, the samples-per-second rate used on CDs. Resampling never improves quality, and downsampling discards high frequencies. Related: soxi to see the current rate."
+    },
+    {
+      "cmd": "sox input.wav output.wav trim 0 10",
+      "desc": "Keep only the first 10 seconds",
+      "tooltip": "Keeps only the first 10 seconds of audio and writes it out. The trim effect takes a start position and an optional duration. Related: trim 10 starts at the 10-second mark instead."
+    },
+    {
+      "cmd": "sox input.wav output.wav vol 0.5",
+      "desc": "Change volume by a factor",
+      "tooltip": "Scales the volume by the given factor: 0.5 halves it and 2.0 doubles it. vol multiplies the sample amplitude directly, so values over 1.0 can clip, meaning the waveform distorts. For decibel-style changes use gain."
+    },
+    {
+      "cmd": "sox input.wav output.wav gain -3",
+      "desc": "Cut the level by 3 decibels",
+      "tooltip": "Reduces the level by 3 decibels, roughly a 30% perceived drop. gain works in decibels, unlike vol's linear factors. Positive values boost and risk clipping, so pair with norm for safety."
+    },
+    {
+      "cmd": "sox input.wav output.wav norm -3",
+      "desc": "Normalize peak level to minus 3 dB",
+      "tooltip": "Normalizes the audio so its peak level lands at -3 dB, giving headroom that avoids clipping in later processing. norm is an alias for gain -n, which measures the file first. Ideal as the last effect in a chain."
+    },
+    {
+      "cmd": "sox -n output.wav synth 3 sine 440",
+      "desc": "Generate a 3-second 440 Hz tone",
+      "tooltip": "Generates a 3-second 440 Hz sine tone and writes it to output.wav. The -n null input means no source audio, and synth 3 sets the duration. Change the frequency for other pitches, or use square or noise for other waveforms."
+    },
+    {
+      "cmd": "sox input.wav output.wav silence 1 0.1 1%",
+      "desc": "Trim leading silence from a recording",
+      "tooltip": "Removes silence at the start of the recording: above-periods 1 means trim until sound begins, 0.1 is how long the silence must last, and 1% is the volume threshold treated as silence. Combine with reverse to also trim the end."
+    },
+    {
+      "cmd": "soxi input.wav",
+      "desc": "Show audio file information",
+      "tooltip": "Prints audio file header information: format, sample rate, channels, duration, and bit depth. It is the audio equivalent of ImageMagick's identify. soxi -d prints just the duration for scripts."
+    },
+    {
+      "cmd": "sox input1.wav input2.wav output.wav",
+      "desc": "Concatenate audio files",
+      "tooltip": "Appends input2.wav to input1.wav into a single output file. Both files must have the same sample rate and channel count or sox errors out, so resample first with the rate effect. Concatenation is sox's default combining method."
+    },
+    {
+      "cmd": "sox -m input1.wav input2.wav output.wav",
+      "desc": "Mix two audio files together",
+      "tooltip": "Mixes input1.wav and input2.wav together so they play simultaneously. -m selects the mix combiner, and sox auto-balances levels to avoid clipping. Related: without -m the files are concatenated instead."
+    },
+    {
+      "cmd": "sox input.wav output.wav tempo 1.5",
+      "desc": "Change speed without changing pitch",
+      "tooltip": "Changes the playback speed by 1.5x without changing the pitch, using the WSOLA algorithm. This differs from the speed effect, which shifts pitch too. Useful for podcasts and language learning."
+    },
+    {
+      "cmd": "sox input.wav output.wav lowpass 3000",
+      "desc": "Cut frequencies above 3000 Hz",
+      "tooltip": "Removes frequencies above 3000 Hz with a low-pass filter, dulling the sound and taming hiss. The cutoff is the -3 dB point of the filter. Related: highpass removes low frequencies instead."
+    },
+    {
+      "cmd": "sox input.wav output.wav channels 1",
+      "desc": "Downmix audio to mono",
+      "tooltip": "Downmixes the audio to a single channel with the channels effect. Mixing combines the stereo pair, which can cancel out-of-phase content. To keep only one specific channel, use remix instead."
+    },
+    {
+      "cmd": "sox input.wav output.wav pad 1 2",
+      "desc": "Add silence at both ends",
+      "tooltip": "Adds 1 second of silence at the start and 2 seconds at the end. The pad effect inserts silence at any position, and omitted positions mean the beginning and end of the audio. Use delay for channel-specific padding."
+    },
+    {
+      "cmd": "sox input.wav output.wav fade 2",
+      "desc": "Fade audio in over 2 seconds",
+      "tooltip": "Ramps the volume from silence up to full over the first 2 seconds; fade 2 applies a fade-in only. The default curve is logarithmic, which sounds natural. Related: fade 0 0 3 fades out at the end."
+    },
+    {
+      "cmd": "sox input.wav output.wav fade 0 0 3",
+      "desc": "Fade out the last 3 seconds",
+      "tooltip": "Fades the last 3 seconds down to silence: the first 0 means no fade-in, the stop position 0 means the end of the audio, and 3 is the fade-out length. Perfect for podcast outros or avoiding a click at the end."
+    },
+    {
+      "cmd": "sox input.wav output.wav reverse",
+      "desc": "Play the audio backwards",
+      "tooltip": "Plays the audio backwards, reversing the entire file. Needs temporary disk space equal to the file size. Combine with silence trimming to strip trailing silence: reverse, trim, reverse."
+    },
+    {
+      "cmd": "sox input.wav -n stat",
+      "desc": "Print audio statistics",
+      "tooltip": "Prints statistical measurements of the audio, like peak level, RMS, and DC offset, to the terminal without writing an output file, thanks to the -n null output. Values near the maximum warn of clipping. Related: stats prints per-channel details."
+    },
+    {
+      "cmd": "sox input.wav -n spectrogram -o spectrogram.png",
+      "desc": "Render a spectrogram image of the audio",
+      "tooltip": "Renders a spectrogram, a graph of frequency over time, as a PNG. -o names the output file. Great for spotting clipping, noise, or silence visually. Requires sox built with spectrogram support, which needs PNG libraries."
+    },
+    {
+      "cmd": "sox input.wav segment-%1n.wav trim 0 30 : newfile : trim 0 30",
+      "desc": "Split audio into 30-second files",
+      "tooltip": "Splits the audio into 30-second chunks named segment-01.wav, segment-02.wav and so on. The colon separates effects chains: trim 0 30 writes the first 30 seconds, then newfile starts the next chunk. %1n is the counter placeholder."
+    },
+    {
+      "cmd": "yt-dlp 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download a video at the default quality",
+      "tooltip": "Downloads a YouTube video at the default quality, typically the best single-file format. yt-dlp is the actively maintained fork of youtube-dl and supports hundreds of sites. The output is named after the video title."
+    },
+    {
+      "cmd": "yt-dlp -f 'bestvideo+bestaudio' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download best video and audio, then merge",
+      "tooltip": "Downloads the best video-only and best audio-only streams and merges them with ffmpeg, giving the highest quality available. The + combines formats, and yt-dlp needs ffmpeg on the PATH to merge. Add -f best to skip merging."
+    },
+    {
+      "cmd": "yt-dlp -f 'bestvideo[height<=1080]+bestaudio' --merge-output-format mp4 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download up to 1080p as a single MP4",
+      "tooltip": "Downloads the best stream up to 1080p plus its audio and merges them into a single MP4. The [height<=1080] filter caps the resolution, and --merge-output-format mp4 forces the container. Use this when you want one clean file."
+    },
+    {
+      "cmd": "yt-dlp -x --audio-format mp3 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Extract audio from a video as MP3",
+      "tooltip": "Extracts just the audio and converts it to MP3. -x (--extract-audio) picks the best audio format, and --audio-format mp3 converts with ffmpeg. Other format options include opus, flac, and m4a."
+    },
+    {
+      "cmd": "yt-dlp --list-formats 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "List available download formats",
+      "tooltip": "Lists every downloadable format with its ID, extension, resolution, and bitrate. Use the IDs with -f to pick exact streams, like -f 137+140. Run this before deciding what to download."
+    },
+    {
+      "cmd": "yt-dlp -f 137+140 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download specific format IDs",
+      "tooltip": "Downloads format 137, the 1080p video-only stream, merged with format 140, the AAC audio, which is the classic YouTube pairing. IDs come from --list-formats and differ per video. Merging needs ffmpeg installed."
+    },
+    {
+      "cmd": "yt-dlp -o '%(title)s.%(ext)s' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Save with the video title as filename",
+      "tooltip": "Names the output file with the video's title and extension. %(title)s and %(ext)s are output template fields, and hundreds exist, like %(id)s and %(uploader)s. Without -o, yt-dlp uses this pattern by default."
+    },
+    {
+      "cmd": "yt-dlp --playlist-start 1 --playlist-end 5 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download playlist items 1 through 5",
+      "tooltip": "Downloads only playlist items 1 through 5. yt-dlp treats a single video URL as a one-item playlist, so this also runs harmlessly there. Related: --playlist-items 1,3,5 picks specific positions."
+    },
+    {
+      "cmd": "yt-dlp --embed-thumbnail --embed-metadata 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Embed thumbnail and metadata in the file",
+      "tooltip": "Writes the thumbnail and metadata, like title, uploader, and description, into the file itself. --embed-thumbnail attaches the cover image and --embed-metadata the info tags; both need ffmpeg. Metadata survives moving the file between libraries."
+    },
+    {
+      "cmd": "yt-dlp -P ~/Downloads 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Save downloads to a directory",
+      "tooltip": "Saves the download into ~/Downloads instead of the current directory. -P sets the base path, and sub-options like -P temp: control intermediate files. Combine with -o templates for organized folders."
+    },
+    {
+      "cmd": "yt-dlp --cookies cookies.txt 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Use cookies for restricted videos",
+      "tooltip": "Uses cookies.txt, exported from a browser extension, to access age-restricted or members-only videos. Without it, yt-dlp sees the logged-out page. Keep the file private since it contains your session tokens."
+    },
+    {
+      "cmd": "yt-dlp -S 'res:1080' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Prefer formats up to 1080p",
+      "tooltip": "Picks the best format whose resolution is at most 1080p, using the -S sort expression. Unlike -f filters, sorting still considers quality within the limit. res:1080 means prefer 1080p or below."
+    },
+    {
+      "cmd": "yt-dlp --download-archive archive.txt 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Skip videos already downloaded",
+      "tooltip": "Records downloaded video IDs in archive.txt and skips them on future runs. This makes re-running a download job idempotent, so only new videos get fetched. Combine with a playlist URL to maintain a mirror."
+    },
+    {
+      "cmd": "yt-dlp --write-subs --sub-langs 'en.*' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download subtitles for a video",
+      "tooltip": "Downloads subtitles in every language matching 'en.*', which covers English, en-US, and friends. Subtitle files land next to the video, and --embed-subs puts them inside the container instead. Auto-generated captions need --write-auto-subs."
+    },
+    {
+      "cmd": "yt-dlp --no-playlist 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download only the video, not the playlist",
+      "tooltip": "Downloads only the single video even if the URL carries a playlist parameter like &list=. Without this flag yt-dlp would grab the whole playlist. Pair with --yes-playlist to force the opposite."
+    },
+    {
+      "cmd": "yt-dlp --dateafter 20240101 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Only download videos newer than a date",
+      "tooltip": "Skips videos published before 2024-01-01, which is handy for keeping a channel mirror recent. Dates use the YYYYMMDD form. Related: --datebefore works the other way."
+    },
+    {
+      "cmd": "yt-dlp --limit-rate 500K 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Cap the download speed",
+      "tooltip": "Caps the download speed at 500 kilobytes per second to spare your connection. Units can be K, M, or G. Useful for long playlist downloads on shared links."
+    },
+    {
+      "cmd": "yt-dlp -g 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Print the direct media URL",
+      "tooltip": "Prints the direct media URL without downloading anything. -g works with format selectors, so -g -f bestaudio gives the audio URL. Handy for piping into other players or downloaders."
+    },
+    {
+      "cmd": "yt-dlp --flat-playlist --print '%(title)s' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "List playlist titles without downloading",
+      "tooltip": "Lists every title in a playlist without resolving or downloading each video, making it fast even for huge playlists. --print '%(title)s' outputs just the names. Use --simulate for full metadata per item."
+    },
+    {
+      "cmd": "yt-dlp --download-sections '*10:00-15:00' 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Download only a time section of the video",
+      "tooltip": "Downloads only the time span from 10:00 to 15:00 of the video. --download-sections takes '*START-END' with a leading asterisk. Requires ffmpeg because the cut is re-encoded."
+    },
+    {
+      "cmd": "yt-dlp --sponsorblock-remove all 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Remove sponsor segments from the video",
+      "tooltip": "Removes sponsor segments, intros, and outros using the SponsorBlock database, which is crowdsourced per video. 'all' removes every category, or name specific ones like sponsor, intro. Requires ffmpeg for remuxing."
+    },
+    {
+      "cmd": "yt-dlp --cookies-from-browser firefox 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+      "desc": "Use the browser's login cookies",
+      "tooltip": "Reads the login cookies straight from your Firefox profile, so yt-dlp sees your logged-in state without exporting anything. The browser must be closed or the profile unlocked. Supported browsers include firefox, chrome, and chromium."
+    },
+    {
+      "cmd": "yt-dlp -U",
+      "desc": "Update yt-dlp itself",
+      "tooltip": "Self-updates yt-dlp to the latest release. Sites change their pages constantly, so an outdated yt-dlp breaks; update before debugging other errors. On some package managers, use the distro's updater instead."
+    },
+    {
+      "cmd": "gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dQUIET -sOutputFile=output.pdf input.pdf",
+      "desc": "Reprocess and compress a PDF",
+      "tooltip": "Parses the PDF and writes a new one, cleaning internal structure and often shrinking the file. -dNOPAUSE -dBATCH make it run unattended, since without them gs pauses for input and hangs in scripts. -dQUIET silences progress, and -sOutputFile names the result."
+    },
+    {
+      "cmd": "gs -sDEVICE=png16m -r150 -dNOPAUSE -dBATCH -o page-%d.png input.pdf",
+      "desc": "Render PDF pages to PNG images",
+      "tooltip": "Renders every page of the PDF as a 150 dpi PNG named page-1.png, page-2.png and so on. -sDEVICE=png16m is 24-bit color and -r150 sets the resolution. -o implies -dNOPAUSE -dBATCH, so it never pauses."
+    },
+    {
+      "cmd": "gs -sDEVICE=pdfwrite -dFirstPage=2 -dLastPage=5 -o output.pdf input.pdf",
+      "desc": "Extract a page range to a new PDF",
+      "tooltip": "Copies pages 2 through 5 into a new PDF. -dFirstPage and -dLastPage bound the range, and gs processes only those pages. Combined with -o for clean batch behavior. A single page uses -dFirstPage=1 -dLastPage=1."
+    },
+    {
+      "cmd": "gs -o combined.pdf -sDEVICE=pdfwrite input1.pdf input2.pdf",
+      "desc": "Merge PDFs into one file",
+      "tooltip": "Joins input1.pdf and input2.pdf into one combined.pdf via the pdfwrite device. Order on the command line is page order. Pages are reprocessed, so bookmarks and links may not survive, which is fine for plain documents."
+    },
+    {
+      "cmd": "gs -sDEVICE=pdfwrite -dPDFSETTINGS=/ebook -o output.pdf input.pdf",
+      "desc": "Recompress a PDF for e-readers",
+      "tooltip": "Recompresses the PDF for e-readers using the /ebook preset, which means moderate image resolution and compression. -dPDFSETTINGS takes /screen, /ebook, /printer, /prepress, or /default. Text stays crisp while photos lose detail."
+    },
+    {
+      "cmd": "gs -sDEVICE=txtwrite -o output.txt input.pdf",
+      "desc": "Extract text from a PDF",
+      "tooltip": "Extracts the text layer of a PDF as a UTF-8 text file. The txtwrite device outputs readable text with an approximation of the layout. Scanned PDFs have no text layer, so those need OCR tools instead."
+    },
+    {
+      "cmd": "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true -dColorImageResolution=72 -o output.pdf input.pdf",
+      "desc": "Shrink embedded images in a PDF",
+      "tooltip": "Shrinks every embedded color image to 72 dpi, dramatically reducing file size at the cost of photo detail. -dDownsampleColorImages=true enables it and -dColorImageResolution=72 is the target resolution. Great for shrinking big scanned documents."
+    },
+    {
+      "cmd": "gs -sDEVICE=nullpage -dNOPAUSE -dBATCH -sOutputFile=/dev/null input.pdf",
+      "desc": "Validate that a PDF parses cleanly",
+      "tooltip": "Parses the whole PDF and renders to nothing, so it validates the file without creating output. Errors surface as gs messages and a non-zero exit code. Faster than a full render when checking integrity."
+    },
+    {
+      "cmd": "pandoc input.md -o output.pdf",
+      "desc": "Convert Markdown to PDF",
+      "tooltip": "Converts Markdown to PDF using a LaTeX engine. Pandoc needs a PDF engine installed, pdflatex by default, or one you set with --pdf-engine. The result's quality depends on that engine's fonts and layout."
+    },
+    {
+      "cmd": "pandoc input.md -o output.docx",
+      "desc": "Convert Markdown to a Word document",
+      "tooltip": "Converts Markdown to a Word .docx file. The output opens in Word, LibreOffice, and Google Docs with sensible default styles. Use --reference-doc to apply your own template."
+    },
+    {
+      "cmd": "pandoc input.docx -o output.md",
+      "desc": "Convert a Word document to Markdown",
+      "tooltip": "Converts a Word document to Markdown, preserving headings, lists, tables, and images where possible. This is the reverse direction of pandoc input.md -o output.docx. Check the output for tables that did not survive."
+    },
+    {
+      "cmd": "pandoc input.md -o output.html -s",
+      "desc": "Convert Markdown to a standalone HTML page",
+      "tooltip": "Converts Markdown to a complete HTML page with head, CSS, and structure, not just a body fragment. -s (--standalone) embeds default styling. Without -s you get bare HTML suitable for splicing into a template."
+    },
+    {
+      "cmd": "pandoc input.md --reference-doc=template.docx -o output.docx",
+      "desc": "Convert Markdown to DOCX with a style template",
+      "tooltip": "Converts to DOCX using template.docx for styles like fonts, heading colors, and margins, instead of pandoc's defaults. Generate a starting template with pandoc --print-default-data-file reference.docx. Re-run to apply your styling."
+    },
+    {
+      "cmd": "pandoc input.md -t pdf --pdf-engine=xelatex -o output.pdf",
+      "desc": "Convert Markdown to PDF with XeLaTeX",
+      "tooltip": "Converts Markdown to PDF with the XeLaTeX engine, which handles Unicode and system fonts better than the default pdflatex. --pdf-engine=xelatex swaps the engine, and xelatex must be installed. Use -V mainfont='DejaVu Sans' to set fonts."
+    },
+    {
+      "cmd": "pandoc input.md -o output.epub",
+      "desc": "Convert Markdown to an EPUB ebook",
+      "tooltip": "Converts Markdown to an EPUB ebook readable on most e-readers and phones. EPUB is a zip of HTML pages with metadata. Add --metadata title='My Book' for proper book metadata."
+    },
+    {
+      "cmd": "pandoc --list-input-formats",
+      "desc": "List formats pandoc can read",
+      "tooltip": "Lists every format pandoc can read, from markdown and docx to latex and rst. Use the names as the -f (from) argument. Pair with --list-output-formats for the full picture."
+    },
+    {
+      "cmd": "pandoc input.md -t plain -o output.txt",
+      "desc": "Convert Markdown to plain text",
+      "tooltip": "Converts Markdown to plain text, stripping all formatting while keeping the words and structure. -t plain targets the plain output format. Good for feeding text into other tools."
+    },
+    {
+      "cmd": "pandoc input.md --toc -s -o output.html",
+      "desc": "Add a table of contents to HTML output",
+      "tooltip": "Adds a table of contents at the top of the HTML, generated from the headings. --toc needs standalone output, hence the -s. Use --toc-depth=2 to limit the nesting."
+    },
+    {
+      "cmd": "pandoc input.md -f gfm -o output.html",
+      "desc": "Convert GitHub-flavored Markdown to HTML",
+      "tooltip": "Converts GitHub-flavored Markdown, the dialect GitHub renders with task lists and tables, to HTML. -f gfm sets the input format explicitly. The default markdown input handles most of the same syntax."
+    },
+    {
+      "cmd": "pandoc input.html -o output.md",
+      "desc": "Convert an HTML page to Markdown",
+      "tooltip": "Converts an HTML page to Markdown, keeping headings, links, and lists. This is the reverse of pandoc input.md -o output.html. Handy for pulling content out of web pages."
+    },
+    {
+      "cmd": "pandoc input.md --citeproc --bibliography refs.bib -o output.html",
+      "desc": "Render citations from a BibTeX file",
+      "tooltip": "Renders citations in the text using refs.bib and appends a bibliography at the end. --citeproc is pandoc's built-in citation processor, and the .bib file holds BibTeX entries. Style citations with a CSL file via --csl."
+    },
+    {
+      "cmd": "pandoc input.md -t revealjs -s -o slides.html",
+      "desc": "Build an HTML slideshow with reveal.js",
+      "tooltip": "Builds an HTML presentation with reveal.js, where each heading becomes a slide. -s is required for the standalone deck, and you open slides.html in a browser. The reveal.js assets load from the web by default."
+    },
+    {
+      "cmd": "exiftool photo.jpg",
+      "desc": "Show all metadata tags of a photo",
+      "tooltip": "Prints every metadata tag in the photo, including camera model, lens, GPS coordinates, and dates. EXIF is the standard metadata format cameras embed in images. Pipe to less if the list is long."
+    },
+    {
+      "cmd": "exiftool -all= -overwrite_original photo.jpg",
+      "desc": "Remove all metadata from a photo",
+      "tooltip": "Deletes every metadata tag, leaving only the image pixels. -all= wipes all groups and -overwrite_original skips the backup copy exiftool normally writes. Great before sharing photos publicly. Related: magick -strip does the same for batches."
+    },
+    {
+      "cmd": "exiftool -Title='Beach Trip' -Author='Jane' photo.jpg",
+      "desc": "Write a title and author tag",
+      "tooltip": "Writes the Title and Author metadata tags into the photo. Tag names are case-insensitive, and values with spaces need quoting. Many tags, like -GPSLatitude, take special formats."
+    },
+    {
+      "cmd": "mediainfo video.mp4",
+      "desc": "Show detailed media container information",
+      "tooltip": "Prints a readable report of the container (file format that holds streams) and every stream: codec, resolution, bitrate, and language. More detail than ffprobe's default output. Related: mediainfo --Output=JSON for machine-readable data."
+    },
+    {
+      "cmd": "mediainfo --Output=JSON video.mp4",
+      "desc": "Dump media information as JSON",
+      "tooltip": "Outputs the full media report as JSON for scripts and tools. Pipe through jq to pull specific fields. Other output formats include XML and a CSV-ish summary."
+    },
+    {
+      "cmd": "pdftoppm -png -r 150 input.pdf page",
+      "desc": "Render PDF pages as PNG images",
+      "tooltip": "Renders every page of the PDF at 150 dpi into page-1.png, page-2.png, and so on. -png selects the output type and -r the resolution. A fast alternative to ghostscript for plain PDFs. Related: pdfinfo for page counts."
+    },
+    {
+      "cmd": "pdftotext -layout input.pdf output.txt",
+      "desc": "Extract text preserving layout",
+      "tooltip": "Extracts the text layer of the PDF into a text file. -layout keeps approximate line and column positions, which helps for tables. Scanned PDFs have no text layer and need OCR instead."
+    },
+    {
+      "cmd": "pdfinfo input.pdf",
+      "desc": "Show PDF document properties",
+      "tooltip": "Prints document properties like page count, page size, title, and encryption status. Quick way to check what a PDF contains before converting it. Related: pdftoppm and pdftotext for the content."
+    }
+  ]
+}

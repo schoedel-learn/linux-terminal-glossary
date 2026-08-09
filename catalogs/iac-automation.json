@@ -1,0 +1,685 @@
+{
+  "category": "IaC & Automation",
+  "commands": [
+    {
+      "cmd": "terraform version",
+      "desc": "Print the installed Terraform and provider versions",
+      "tooltip": "Shows the Terraform release number plus versions of any installed providers. Useful when debugging version-specific behavior or confirming a setup before planning. Add -json for machine-readable output in scripts. Related: terraform init -upgrade."
+    },
+    {
+      "cmd": "terraform init -upgrade",
+      "desc": "Reinitialize and upgrade providers and modules to newest versions",
+      "tooltip": "Re-runs initialization while upgrading every provider and module to the latest version that still satisfies your version constraints. Terraform records chosen versions in the lock file (.terraform.lock.hcl), so this flag is how you deliberately move forward. Run plain terraform init first on a fresh clone to install plugins and configure the backend, the storage where state lives. Related: terraform providers."
+    },
+    {
+      "cmd": "terraform init -backend-config=backend.tfbackend",
+      "desc": "Initialize using settings from a backend config file",
+      "tooltip": "Merges the given tfbackend file into the backend configuration, a common way to point at remote state storage without hardcoding bucket names or credentials. The backend (where state is stored) is declared in configuration, while this file supplies environment-specific values. Related: terraform init, terraform state list."
+    },
+    {
+      "cmd": "terraform plan -out plan.tfplan",
+      "desc": "Save the execution plan to a file for later apply",
+      "tooltip": "Writes the generated plan to plan.tfplan instead of only displaying it, capturing exactly what will change. A later terraform apply plan.tfplan performs those same actions without re-planning, which makes review pipelines safe. Related: terraform show plan.tfplan."
+    },
+    {
+      "cmd": "terraform plan -destroy",
+      "desc": "Plan the teardown of all managed resources",
+      "tooltip": "Produces a plan that destroys every resource Terraform manages, without changing anything yet. Review the listed deletions carefully before applying it, since the teardown is irreversible. Related: terraform destroy -auto-approve."
+    },
+    {
+      "cmd": "terraform apply plan.tfplan",
+      "desc": "Apply the actions captured in a saved plan file",
+      "tooltip": "Executes exactly the actions recorded in plan.tfplan, created earlier with terraform plan -out. Because the plan was already reviewed, apply skips the confirmation prompt and does not re-plan. The plan file must match the current configuration and state or apply refuses to run. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "cmd": "terraform apply -auto-approve",
+      "desc": "Apply changes without the interactive approval step",
+      "tooltip": "Runs the full plan and apply cycle while skipping the yes/no confirmation, which suits CI pipelines and scripts. It removes the checkpoint where a human reviews what will change, so prefer plain terraform apply in production. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "cmd": "terraform apply -replace=aws_instance.web",
+      "desc": "Force recreation of one resource during apply",
+      "tooltip": "Tells Terraform to destroy and recreate the resource at the given address even if nothing else changed. This is the modern replacement for the removed taint command, used when a server is corrupt or its configuration changed underneath you. Apply still plans and asks for approval first. Related: terraform state rm aws_instance.web."
+    },
+    {
+      "cmd": "terraform destroy -auto-approve",
+      "desc": "Destroy all managed infrastructure without prompting",
+      "tooltip": "Deletes every resource recorded in the state file with no confirmation, so nothing pauses between you and an emptied cloud account. Run terraform plan -destroy first to review the deletion list, and treat this command as last resort in shared environments. Deleted infrastructure cannot be recovered. Related: terraform plan -destroy."
+    },
+    {
+      "cmd": "terraform fmt",
+      "desc": "Format configuration files to canonical style",
+      "tooltip": "Rewrites HCL configuration files (tf, tfvars) in the current directory to HashiCorp's canonical style, aligning indentation and spacing. Run it before committing so diffs stay readable, and use -check in CI to fail on unformatted files. Related: terraform fmt -recursive, terraform validate."
+    },
+    {
+      "cmd": "terraform fmt -recursive",
+      "desc": "Format configuration files in every subdirectory",
+      "tooltip": "Applies canonical formatting to all tf and tfvars files under the current directory and its subdirectories. One command formats an entire monorepo of modules, keeping every contribution consistent. Related: terraform fmt."
+    },
+    {
+      "cmd": "terraform validate",
+      "desc": "Check configuration syntax and internal consistency",
+      "tooltip": "Validates that the configuration in the current directory is syntactically correct and internally consistent, catching typos and invalid references without contacting providers or the backend. It cannot see remote resources, and it requires an initialized directory. A standard gate in CI pipelines. Related: terraform plan, terraform fmt."
+    },
+    {
+      "cmd": "terraform validate -json",
+      "desc": "Validate configuration with JSON output",
+      "tooltip": "Runs the same checks as terraform validate but emits results as JSON with file and line details for each diagnostic. Editors and CI systems parse this output to highlight errors directly in source files. Related: terraform validate."
+    },
+    {
+      "cmd": "terraform show",
+      "desc": "Display the current state in human-readable form",
+      "tooltip": "Prints the contents of the state file (terraform's record of deployed resources), showing what Terraform believes exists in the cloud. Use it after an apply or when investigating drift, and add -json for structured output. Related: terraform state list."
+    },
+    {
+      "cmd": "terraform show plan.tfplan",
+      "desc": "Inspect a saved plan file before applying",
+      "tooltip": "Renders the actions recorded in plan.tfplan in the same human-readable format as the original plan output. Use it to re-read what a saved plan will do or audit it in review without touching infrastructure. Related: terraform plan -out plan.tfplan."
+    },
+    {
+      "cmd": "terraform state list",
+      "desc": "List all resources tracked in the state file",
+      "tooltip": "Outputs the addresses of every resource recorded in state, such as aws_instance.web, ready for grepping or scripting. Run it before surgical state operations to confirm exact resource names. Related: terraform state show aws_instance.web."
+    },
+    {
+      "cmd": "terraform state show aws_instance.web",
+      "desc": "Show full attributes of one state resource",
+      "tooltip": "Prints every recorded attribute and metadata for the resource at the given address, such as instance IDs and IP addresses. This is the fastest way to look up values Terraform knows about before scripting against them. Related: terraform state list."
+    },
+    {
+      "cmd": "terraform state mv aws_instance.web aws_instance.web2",
+      "desc": "Move a resource to a new address in state",
+      "tooltip": "Renames a resource entry in the state file, typically after renaming a configuration block or moving it into a module. A timestamped state backup is written before any change, and the configuration must be updated to match. Related: terraform state rm aws_instance.web."
+    },
+    {
+      "cmd": "terraform state rm aws_instance.web",
+      "desc": "Remove a resource from state without deleting it",
+      "tooltip": "Makes Terraform forget the given resource while leaving the real infrastructure running and untouched. Use it when a resource should be managed elsewhere, then re-import with terraform import if needed. A later plan may recreate the resource if its block still exists in configuration. Related: terraform import aws_instance.web i-1234567890abcdef0."
+    },
+    {
+      "cmd": "terraform refresh",
+      "desc": "Sync the state file with real cloud resources",
+      "tooltip": "Re-reads each managed resource from its provider and updates the state file to match reality, without planning or changing infrastructure. Useful after out-of-band changes to reduce drift surprises. Modern Terraform prefers plan -refresh-only to review recorded differences first. Related: terraform plan -refresh-only."
+    },
+    {
+      "cmd": "terraform plan -refresh-only",
+      "desc": "Plan a state refresh without proposing changes",
+      "tooltip": "Creates a plan that only syncs the state file with the real cloud, showing what would be recorded without applying anything. Review the proposed updates, then apply the plan to commit them. The safer successor to a blind terraform refresh. Related: terraform refresh."
+    },
+    {
+      "cmd": "terraform output",
+      "desc": "Print all output values from the state",
+      "tooltip": "Shows the values declared in output blocks, such as load balancer URLs or database endpoints, after an apply. The quick way to grab connection details without digging through the state file. Related: terraform output -json."
+    },
+    {
+      "cmd": "terraform output -json",
+      "desc": "Print output values as JSON for scripting",
+      "tooltip": "Emits every output value as structured JSON, ready to feed into scripts or parse with jq. Ideal for wiring Terraform results into other tools. Related: terraform output -raw instance_ip."
+    },
+    {
+      "cmd": "terraform output -raw instance_ip",
+      "desc": "Print one output value as a bare string",
+      "tooltip": "Prints only the raw value of the instance_ip output with no quoting or formatting, perfect for assigning to a shell variable. Works for outputs whose values convert to a string. Related: terraform output -json."
+    },
+    {
+      "cmd": "terraform workspace list",
+      "desc": "List all workspaces for the configuration",
+      "tooltip": "Shows every workspace (a separate state instance) available for the current configuration, marking the active one with an asterisk. Workspaces let one configuration manage several environments with isolated state. Related: terraform workspace new prod."
+    },
+    {
+      "cmd": "terraform workspace new prod",
+      "desc": "Create a new workspace named prod",
+      "tooltip": "Creates the prod workspace and selects it, giving the configuration a fresh, empty state. From then on plan, apply, and destroy act on prod's state until you switch again. Related: terraform workspace list."
+    },
+    {
+      "cmd": "terraform workspace select prod",
+      "desc": "Switch the active workspace",
+      "tooltip": "Makes prod the current workspace so subsequent commands read and write its state. Output from plan and apply shows the active workspace, an important sanity check before destroying anything. Related: terraform workspace show."
+    },
+    {
+      "cmd": "terraform workspace show",
+      "desc": "Print the name of the active workspace",
+      "tooltip": "Outputs the current workspace name, handy in scripts that must confirm which state a command will touch. Gate destructive commands on this value in shared environments. Related: terraform workspace select prod."
+    },
+    {
+      "cmd": "terraform import aws_instance.web i-1234567890abcdef0",
+      "desc": "Import an existing resource into the state",
+      "tooltip": "Brings the real EC2 instance i-1234567890abcdef0 under Terraform management at the address aws_instance.web. Write the matching resource block in configuration first, then run plan to reconcile differences. Import never modifies the resource itself. Related: terraform state show aws_instance.web."
+    },
+    {
+      "cmd": "terraform graph",
+      "desc": "Render the resource dependency graph in DOT",
+      "tooltip": "Outputs the dependency graph between resources in DOT language, which GraphViz or online renderers turn into a diagram. Helps visualize how changes cascade and diagnose ordering problems. Related: terraform plan."
+    },
+    {
+      "cmd": "terraform console",
+      "desc": "Open an interactive expression evaluation shell",
+      "tooltip": "Starts a read-eval-print loop where you can type expressions and interpolations against the current state and configuration. Great for testing references like aws_instance.web.id before putting them in configuration. Type exit to leave. Related: terraform plan."
+    },
+    {
+      "cmd": "terraform providers",
+      "desc": "Show the provider requirements of the configuration",
+      "tooltip": "Prints the tree of modules with the provider requirements each one declares, including version constraints. Helps understand why a particular provider version was selected before running init. Related: terraform init -upgrade."
+    },
+    {
+      "cmd": "terraform login",
+      "desc": "Store credentials for a Terraform registry",
+      "tooltip": "Prompts for or opens a browser to obtain an API token for the given hostname, defaulting to HCP Terraform, and saves it in the credentials file. Needed before publishing modules or using private registries. Related: terraform logout."
+    },
+    {
+      "cmd": "terraform logout",
+      "desc": "Remove locally stored registry credentials",
+      "tooltip": "Deletes the saved API token for the hostname, defaulting to app.terraform.io. The token is only removed from your machine, so revoke it on the server if it leaked. Related: terraform login."
+    },
+    {
+      "cmd": "terraform force-unlock 8b6d2c84-2f5a-4f3a-9c1a-abcdef012345",
+      "desc": "Manually release a stuck state lock",
+      "tooltip": "Removes a stale state lock when a previous process crashed and left it in place, using the lock ID from the error message. Only run it when you are certain no other Terraform process is active, because releasing a live lock can corrupt concurrent runs. Related: terraform state list."
+    },
+    {
+      "cmd": "terraform state pull",
+      "desc": "Print the raw state file to standard output",
+      "tooltip": "Outputs the entire state as raw JSON, exactly as stored in the backend, handy for backups or feeding other tooling. It modifies nothing. Related: terraform state list."
+    },
+    {
+      "cmd": "ansible --version",
+      "desc": "Print the Ansible version and configuration details",
+      "tooltip": "Shows the ansible-core release, the Python version, module search paths, and which config file would be loaded. Run it first when behavior differs between machines. Related: ansible-config dump."
+    },
+    {
+      "cmd": "ansible all -i inventory.ini -m ping",
+      "desc": "Ping every host listed in an inventory file",
+      "tooltip": "Runs the ping module against every host in inventory.ini, reporting pong for reachable ones. It tests SSH connectivity, Python on the target, and privilege setup, making it the standard first smoke test of an inventory (Ansible's list of hosts). Related: ansible all -m ping -o."
+    },
+    {
+      "cmd": "ansible all -m ping -o",
+      "desc": "Ping all hosts with condensed one-line output",
+      "tooltip": "Same connectivity check as a plain ping run, but the -o flag condenses each host result to a single line. Much easier to scan across hundreds of hosts for failures. Related: ansible all -i inventory.ini -m ping."
+    },
+    {
+      "cmd": "ansible all -m command -a 'uptime'",
+      "desc": "Run a command on every managed host",
+      "tooltip": "Executes uptime on all hosts using the command module, which runs a program without a shell. The -a flag passes module arguments, here the command to run. Use the shell module instead when you need pipes or redirection. Related: ansible all -m shell."
+    },
+    {
+      "cmd": "ansible all -m shell -a 'df -h | grep /data'",
+      "desc": "Run a shell command with pipes on all hosts",
+      "tooltip": "Executes the command through the target's shell, so pipes, redirects, and variable expansion work. Prefer the command module when you do not need shell features, because shell syntax differs between systems. Related: ansible all -m command."
+    },
+    {
+      "cmd": "ansible all -m apt -a 'name=nginx state=latest' -b",
+      "desc": "Ensure nginx is at the latest version on Debian hosts",
+      "tooltip": "Uses the apt module to make sure nginx is installed and current on every host, with -b (become) elevating to root for package operations. The module is idempotent, so repeated runs change nothing once the package is up to date. Related: ansible all -m service."
+    },
+    {
+      "cmd": "ansible all -m dnf -a 'name=nginx state=latest' -b",
+      "desc": "Ensure nginx is at the latest version on RHEL hosts",
+      "tooltip": "The dnf module plays the role of apt on Fedora and Red Hat family distributions, ensuring nginx is installed at the newest version with -b for root rights. Idempotent, so it only acts when the package state differs. Related: ansible all -m apt."
+    },
+    {
+      "cmd": "ansible 'web*' -m service -a 'name=nginx state=restarted' -b",
+      "desc": "Restart nginx only on hosts matching a pattern",
+      "tooltip": "Targets just the hosts whose names match web* and restarts the nginx service via the service module with -b for root rights. Host patterns let one command slice the inventory without editing files. Related: ansible all -m systemd."
+    },
+    {
+      "cmd": "ansible all -m systemd -a 'name=nginx enabled=yes state=started' -b",
+      "desc": "Enable and start nginx via systemd on all hosts",
+      "tooltip": "Configures the nginx unit to start now and on every boot using the systemd module, which speaks directly to modern init systems. Setting both enabled and state keeps services healthy across reboots. Related: ansible 'web*' -m service."
+    },
+    {
+      "cmd": "ansible all -m copy -a 'src=/etc/hosts dest=/etc/hosts' -b",
+      "desc": "Copy a local file to every managed host",
+      "tooltip": "Pushes the local /etc/hosts file to the same path on all targets using the copy module with -b for write permission. The module transfers only when content differs, keeping repeated runs fast. Related: ansible all -m command."
+    },
+    {
+      "cmd": "ansible all -m user -a 'name=deploy state=present' -b",
+      "desc": "Ensure the deploy user exists on all hosts",
+      "tooltip": "Creates the deploy user if missing using the user module with -b for account management rights, leaving an existing account untouched. This declarative style is core to Ansible: state the desired end state, not the steps. Related: ansible all -m apt."
+    },
+    {
+      "cmd": "ansible all -m git -a 'repo=https://github.com/example/app.git dest=/srv/app'",
+      "desc": "Clone or update a repository on every host",
+      "tooltip": "Uses the git module to ensure /srv/app on each host is a checkout of the given repository, cloning or pulling as needed. Idempotent by design, it is the standard way to deploy code from version control. Related: ansible-playbook site.yml."
+    },
+    {
+      "cmd": "ansible all -m setup -a 'filter=ansible_distribution*'",
+      "desc": "Gather OS facts from all hosts",
+      "tooltip": "Runs the setup module, which collects facts (detected system properties like OS family and CPU count) from each host, filtered here to distribution-related keys. Playbooks use these facts in conditions and templates. Related: ansible all -m command."
+    },
+    {
+      "cmd": "ansible all --list-hosts",
+      "desc": "Show which hosts a pattern would match",
+      "tooltip": "Prints the hosts the given pattern selects without running any module, perfect for checking a pattern or inventory before acting. Safe to run on any setup. Related: ansible-inventory --graph."
+    },
+    {
+      "cmd": "ansible-playbook -i prod.inventory site.yml",
+      "desc": "Run a playbook against a specific inventory",
+      "tooltip": "Executes the tasks in site.yml against the hosts in prod.inventory, overriding the default inventory. An inventory is Ansible's list of hosts and groups, and pointing at the right one separates testing from production. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --check site.yml",
+      "desc": "Dry-run a playbook without changing hosts",
+      "tooltip": "Runs the playbook in check mode, reporting what each task would change without applying anything. Modules that support check mode simulate results, though raw commands still execute, so review carefully. Always check before a real run on important infrastructure. Related: ansible-playbook --diff site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --syntax-check site.yml",
+      "desc": "Validate playbook syntax without running it",
+      "tooltip": "Parses site.yml and reports syntax errors, catching typos, bad indentation, and malformed tasks before anything executes. It does not validate logic against real hosts. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --diff site.yml",
+      "desc": "Show file changes a playbook would make",
+      "tooltip": "Runs the playbook while printing diffs for file-modifying tasks such as copy or template, showing exactly what content changes. Combine with --check for a full dry run with visible changes. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --limit web1 site.yml",
+      "desc": "Run a playbook against a subset of hosts",
+      "tooltip": "Restricts execution to the single host web1, or any pattern you pass, even when the inventory lists many more. Useful for rolling out changes incrementally or re-running a failed host. Related: ansible-playbook -i prod.inventory site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --tags deploy site.yml",
+      "desc": "Run only the tasks tagged deploy",
+      "tooltip": "Executes just the tasks tagged deploy, skipping the rest of the playbook. Tags let one playbook cover install, configure, and deploy steps while you invoke only what you need. Related: ansible-playbook --list-tasks site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --start-at-task 'Install nginx' site.yml",
+      "desc": "Resume a playbook from a named task",
+      "tooltip": "Begins execution at the first task named Install nginx, skipping everything before it. Handy after a failure when earlier tasks already completed and re-running them is wasteful. Related: ansible-playbook --list-tasks site.yml."
+    },
+    {
+      "cmd": "ansible-playbook --list-tasks site.yml",
+      "desc": "List the tasks a playbook would run",
+      "tooltip": "Prints the task names in execution order without running anything, grouped by play. A quick way to review a playbook's plan before executing it. Related: ansible-playbook --syntax-check site.yml."
+    },
+    {
+      "cmd": "ansible-playbook -v site.yml",
+      "desc": "Run a playbook with verbose output",
+      "tooltip": "Adds verbosity so the result of each task, including what changed on the target, is printed. Add more v flags, like -vvv, when chasing connection or variable problems. Related: ansible-playbook --check site.yml."
+    },
+    {
+      "cmd": "ansible-playbook -e 'app_version=2.1.0' site.yml",
+      "desc": "Override playbook variables from the command line",
+      "tooltip": "Sets the app_version variable for this run via extra vars, taking precedence over values defined in files. Useful for promoting a specific build across environments without editing the playbook. Related: ansible-playbook --tags deploy site.yml."
+    },
+    {
+      "cmd": "ansible-galaxy init my_role",
+      "desc": "Scaffold a new role directory structure",
+      "tooltip": "Creates my_role with the standard role layout, including tasks, handlers, templates, and defaults directories. A role is a reusable, packaged unit of tasks and files. Related: ansible-galaxy list."
+    },
+    {
+      "cmd": "ansible-galaxy install geerlingguy.nginx",
+      "desc": "Install a role from Ansible Galaxy",
+      "tooltip": "Fetches the geerlingguy.nginx role from Ansible Galaxy, the community role repository, into your roles path. Declare roles in requirements.yml and install with -r for reproducible setups. Related: ansible-galaxy list."
+    },
+    {
+      "cmd": "ansible-galaxy collection install community.docker",
+      "desc": "Install a collection from Ansible Galaxy",
+      "tooltip": "Installs the community.docker collection, a bundle of modules and plugins for working with Docker, into the collections path. Collections are the modern packaging format, referenced in playbooks like community.docker.docker_container. Related: ansible-galaxy collection list."
+    },
+    {
+      "cmd": "ansible-galaxy list",
+      "desc": "List installed roles with versions",
+      "tooltip": "Shows every role installed in the roles path and its version. Use it to confirm what a requirements file installed before running playbooks that depend on roles. Related: ansible-galaxy collection list."
+    },
+    {
+      "cmd": "ansible-galaxy collection list",
+      "desc": "List installed collections with versions",
+      "tooltip": "Prints installed collections and versions, including bundled ones such as ansible.builtin plus anything you added. Verify versions after upgrades to keep playbooks reproducible. Related: ansible-galaxy install."
+    },
+    {
+      "cmd": "ansible-vault create secrets.yml",
+      "desc": "Create a new encrypted secrets file",
+      "tooltip": "Opens an editor and saves the file encrypted with a password you enter, so plaintext never touches disk. Ansible vault is the built-in secrets manager, and playbooks read these files when given the vault password. Related: ansible-vault view secrets.yml."
+    },
+    {
+      "cmd": "ansible-vault edit secrets.yml",
+      "desc": "Edit an encrypted vault file in place",
+      "tooltip": "Decrypts secrets.yml in memory, opens your editor, and re-encrypts on save, leaving the file encrypted on disk. Supply the password with --ask-vault-password or a password file. Related: ansible-vault create secrets.yml."
+    },
+    {
+      "cmd": "ansible-vault encrypt --vault-password-file .vault_pass group_vars/prod.yml",
+      "desc": "Encrypt a plaintext file using a password file",
+      "tooltip": "Encrypts group_vars/prod.yml in place, reading the password from the .vault_pass file instead of prompting, which suits scripts and CI. Keep the password file itself out of version control with tight permissions. Related: ansible-vault decrypt group_vars/prod.yml."
+    },
+    {
+      "cmd": "ansible-vault decrypt group_vars/prod.yml",
+      "desc": "Decrypt a vault file back to plaintext",
+      "tooltip": "Removes encryption from group_vars/prod.yml, writing the content in clear text on disk. Use it only when you must edit with non-Ansible tools, then re-encrypt promptly to avoid leaking secrets. Related: ansible-vault encrypt."
+    },
+    {
+      "cmd": "ansible-vault view secrets.yml",
+      "desc": "Display an encrypted file without editing",
+      "tooltip": "Decrypts secrets.yml to standard output so you can read it without risking an accidental save. The file on disk stays encrypted. Related: ansible-vault edit secrets.yml."
+    },
+    {
+      "cmd": "ansible-vault encrypt_string 's3cr3t-value' --name api_key",
+      "desc": "Encrypt a single value for use in variables",
+      "tooltip": "Returns an encrypted blob you can paste as the api_key variable directly in a playbook or variable file, keeping the secret out of plaintext YAML. The value decrypts at runtime when the vault password is provided. Related: ansible-vault create secrets.yml."
+    },
+    {
+      "cmd": "ansible-inventory --graph",
+      "desc": "Show inventory hosts and groups as a tree",
+      "tooltip": "Renders the inventory as an ASCII tree of groups and their hosts, making membership and nesting easy to grasp. Great for auditing a large inventory, Ansible's list of hosts. Related: ansible-inventory --list -y."
+    },
+    {
+      "cmd": "ansible-inventory --list -y",
+      "desc": "Dump the full inventory as YAML",
+      "tooltip": "Prints the complete resolved inventory in YAML, including group and host variables after inheritance. Useful for debugging why a host received certain values. Related: ansible-inventory --host web1."
+    },
+    {
+      "cmd": "ansible-inventory --host web1",
+      "desc": "Show all variables for a single host",
+      "tooltip": "Outputs the merged variables for web1 from every group it belongs to, the fastest way to debug where a value came from. Related: ansible all -m setup."
+    },
+    {
+      "cmd": "ansible-doc -l",
+      "desc": "List all installed Ansible modules",
+      "tooltip": "Prints every module available on the system, built-in and from collections, with a one-line summary each. Pipe to grep to find a module for a task before searching the web. Related: ansible-doc apt."
+    },
+    {
+      "cmd": "ansible-doc apt",
+      "desc": "Show full documentation for the apt module",
+      "tooltip": "Displays the apt module's parameters, examples, and return values straight from its embedded docs. Faster and more accurate than web searches because it reflects the installed version. Related: ansible-doc -s apt."
+    },
+    {
+      "cmd": "ansible-doc -s apt",
+      "desc": "Show the parameter list for a module",
+      "tooltip": "Prints a compact parameter listing for the apt module without the full prose examples, ideal for a quick syntax reminder. Related: ansible-doc apt."
+    },
+    {
+      "cmd": "ansible-config dump",
+      "desc": "Show the effective Ansible configuration",
+      "tooltip": "Prints every configuration setting with its source, such as config file, environment variable, or default, showing what Ansible will actually use. Run it when behavior differs from expectations. Related: ansible-config dump --only-changed."
+    },
+    {
+      "cmd": "ansible-config dump --only-changed",
+      "desc": "Show only non-default configuration values",
+      "tooltip": "Filters the configuration dump to settings that differ from their defaults, cutting through noise to find what is customized here. Related: ansible --version."
+    },
+    {
+      "cmd": "ansible-pull -U https://github.com/example/infra.git site.yml",
+      "desc": "Pull a playbook from git and run it locally",
+      "tooltip": "Clones the infra repository from git and immediately runs site.yml on the local machine, which is how Ansible works in pushless setups like cron-driven node self-configuration. Every host pulls the same repo and applies it to itself. Related: ansible-playbook site.yml."
+    },
+    {
+      "cmd": "pulumi version",
+      "desc": "Print the installed Pulumi version",
+      "tooltip": "Outputs the current Pulumi CLI release number. Check it when debugging behavior differences or before reporting issues, since the CLI changes quickly. Related: pulumi about."
+    },
+    {
+      "cmd": "pulumi about",
+      "desc": "Show project, stack, and backend details",
+      "tooltip": "Prints a summary of the current project, selected stack, plugin versions, backend, and language runtime. A quick health check before filing bugs or auditing a setup. Related: pulumi version."
+    },
+    {
+      "cmd": "pulumi new aws-python",
+      "desc": "Scaffold a new project from a template",
+      "tooltip": "Creates a new Pulumi project from the aws-python template, generating project files, installing dependencies, and setting up an initial stack. A stack is an isolated instance of a project's state, typically one per environment. Related: pulumi up."
+    },
+    {
+      "cmd": "pulumi preview",
+      "desc": "Preview changes without touching resources",
+      "tooltip": "Runs the program and compares the desired state against the stack's current state, showing what would be created, updated, or deleted. Nothing changes during a preview, so it is the safe first step before every deployment. Related: pulumi up."
+    },
+    {
+      "cmd": "pulumi up",
+      "desc": "Deploy the program to the cloud",
+      "tooltip": "Computes the difference between the desired and current state of the stack, shows the plan, and applies it after your confirmation. This is the main deploy command, the Pulumi equivalent of terraform apply. Related: pulumi preview."
+    },
+    {
+      "cmd": "pulumi up -y",
+      "desc": "Deploy without the confirmation prompt",
+      "tooltip": "Runs the update while skipping the interactive approval step with -y, which suits CI pipelines and scripts. The preview output still appears, but nothing pauses for a human. Related: pulumi up."
+    },
+    {
+      "cmd": "pulumi destroy",
+      "desc": "Tear down every resource in the stack",
+      "tooltip": "Deletes all resources tracked in the current stack's state, which is generally irreversible, though it asks for confirmation first. The stack itself stays. Run pulumi preview first to review the deletion list, and never point this at shared environments casually. Related: pulumi up."
+    },
+    {
+      "cmd": "pulumi destroy -y",
+      "desc": "Destroy all stack resources without prompting",
+      "tooltip": "Same teardown as pulumi destroy but skips the confirmation prompt, so one command empties the stack. Pair it with strict access controls and always preview before automating it. Related: pulumi destroy."
+    },
+    {
+      "cmd": "pulumi stack ls",
+      "desc": "List all stacks for the project",
+      "tooltip": "Shows every stack belonging to the current project, marking the one in use. Stacks let a single project manage dev, staging, and production with separate state. Related: pulumi stack select dev."
+    },
+    {
+      "cmd": "pulumi stack select dev",
+      "desc": "Switch the active stack",
+      "tooltip": "Makes dev the active stack for subsequent commands, so up and destroy act on its state. Confirm the selection before running pulumi destroy, because the wrong stack can mean the wrong environment. Related: pulumi stack ls."
+    },
+    {
+      "cmd": "pulumi stack output",
+      "desc": "Show the stack's exported outputs",
+      "tooltip": "Prints the output values exported by the program, such as endpoint URLs or ARNs, from the current stack's state. Add -j for JSON output. Related: pulumi stack output endpoint_url."
+    },
+    {
+      "cmd": "pulumi stack output endpoint_url",
+      "desc": "Show a single output property value",
+      "tooltip": "Prints just the endpoint_url value exported by the stack, ready to assign to a shell variable or feed into other tooling. Related: pulumi stack output."
+    },
+    {
+      "cmd": "pulumi stack rm dev",
+      "desc": "Delete a stack and its state",
+      "tooltip": "Removes the dev stack and its configuration, prompting if resources still exist. Deleting a stack does not delete cloud resources unless you destroy them first, so run pulumi destroy beforehand. Related: pulumi destroy."
+    },
+    {
+      "cmd": "pulumi config set region us-east-1",
+      "desc": "Set a configuration value for the stack",
+      "tooltip": "Stores the key region with value us-east-1 in the current stack's configuration, which programs read at runtime. Configuration keeps environment-specific settings out of code. Related: pulumi config get region."
+    },
+    {
+      "cmd": "pulumi config get region",
+      "desc": "Read a single configuration value",
+      "tooltip": "Prints the value stored for the region key in the active stack's configuration. Use it to confirm what a program will see before an update. Related: pulumi config set region us-east-1."
+    },
+    {
+      "cmd": "pulumi config set --secret db_password 'hunter2'",
+      "desc": "Store an encrypted secret configuration value",
+      "tooltip": "Saves db_password as an encrypted secret so the value never sits in plaintext in the stack configuration. Listings show it blinded, and programs decrypt it only when needed. Related: pulumi config get."
+    },
+    {
+      "cmd": "pulumi config rm region",
+      "desc": "Remove a configuration key",
+      "tooltip": "Deletes the region key from the stack configuration, useful when a setting is no longer needed or was set by mistake. Related: pulumi config set region us-east-1."
+    },
+    {
+      "cmd": "pulumi state list",
+      "desc": "List all resources in the stack state",
+      "tooltip": "Prints every resource URN (unique resource name) tracked in the current stack's state, with its type. Useful before surgical state operations or to confirm what destroy would remove. Related: pulumi import."
+    },
+    {
+      "cmd": "pulumi import aws:s3/bucket:Bucket app-data data-bucket-2024",
+      "desc": "Import an existing cloud resource into a stack",
+      "tooltip": "Brings the real S3 bucket data-bucket-2024 into the stack as app-data, using its type token aws:s3/bucket:Bucket. The command prints resource code to add to the program so Pulumi manages it from now on. Related: pulumi state list."
+    },
+    {
+      "cmd": "pulumi refresh",
+      "desc": "Sync stack state with the real cloud",
+      "tooltip": "Reconciles the stack's recorded state with what actually exists in the cloud provider, adopting out-of-band changes. It does not change infrastructure, only the state record, so review the differences it reports. Related: pulumi preview."
+    },
+    {
+      "cmd": "pulumi login",
+      "desc": "Authenticate to the Pulumi backend",
+      "tooltip": "Prompts for an access token to log in to Pulumi Cloud, which stores your stack state, or accepts a URL for a self-hosted or local backend. Use pulumi login --local for fully local state. Related: pulumi logout."
+    },
+    {
+      "cmd": "pulumi logout",
+      "desc": "Clear stored backend credentials",
+      "tooltip": "Removes the saved login credentials for the current backend from your machine, or all backends with --all. It touches only local authentication, never remote state. Related: pulumi login."
+    },
+    {
+      "cmd": "make",
+      "desc": "Build the default target of the current directory",
+      "tooltip": "Runs the first target in the Makefile found in the current directory, rebuilding only what is out of date based on file timestamps. Make is a build automation tool driven by rules that declare dependencies between files. Related: make -n."
+    },
+    {
+      "cmd": "make -n",
+      "desc": "Print build commands without running them",
+      "tooltip": "Prints every recipe command make would execute without running any, perfect for previewing a build or debugging what triggers a target. Combine with -B to see the full rebuild plan. Related: make."
+    },
+    {
+      "cmd": "make -j4",
+      "desc": "Build with up to four parallel jobs",
+      "tooltip": "Runs up to four recipe commands simultaneously, speeding up large builds on multi-core machines. Independent targets build in parallel while dependencies stay ordered. Related: make."
+    },
+    {
+      "cmd": "make -C /opt/myapp",
+      "desc": "Build in a different directory",
+      "tooltip": "Changes into /opt/myapp before reading the Makefile and building, so you can drive a project from anywhere. Equivalent to cd /opt/myapp followed by make. Related: make -f build.mk release."
+    },
+    {
+      "cmd": "make install",
+      "desc": "Build and install the project",
+      "tooltip": "Runs the install target, the conventional way to copy built binaries, libraries, or files into their system locations after a build. Exact behavior depends on the project's Makefile. Related: make clean."
+    },
+    {
+      "cmd": "make clean",
+      "desc": "Remove files produced by previous builds",
+      "tooltip": "Runs the clean target, which deletes build artifacts such as object files and binaries so the next build starts fresh. Some projects add distclean to also remove generated configuration. Related: make."
+    },
+    {
+      "cmd": "make -f build.mk release",
+      "desc": "Build a target using a custom makefile",
+      "tooltip": "Reads build.mk instead of the default Makefile and executes its release target, useful when a project ships several makefiles for different purposes. Related: make -C /opt/myapp."
+    },
+    {
+      "cmd": "make --debug=b",
+      "desc": "Trace target decisions during a build",
+      "tooltip": "Prints basic debugging output showing why make considers each target out of date and which rules it chooses. The b stands for basic, while --debug=v adds verbose detail on files and variables. Related: make -n."
+    },
+    {
+      "cmd": "make -k",
+      "desc": "Keep building despite errors",
+      "tooltip": "Continues with independent targets even after one fails, instead of stopping at the first error. Useful for collecting the full list of failures in one pass. Related: make."
+    },
+    {
+      "cmd": "make -s",
+      "desc": "Build silently, printing only errors",
+      "tooltip": "Suppresses echoed recipe commands so output shows only warnings and errors. Useful in CI logs where command noise buries failures. Related: make."
+    },
+    {
+      "cmd": "make -B",
+      "desc": "Rebuild every target unconditionally",
+      "tooltip": "Treats all targets as out of date and re-runs every recipe, ignoring timestamps. Use it to force a full rebuild when timestamps lie, such as after copying files with preserved times. Related: make -n."
+    },
+    {
+      "cmd": "make -q",
+      "desc": "Check whether a target is up to date",
+      "tooltip": "Runs no recipes and reports status through the exit code, which scripts use to decide whether to rebuild. Exit status zero means the target is up to date. Related: make -n."
+    },
+    {
+      "cmd": "make -t",
+      "desc": "Mark targets up to date without building",
+      "tooltip": "Touches the target files to update their timestamps without running any recipe, pretending the build happened. Mostly useful for testing dependency logic without real work. Related: make -q."
+    },
+    {
+      "cmd": "make -p",
+      "desc": "Print make's internal rule database",
+      "tooltip": "Dumps the entire rule and variable database make has computed, including built-in rules, invaluable for debugging unexpected build behavior. Pipe it to a pager since the output is long. Related: make --debug=b."
+    },
+    {
+      "cmd": "cloud-init status",
+      "desc": "Show cloud-init's current run status",
+      "tooltip": "Reports whether cloud-init (the tool that initializes cloud instances from user-data) has started, is running, or finished its run stages. Shows done when initialization completed and error when a stage failed. Related: cloud-init status --wait."
+    },
+    {
+      "cmd": "cloud-init status --wait",
+      "desc": "Block until cloud-init finishes initializing",
+      "tooltip": "Waits, re-checking until cloud-init completes its run, then prints the final status. Use it in provisioning scripts and containers that must not start until first-boot setup finished. Add --format json for parseable output. Related: cloud-init status."
+    },
+    {
+      "cmd": "cloud-init status --format json",
+      "desc": "Report cloud-init status as JSON",
+      "tooltip": "Prints the status with a machine-readable JSON structure, including the current stage and any errors, ideal for health checks in automation. Related: cloud-init status --wait."
+    },
+    {
+      "cmd": "cloud-init clean",
+      "desc": "Reset cloud-init state for a fresh first boot",
+      "tooltip": "Removes cloud-init's saved instance state so the next boot re-runs initialization as if the machine were new. It does not remove user-data or packages, but it can reset values like machine-id, so use it only when preparing golden images or clones. Related: cloud-init clean -r."
+    },
+    {
+      "cmd": "cloud-init clean -r",
+      "desc": "Reset state and reboot to reinitialize",
+      "tooltip": "Runs cloud-init clean and then reboots the machine immediately so initialization runs again on the next boot. Intended for imaging workflows, and the reboot interrupts anything running on the box. Related: cloud-init status."
+    },
+    {
+      "cmd": "cloud-init query -a",
+      "desc": "Print all instance metadata as key-value pairs",
+      "tooltip": "Dumps every known instance-data key, such as instance ID, region, and hostname, collected during boot. Handy for verifying what the datasource (the source of cloud information) actually provided. Related: cloud-init query v1.local_hostname."
+    },
+    {
+      "cmd": "cloud-init query v1.local_hostname",
+      "desc": "Look up a single instance metadata value",
+      "tooltip": "Returns just the value stored under v1.local_hostname, the dotted path into the instance-data JSON tree. Useful in scripts that need the machine's cloud-assigned hostname. Related: cloud-init query -a."
+    },
+    {
+      "cmd": "cloud-init schema -c /etc/cloud/cloud.cfg",
+      "desc": "Validate a cloud-config file against its schema",
+      "tooltip": "Checks /etc/cloud/cloud.cfg for valid keys and values against the official cloud-config schema, catching typos before they silently break boot-time behavior. Related: cloud-init schema --system."
+    },
+    {
+      "cmd": "cloud-init schema --system",
+      "desc": "Validate the system's cloud-init configuration",
+      "tooltip": "Validates the machine's own cloud-init configuration files in place, including /etc/cloud/cloud.cfg, and reports schema violations. Run it after editing config to catch mistakes early. Related: cloud-init init."
+    },
+    {
+      "cmd": "cloud-init init",
+      "desc": "Run the cloud-init init stage manually",
+      "tooltip": "Executes the init stage that discovers the datasource, fetches user-data, and configures the network, normally run automatically at boot. Running it manually suits containers and test environments that skip normal boot. Related: cloud-init modules -m final."
+    },
+    {
+      "cmd": "cloud-init modules -m final",
+      "desc": "Run the final configuration modules",
+      "tooltip": "Executes the final stage modules, which apply user-data such as package installs and user creation after the network is up. Useful for re-applying configuration without rebooting. Related: cloud-init init."
+    },
+    {
+      "cmd": "cloud-init collect-logs",
+      "desc": "Bundle logs and config into a tar archive",
+      "tooltip": "Collects cloud-init logs, journal excerpts, and configuration into cloud-init.tar.gz in the current directory for support requests. Add --include-userdata to embed the user-data that was provided. Related: cloud-init analyze blame."
+    },
+    {
+      "cmd": "cloud-init analyze blame",
+      "desc": "Show which init stage took the longest",
+      "tooltip": "Analyzes the boot log and prints cloud-init modules ranked by execution time, helping diagnose slow first boots. Related: cloud-init collect-logs."
+    },
+    {
+      "cmd": "packer version",
+      "desc": "Print the installed Packer version",
+      "tooltip": "Outputs the Packer release number and checks whether a newer version exists. Useful when template behavior differs from documentation. Related: packer validate ."
+    },
+    {
+      "cmd": "packer init .",
+      "desc": "Install plugins required by the template",
+      "tooltip": "Reads the plugins block in the template in the current directory and downloads the required builder and provisioner plugins. Run it before validate or build on a fresh checkout, since Packer keeps no record of what was installed. Related: packer build ."
+    },
+    {
+      "cmd": "packer fmt .",
+      "desc": "Format a Packer template canonically",
+      "tooltip": "Rewrites pkr.hcl files in the current directory to canonical HCL2 formatting, aligning indentation and spacing. Add -check in CI to fail when templates are not formatted. Related: packer validate ."
+    },
+    {
+      "cmd": "packer validate .",
+      "desc": "Check a template for configuration errors",
+      "tooltip": "Parses the template in the current directory and verifies the builder and provisioner configurations are valid, reporting errors with a non-zero exit code. It does not create any images. Related: packer build ."
+    },
+    {
+      "cmd": "packer build .",
+      "desc": "Build images from the template",
+      "tooltip": "Executes every build defined in the template in the current directory, creating the images or artifacts the builders produce, which can incur cloud costs. Run packer validate first, and use -only to limit which builds execute. Related: packer validate ."
+    },
+    {
+      "cmd": "packer console",
+      "desc": "Open an interpolation test shell",
+      "tooltip": "Starts an interactive console for testing variable and function interpolation expressions against the template, similar to Terraform's console. Useful for debugging template expressions before a build. Related: packer validate ."
+    },
+    {
+      "cmd": "packer plugins install github.com/hashicorp/amazon",
+      "desc": "Install a specific plugin binary",
+      "tooltip": "Downloads the amazon plugin from the given source and pins it for use, which also works in offline environments before running init. Related: packer init ."
+    }
+  ]
+}

@@ -1,0 +1,670 @@
+{
+  "category": "AI/ML Tooling",
+  "commands": [
+    {
+      "cmd": "ollama --version",
+      "desc": "Show installed Ollama version",
+      "tooltip": "Prints the version of the Ollama binary, useful when reading docs that assume a minimum release or troubleshooting odd behaviour. The same info appears at the end of `ollama serve` startup logs. Pair with `ollama ls` to confirm the daemon is reachable."
+    },
+    {
+      "cmd": "ollama ls",
+      "desc": "List models stored locally",
+      "tooltip": "Shows every model you have pulled, with its tag (a version label like 3b or latest), size, and modification time. `ls` is an alias for `ollama list`. New models arrive with `ollama pull`, and `ollama ps` shows only the ones currently loaded in memory."
+    },
+    {
+      "cmd": "ollama pull llama3.2",
+      "desc": "Download the llama3.2 model",
+      "tooltip": "Downloads the default llama3.2 tag from the Ollama registry to your machine, where it stays for offline use. The first run of a model also triggers this download automatically. Add a tag like llama3.2:3b to grab a specific size variant."
+    },
+    {
+      "cmd": "ollama pull llama3.2:3b",
+      "desc": "Download a tagged model size",
+      "tooltip": "Fetches the 3 billion parameter llama3.2 variant, a lighter model that runs comfortably on CPU-only laptops and 4-6 GB GPUs. The tag after the colon selects the size or quantization (compressed precision) of the same base model. Compare with llama3.2:1b for an even faster, dumber model."
+    },
+    {
+      "cmd": "ollama pull llama3.2:1b",
+      "desc": "Download the smallest llama3.2",
+      "tooltip": "Gets the 1 billion parameter llama3.2 build, the fastest and lightest official variant, usable on very modest hardware. It is best for quick tests, classification, and prototyping rather than serious writing. `ollama show llama3.2:1b` reveals its exact size after the pull."
+    },
+    {
+      "cmd": "ollama run llama3.2",
+      "desc": "Chat interactively with a model",
+      "tooltip": "Starts an interactive chat session with the llama3.2 model: you type prompts, the model replies, and the conversation history is kept in context. Type /bye or press Ctrl-D to exit, /help lists more slash commands, and /set changes session options. For a single question, pass the prompt as an argument instead."
+    },
+    {
+      "cmd": "ollama run llama3.2 'Write a haiku about Linux'",
+      "desc": "Ask a model a single question",
+      "tooltip": "Runs one prompt through llama3.2 and prints only the reply, then exits, which is ideal for scripts and shell pipelines. Wrap the prompt in quotes so the shell treats it as one argument. The interactive alternative is `ollama run llama3.2` with no prompt."
+    },
+    {
+      "cmd": "ollama run llama3.2 'Return a JSON list of three colors' --format json",
+      "desc": "Request structured JSON output",
+      "tooltip": "Forces llama3.2 to answer in valid JSON, matching the schema implied by the prompt, which is handy for feeding results into jq or other programs. The --format flag constrains the model to structured output instead of free text. Pair with `curl http://localhost:11434/api/generate` for the same behaviour over HTTP."
+    },
+    {
+      "cmd": "ollama rm llama3.2",
+      "desc": "Delete a model from disk",
+      "tooltip": "Permanently removes the llama3.2 model files from your Ollama storage directory, freeing several gigabytes. There is no undo, and the model must be downloaded again with `ollama pull llama3.2` if you change your mind. Run `ollama ls` first to confirm which tag you are deleting."
+    },
+    {
+      "cmd": "ollama ps",
+      "desc": "Show models currently loaded",
+      "tooltip": "Lists the models Ollama has loaded into memory right now, with their size, how long they have been resident, and how much VRAM or RAM they occupy. A model stays loaded for a few minutes after its last request unless `ollama stop` is used. This is the first place to look when a model feels slow or memory is tight."
+    },
+    {
+      "cmd": "ollama stop llama3.2",
+      "desc": "Unload a model from memory",
+      "tooltip": "Forces Ollama to unload llama3.2 from RAM or VRAM immediately, freeing memory that idle models otherwise hold for several minutes. The model stays on disk, so the next request reloads it with a small delay. Use `ollama ps` afterwards to confirm it is gone."
+    },
+    {
+      "cmd": "ollama show llama3.2",
+      "desc": "Show details about a model",
+      "tooltip": "Prints metadata for llama3.2: parameter count, quantization level, context length, license, and the architecture it runs on. It is the quick way to check whether a pulled model matches your hardware before running it. Add --modelfile to see the exact build recipe."
+    },
+    {
+      "cmd": "ollama show llama3.2 --modelfile",
+      "desc": "Print a model's Modelfile",
+      "tooltip": "Displays the Modelfile (the recipe of base model, prompt template, parameters, and system message) that defines llama3.2. This is the same content `ollama create` consumes, so it is a great starting point for building your own tuned variant. Related: `ollama show llama3.2 --parameters`."
+    },
+    {
+      "cmd": "ollama cp llama3.2 my-llama-copy",
+      "desc": "Clone a model under a new name",
+      "tooltip": "Creates a local copy of llama3.2 named my-llama-copy without downloading anything again, since Ollama stores shared blobs once. Use it to experiment safely with `ollama create` modifications or to give a tuned model a stable name. Delete the copy with `ollama rm my-llama-copy`."
+    },
+    {
+      "cmd": "ollama create mymodel -f Modelfile",
+      "desc": "Build a custom model from a Modelfile",
+      "tooltip": "Assembles a new model called mymodel from the instructions in Modelfile, which typically starts with FROM llama3.2 and adds a custom system prompt, temperature, or template. The file lives in the current directory unless -f points elsewhere. Tweak and recreate the same name to iterate, and `ollama show mymodel --modelfile` to inspect the result."
+    },
+    {
+      "cmd": "ollama create mymodel -q q4_K_M -f Modelfile",
+      "desc": "Create a model with quantization",
+      "tooltip": "Builds mymodel from Modelfile while quantizing the weights to q4_K_M, a 4-bit format that shrinks memory use and speeds up CPU inference at a small accuracy cost. The -q flag only works when the Modelfile imports a source model, not for imported GGUF files. q4_K_M is a solid default; q8_0 trades size for fidelity."
+    },
+    {
+      "cmd": "ollama push myuser/mymodel:latest",
+      "desc": "Upload a model to a registry",
+      "tooltip": "Uploads myuser/mymodel to a remote Ollama registry so other machines or people can `ollama pull` it. The namespace must be an account you own on ollama.com or a private registry, and you must be signed in first with `ollama signin`. Private registries need the --insecure flag when they lack TLS."
+    },
+    {
+      "cmd": "ollama signin",
+      "desc": "Sign in to ollama.com",
+      "tooltip": "Authenticates with ollama.com so you can push models you created with `ollama create` to your namespace. It opens a browser flow or prompts for credentials in the terminal. `ollama signout` removes the saved session."
+    },
+    {
+      "cmd": "OLLAMA_MODELS=/data/ollama ollama serve",
+      "desc": "Run Ollama with a custom model directory",
+      "tooltip": "Starts the Ollama server with its model storage redirected from the default ~/.ollama/models to /data/ollama, useful on machines where the home partition is small or models should live on a big data drive. Set the variable per-command or export it in your shell profile. `ollama serve` alone uses the defaults; the server listens on 127.0.0.1:11434."
+    },
+    {
+      "cmd": "curl -s http://localhost:11434/api/tags",
+      "desc": "List local models via the API",
+      "tooltip": "Queries the Ollama REST API on port 11434 and prints every locally stored model as JSON, with name, size, and modification time. It is the API equivalent of `ollama ls`, useful from scripts or when no ollama binary exists on the machine. Pipe through `python3 -m json.tool` to pretty-print."
+    },
+    {
+      "cmd": "curl -s http://localhost:11434/api/ps",
+      "desc": "List loaded models via the API",
+      "tooltip": "Hits the Ollama REST API to show which models are currently resident in memory, mirroring `ollama ps` but returning JSON that scripts can parse. Each entry includes the model name and how long it has been loaded. Use `ollama stop` or the API to unload a model."
+    },
+    {
+      "cmd": "curl -s http://localhost:11434/api/chat -d '{\"model\":\"llama3.2\",\"messages\":[{\"role\":\"user\",\"content\":\"Hi\"}]}'",
+      "desc": "Send a chat request to Ollama's API",
+      "tooltip": "Sends a single chat message to the running Ollama server over HTTP, with the conversation passed as a messages array exactly like OpenAI's API shape. Add \"stream\":false to get the full reply in one JSON response instead of tokens as they are generated. This is how other programs talk to Ollama; `ollama run llama3.2` is the interactive shortcut."
+    },
+    {
+      "cmd": "curl -s http://localhost:11434/api/generate -d '{\"model\":\"llama3.2\",\"prompt\":\"Explain Docker in one sentence\",\"stream\":false}'",
+      "desc": "Generate text via Ollama's API",
+      "tooltip": "Asks the Ollama server to complete a raw prompt, without chat history, and returns JSON containing the response field. stream:false makes the server buffer the whole answer instead of streaming token chunks. The companion endpoint /api/chat handles conversational messages; both speak to the server started by `ollama serve`."
+    },
+    {
+      "cmd": "hf auth login",
+      "desc": "Log in to Hugging Face interactively",
+      "tooltip": "Stores a Hugging Face access token in ~/.cache/huggingface/token so `hf download` and `hf upload` can reach gated or private repos. It opens a browser to create the token, or accepts a pasted token at the prompt. Generate tokens at huggingface.co/settings/tokens; `hf auth whoami` confirms the logged-in account."
+    },
+    {
+      "cmd": "hf auth login --token $HF_TOKEN",
+      "desc": "Log in with a token variable",
+      "tooltip": "Logs in non-interactively using the token stored in the HF_TOKEN environment variable, perfect for CI machines and scripts that cannot open a browser. The variable is single-quoted-safe because the shell expands it before hf runs. Add --add-to-git-credential to also let plain git commands authenticate."
+    },
+    {
+      "cmd": "hf auth logout",
+      "desc": "Remove the saved Hugging Face token",
+      "tooltip": "Deletes the locally stored Hugging Face access token, so subsequent downloads of gated models will prompt again. Use it when rotating credentials or before handing a machine to someone else. `hf auth whoami` will then report that you are not logged in."
+    },
+    {
+      "cmd": "hf auth whoami",
+      "desc": "Show the logged-in Hugging Face account",
+      "tooltip": "Prints the username of the Hugging Face account whose token is stored locally, plus any org memberships. It is the fastest sanity check that authentication is working before downloading a gated model. Related: `hf auth list` shows every saved token."
+    },
+    {
+      "cmd": "hf auth list",
+      "desc": "List all stored access tokens",
+      "tooltip": "Shows every Hugging Face token saved on this machine with its name and creation date, which is handy when several accounts or CI tokens are in play. Tokens are stored in ~/.cache/huggingface. Switch the active one with `hf auth switch`; delete with `hf auth logout`."
+    },
+    {
+      "cmd": "hf auth token",
+      "desc": "Print the current token to stdout",
+      "tooltip": "Outputs the active Hugging Face access token in plain text, useful for scripting but a security risk if the terminal is shared or the output is logged. Treat the printed value like a password. Prefer `hf auth whoami` when you only need to verify identity."
+    },
+    {
+      "cmd": "hf auth switch",
+      "desc": "Switch between saved tokens",
+      "tooltip": "Lets you pick which saved Hugging Face token is active for the current user, without re-pasting tokens. Handy on machines shared between personal and work accounts. `hf auth list` shows what is available to switch between."
+    },
+    {
+      "cmd": "hf download meta-llama/Llama-3.1-8B-Instruct",
+      "desc": "Download a model from the Hub",
+      "tooltip": "Downloads every file of the meta-llama/Llama-3.1-8B-Instruct repo into the Hugging Face cache, keyed by the repo name and revision so re-downloads are skipped. A model ID is the owner/repo-name pair from huggingface.co, like meta-llama/Llama-3.1-8B-Instruct. Gated models require `hf auth login` first, and --local-dir places files in a plain folder instead of the cache."
+    },
+    {
+      "cmd": "hf download meta-llama/Llama-3.1-8B-Instruct --include '*.safetensors'",
+      "desc": "Download only matching files",
+      "tooltip": "Fetches just the .safetensors weight files from the model repo, skipping tokenizers and configs, which saves bandwidth on big repos. The --include flag takes shell-style glob patterns and can be repeated. Add --exclude to filter further, or download individual files by naming them after the repo."
+    },
+    {
+      "cmd": "hf download sentence-transformers/all-MiniLM-L6-v2 --local-dir ./minilm",
+      "desc": "Download a model to a plain folder",
+      "tooltip": "Saves the all-MiniLM-L6-v2 embedding model directly under ./minilm instead of the hashed cache layout, mirroring how the repo looks on the Hub. A local-dir download is a copy, so deleting the folder removes the files but not the cache. Useful when a tool expects a model path rather than a model ID."
+    },
+    {
+      "cmd": "hf download unsloth/Llama-3.2-1B-Instruct-GGUF --include '*Q4_K_M.gguf' --local-dir ./llama32",
+      "desc": "Download a quantized GGUF model",
+      "tooltip": "Fetches just the Q4_K_M GGUF file of the Llama-3.2-1B model into ./llama32. GGUF is a quantized (compressed) model format designed for CPU inference, and Q4_K_M is the popular quality/size sweet spot. Ollama-style runners and llama.cpp load these files directly, so this is how you fetch a model for CPU-only setups."
+    },
+    {
+      "cmd": "hf upload myuser/my-repo ./model.safetensors",
+      "desc": "Upload a file to the Hub",
+      "tooltip": "Pushes model.safetensors to the myuser/my-repo repository on Hugging Face, committing it in a single shot. The repo must already exist (see `hf repos create`) or be created with --private, and you must be logged in as its owner. Repeat with more paths or a folder to upload several files at once."
+    },
+    {
+      "cmd": "hf upload myuser/new-repo ./model.safetensors --private",
+      "desc": "Upload and create a private repo",
+      "tooltip": "Creates the private repo myuser/new-repo if it does not exist, then uploads model.safetensors into it in one command. Private repos are only visible to you and people you explicitly grant access to. Remove --private for a public upload."
+    },
+    {
+      "cmd": "hf upload-large-folder myuser/my-repo ./model-weights",
+      "desc": "Upload a large folder with resume",
+      "tooltip": "Uploads the whole model-weights directory to the Hub in chunks that survive network drops, designed for multi-gigabyte model directories. Unlike plain `hf upload`, an interrupted run can be resumed rather than restarted. Run it in a terminal that stays open, or use --token for unattended jobs."
+    },
+    {
+      "cmd": "hf repos create my-llm --type model",
+      "desc": "Create a new Hub repository",
+      "tooltip": "Creates an empty repository named my-llm of type model on your Hugging Face account, ready for `hf upload`. The --type flag switches between model, dataset, and space. Add --private to keep it hidden, and --exist-ok to avoid errors if it already exists."
+    },
+    {
+      "cmd": "hf repos create my-secret-model --type model --private",
+      "desc": "Create a private model repo",
+      "tooltip": "Makes a new model repository that only you can see, for work-in-progress weights or proprietary data. The --private flag can be flipped later with `hf repos settings`. Public repos are the default, so remember this flag when the model must not leak."
+    },
+    {
+      "cmd": "hf repos delete myuser/old-model",
+      "desc": "Delete a Hub repository",
+      "tooltip": "Permanently removes the entire myuser/old-model repository, including every file, revision, and commit history on Hugging Face. There is no trash bin, so download anything you need first. Consider `hf repos move` instead when the goal is just renaming."
+    },
+    {
+      "cmd": "hf repos settings myuser/my-repo --private",
+      "desc": "Toggle repo visibility settings",
+      "tooltip": "Updates repository settings, here switching myuser/my-repo from public to private, which hides it from search and anonymous downloads. Existing downloaders keep their cached copies. Related flags: --public to reverse it and --protected for Spaces."
+    },
+    {
+      "cmd": "hf repos move old-namespace/my-model new-namespace/my-model",
+      "desc": "Transfer a repo to another namespace",
+      "tooltip": "Moves a model repository to a different owner namespace, typically your own org, preserving all history and URLs redirect automatically. You must have write access to both namespaces. The old name stops working once the move completes."
+    },
+    {
+      "cmd": "hf cache ls",
+      "desc": "Inspect the Hugging Face download cache",
+      "tooltip": "Shows every repo cached locally with its size and the revisions held, giving you a picture of how much disk space models occupy. This is the 1.x replacement for the old scan-cache command. Free space with `hf cache rm` or `hf cache prune`."
+    },
+    {
+      "cmd": "hf cache rm model/gpt2",
+      "desc": "Remove a repo from the cache",
+      "tooltip": "Deletes the cached files of the gpt2 model (which lives in the model namespace) from ~/.cache/huggingface, reclaiming its disk space. The model can always be re-downloaded with `hf download`. Use `hf cache ls` first to see what is cached and how big each repo is."
+    },
+    {
+      "cmd": "hf cache prune",
+      "desc": "Remove orphaned cache revisions",
+      "tooltip": "Deletes cached revisions no longer referenced by any tag or branch, the leftovers of repeated `hf download` calls that accumulate silently. It never touches the revision currently pointed at by a tag. Run `hf cache ls` before and after to see the reclaimed space."
+    },
+    {
+      "cmd": "hf env",
+      "desc": "Print environment and install info",
+      "tooltip": "Dumps the environment report used for Hugging Face bug reports: hf version, Python version, OS, token location, and whether a token is saved. Paste its output into a GitHub issue when something misbehaves. `hf version` prints just the version number for quick checks."
+    },
+    {
+      "cmd": "hf version",
+      "desc": "Show the hf CLI version",
+      "tooltip": "Prints the installed huggingface_hub version, which determines which subcommands and flags are available. Docs and error messages often assume a minimum version. Update with `pip install -U huggingface_hub`."
+    },
+    {
+      "cmd": "hf models info meta-llama/Llama-3.2-1B-Instruct",
+      "desc": "Show metadata for a Hub model",
+      "tooltip": "Prints metadata about the model repo: downloads, likes, license, tags, and the files it contains, without downloading anything. It is the CLI version of a model card page. Related: `hf models ls` searches the Hub and `hf download` fetches the files."
+    },
+    {
+      "cmd": "hf models ls --sort downloads --limit 10",
+      "desc": "Search the Hub for models",
+      "tooltip": "Lists the ten most-downloaded models on Hugging Face, sorted by the downloads counter, handy for discovering what the community actually uses. Add a search term as a positional argument, or --filter for tags like text-generation. `hf datasets ls` works the same way for datasets."
+    },
+    {
+      "cmd": "huggingface-cli login",
+      "desc": "Legacy login command (deprecated)",
+      "tooltip": "The old pre-1.x name for Hugging Face authentication, which now prints a deprecation warning and does nothing, because the CLI was renamed to `hf`. Run `hf auth login` instead for the same behaviour. Scripts still calling huggingface-cli should be migrated."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct",
+      "desc": "Serve a model with an OpenAI API",
+      "tooltip": "Starts a vLLM inference server exposing the model behind an OpenAI-compatible API on http://localhost:8000, with endpoints like /v1/chat/completions and /v1/models. The model ID is a Hugging Face repo name and is downloaded on first start, which can take a while. Swap in any other repo name to serve a different model."
+    },
+    {
+      "cmd": "vllm serve mistralai/Mistral-7B-Instruct-v0.3 --port 8001",
+      "desc": "Serve on a custom port",
+      "tooltip": "Runs the Mistral-7B-Instruct-v0.3 model on port 8001 instead of the default 8000, letting several vLLM servers share one machine. Point clients at http://localhost:8001/v1 and set their base_url accordingly. Use --host 0.0.0.0 to accept connections from other machines."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --host 0.0.0.0",
+      "desc": "Expose the API on all interfaces",
+      "tooltip": "Binds the vLLM server to every network interface so other machines on the network can reach the OpenAI-compatible API. Anyone who can connect can use the model, so add --api-key or a firewall rule in untrusted networks. Default is localhost only."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --max-model-len 8192",
+      "desc": "Cap the context window size",
+      "tooltip": "Limits the model's context window to 8192 tokens, trading longer inputs for lower memory use and faster prefill. Long prompts that exceed the limit are rejected instead of silently truncated. Reduce it further when VRAM is tight; raise it when memory allows."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --gpu-memory-utilization 0.9",
+      "desc": "Use most of the GPU memory",
+      "tooltip": "Lets vLLM consume up to 90 percent of GPU memory for the KV cache, the buffer that stores conversation context, instead of the conservative default. Raise it on dedicated inference boxes to fit longer contexts; lower it when the GPU also runs other workloads. Combined with --max-model-len it is the main VRAM tuning knob."
+    },
+    {
+      "cmd": "vllm serve TheBloke/Llama-2-7B-Chat-AWQ --quantization awq",
+      "desc": "Serve a quantized AWQ model",
+      "tooltip": "Loads the AWQ-quantized Llama-2-7B weights with the matching --quantization awq flag, which vLLM needs because quantized files are not self-describing. AWQ (Activation-aware Weight Quantization) shrinks the model to 4-bit precision for lower VRAM use. The quantization value must match how the repo's weights were produced."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --tensor-parallel-size 2",
+      "desc": "Shard the model across two GPUs",
+      "tooltip": "Splits the model across two GPUs with tensor parallelism, letting you serve models too large for one card. Each GPU holds half the weights and they cooperate on every forward pass. Requires GPUs on the same machine or fast interconnect, and a model with enough parameters to justify it."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --served-model-name my-llama",
+      "desc": "Rename the model in the API",
+      "tooltip": "Makes the server answer to the name my-llama in /v1/models and requests, while actually running Llama-3.1-8B-Instruct underneath. Clients then pass \"model\": \"my-llama\" in their requests. Useful for stable names across model upgrades or for hiding which weights you run."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --api-key sk-my-secret-key",
+      "desc": "Require an API key for requests",
+      "tooltip": "Protects the OpenAI-compatible endpoints with a bearer token: clients must send \"Authorization: Bearer sk-my-secret-key\" or requests are rejected with 401. Choose a long random key, since anyone who has it can use the model. The same key also gates /health and metrics."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --dtype float16",
+      "desc": "Serve with fp16 precision",
+      "tooltip": "Forces the model to run in float16 (half precision), halving memory use versus fp32 with negligible quality loss on modern GPUs. vLLM usually auto-detects a good dtype, so this flag mainly resolves mismatches with unusual weight formats. For quantized weights, prefer --quantization instead."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --enable-auto-tool-choice --tool-call-parser hermes",
+      "desc": "Enable OpenAI-style tool calling",
+      "tooltip": "Turns on function-calling support so the model can emit structured tool calls, with hermes telling vLLM how to parse this model family's output format. Clients then send tools in the chat request and receive tool_calls in the reply. The parser name must match the model's training format or parsing breaks."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --chat-template ./chat_template.jinja",
+      "desc": "Serve with a custom chat template",
+      "tooltip": "Uses the Jinja2 template in chat_template.jinja to format chat messages into the model's expected prompt shape, overriding the template bundled with the tokenizer. Custom templates fix garbled multi-turn output for models with unusual chat formats. Test with one /v1/chat/completions call after starting."
+    },
+    {
+      "cmd": "vllm serve meta-llama/Llama-3.1-8B-Instruct --max-num-seqs 32",
+      "desc": "Cap concurrent request slots",
+      "tooltip": "Limits how many sequences vLLM processes at once to 32, trading throughput for lower latency variance and predictable memory use. Each in-flight request holds KV cache space, so the cap matters when context windows are long. Raise it for chat workloads with many parallel users."
+    },
+    {
+      "cmd": "curl -s http://localhost:8000/v1/models | jq '.data[].id'",
+      "desc": "List models served by vLLM",
+      "tooltip": "Asks the running vLLM server which model IDs it serves, printing each one through jq for clean output. The response mirrors OpenAI's /v1/models shape. The model id shown is what clients must pass as \"model\" in requests, especially after --served-model-name renames it."
+    },
+    {
+      "cmd": "curl -s http://localhost:8000/v1/chat/completions -H 'Content-Type: application/json' -d '{\"model\":\"meta-llama/Llama-3.1-8B-Instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'",
+      "desc": "Send a chat completion request",
+      "tooltip": "Calls vLLM's chat endpoint with one user message, exactly like OpenAI's API, and prints the assistant's reply as JSON. The messages array carries the whole conversation history on multi-turn calls. Add \"stream\":true to receive tokens incrementally instead of one big response."
+    },
+    {
+      "cmd": "curl -s http://localhost:8000/v1/completions -H 'Content-Type: application/json' -d '{\"model\":\"meta-llama/Llama-3.1-8B-Instruct\",\"prompt\":\"Once upon a time\"}'",
+      "desc": "Send a raw text completion request",
+      "tooltip": "Uses the completions endpoint for raw prompt continuation without chat formatting, ideal for testing base models or non-chat tasks. The response contains the generated text plus token counts in usage. Chat models usually behave better through /v1/chat/completions, which applies their trained template."
+    },
+    {
+      "cmd": "curl -s http://localhost:8000/health",
+      "desc": "Check vLLM server health",
+      "tooltip": "Returns HTTP 200 with the body OK when the vLLM server and its engine are healthy, making it the endpoint load balancers and monitoring poll. A 503 means the engine died or is still starting. The first health check may stay non-OK for minutes while the model loads."
+    },
+    {
+      "cmd": "curl -s http://localhost:8000/v1/embeddings -H 'Content-Type: application/json' -d '{\"model\":\"BAAI/bge-small-en-v1.5\",\"input\":\"Hello world\"}'",
+      "desc": "Generate text embeddings via vLLM",
+      "tooltip": "Sends text to the embeddings endpoint and receives a vector per input, ready for semantic search or clustering. The served model must be an embedding model like bge-small-en-v1.5, not a chat model. Response vectors appear under data[0].embedding, often truncated by the terminal, so pipe to a file."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base",
+      "desc": "Transcribe audio to text",
+      "tooltip": "Transcribes audio.mp3 with the base Whisper model, auto-detecting the language and printing a timestamped transcript while writing .txt, .vtt, .srt, .tsv, and .json files next to the audio. Model sizes tiny, base, small, medium, large-v3 trade speed against accuracy. The first run downloads the model weights automatically."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model small --language es",
+      "desc": "Transcribe in a specific language",
+      "tooltip": "Transcribes Spanish audio using the small model, with --language skipping the auto-detection step and forcing Spanish decoding. Language codes follow ISO 639-1 (es, fr, de, ja, and so on). Forcing the language prevents misdetection on short clips and slightly speeds things up."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model medium --output_format txt --output_dir ./transcripts",
+      "desc": "Save transcripts to a folder",
+      "tooltip": "Transcribes audio.mp3 with the medium model and writes only plain-text transcripts into ./transcripts, keeping your working directory clean. --output_format picks between txt, vtt, srt, tsv, json, jsonl, or all. The output filename mirrors the input name, so audio.mp3 becomes audio.txt."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base --task translate",
+      "desc": "Translate audio to English text",
+      "tooltip": "Transcribes any-language audio and translates the result into English, one pass, no intermediate files needed. The --task flag switches between transcribe and translate; only English output is supported. Combine with --language to pin the source language instead of auto-detecting."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model tiny --fp16 False",
+      "desc": "Run Whisper on CPU only",
+      "tooltip": "Disables fp16 (half-precision) inference so the tiny model runs in fp32 on CPUs without CUDA, avoiding errors on machines without an NVIDIA GPU. GPU users keep the default fp16 for speed. Add --device cpu explicitly on systems where CUDA is broken or absent."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base --word_timestamps True",
+      "desc": "Include word-level timestamps",
+      "tooltip": "Adds start and end time for every word to the JSON transcript, enabling highlight-style captions and forced alignment. Timestamps become far more granular than the default segment-level ones. The word data only appears in JSON or TSV output, not plain text."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base --initial_prompt 'This is a technical podcast about Linux'",
+      "desc": "Guide transcription with context",
+      "tooltip": "Seeds the decoder with a hint about the audio's style and vocabulary, which often fixes repeated hallucinations and improves spelling of domain terms. Whisper weighs the prompt's style more than its exact words. Useful for names, jargon, and accented speech that default transcription mangles."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model large-v3 --language en --output_format srt",
+      "desc": "Make an SRT subtitle file",
+      "tooltip": "Transcribes English audio with the large-v3 model and writes an .srt subtitle file with segment timings, ready for video players or caption pipelines. SRT is the format most players and editors accept. Large-v3 is the most accurate Whisper model but slowest, so reserve it for clean, important audio."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base --beam_size 5",
+      "desc": "Use beam search decoding",
+      "tooltip": "Runs beam search with a width of 5 instead of the greedy default, exploring several candidate transcripts and keeping the most probable one. Higher beam sizes improve accuracy on hard audio at a real speed cost. Values of 5 are a common sweet spot; the default is 1 (greedy)."
+    },
+    {
+      "cmd": "whisper audio.mp3 --model base --output_format all --output_dir ./transcripts",
+      "desc": "Write every transcript format",
+      "tooltip": "Produces txt, vtt, srt, tsv, json, and jsonl outputs for the same audio into ./transcripts in one pass, so you get plain text, subtitles, and timestamps without re-transcribing. This is the default behaviour when no output_format is given. Later runs overwrite these files."
+    },
+    {
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks mmlu --num_fewshot 5",
+      "desc": "Evaluate a model on MMLU",
+      "tooltip": "Runs the lm-evaluation-harness on the MMLU benchmark with the model loaded via Hugging Face transformers, giving 5 example answers per question (few-shot) before scoring. The pretrained= value is a Hugging Face model ID. Runs are long and download model weights first; expect many minutes to hours depending on GPU."
+    },
+    {
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks truthfulqa_mc2 --device cuda:0",
+      "desc": "Evaluate on TruthfulQA with a device",
+      "tooltip": "Scores the model on truthfulqa_mc2, a benchmark measuring whether answers are both true and informative, while pinning inference to GPU 0 with --device cuda:0. Use --device cpu to force CPU execution on machines without CUDA. Results print as a table with acc and other metrics per task."
+    },
+    {
+      "cmd": "lm-eval run --model vllm --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct,tensor_parallel_size=1 --tasks hellaswag",
+      "desc": "Evaluate through the vLLM backend",
+      "tooltip": "Evaluates hellaswag using vLLM as the inference engine, which is dramatically faster than the transformers backend on big models. --model_args takes comma-separated key=value settings, here passing tensor_parallel_size=1. vLLM must be installed (`pip install vllm`) and the harness's vllm extra enabled."
+    },
+    {
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks gsm8k --apply_chat_template",
+      "desc": "Evaluate a chat-tuned model properly",
+      "tooltip": "Runs the GSM8K math benchmark with --apply_chat_template so prompts are formatted as chat turns, matching how instruct-tuned models were trained instead of raw text. Skipping this flag tanks scores on chat models. Add --num_fewshot 8 for the standard GSM8K few-shot setup."
+    },
+    {
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks hellaswag --limit 100",
+      "desc": "Smoke-test an evaluation quickly",
+      "tooltip": "Evaluates only the first 100 hellaswag examples, cutting a long run down to minutes so you can verify the setup before committing to the full benchmark. The limit accepts a fraction too, like 0.1. Remove --limit for the real, complete evaluation."
+    },
+    {
+      "cmd": "lm-eval run --model hf --model_args pretrained=meta-llama/Llama-3.1-8B-Instruct --tasks mmlu --output_path ./results/ --log_samples",
+      "desc": "Save detailed evaluation results",
+      "tooltip": "Writes the evaluation results JSON into ./results/ and, with --log_samples, also saves every individual prompt and model answer for post-hoc analysis. Saved samples let you audit failures and recompute metrics offline. Without --log_samples only aggregated scores are stored."
+    },
+    {
+      "cmd": "lm-eval run --config my_eval_config.yaml --tasks mmlu",
+      "desc": "Run evaluation from a YAML config",
+      "tooltip": "Loads model, batch, and generation settings from my_eval_config.yaml, keeping long flag lists out of the command line and making runs reproducible. Settings given directly on the command line override the file. Great for re-running the same benchmark after model changes."
+    },
+    {
+      "cmd": "lm-eval ls tasks",
+      "desc": "List every available benchmark task",
+      "tooltip": "Prints all task, group, subtask, and tag names the harness knows, which is the first stop when picking a --tasks value. Group names like mmlu evaluate a whole family of subtasks at once. Individual subtask names end with a topic, for example mmlu_anatomy."
+    },
+    {
+      "cmd": "lm-eval ls groups",
+      "desc": "List benchmark task groups",
+      "tooltip": "Shows only the top-level task groups (mmlu, hellaswag, glue, and so on), which evaluate several related subtasks and report an aggregated score. Passing a group name to --tasks runs every subtask inside it. Related: `lm-eval ls subtasks` and `lm-eval ls tags`."
+    },
+    {
+      "cmd": "lm-eval validate --tasks hellaswag",
+      "desc": "Validate a task configuration",
+      "tooltip": "Checks that the hellaswag task definition loads and its few-shot prompt construction works, catching YAML or data errors before a long evaluation run starts. It is the harness's self-test for task configs. Custom tasks can be added with --include_path pointing at their directory."
+    },
+    {
+      "cmd": "lm-eval validate --tasks my_custom_task --include_path ./custom_tasks",
+      "desc": "Validate a custom task file",
+      "tooltip": "Validates my_custom_task defined in the local ./custom_tasks directory, which is where your own YAML task definitions live. This catches config mistakes without burning GPU time. Once it passes, use the same --include_path with `lm-eval run` to evaluate on the task."
+    },
+    {
+      "cmd": "tesseract image.png output",
+      "desc": "OCR an image to a text file",
+      "tooltip": "Runs OCR (optical character recognition) on image.png and writes the recognized text to output.txt in the current directory. The second argument is the output base name; tesseract appends the extension. Install language data with apt for non-English input, and use --psm to tune page layout."
+    },
+    {
+      "cmd": "tesseract image.png stdout",
+      "desc": "Print OCR text to the terminal",
+      "tooltip": "Writes the recognized text straight to stdout instead of a file, perfect for piping into grep, wc, or a script. The special output name stdout is a tesseract convention; a lone dash also works. Redirect with > to save the result to a file of your choosing."
+    },
+    {
+      "cmd": "tesseract image.png output -l spa",
+      "desc": "OCR Spanish-language text",
+      "tooltip": "Recognizes Spanish text using the spa language pack, which must be installed first (apt package tesseract-ocr-spa on Debian systems). The -l flag accepts any installed language code. `tesseract --list-langs` shows which packs you actually have."
+    },
+    {
+      "cmd": "tesseract image.png output -l eng+spa",
+      "desc": "OCR mixed-language documents",
+      "tooltip": "Recognizes English and Spanish in the same image by joining language codes with a plus sign, letting tesseract pick per-word. Add more languages the same way, though each one slows recognition slightly. Requires every listed language pack to be installed."
+    },
+    {
+      "cmd": "tesseract --list-langs",
+      "desc": "List installed OCR languages",
+      "tooltip": "Prints every language pack tesseract can currently use, from the tessdata directory it was built against. Seeing only eng and osd means only English is installed. Language packs are separate packages, like tesseract-ocr-fra for French on Debian systems."
+    },
+    {
+      "cmd": "tesseract image.png output --psm 6",
+      "desc": "Set the page segmentation mode",
+      "tooltip": "Tells tesseract the image is a uniform block of text (PSM 6), which fixes garbled output on clean single-column scans. Page segmentation modes 0-13 describe layouts from sparse text to a single word or character. Use --help-psm to see every mode explained."
+    },
+    {
+      "cmd": "tesseract image.png output --oem 1",
+      "desc": "Force the LSTM OCR engine",
+      "tooltip": "Selects OCR engine mode 1, the neural LSTM engine, versus the legacy engine (mode 0) or tesseract's auto-choice (mode 3). The LSTM engine is far more accurate on modern fonts. Modes only matter when your build ships both engines."
+    },
+    {
+      "cmd": "tesseract image.png output --dpi 300",
+      "desc": "Declare the image resolution",
+      "tooltip": "Tells tesseract the scan is 300 DPI, which matters for low-resolution images where tesseract underestimates text size and fails to find lines. When no DPI is embedded, tesseract guesses and warns about it. 300 is the standard scan resolution."
+    },
+    {
+      "cmd": "tesseract image.png output -c tessedit_char_whitelist=0123456789",
+      "desc": "Restrict OCR to specific characters",
+      "tooltip": "Limits recognition to the whitelisted characters, here digits only, which eliminates letters in numeric-only images like barcodes or account numbers. The -c flag sets a tesseract config variable directly on the command line. Add letters by extending the list."
+    },
+    {
+      "cmd": "tesseract image.png output pdf",
+      "desc": "Create a searchable PDF",
+      "tooltip": "Wraps the recognized text as an invisible layer over the original image in a PDF, so the file stays visually identical but text can be searched and copied. The output base name gains the .pdf extension. Great for archival scans that need to be findable."
+    },
+    {
+      "cmd": "tesseract --version",
+      "desc": "Show tesseract version info",
+      "tooltip": "Prints the tesseract version, the bundled Leptonica library version, and build features like the available engines. Docs and troubleshooting guides often ask for this output. The 5.x line uses the LSTM engine by default."
+    },
+    {
+      "cmd": "python main.py",
+      "desc": "Start the ComfyUI server",
+      "tooltip": "Launches the ComfyUI web server from its installation directory, serving the node-based UI at http://127.0.0.1:8188. First start downloads or compiles nothing but requires PyTorch and the requirements.txt packages installed. Keep the terminal open; Ctrl-C stops the server."
+    },
+    {
+      "cmd": "python main.py --port 8189",
+      "desc": "Start ComfyUI on a custom port",
+      "tooltip": "Runs the ComfyUI server on port 8189 instead of the default 8188, useful when the port is taken or several instances must coexist. Point your browser at http://127.0.0.1:8189 afterwards. The port matters when scripts hardcode the API base URL."
+    },
+    {
+      "cmd": "python main.py --listen 0.0.0.0",
+      "desc": "Expose ComfyUI to the network",
+      "tooltip": "Binds the ComfyUI server to all interfaces so other machines can open the UI and submit workflows, but also lets anyone on the network run arbitrary Python through custom nodes, which is effectively remote code execution. Only do this on trusted networks, ideally behind a reverse proxy with authentication. The default --listen 127.0.0.1 stays local-only."
+    },
+    {
+      "cmd": "python main.py --cpu",
+      "desc": "Run ComfyUI without a GPU",
+      "tooltip": "Forces every model to run on the CPU, which works but is dramatically slower, mainly for machines without CUDA or ROCm support. Text-encoder-only steps stay tolerable; diffusion sampling can take minutes per image. Check whether your hardware really lacks GPU support before resorting to this."
+    },
+    {
+      "cmd": "python main.py --auto-launch",
+      "desc": "Open the UI in a browser on start",
+      "tooltip": "Automatically opens the ComfyUI web UI in your default browser once the server is ready, saving a manual tab. Mostly a convenience for desktop use; headless servers should omit it. Pair with --port to control which URL opens."
+    },
+    {
+      "cmd": "python main.py --output-directory /data/comfy-outputs",
+      "desc": "Redirect generated images",
+      "tooltip": "Writes all generated images and videos to /data/comfy-outputs instead of the default output folder inside the ComfyUI directory. Handy when the install lives on a small system drive and results should land on a big data disk. The queue and history still track the files by their new paths."
+    },
+    {
+      "cmd": "python main.py --disable-cuda-malloc",
+      "desc": "Turn off cudaMallocAsync",
+      "tooltip": "Disables CUDA's async memory pool, working around CUDA out-of-memory crashes on some drivers and cards, at a small performance cost. ComfyUI prints a warning hinting at this flag when it suspects cudaMallocAsync is the culprit. Older torch builds may need it more often."
+    },
+    {
+      "cmd": "python main.py --lowvram",
+      "desc": "Run with reduced VRAM footprint",
+      "tooltip": "Unloads models back to system RAM between nodes instead of keeping them on the GPU, letting 6 GB cards run SDXL-sized workloads by trading speed. ComfyUI 4.x defaults to dynamic VRAM management, so this flag mainly helps on cards it misjudges. Expect slower iterations but fewer out-of-memory errors."
+    },
+    {
+      "cmd": "curl -s http://127.0.0.1:8188/system_stats",
+      "desc": "Check ComfyUI server health",
+      "tooltip": "Returns JSON with ComfyUI's version, Python version, GPU details, and current RAM/VRAM usage, the standard health check for a running server. A connection refused error means ComfyUI is not running. Related endpoints: /queue for job status and /object_info for the node catalogue."
+    },
+    {
+      "cmd": "curl -s http://127.0.0.1:8188/queue | python3 -m json.tool",
+      "desc": "Inspect the ComfyUI job queue",
+      "tooltip": "Shows the pending and running workflow jobs as readable JSON, with each job's node graph and prompt id. The queue fills up as clients submit workflows while the server is busy. Cancel pending jobs by POSTing to /queue with a delete list, or interrupt the running job separately."
+    },
+    {
+      "cmd": "curl -X POST http://127.0.0.1:8188/interrupt",
+      "desc": "Stop the running workflow",
+      "tooltip": "Aborts the workflow currently executing, which is the ComfyUI equivalent of pressing stop in the UI. It interrupts generation mid-step; finished images stay on disk, and pending jobs in the queue still run afterwards. Use the /queue endpoint's delete action to clear waiting jobs too."
+    },
+    {
+      "cmd": "curl -X POST http://127.0.0.1:8188/free -H 'Content-Type: application/json' -d '{\"unload_models\": true, \"free_memory\": true}'",
+      "desc": "Free GPU memory in ComfyUI",
+      "tooltip": "Unloads loaded models from VRAM and frees cached memory, the recovery move after an out-of-memory error or before switching to a heavy workflow. The JSON body toggles model unloading and memory freeing independently. Retry your workflow after the VRAM drops."
+    },
+    {
+      "cmd": "curl -X POST http://127.0.0.1:8188/upload/image -F 'image=@photo.png' -F 'type=input' -F 'overwrite=true'",
+      "desc": "Upload an image for img2img",
+      "tooltip": "Uploads photo.png into ComfyUI's input folder so workflows can reference it by filename, the API path behind img2img and inpainting jobs. The -F flags send multipart form fields: the file, the folder type, and overwrite behaviour. The response echoes the stored filename to use in your workflow JSON."
+    },
+    {
+      "cmd": "curl -s http://127.0.0.1:8188/object_info | jq 'keys'",
+      "desc": "List all available ComfyUI nodes",
+      "tooltip": "Fetches the full node catalogue and prints just the node class names, showing what custom nodes and built-ins the server can run. A workflow that references a missing class fails with class_type not found, so this is the check before installing new node packs. Each entry's JSON also documents its inputs."
+    },
+    {
+      "cmd": "comfy --version",
+      "desc": "Show comfy-cli version",
+      "tooltip": "Prints the version of comfy-cli, the official ComfyUI management tool that handles install, launch, and node/model management. The CLI auto-detects your ComfyUI workspace, falling back to ~/comfy/ComfyUI. Install or update it with `pipx install comfy-cli`."
+    },
+    {
+      "cmd": "comfy install --nvidia",
+      "desc": "Install ComfyUI for NVIDIA GPUs",
+      "tooltip": "Downloads ComfyUI, ComfyUI-Manager, and CUDA-enabled PyTorch into a default workspace, ready to launch with `comfy launch`. Swap --nvidia for --amd, --m-series, or --cpu to match your hardware. The install can take a while because PyTorch is large."
+    },
+    {
+      "cmd": "comfy launch --background",
+      "desc": "Start ComfyUI as a background daemon",
+      "tooltip": "Launches the ComfyUI server in the background and returns, so your terminal stays free, with the server reachable at http://127.0.0.1:8188. Stop it later with `comfy stop`. Pass extra server flags after --, like `comfy launch -- --port 8190`."
+    },
+    {
+      "cmd": "comfy stop",
+      "desc": "Stop the background ComfyUI server",
+      "tooltip": "Shuts down the ComfyUI instance that `comfy launch --background` started, freeing GPU memory and the port. It targets the workspace daemon recorded by comfy-cli, so manually started servers need Ctrl-C in their own terminal. Verify with `curl http://127.0.0.1:8188/system_stats` failing afterwards."
+    },
+    {
+      "cmd": "comfy model download --url https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors --relative-path models/checkpoints",
+      "desc": "Download a model into ComfyUI",
+      "tooltip": "Fetches the SDXL base checkpoint straight into ComfyUI's models/checkpoints directory, where the Load Checkpoint node finds it by filename. The --relative-path flag mirrors the models folder layout. CivitAI URLs work too, with --set-civitai-api-token for gated downloads."
+    },
+    {
+      "cmd": "comfy model list",
+      "desc": "List installed ComfyUI models",
+      "tooltip": "Shows every model file in the workspace's models tree, grouped by folder like checkpoints, loras, and vae. Filenames here are the exact strings workflow nodes expect, so check before referencing a model in a workflow. Add --relative-path to filter one folder."
+    },
+    {
+      "cmd": "comfy node install comfyui-controlnet-aux",
+      "desc": "Install a custom node pack",
+      "tooltip": "Installs the comfyui-controlnet-aux custom node pack (preprocessors for ControlNet workflows) into the workspace and its Python dependencies. Custom nodes extend ComfyUI with new node classes visible in /object_info. Replace the name with any pack from the registry; `comfy node update all` refreshes everything later."
+    },
+    {
+      "cmd": "comfy node update all",
+      "desc": "Update every custom node",
+      "tooltip": "Pulls the latest version of all installed custom node packs, which often fixes compatibility breaks after a ComfyUI core update. Updates occasionally change node inputs, so workflows may need re-exporting. Run `comfy update` first to bring ComfyUI itself up to date."
+    },
+    {
+      "cmd": "curl -fsSL https://ollama.com/install.sh | sh",
+      "desc": "Install Ollama with the official script",
+      "tooltip": "Downloads and runs the official Ollama installer, which puts the binary in your path and sets up a systemd service on Linux. Piping a remote script into sh always carries risk, so review the script first if you are cautious. Afterwards `ollama run llama3.2` starts a chat and downloads the model on demand."
+    },
+    {
+      "cmd": "pip install openai-whisper",
+      "desc": "Install OpenAI Whisper",
+      "tooltip": "Installs the openai-whisper package and its dependencies, including PyTorch, which makes this a multi-gigabyte download on top of the small package itself. The `whisper` command-line tool arrives with it for transcribing audio. Prefer a virtual environment so PyTorch does not clash with system packages."
+    },
+    {
+      "cmd": "pip install faster-whisper",
+      "desc": "Install faster-whisper as a library",
+      "tooltip": "Installs faster-whisper, a CTranslate2-based reimplementation of Whisper that runs up to four times faster, but it ships no command-line tool: it is a Python library you import in your own scripts. The `whisper` CLI from openai-whisper or tools like WhisperX provide the terminal interface instead. The pip package pulls ctranslate2 and PyAV but not PyTorch."
+    },
+    {
+      "cmd": "pip install vllm",
+      "desc": "Install the vLLM inference engine",
+      "tooltip": "Installs vLLM with CUDA support for serving LLMs, pulling in large dependencies like PyTorch, so expect a sizeable download. After install, `vllm serve` launches an OpenAI-compatible API server. CUDA must match your driver; vLLM wheels target recent NVIDIA driver versions."
+    },
+    {
+      "cmd": "pip install lm-eval",
+      "desc": "Install lm-evaluation-harness",
+      "tooltip": "Installs the lm-evaluation-harness package, which provides the `lm-eval` command for benchmarking language models on tasks like MMLU and hellaswag. The base install covers CPU evaluation; add extras for backends, for example `pip install lm-eval[hf]` or `pip install lm-eval[vllm]`, which pull torch or vLLM. PyPI's project name uses an underscore, but pip resolves lm-eval the same way."
+    },
+    {
+      "cmd": "pip install huggingface_hub",
+      "desc": "Install the Hugging Face Hub CLI",
+      "tooltip": "Installs huggingface_hub, the Python library that also provides the `hf` command-line tool for downloading and uploading models. Version 1.x ships the hf binary; older releases called it huggingface-cli, which is now deprecated. Upgrade regularly with -U since subcommands evolve across minor versions."
+    },
+    {
+      "cmd": "pip install torch",
+      "desc": "Install PyTorch",
+      "tooltip": "Installs the CPU build of PyTorch by default, a large package that nearly every local ML tool depends on. For CUDA GPU support, follow the official install command for your CUDA version from pytorch.org instead, since pip's default build has no GPU acceleration. Use a virtual environment to avoid version conflicts with system Python."
+    },
+    {
+      "cmd": "pip install transformers",
+      "desc": "Install the Hugging Face Transformers library",
+      "tooltip": "Installs transformers, the Python library for loading and running Hugging Face models, which is what tools like lm-eval use under the hood. It is a library, not a CLI, so commands go through other programs or short Python snippets. Requires torch or another backend to actually run models."
+    },
+    {
+      "cmd": "sudo apt install tesseract-ocr tesseract-ocr-spa",
+      "desc": "Install Tesseract with Spanish data",
+      "tooltip": "Installs the tesseract OCR engine plus the Spanish language pack, which `tesseract -l spa` needs; English (eng) ships with the main package. Add more packs like tesseract-ocr-fra for other languages. On Debian-based systems this is the standard install route."
+    },
+    {
+      "cmd": "pipx install comfy-cli",
+      "desc": "Install the ComfyUI management CLI",
+      "tooltip": "Installs comfy-cli into an isolated environment via pipx, keeping it out of system Python and making the `comfy` command available. This is the recommended install method for the official ComfyUI lifecycle tool. First run may ask about analytics, which `comfy --skip-prompt tracking disable` turns off."
+    },
+    {
+      "cmd": "ct2-transformers-converter --model openai/whisper-large-v3 --output_dir whisper-large-v3-ct2 --quantization float16",
+      "desc": "Convert a Whisper model for faster-whisper",
+      "tooltip": "Converts the original large-v3 Whisper weights into CTranslate2 format that faster-whisper loads, writing float16 weights into whisper-large-v3-ct2. The converter ships with the ctranslate2 package. Load the result by passing the output directory as the model path in faster-whisper."
+    }
+  ]
+}
