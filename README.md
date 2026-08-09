@@ -1,8 +1,9 @@
 # Linux Terminal Glossary
 
-A fast, searchable glossary of **3,267 Linux terminal commands** across **29
+A fast, searchable glossary of **7,600+ Linux terminal commands** across **50
 categories** — built for people who are learning the command line AND for
-seasoned admins who need a quick reference on a server.
+seasoned admins who need a quick reference on a server. Covers Linux web
+application development, self-hosting, and LPIC-2/RHCSA-level administration.
 
 **Live site:** https://schoedel-learn.github.io/linux-terminal-glossary/
 
@@ -18,8 +19,8 @@ seasoned admins who need a quick reference on a server.
 - ✍️ **Typo-tolerant** — "gerp" still finds `grep` (Damerau-Levenshtein
   correction).
 - 🌎 **Bilingual** — Spanish queries work ("borrar archivos" → `rm`).
-- 📂 **41 categories** — Administration, Docker, Git, Python & pip, Networking,
-  SSH & Remote, Vim/Neovim, tmux, and more.
+- 📂 **50 categories** — Administration, Docker, Git, Python & pip, Networking,
+  SSH & Remote, Vim/Neovim, tmux, Web App Development, and more.
 - 💡 **Explain button** on every command — a beginner-friendly tooltip that
   defines jargon, explains flags, and flags dangerous commands.
 - 📋 **One-click copy** for every command.
@@ -56,7 +57,7 @@ The data lives in `commands.json` — it is the single source of truth.
 Rules:
 
 - `id` = `max(id) + 1`; `cmd` strings must be unique (deduplication key)
-- `category` must match one of the 29 names in the `categories` array exactly
+- `category` must match one of the 50 names in the `categories` array exactly
 - Keep `commands.json` pretty-printed (`indent=2`) — one-line JSON destroys git diffs
 - Update `total` to equal `len(commands)`
 
@@ -73,7 +74,7 @@ MODEL_DIR=/tmp/ltg-emb/models /tmp/ltg-emb/bin/python scripts/build_embeddings.p
 
 ```
 index.html                   # Single-file SPA — all HTML, CSS, JS inline
-commands.json                # Master data: 4,800+ commands, 41 categories
+commands.json                # Master data: 7,600+ commands, 50 categories
 search_index.json            # TF-IDF index + synonyms (generated)
 search_vectors.json          # fp16 semantic embeddings, one 384-dim vector per command (generated)
 catalogs/                    # Per-category source files merged by scripts/merge_catalogs.py

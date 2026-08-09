@@ -1,7 +1,7 @@
 # GitHub Copilot Instructions — linux-terminal-glossary
 
 This is a static single-page application (SPA) that serves a searchable glossary
-of **3,267 terminal commands** across **29 categories**. There is no build step,
+of **7,600+ terminal commands** across **50 categories**. There is no build step,
 no framework, and no package.json — everything ships as plain files.
 
 ---
@@ -11,7 +11,7 @@ no framework, and no package.json — everything ships as plain files.
 ```
 linux-terminal-glossary/
 ├── index.html                   # Single-file SPA — all HTML, CSS, and JS inline
-├── commands.json                # Master data — 4,800+ commands, flat list + categories array
+├── commands.json                # Master data — 7,600+ commands, flat list + categories array
 ├── search_index.json            # TF-IDF search index + synonyms (built by scripts/rebuild_search_index.py)
 ├── search_vectors.json          # fp16 semantic embeddings, one 384-dim vector per command (built by scripts/build_embeddings.py)
 ├── catalogs/                    # Per-category source files folded into commands.json by scripts/merge_catalogs.py
@@ -59,25 +59,32 @@ Every command entry must follow this exact shape:
 
 ---
 
-## The 29 categories (sorted A–Z)
+## The categories (sorted A–Z)
 
 ```
-Administration        AI Agents & MCP        Archiving & Compression
-Bash Scripting        Cron & Scheduling      Docker
-Dokploy               Environment & Config   File Operations
-File Viewing & Editing  Gemini CLI           Git - Advanced
-Git - Core            GitHub CLI             GitHub Copilot
-I/O Redirection & Pipes  Navigation & Directory  Networking
-Node.js & npm/yarn    Productivity & Search  Python & pip
-SSH & Remote          Self-Hosting           Shell & Bash
-Terminal Configuration  Text Processing      VPS Management
-Vim/Neovim            tmux
+AI Agents & MCP   AI/ML Tooling   Administration   Archiving & Compression
+Backup & Restore  Bash Scripting  Cloudflare       Cron & Scheduling
+Data Science & Analysis           Databases & SQL  Docker
+Dokploy           Environment & Config   File Operations
+File Viewing & Editing   Firebase & Firestore   Gemini CLI
+Git - Advanced    Git - Core      GitHub CLI       GitHub Copilot
+GitLab            Google Cloud & Workspace   I/O Redirection & Pipes
+IaC & Automation  Kubernetes & Containers   Listmonk & Newsletters
+Local Network & Public Hosting   Mail Servers & Postfix   Matrix & Synapse
+Media & Conversion  Monitoring & Observability  Navigation & Directory
+Networking        Node.js & npm/yarn   Productivity & Search   Python & pip
+React Native & Mobile  SSH & Remote   Security & Hardening   Self-Hosting
+Shell & Bash      Terminal Configuration  Text Processing
+VPS Management    Vim/Neovim      Web App Development
+Web Servers & Proxies  n8n & Workflow Automation  tmux
 ```
 
 When adding a new category: add it to the `categories` array (keeping A–Z
-order), add entries with that category name, rebuild the search index, and
-update the command count in all three places inside `index.html` (title tag,
-loading spinner text, history panel empty-state text).
+order) and add entries with that category name. The command count in
+`index.html` is **dynamic** (title and history empty-state are set from
+`COMMANDS.length`; the loading spinner has no count) — do not hardcode it.
+After any data change, run `scripts/rebuild_search_index.py` and
+`scripts/build_embeddings.py` (see the Semantic search section).
 
 ---
 
