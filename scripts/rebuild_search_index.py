@@ -483,7 +483,10 @@ def add_missing_commands(data: dict[str, object]) -> list[dict[str, object]]:
         added.append(new_command)
         existing_cmds.add(normalized)
 
-    commands.sort(key=lambda item: int(item["id"]))
+    # Do NOT sort here: commands.json's entry order is human-maintained
+    # (category-grouped, curated within category). New commands append at
+    # the end; a human reorders them. A global id-sort would destroy the
+    # curated layout and make every git diff noisy.
     data["total"] = len(commands)
     return added
 
@@ -515,7 +518,9 @@ def build_tfidf_index(commands: list[dict[str, object]]) -> tuple[dict[str, floa
     }
 
     index: dict[str, dict[str, object]] = {}
-    for command in commands:
+    # Iterate in id order so the generated index's key order is stable,
+    # independent of commands.json's human-curated display order.
+    for command in sorted(commands, key=lambda item: int(item["id"])):
         command_id = int(command["id"])
         counts = token_counts[command_id]
         token_total = sum(counts.values()) or 1
@@ -528,8 +533,11 @@ def build_tfidf_index(commands: list[dict[str, object]]) -> tuple[dict[str, floa
     return idf, index
 
 
-def write_json(path: Path, payload: dict[str, object]) -> None:
-    path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+def write_json(path: Path, payload: dict[str, object], indent: int | None = None) -> None:
+    if indent is None:
+        path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    else:
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=indent) + "\n")
 
 
 def main() -> None:
@@ -542,7 +550,7 @@ def main() -> None:
     synonyms = merge_synonyms(load_existing_synonyms(), SEARCH_SYNONYMS)
     idf, index = build_tfidf_index(commands)
 
-    write_json(COMMANDS_PATH, data)
+    write_json(COMMANDS_PATH, data, indent=2)
     write_json(
         SEARCH_INDEX_PATH,
         {
