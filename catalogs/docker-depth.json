@@ -1,0 +1,1040 @@
+{
+ "category": "Docker",
+ "commands": [
+  {
+   "cmd": "docker buildx build --cache-from type=gha --cache-to type=gha,mode=max -t myapp .",
+   "desc": "Build with GitHub Actions layer cache",
+   "tooltip": "buildx = Docker's modern multi-platform builder powered by BuildKit. The gha cache type stores image layers in GitHub Actions' cache service, so CI builds reuse unchanged steps and finish faster. mode=max also caches intermediate layers instead of only the final image. Pair --cache-from with the same cache to warm later builds."
+  },
+  {
+   "cmd": "docker buildx build --cache-from type=local,src=/tmp/cache --cache-to type=local,dest=/tmp/cache .",
+   "desc": "Cache build layers in a local directory",
+   "tooltip": "The local cache type writes BuildKit layers to a directory you control, handy when no registry or CI cache service exists. Point --cache-from at the directory a previous run filled via --cache-to to warm the next build. Combine with type=registry when a registry is available."
+  },
+  {
+   "cmd": "docker buildx build --metadata-file buildmeta.json -t myapp .",
+   "desc": "Write build metadata to a JSON file",
+   "tooltip": "metadata-file emits a JSON document with the built image's ID, digest, and refs (digest = a content hash uniquely identifying the image). CI pipelines parse this file to deploy the exact artifact instead of guessing tags. Add --push to also publish to a registry."
+  },
+  {
+   "cmd": "docker buildx build --output type=docker,dest=myapp.tar -t myapp .",
+   "desc": "Export a built image to a loadable tarball",
+   "tooltip": "The docker output type produces a tarball that docker load can import, unlike type=oci which writes the OCI layout or type=local which copies files out. Useful when the builder cannot reach a registry and the image must be moved manually. Restore with docker load -i myapp.tar."
+  },
+  {
+   "cmd": "docker buildx build --provenance false -t myapp .",
+   "desc": "Build without provenance attestations",
+   "tooltip": "provenance = machine-readable build metadata (source repo, build args, toolchain) embedded as an attestation. Setting --provenance false strips it, shrinking images, while mode=max records full build details. Attestations travel with the image and feed supply-chain tooling."
+  },
+  {
+   "cmd": "docker buildx build --sbom true -t myapp .",
+   "desc": "Attach an SBOM to the built image",
+   "tooltip": "SBOM = Software Bill of Materials, a machine-readable inventory of packages inside the image. Stored as an attestation alongside the image and readable with docker scout sbom. Requires a builder that supports attestations, such as the docker-container driver."
+  },
+  {
+   "cmd": "docker buildx build --no-cache-filter RUN -t myapp .",
+   "desc": "Bypass cache only for RUN instructions",
+   "tooltip": "no-cache-filter invalidates cached layers for specific Dockerfile instruction types, here RUN, while COPY and other steps stay cached. Faster than a blanket --no-cache when only shell commands changed. Combine with --progress=plain to watch each step."
+  },
+  {
+   "cmd": "docker buildx build --build-context app=../app -t myapp .",
+   "desc": "Build with an extra named context",
+   "tooltip": "build-context binds a name to a local directory, image, or git URL that the Dockerfile references by name, for example COPY --from=app. Keeps sibling sources out of the main build context, which speeds up uploads. Without it, only the build directory reaches the builder."
+  },
+  {
+   "cmd": "docker buildx bake --print",
+   "desc": "Print resolved bake configuration without building",
+   "tooltip": "bake = buildx's multi-target build orchestrator driven by docker-bake.hcl or compose files. --print resolves every target, variable, and matrix and outputs the final JSON so you can debug before building. The JSON shows exactly what --push or --load would produce."
+  },
+  {
+   "cmd": "docker buildx bake --load",
+   "desc": "Load baked images into the local Docker store",
+   "tooltip": "--load imports every baked target into the local docker images so docker run and docker ps see them. Without it, bake output remains inside the builder's cache. Contrast with --push, which publishes images to a registry."
+  },
+  {
+   "cmd": "docker buildx bake -f docker-compose.yml --push",
+   "desc": "Bake compose services and push their images",
+   "tooltip": "bake accepts compose files directly, turning every service with a build section into a build target. Override the file with -f, handy when compose already defines image names and build args. --push publishes each target to its configured registry."
+  },
+  {
+   "cmd": "docker buildx bake --set web.args.NODE_ENV=production",
+   "desc": "Override a bake target's build argument",
+   "tooltip": "--set overrides target fields with target.key=value syntax, here injecting NODE_ENV into the web target's build args. Use --print to confirm the override landed before building. Target names come from the bake file, not from service names."
+  },
+  {
+   "cmd": "docker buildx create --name mybuilder --driver-opt network=host",
+   "desc": "Create a builder with host network access",
+   "tooltip": "driver-opt passes options to the builder's driver; network=host lets BuildKit containers use the host's network directly, useful behind VPNs or with private registries. The docker-container driver runs builds in an isolated container. Select the builder with --use afterwards."
+  },
+  {
+   "cmd": "docker buildx create --name mybuilder --platform linux/amd64,linux/arm64",
+   "desc": "Create a builder for multiple platforms",
+   "tooltip": "--platform declares which OS and architecture combinations the builder can target. With the docker-container driver you usually pass platforms at build time instead. The builder only becomes active after docker buildx use or --use."
+  },
+  {
+   "cmd": "docker buildx inspect mybuilder",
+   "desc": "Inspect a builder's configuration",
+   "tooltip": "Shows the driver, endpoints, and supported platforms of a builder without starting it. Add --bootstrap to boot the BuildKit daemon and verify it responds. Use --builder to target a builder other than the current selection."
+  },
+  {
+   "cmd": "docker buildx ls --format 'table {{.Name}}\\t{{.Driver}}\\t{{.Platforms}}'",
+   "desc": "List builders in a custom table format",
+   "tooltip": "ls enumerates builders and marks the current one with an asterisk. --format accepts Go template placeholders like {{.Name}} and {{.Platforms}} for scriptable output. The default formatting already shows driver and platforms if you omit it."
+  },
+  {
+   "cmd": "docker buildx rm --keep-state mybuilder",
+   "desc": "Remove a builder but keep its cache",
+   "tooltip": "rm deletes a builder's configuration; --keep-state preserves its BuildKit cache volume so a later recreate starts warm. Without it, cache is deleted too and disk space is reclaimed. The default docker builder cannot be removed."
+  },
+  {
+   "cmd": "docker buildx use --default mybuilder",
+   "desc": "Set a builder as the default",
+   "tooltip": "use selects the builder for subsequent buildx commands; --default makes it the builder behind plain docker build too. Confirm the selection with docker buildx ls, where the asterisk marks the active builder. --global applies it across contexts."
+  },
+  {
+   "cmd": "docker buildx prune --filter 'until=168h'",
+   "desc": "Prune build cache older than a week",
+   "tooltip": "Frees disk by deleting BuildKit cache entries; the until filter keeps only entries used in the last 168 hours (7 days). More surgical than prune -a, which clears everything. BuildKit also prunes automatically when its cache exceeds configured limits."
+  },
+  {
+   "cmd": "docker buildx du --verbose",
+   "desc": "Show detailed build cache usage",
+   "tooltip": "du reports how much disk BuildKit cache occupies, per builder by default. --verbose breaks the total down by individual cache entry so you can spot large blobs. Pair with docker buildx prune to reclaim space."
+  },
+  {
+   "cmd": "docker buildx imagetools inspect --format '{{json .Manifest}}' myrepo/myapp:latest",
+   "desc": "Inspect a registry image manifest as JSON",
+   "tooltip": "imagetools = buildx's registry-side tooling that reads images directly from the registry without pulling them. --format renders a Go template; {{json .Manifest}} dumps the raw manifest structure. Add --raw to skip parsing entirely."
+  },
+  {
+   "cmd": "docker buildx history ls",
+   "desc": "List recent build records",
+   "tooltip": "history ls enumerates build records, each with a ref identifying the logs, config, and results of a build. Aimed at debugging builds in Docker Desktop workflows, this command is newer and experimental. Drill into one record with docker buildx history inspect."
+  },
+  {
+   "cmd": "docker buildx build --ssh default -t myapp .",
+   "desc": "Build with SSH agent forwarding",
+   "tooltip": "Passes the host's SSH agent socket into BuildKit so RUN steps can clone private repositories over SSH. The name default refers to the socket in $SSH_AUTH_SOCK. Also supports named keys, for example --ssh github=~/.ssh/id_ed25519. Requires the docker-container driver."
+  },
+  {
+   "cmd": "docker buildx build --secret id=token,src=./token -t myapp .",
+   "desc": "Mount a file as a build secret",
+   "tooltip": "Makes ./token available as the secret id=token, readable in the Dockerfile via RUN --mount=type=secret,id=token. Secrets never land in image layers, unlike build args, so they stay out of pushed images. Rotate the token if it ever leaked into a layer."
+  },
+  {
+   "cmd": "docker compose config --format json",
+   "desc": "Render the merged compose config as JSON",
+   "tooltip": "Prints the fully resolved compose model, after variable interpolation and file merging, as JSON. Useful for feeding other tools or debugging what compose actually runs. yaml is the default format; json is friendlier for scripting."
+  },
+  {
+   "cmd": "docker compose config --images",
+   "desc": "List image names used by services",
+   "tooltip": "Prints one image name per line for every service, including those built locally, so you can audit or pull them. Cross-reference with --services for names. The output mirrors what docker compose pull would fetch."
+  },
+  {
+   "cmd": "docker compose config --profiles",
+   "desc": "List profiles defined in the compose file",
+   "tooltip": "Profiles gate which services start by default; services assigned a profile only run when it is active. This prints the profile names declared in the file, one per line. Activate one with docker compose --profile NAME up."
+  },
+  {
+   "cmd": "docker compose config --environment",
+   "desc": "Print environment used in interpolation",
+   "tooltip": "Shows the environment values that compose substitutes into ${VAR} references in the compose file. Interpolation (replacing variables) happens before the model is rendered. Combine with --no-interpolate to see the raw template instead."
+  },
+  {
+   "cmd": "docker compose config --no-interpolate",
+   "desc": "Render compose config without variable substitution",
+   "tooltip": "Leaves ${VAR} references untouched instead of replacing them with environment values. Handy when a variable is missing and you want to see the raw template. Pipe to grep to hunt down a specific unresolved variable."
+  },
+  {
+   "cmd": "docker compose config --no-normalize",
+   "desc": "Render compose config without normalization",
+   "tooltip": "Normalization rewrites legacy short syntax, such as ports 80:80, into the canonical long form. --no-normalize keeps the file closer to what you wrote, which can help when comparing against an original. Default output is normalized."
+  },
+  {
+   "cmd": "docker compose config --hash web",
+   "desc": "Print the config hash of a service",
+   "tooltip": "Computes a hash of a service's resolved configuration, useful to detect when a service definition changes. Compare hashes across runs or machines to verify identical configs. The hash reflects merged and interpolated values, not raw YAML."
+  },
+  {
+   "cmd": "docker compose create",
+   "desc": "Create service containers without starting them",
+   "tooltip": "Builds the container objects for all services but leaves them stopped, letting you inspect or configure before the first run. Start them later with docker compose start. The up --no-start flag gives the same result in one step."
+  },
+  {
+   "cmd": "docker compose cp ./file.txt web:/tmp/file.txt",
+   "desc": "Copy a local file into a service container",
+   "tooltip": "The reverse of docker compose cp web:/path . - pushes a local file into the named service's container. The service name resolves to the first container of that service; add --index to target a specific replica. Works like docker cp but with compose naming."
+  },
+  {
+   "cmd": "docker compose down --timeout 30",
+   "desc": "Stop services with a 30-second grace period",
+   "tooltip": "down stops and removes containers, networks, and default volumes of the project. --timeout sets how long compose waits for graceful shutdown before force-killing, useful for slow-draining services. Add --volumes to also delete named volumes."
+  },
+  {
+   "cmd": "docker compose events --json",
+   "desc": "Stream compose service events as JSON",
+   "tooltip": "Prints container lifecycle events (start, stop, health status) as they happen for the project's services. --json emits machine-readable objects instead of formatted lines, ideal for monitoring pipelines. The stream runs until you press Ctrl-C."
+  },
+  {
+   "cmd": "docker compose exec -T web ls /app",
+   "desc": "Execute a command without a TTY",
+   "tooltip": "-T disables pseudo-TTY allocation, required when piping output or running in CI where no terminal exists. The command runs inside the running web container, exactly like docker exec. Keep the TTY for interactive tools like bash."
+  },
+  {
+   "cmd": "docker compose exec --index 2 web ls",
+   "desc": "Execute a command in a scaled service replica",
+   "tooltip": "--index targets a specific replica when a service runs multiple instances via --scale or deploy.replicas. Replicas are numbered from 1, so --index 2 hits the second container. Defaults to the first replica when omitted."
+  },
+  {
+   "cmd": "docker compose exec -d web touch /tmp/marker",
+   "desc": "Run a command detached inside a service",
+   "tooltip": "-d runs the command in the background and returns immediately instead of streaming output. Useful for kicking off jobs inside a container without blocking. Check results later with docker compose logs or docker compose exec."
+  },
+  {
+   "cmd": "docker compose exec -w /app web npm test",
+   "desc": "Execute a command in a specific workdir",
+   "tooltip": "-w sets the working directory inside the container before running the command, here running tests from /app. Avoids chaining cd into the command itself. Equivalent to docker exec --workdir."
+  },
+  {
+   "cmd": "docker compose kill web",
+   "desc": "Force-kill a service's containers",
+   "tooltip": "Sends SIGKILL to the web service containers immediately, without waiting for graceful shutdown. Prefer docker compose stop for orderly stops; kill is for unresponsive containers. Add -s with a signal name to send something gentler."
+  },
+  {
+   "cmd": "docker compose logs --no-color web",
+   "desc": "Show service logs without ANSI colors",
+   "tooltip": "Strips color codes from log output, making it clean for files and CI logs. The web argument limits output to that service; omit it for all services. Combine with --tail to limit how many lines are shown."
+  },
+  {
+   "cmd": "docker compose logs --timestamps web",
+   "desc": "Show service logs with timestamps",
+   "tooltip": "Prepends a timestamp to every log line so you can correlate events across services. The -t shorthand does the same. Timestamps come from the container runtime, not the application."
+  },
+  {
+   "cmd": "docker compose logs --since 10m web",
+   "desc": "Show service logs from the last 10 minutes",
+   "tooltip": "Restricts output to log lines newer than the given duration, useful right after an incident. Accepts values like 30s, 10m, or 2h. Combine with --follow to stream from that point forward."
+  },
+  {
+   "cmd": "docker compose ls",
+   "desc": "List running compose projects",
+   "tooltip": "Lists compose projects, which are groups of containers sharing a project name, usually the directory name. Shows status and config files for each. Add -a to include stopped projects."
+  },
+  {
+   "cmd": "docker compose ls -a",
+   "desc": "List all compose projects including stopped",
+   "tooltip": "-a includes projects whose containers are all stopped, giving the full inventory of compose-managed stacks. Each project is identified by its name and compose file location. Combine with --format json for scripting."
+  },
+  {
+   "cmd": "docker compose port --index 2 web 80",
+   "desc": "Show the published port of a specific replica",
+   "tooltip": "Resolves the host port mapped to container port 80 for the second replica of web, accounting for random host ports. --index picks the replica; --protocol selects tcp or udp. Useful when ports are assigned dynamically."
+  },
+  {
+   "cmd": "docker compose pull --ignore-buildable",
+   "desc": "Pull only images that are not built locally",
+   "tooltip": "Pulls images for services lacking a build section, skipping those compose would build from a Dockerfile. Saves bandwidth when you only want prebuilt dependencies refreshed. The --policy always flag forces a fresh pull regardless."
+  },
+  {
+   "cmd": "docker compose push --ignore-push-failures",
+   "desc": "Push images and ignore individual failures",
+   "tooltip": "Pushes all built service images to their registries, continuing past any single failure instead of aborting. Useful when one service lacks registry credentials but others should still publish. Add --include-deps to push dependency images too."
+  },
+  {
+   "cmd": "docker compose restart --timeout 30 web",
+   "desc": "Restart a service with a stop timeout",
+   "tooltip": "Restarts the web service containers, sending SIGTERM and waiting up to 30 seconds for a graceful exit before killing. --timeout overrides the default shutdown grace. Restart does not rebuild images or recreate volumes."
+  },
+  {
+   "cmd": "docker compose run --entrypoint /bin/sh web",
+   "desc": "Run a one-off command with a custom entrypoint",
+   "tooltip": "Overrides the service's entrypoint for a single run, here opening a shell in a fresh container. The container is temporary and removed with --rm. The original entrypoint is unaffected for normal docker compose up runs."
+  },
+  {
+   "cmd": "docker compose run --rm --service-ports web python manage.py runserver",
+   "desc": "Run a one-off command publishing service ports",
+   "tooltip": "--service-ports maps the service's published ports onto the host, letting a dev server accept external connections. --rm removes the container when the command exits. Ideal for migrations, seeds, or interactive tooling against the stack."
+  },
+  {
+   "cmd": "docker compose scale web=3",
+   "desc": "Scale a service to three replicas",
+   "tooltip": "Changes the replica count of the web service to 3, starting or stopping containers as needed. Superseded by docker compose up --scale but still supported. New replicas share the same image and configuration as the first."
+  },
+  {
+   "cmd": "docker compose start web",
+   "desc": "Start a stopped service",
+   "tooltip": "Starts containers of the web service that were created but stopped, without recreating them. The opposite of docker compose stop. Use docker compose up when you also need image rebuilds or new containers."
+  },
+  {
+   "cmd": "docker compose stop web",
+   "desc": "Stop a single service's containers",
+   "tooltip": "Stops the web service containers gracefully while leaving them and their data intact, so docker compose start brings them back quickly. Without a service argument, every service stops. Add -t to tune the shutdown grace period."
+  },
+  {
+   "cmd": "docker compose unpause web",
+   "desc": "Resume a paused service",
+   "tooltip": "Unpauses containers of the web service that docker compose pause suspended. Pausing freezes process execution without stopping the container, so resume is fast. The reverse command is docker compose pause."
+  },
+  {
+   "cmd": "docker compose up --abort-on-container-exit",
+   "desc": "Stop all services when one container exits",
+   "tooltip": "Watches the stack and tears everything down as soon as any container exits, instead of leaving the rest running. Pairs with --exit-code-from to propagate that container's exit code. Great for CI test suites built with compose."
+  },
+  {
+   "cmd": "docker compose up --exit-code-from web",
+   "desc": "Propagate a service's exit code",
+   "tooltip": "Returns the exit code of the web container when the stack stops, letting CI judge success or failure. Requires --abort-on-container-exit to make sense, since compose otherwise keeps running. Handy for compose-driven test harnesses."
+  },
+  {
+   "cmd": "docker compose up --no-build",
+   "desc": "Start services without building images",
+   "tooltip": "Skips the build step for services with Dockerfiles, using whatever images already exist or failing if missing. Faster when you know images are current. The --build flag forces a rebuild on the next run."
+  },
+  {
+   "cmd": "docker compose up --no-start",
+   "desc": "Create containers without starting services",
+   "tooltip": "Creates all service containers and networks but leaves them stopped, equivalent to docker compose create. Inspect or configure them, then start with docker compose start. Useful for debugging container creation errors."
+  },
+  {
+   "cmd": "docker compose up --quiet-pull",
+   "desc": "Start services with silent image pulls",
+   "tooltip": "Pulls missing images without printing progress bars, keeping logs readable in CI. Errors still surface; only progress noise is suppressed. Combine with -d to detach after startup."
+  },
+  {
+   "cmd": "docker compose up --wait --wait-timeout 60",
+   "desc": "Start services and wait for readiness",
+   "tooltip": "--wait blocks until every service reports healthy or its healthcheck passes, then returns. --wait-timeout caps that wait at 60 seconds before failing. Essential in scripts that must not proceed before the stack is up."
+  },
+  {
+   "cmd": "docker compose version",
+   "desc": "Print the Docker Compose version",
+   "tooltip": "Shows the compose plugin version and build details, useful when debugging version-dependent behavior. Compare against the Docker engine with docker version. The plugin is invoked as docker compose, not a separate binary."
+  },
+  {
+   "cmd": "docker compose watch --no-up",
+   "desc": "Watch for changes without starting services",
+   "tooltip": "watch rebuilds and restarts services when their source files change, per the watch rules in the compose file. --no-up skips the initial up, watching only already-running services. Great for hot-reload dev loops."
+  },
+  {
+   "cmd": "docker compose build --push web",
+   "desc": "Build a service image and push it",
+   "tooltip": "Builds the web service image then pushes it to its configured registry in one step. The image tag comes from the service definition. Add --with-dependencies to build prerequisite services first."
+  },
+  {
+   "cmd": "docker compose build --with-dependencies web",
+   "desc": "Build a service and its dependencies",
+   "tooltip": "Builds the web image plus any services it depends on, in dependency order. Without it, only the named service builds and dependency images may be stale. Combine with --parallel to build independent targets concurrently."
+  },
+  {
+   "cmd": "docker compose top web",
+   "desc": "Show running processes of a service",
+   "tooltip": "Lists the processes running inside the web service containers, similar to ps output on the host. Useful to confirm that a process like nginx or cron actually runs. Without a service name, all services are shown."
+  },
+  {
+   "cmd": "docker pull --platform linux/arm64 nginx",
+   "desc": "Pull an image for a different architecture",
+   "tooltip": "--platform selects the OS and architecture variant to fetch, here the ARM64 build of nginx even on an AMD64 host. Useful for cross-compilation and edge devices. The manifest list holds one image per platform."
+  },
+  {
+   "cmd": "docker pull ghcr.io/myorg/myapp:1.4.2",
+   "desc": "Pull a pinned version from GitHub Container Registry",
+   "tooltip": "Pulls image myapp tagged 1.4.2 from ghcr.io, GitHub's container registry. Pinning an exact tag makes deploys reproducible versus floating latest. Authenticate with docker login ghcr.io when the image is private."
+  },
+  {
+   "cmd": "docker push registry.example.com/myapp:1.0",
+   "desc": "Push an image to a private registry",
+   "tooltip": "Uploads the locally tagged image to the registry host in the tag, here registry.example.com. Login first with docker login registry.example.com unless it is public. The tag determines the destination path."
+  },
+  {
+   "cmd": "docker push --all-tags myrepo/myapp",
+   "desc": "Push every local tag of an image",
+   "tooltip": "--all-tags uploads all locally held tags of myrepo/myapp in one call instead of tagging and pushing each. Handy after building multiple versions locally. Every tag must belong to the same repository."
+  },
+  {
+   "cmd": "docker save myrepo/myapp:1.0 -o /backup/myapp.tar",
+   "desc": "Save an image to a tarball file",
+   "tooltip": "Writes the image and its layers to a tar archive at the given path. -o names the output file; without it, the tarball streams to stdout. Restore with docker load -i /backup/myapp.tar on any machine."
+  },
+  {
+   "cmd": "docker load -i /backup/myapp.tar",
+   "desc": "Load an image from a tarball",
+   "tooltip": "Imports an image archive created by docker save into the local image store. -i names the file; the plain form reads stdin. Faster than pulling when registry access is unavailable."
+  },
+  {
+   "cmd": "docker image load < myapp.tar",
+   "desc": "Load an image from stdin",
+   "tooltip": "Reads the tar archive produced by docker save from standard input, handy in pipelines such as gunzip -c myapp.tar.gz | docker load. The image subcommand form is equivalent to docker load. Tags embedded in the archive are restored."
+  },
+  {
+   "cmd": "docker export mycontainer -o container.tar",
+   "desc": "Export a container's filesystem to a tarball",
+   "tooltip": "Archives the container's root filesystem as it currently exists, including runtime changes but not image metadata like layers or entrypoint. -o writes the file directly. Import with docker import to turn it back into an image."
+  },
+  {
+   "cmd": "docker import myapp.tar myrepo/imported:1.0",
+   "desc": "Import a filesystem tarball as an image",
+   "tooltip": "Creates an image from a container export or any root filesystem archive, tagging it myrepo/imported:1.0. The result has no history or entrypoint unless you add --change. Complements docker export for snapshot workflows."
+  },
+  {
+   "cmd": "docker tag myapp:latest registry.example.com/myapp:1.0",
+   "desc": "Tag an image for a registry destination",
+   "tooltip": "Adds a new tag pointing at the same image, here prefixed with the registry host so docker push knows the destination. Tags are cheap references, not copies. The original myapp:latest tag remains."
+  },
+  {
+   "cmd": "docker history --format '{{.CreatedBy}}' myapp:latest",
+   "desc": "Show image build steps with custom formatting",
+   "tooltip": "Lists the layers of an image with the Dockerfile instruction that created each. --format renders a Go template; {{.CreatedBy}} shows just the instruction text. Add --no-trunc for full commands."
+  },
+  {
+   "cmd": "docker image ls --digests",
+   "desc": "List images including their digests",
+   "tooltip": "Adds the digest column, the content hash uniquely identifying each image version. Digests let you reference images immutably, for example myrepo/myapp@sha256:abc123. Useful for auditing what is actually pulled."
+  },
+  {
+   "cmd": "docker image ls --filter before=myapp:v1",
+   "desc": "List images created before a given image",
+   "tooltip": "The before filter keeps only images built earlier than myapp:v1, handy for cleanup sweeps. Combine it with reference to narrow by name. Filters chain with --filter reference=myapp*."
+  },
+  {
+   "cmd": "docker image ls --filter reference='myapp*'",
+   "desc": "List images matching a name pattern",
+   "tooltip": "reference filters by repository and tag glob, here matching any tag whose repository starts with myapp. Quote the pattern so the shell does not expand the asterisk. Pair with before and since filters to scope listings."
+  },
+  {
+   "cmd": "docker image prune -a --filter 'until=168h'",
+   "desc": "Remove unused images older than a week",
+   "tooltip": "Deletes all images not used by any container and last used over 168 hours ago. -a also targets images with tags, not just dangling ones. Destructive: rebuild or re-pull anything removed. Run docker image ls first to review."
+  },
+  {
+   "cmd": "docker image rm $(docker image ls -q -f dangling=true)",
+   "desc": "Remove all dangling images",
+   "tooltip": "Dangling images are untagged leftovers from builds, often wasting gigabytes. The command substitution feeds every matching image ID to rm. Destructive, but tagged images survive untouched. Prefer docker image prune for a prompt-free sweep."
+  },
+  {
+   "cmd": "docker login -u myuser registry.example.com",
+   "desc": "Log in to a registry with a username prompt",
+   "tooltip": "Authenticates to registry.example.com as myuser, prompting for the password or token interactively. Omitting -p avoids credentials in shell history. Use --password-stdin with a pipe for scripts."
+  },
+  {
+   "cmd": "echo 's3cr3t' | docker login registry.example.com -u myuser --password-stdin",
+   "desc": "Log in reading the password from stdin",
+   "tooltip": "Feeds the password through stdin so it never appears in shell history or process listings. The pattern suits CI and scripts. Credentials are stored in ~/.docker/config.json, so log out when done on shared machines."
+  },
+  {
+   "cmd": "docker search --limit 10 nginx",
+   "desc": "Search Docker Hub limiting results",
+   "tooltip": "Queries Docker Hub for images matching nginx and shows the first 10. --limit caps the result count; the default returns more. Combine with --filter is-official=true for curated images."
+  },
+  {
+   "cmd": "docker search --format '{{.Name}}: {{.StarCount}}'",
+   "desc": "Search Docker Hub with custom output",
+   "tooltip": "Renders search results with a Go template instead of the default table. {{.Name}} and {{.StarCount}} print repository and popularity. Scripts can parse the output directly."
+  },
+  {
+   "cmd": "docker manifest inspect --verbose nginx:latest",
+   "desc": "Inspect a manifest list verbosely",
+   "tooltip": "Shows the manifest list of nginx:latest, including each platform entry and its digest. --verbose adds detailed configuration and history. Contrast with docker buildx imagetools inspect for registry-side views."
+  },
+  {
+   "cmd": "docker manifest annotate myapp:latest myapp:amd64 --arch amd64",
+   "desc": "Annotate a manifest entry with architecture",
+   "tooltip": "Records metadata on one entry of a manifest list, here declaring the amd64 entry's architecture. Run it before docker manifest push so clients fetch the right binary per platform. Experimental but stable in practice."
+  },
+  {
+   "cmd": "docker pull --all-tags myrepo/myapp",
+   "desc": "Pull every tag of a repository",
+   "tooltip": "Fetches all tags of myrepo/myapp that the registry exposes, useful for mirroring or analysis. Can be slow and large for busy repositories. The image subcommand form is docker image pull --all-tags."
+  },
+  {
+   "cmd": "docker image inspect --format '{{json .Config.ExposedPorts}}' myapp",
+   "desc": "Show an image's exposed ports as JSON",
+   "tooltip": "Renders the EXPOSE metadata of the image as raw JSON, showing which ports the image declares. The {{json .}} template prints the whole config object. Useful for wiring docker run -p mappings."
+  },
+  {
+   "cmd": "docker image ls --format '{{.Repository}}:{{.Tag}} {{.Size}}'",
+   "desc": "List images in a compact format",
+   "tooltip": "Prints repository, tag, and size per line without table borders, easy to grep or pipe. Go template fields like {{.ID}} and {{.CreatedSince}} also exist. Omit table to drop column headers."
+  },
+  {
+   "cmd": "docker network create -d bridge --subnet 172.20.0.0/16 --gateway 172.20.0.1 mynet",
+   "desc": "Create a bridge network with a custom subnet",
+   "tooltip": "Creates a bridge (default container-to-container) network on a private subnet with its gateway at 172.20.0.1. -d selects the driver; bridge is the default. Custom subnets avoid clashes with other networks."
+  },
+  {
+   "cmd": "docker network create -d overlay --attachable myswarmnet",
+   "desc": "Create an attachable swarm overlay network",
+   "tooltip": "overlay = swarm's cross-host container network that spans all nodes. --attachable lets standalone containers, not just swarm services, join it. Requires an active swarm, initialized with docker swarm init."
+  },
+  {
+   "cmd": "docker network create --ipv6 --subnet 2001:db8::/64 mynet",
+   "desc": "Create a network with IPv6 addressing",
+   "tooltip": "Enables IPv6 on the network and assigns the documentation prefix 2001:db8::/64 to it. Containers then receive IPv6 addresses alongside IPv4. The host daemon must have IPv6 enabled."
+  },
+  {
+   "cmd": "docker network create --label env=prod mynet",
+   "desc": "Create a network with labels",
+   "tooltip": "Labels tag the network with key-value metadata, here env=prod, so you can filter and manage networks by environment. View them with docker network inspect. Filters like docker network ls --filter label=env=prod select them."
+  },
+  {
+   "cmd": "docker network connect --alias db mynet myapp",
+   "desc": "Connect a container to a network with an alias",
+   "tooltip": "Attaches the running myapp container to mynet and registers the alias db on that network, so other containers resolve myapp as db. Useful for zero-downtime database swaps. A container can belong to multiple networks."
+  },
+  {
+   "cmd": "docker network disconnect -f mynet myapp",
+   "desc": "Force-disconnect a container from a network",
+   "tooltip": "Removes myapp from mynet; -f forces the operation when the container is running or unreachable. After disconnecting, cross-container DNS resolution on that network stops. Networks cannot be removed while containers use them."
+  },
+  {
+   "cmd": "docker network inspect mynet --format '{{.Name}} {{.Driver}}'",
+   "desc": "Inspect a network with custom formatting",
+   "tooltip": "Dumps the network's configuration, containers, and subnet details. --format renders a Go template, here printing name and driver only. Default output is a full JSON document."
+  },
+  {
+   "cmd": "docker network ls --filter driver=bridge",
+   "desc": "List networks filtered by driver",
+   "tooltip": "Shows only networks using the bridge driver, hiding overlay and host networks. Other filters include name, label, and scope. Combine with --format for scriptable listings."
+  },
+  {
+   "cmd": "docker network ls --format 'table {{.Name}}\\t{{.Driver}}'",
+   "desc": "List networks as a custom table",
+   "tooltip": "Renders the network table with only name and driver columns via Go templates. Useful when the default six-column output is too wide. Omit table for headerless output."
+  },
+  {
+   "cmd": "docker network ls -q",
+   "desc": "List network IDs only",
+   "tooltip": "Prints just the network IDs, one per line, ready to feed other commands. IDs are shorter than names and unique per network. The classic pattern is docker network rm $(docker network ls -q)."
+  },
+  {
+   "cmd": "docker network prune --filter 'until=168h'",
+   "desc": "Remove unused networks older than a week",
+   "tooltip": "Deletes networks not used by any container and untouched for 168 hours. The until filter protects recently created networks. Destructive and permanent, so review with docker network ls first."
+  },
+  {
+   "cmd": "docker run --network container:myapp nginx",
+   "desc": "Run a container sharing another's network",
+   "tooltip": "Puts the new container in the network namespace of myapp, so both share IP and ports and can talk over localhost. Useful for sidecar proxies and debug tools. The shared container must be running."
+  },
+  {
+   "cmd": "docker run --network mynet --network-alias web myimage",
+   "desc": "Run a container with a network alias",
+   "tooltip": "Joins mynet and registers the alias web, letting other containers on the network reach this one by that name. Aliases support multiple names per container. DNS resolution happens inside user-defined networks."
+  },
+  {
+   "cmd": "docker volume create --label env=prod myvol",
+   "desc": "Create a named volume with labels",
+   "tooltip": "Creates the volume myvol with the metadata label env=prod for organization and filtering. Volumes outlive containers and store data independently of container lifecycle. List labels with docker volume inspect."
+  },
+  {
+   "cmd": "docker volume create --driver local --opt type=nfs --opt o=addr=10.0.0.5,rw --opt device=:/exports/data nfsvol",
+   "desc": "Create a volume backed by an NFS share",
+   "tooltip": "Mounts an NFS export at 10.0.0.5:/exports/data as the volume nfsvol, letting containers share storage across hosts. The local driver mounts the device with the options given by o=, here read-write. Requires the NFS client on the Docker host."
+  },
+  {
+   "cmd": "docker volume inspect myvol --format '{{.Mountpoint}}'",
+   "desc": "Show a volume's host mountpoint",
+   "tooltip": "Prints the host directory where the volume's data physically lives, useful for direct inspection or backups. The Go template {{.Mountpoint}} extracts one field from the JSON. Default output shows all volume metadata."
+  },
+  {
+   "cmd": "docker volume ls --format '{{.Name}} {{.Driver}}'",
+   "desc": "List volumes with custom formatting",
+   "tooltip": "Renders volume name and driver per line via Go templates, skipping the default table. Add --filter dangling=true to find orphaned volumes. Scripts parse this output easily."
+  },
+  {
+   "cmd": "docker volume ls -q",
+   "desc": "List volume names only",
+   "tooltip": "Prints just the volume names, one per line, ideal for piping into other commands or counting. The -q flag stands for quiet. Filter with --filter name= to narrow results."
+  },
+  {
+   "cmd": "docker volume ls --filter name=appdata",
+   "desc": "List volumes matching a name",
+   "tooltip": "Keeps only volumes whose name contains appdata. Other filters include driver, label, and dangling. Combine several --filter flags to intersect conditions."
+  },
+  {
+   "cmd": "docker volume prune --filter 'label=keep=false'",
+   "desc": "Remove volumes labeled for cleanup",
+   "tooltip": "Deletes unused volumes carrying the label keep=false, leaving everything else alone. Volume data is gone permanently, so label carefully. Add -f to skip the confirmation prompt."
+  },
+  {
+   "cmd": "docker run --mount type=bind,src=/host/path,dst=/container/path nginx",
+   "desc": "Mount a host directory with short flag names",
+   "tooltip": "Binds /host/path from the host into /container/path in the container; changes appear on both sides. src and dst are short aliases for source and target in --mount syntax. Bind mounts are not managed by docker volume commands."
+  },
+  {
+   "cmd": "docker run --mount type=bind,source=/host/path,target=/container/path,readonly myimage",
+   "desc": "Mount a host directory read-only",
+   "tooltip": "Binds the host directory into the container but read-only, so the container cannot modify host files. Add the readonly option to any --mount type. Prevents accidental writes from misbehaving containers."
+  },
+  {
+   "cmd": "docker run --mount type=tmpfs,target=/tmp,tmpfs-size=512m myimage",
+   "desc": "Mount an in-memory tmpfs limited to 512MB",
+   "tooltip": "tmpfs mounts live entirely in RAM, fast and wiped when the container stops. tmpfs-size caps the mount at 512m. Perfect for scratch space or caches that must not persist."
+  },
+  {
+   "cmd": "docker run -v myvol:/data nginx",
+   "desc": "Mount a named volume into a container",
+   "tooltip": "Attaches the named volume myvol at /data, persisting data beyond container restarts and removal. The short -v form is convenient; --mount offers more explicit options. Create the volume first or let Docker auto-create it."
+  },
+  {
+   "cmd": "docker cp mycontainer:/etc/nginx/nginx.conf ./nginx.conf",
+   "desc": "Copy a file out of a container",
+   "tooltip": "Pulls nginx.conf from the running container to the current directory for inspection or backup. The container need not be running for cp to work. Reverse the arguments to copy into the container."
+  },
+  {
+   "cmd": "docker cp ./file mycontainer:/tmp/",
+   "desc": "Copy a file into a container",
+   "tooltip": "Pushes the local file into the container's /tmp directory. Copying into a running container can be overwritten by the next restart; prefer baking files into images. The target directory must exist."
+  },
+  {
+   "cmd": "docker run --mount type=volume,source=mydata,target=/data,volume-nocopy myimage",
+   "desc": "Mount a volume skipping first-use copy",
+   "tooltip": "volume-nocopy prevents Docker from copying existing files from the image's /data into the fresh empty volume on first mount. Keep the flag when you want a clean volume. Useful for caches and databases that should start empty."
+  },
+  {
+   "cmd": "docker container ls --filter status=exited",
+   "desc": "List containers that have exited",
+   "tooltip": "Shows only stopped containers, useful for spotting crash loops and leftovers. Filters like status=running and status=paused also exist. Combine with -q to feed IDs into other commands."
+  },
+  {
+   "cmd": "docker container ls --filter exited=1",
+   "desc": "List containers that exited with code 1",
+   "tooltip": "Matches containers whose exit code was 1, usually application errors rather than deliberate stops. Review docker logs on the survivors to diagnose. The exited filter accepts any exit code."
+  },
+  {
+   "cmd": "docker container ls --format '{{.Names}}: {{.Image}}'",
+   "desc": "List containers with custom formatting",
+   "tooltip": "Renders name and image per container via Go templates, compact enough for scripts. Fields like {{.Status}} and {{.Ports}} are also available. Omit table for plain lines."
+  },
+  {
+   "cmd": "docker container logs --tail 50 myapp",
+   "desc": "Show the last 50 log lines of a container",
+   "tooltip": "Prints the tail of myapp's log output, equivalent to docker logs --tail 50. The container subcommand form is explicit and script-friendly. Combine with --follow to stream new lines."
+  },
+  {
+   "cmd": "docker container exec -it myapp bash",
+   "desc": "Open an interactive shell in a container",
+   "tooltip": "Runs bash inside the running myapp container with a TTY and stdin attached, exactly like docker exec -it. The container subcommand form is interchangeable. Fall back to sh when bash is absent."
+  },
+  {
+   "cmd": "docker container update --cpus 1 --memory 512m myapp",
+   "desc": "Update a container's CPU and memory limits",
+   "tooltip": "Adjusts resource limits of a running container, here capping CPU at 1 core and memory at 512 MB. CPU limits apply immediately; memory limits take effect on restart. Docker also supports --cpuset-cpus and --pids-limit."
+  },
+  {
+   "cmd": "docker container restart --timeout 10 myapp",
+   "desc": "Restart a container with a stop timeout",
+   "tooltip": "Stops and starts myapp again, sending SIGTERM and waiting up to 10 seconds before SIGKILL. --timeout tunes the graceful-shutdown window. Restart preserves the container's filesystem and config."
+  },
+  {
+   "cmd": "docker container prune --filter 'until=24h'",
+   "desc": "Remove stopped containers older than a day",
+   "tooltip": "Deletes stopped containers last used over 24 hours ago, reclaiming disk without touching running ones. The until filter protects recent containers. Destructive: container filesystems and their data are gone."
+  },
+  {
+   "cmd": "docker stats --no-stream",
+   "desc": "Show a one-shot snapshot of container stats",
+   "tooltip": "Prints CPU, memory, network, and disk usage for running containers once, then exits. Without --no-stream, stats refresh continuously until Ctrl-C. The basis for lightweight capacity monitoring."
+  },
+  {
+   "cmd": "docker stats --no-stream --format 'table {{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}'",
+   "desc": "Show container stats in a custom table",
+   "tooltip": "Renders the stats snapshot with only name, CPU percentage, and memory columns. Go template fields match the header names. Scripts can parse the compact output for alerting."
+  },
+  {
+   "cmd": "docker stats $(docker ps -q)",
+   "desc": "Show stats for running containers only",
+   "tooltip": "Feeds the IDs of currently running containers into docker stats via command substitution. Without it, stats also includes containers that are not started. Combine with --no-stream for a single snapshot."
+  },
+  {
+   "cmd": "docker events --filter container=myapp",
+   "desc": "Stream events for one container",
+   "tooltip": "Follows lifecycle events (start, stop, die, health status) for myapp as they occur. The container filter narrows the global event stream. Exit with Ctrl-C; the stream runs indefinitely."
+  },
+  {
+   "cmd": "docker events --since 1h --until 30m",
+   "desc": "Show container events from a time window",
+   "tooltip": "Replays events between 1 hour and 30 minutes ago, useful for reconstructing what happened before an incident. Accepts relative durations or RFC3339 timestamps. Add --filter container=NAME to narrow further."
+  },
+  {
+   "cmd": "docker inspect -f '{{.State.Status}}' myapp",
+   "desc": "Show a container's status",
+   "tooltip": "Extracts the state field from the container's JSON metadata, printing values like running or exited. -f is shorthand for --format with a Go template. Faster to grep than full docker inspect output."
+  },
+  {
+   "cmd": "docker inspect -f '{{json .NetworkSettings.Ports}}' myapp",
+   "desc": "Show a container's port mappings as JSON",
+   "tooltip": "Renders the published port mappings of myapp as raw JSON, showing host port, container port, and protocol. The {{json .}} template prints the whole settings object. Useful before scripting firewall or proxy config."
+  },
+  {
+   "cmd": "docker inspect --format '{{.Name}} {{.Config.Image}}' myapp",
+   "desc": "Show a container's name and image",
+   "tooltip": "Prints the container's name (with a leading slash) and the image it was created from. The long --format spelling suits documentation; -f is the shorthand. Combine fields with any Go template."
+  },
+  {
+   "cmd": "docker inspect --format '{{.HostConfig.Binds}}' myapp",
+   "desc": "Show a container's bind mounts",
+   "tooltip": "Lists the host paths bound into the container from its host config, revealing where volumes come from. Empty output means no bind mounts, only anonymous or named volumes. Compare with docker volume inspect."
+  },
+  {
+   "cmd": "docker exec -it myapp sh -c 'cat /etc/os-release'",
+   "desc": "Run a compound command inside a container",
+   "tooltip": "sh -c runs a shell command string inside the container, here printing OS release info. Useful when a binary lacks the flags you need. The -it flags attach stdin and a TTY."
+  },
+  {
+   "cmd": "docker exec -u root myapp whoami",
+   "desc": "Execute a command as root inside a container",
+   "tooltip": "Runs whoami with the root user regardless of the container's configured user, handy for fixing permissions. -u accepts names or UID:GID pairs like 1000:1000. Only works when the container allows switching."
+  },
+  {
+   "cmd": "docker exec --env FOO=bar myapp env",
+   "desc": "Run a command with an extra environment variable",
+   "tooltip": "Injects FOO=bar into the exec session without changing the container's stored config. Repeat --env for more variables, or use --env-file. The env command prints the resulting environment."
+  },
+  {
+   "cmd": "docker run -it --rm --entrypoint sh nginx",
+   "desc": "Run an image with an overridden entrypoint",
+   "tooltip": "Starts nginx with sh as the entrypoint, giving an interactive shell instead of the web server. --rm removes the container on exit. Useful for debugging images whose default entrypoint fails."
+  },
+  {
+   "cmd": "docker run --name temp --rm nginx echo hi",
+   "desc": "Run a one-off command in a disposable container",
+   "tooltip": "Launches nginx, overrides its command with echo hi, prints the output, and removes the container thanks to --rm. The pattern tests images without leaving clutter. --name keeps the ID memorable."
+  },
+  {
+   "cmd": "docker run -d --restart unless-stopped --name web -p 8080:80 nginx",
+   "desc": "Run a detached web server that restarts automatically",
+   "tooltip": "Starts nginx in the background on port 8080, named web, and restarts it whenever it exits unless the operator stops it. unless-stopped is the standard policy for long-running services. Check status with docker ps."
+  },
+  {
+   "cmd": "docker run --cpus 0.5 --memory 256m myapp",
+   "desc": "Run a container with CPU and memory caps",
+   "tooltip": "Limits the container to half a CPU core and 256 MB of memory. Exceeding the memory limit triggers the OOM killer. Tune values with docker container update without recreating the container."
+  },
+  {
+   "cmd": "docker run --read-only --tmpfs /tmp myapp",
+   "desc": "Run with a read-only root filesystem",
+   "tooltip": "Mounts the container's root filesystem read-only so nothing can write outside declared mounts. The tmpfs /tmp gives processes a scratch area that disappears on exit. Strong hardening for untrusted workloads."
+  },
+  {
+   "cmd": "docker run --cap-drop ALL --cap-add NET_BIND_SERVICE myapp",
+   "desc": "Run with minimal Linux capabilities",
+   "tooltip": "Drops every Linux capability (privileged operations) then re-adds only NET_BIND_SERVICE, enough for binding low ports. Capabilities gate kernel-level actions; this is defense-in-depth, not a sandbox. Use --security-opt for further hardening."
+  },
+  {
+   "cmd": "docker run --security-opt seccomp=unconfined myimage",
+   "desc": "Run without the seccomp security profile",
+   "tooltip": "Disables the default seccomp filter (kernel syscall restrictions) for the container. Needed for some syscall-heavy workloads, at the cost of weaker isolation. Prefer an apparmor profile for most hardening needs."
+  },
+  {
+   "cmd": "docker run -u 1000:1000 myapp",
+   "desc": "Run a container as a specific user",
+   "tooltip": "Runs the container's main process as UID 1000, group 1000, instead of root. Files created inside map to that user on the host. -u accepts user names or numeric UID:GID pairs."
+  },
+  {
+   "cmd": "docker run --health-cmd 'curl -f http://localhost/' --health-interval 30s myapp",
+   "desc": "Run with a custom health check",
+   "tooltip": "Docker probes the container every 30 seconds with the given command, marking it healthy or unhealthy. Health status shows in docker ps and drives swarm restarts. Define checks in the Dockerfile with HEALTHCHECK instead."
+  },
+  {
+   "cmd": "docker run --platform linux/amd64 myapp",
+   "desc": "Run an image for a specific platform",
+   "tooltip": "Forces Docker to select the linux/amd64 variant of the image, even on an ARM host, using emulation if needed. The opposite of --platform linux/arm64. Useful for testing cross-architecture images."
+  },
+  {
+   "cmd": "docker run --shm-size 1g myapp",
+   "desc": "Run with 1 GB of shared memory",
+   "tooltip": "Enlarges /dev/shm from the tiny 64 MB default to 1 GB. Applications like browsers and databases write shared memory there and fail when it is full. The host RAM backs the shared memory."
+  },
+  {
+   "cmd": "docker run --gpus all myimage",
+   "desc": "Run a container with GPU access",
+   "tooltip": "Exposes all host GPUs to the container via the NVIDIA container runtime. Requires nvidia-container-toolkit on the host, or the flag does nothing. Check availability with docker info."
+  },
+  {
+   "cmd": "docker run --cpuset-cpus 0-1 myimage",
+   "desc": "Pin a container to specific CPU cores",
+   "tooltip": "Restricts the container to CPU cores 0 and 1, improving cache locality for latency-sensitive workloads. Ranges like 0-3 and lists like 0,2 are accepted. Combined with --cpus it gives fine-grained control."
+  },
+  {
+   "cmd": "docker run --pull always nginx",
+   "desc": "Run and always pull the freshest image",
+   "tooltip": "Forces a pull attempt before starting, so the latest remote version of nginx runs even if a local copy exists. The default --pull missing only pulls when absent. Slow on metered connections."
+  },
+  {
+   "cmd": "docker run --add-host host.docker.internal:host-gateway myimage",
+   "desc": "Map a hostname to the Docker host",
+   "tooltip": "Adds an entry to the container's /etc/hosts resolving host.docker.internal to the host machine via host-gateway. The pattern lets containers reach host services like databases. Works on Linux, not just Docker Desktop."
+  },
+  {
+   "cmd": "docker run --dns-search example.com myimage",
+   "desc": "Set a DNS search domain for a container",
+   "tooltip": "Appends example.com to unqualified hostnames the container resolves, so db resolves as db.example.com. Repeat for multiple domains. Complements --dns for nameserver addresses."
+  },
+  {
+   "cmd": "docker run --log-driver syslog --log-opt syslog-address=udp://10.0.0.5:514 myimage",
+   "desc": "Send container logs to a syslog server",
+   "tooltip": "Routes the container's stdout and stderr to a remote syslog server at udp://10.0.0.5:514 instead of json-file. syslog-address sets the endpoint; without it, the local syslog is used. Centralizing logs eases search across hosts."
+  },
+  {
+   "cmd": "docker run --stop-timeout 30 myimage",
+   "desc": "Run with a 30-second stop grace period",
+   "tooltip": "Gives the container 30 seconds after SIGTERM before Docker sends SIGKILL on stop. Longer timeouts help apps that drain connections slowly. The value can be changed later with docker container update."
+  },
+  {
+   "cmd": "docker run --env-file .env --env-file .env.local myimage",
+   "desc": "Run with variables from multiple env files",
+   "tooltip": "Loads environment variables from both files, with later files overriding earlier duplicates. Keep secrets out of the compose file by using env files. Contrast with docker run -e for inline values."
+  },
+  {
+   "cmd": "docker run -d --name redis -p 6379:6379 redis:7-alpine",
+   "desc": "Run a detached Redis container",
+   "tooltip": "Starts Redis 7 on the Alpine base image in the background, publishing port 6379. The -d flag detaches so the shell returns immediately. Connect from other containers via the network name, not localhost."
+  },
+  {
+   "cmd": "docker run -d --name db -e POSTGRES_PASSWORD=devpass -e POSTGRES_DB=app postgres:16",
+   "desc": "Run a PostgreSQL container with env config",
+   "tooltip": "Starts PostgreSQL 16, using the POSTGRES_PASSWORD and POSTGRES_DB variables for the initial setup. The container initializes a data directory on first run. Persist data with a volume such as -v pgdata:/var/lib/postgresql/data."
+  },
+  {
+   "cmd": "docker run --rm -v \"$PWD\":/app -w /app node:20 npm ci",
+   "desc": "Run Node tooling against the current directory",
+   "tooltip": "Mounts the current directory into /app, sets it as the workdir, and runs npm ci inside Node 20. The quoted $PWD avoids path issues. --rm cleans the container up after the command finishes."
+  },
+  {
+   "cmd": "docker start -ai mycontainer",
+   "desc": "Start a container attached interactively",
+   "tooltip": "Starts the stopped container while attaching stdin and stdout, showing its output as if you ran it fresh. -a attaches, -i keeps stdin open. Useful for containers that print on startup."
+  },
+  {
+   "cmd": "docker stop -t 30 mycontainer",
+   "desc": "Stop a container with a 30-second grace period",
+   "tooltip": "Sends SIGTERM and waits up to 30 seconds for a clean exit before SIGKILL. -t overrides the default grace. Long-running jobs may need more time to flush state."
+  },
+  {
+   "cmd": "docker exec mydb pg_dump -U postgres appdb > appdb.sql",
+   "desc": "Dump a database running inside a container",
+   "tooltip": "Runs pg_dump inside the mydb container and redirects the SQL to a local file for backup. The redirect happens on the host, so the file lands locally. Restore with psql or pg_restore later."
+  },
+  {
+   "cmd": "docker run --pid host myimage",
+   "desc": "Run sharing the host's process namespace",
+   "tooltip": "Lets the container see all host processes instead of only its own, useful for debugging tools like strace or top. Relaxes isolation, so use it sparingly. The reverse of the default private PID namespace."
+  },
+  {
+   "cmd": "docker swarm init --listen-addr 0.0.0.0:2377",
+   "desc": "Initialize a swarm on all interfaces",
+   "tooltip": "Starts swarm mode, listening for join requests on port 2377 on every interface. --listen-addr sets the bind address; --advertise-addr tells workers which address to use. Managers and workers communicate over this port."
+  },
+  {
+   "cmd": "docker swarm join-token --rotate worker",
+   "desc": "Rotate the worker join token",
+   "tooltip": "Generates a new join token for workers, invalidating the old one, so departed nodes cannot rejoin. Tokens are the swarm's join credentials. Re-run docker swarm join on workers with the fresh token."
+  },
+  {
+   "cmd": "docker swarm unlock-key --rotate",
+   "desc": "Rotate the swarm unlock key",
+   "tooltip": "Replaces the key that unlocks an autolocked swarm after the manager restarts. Rotation helps when the key may have leaked. Only meaningful with autolocking enabled via docker swarm update --autolock=true."
+  },
+  {
+   "cmd": "docker swarm update --task-history-limit 10",
+   "desc": "Keep 10 tasks of history per service",
+   "tooltip": "Controls how many past task records swarm retains per service, default 5. Raising it helps audit rollbacks and failures; lowering it shrinks the Raft store. Apply on a manager node."
+  },
+  {
+   "cmd": "docker node inspect node1",
+   "desc": "Inspect a swarm node's configuration",
+   "tooltip": "Prints JSON metadata for the worker node1, including roles, availability, and labels. The self keyword inspects the current node. Add --pretty for readable formatting."
+  },
+  {
+   "cmd": "docker node ls --format '{{.Hostname}} {{.Status}}'",
+   "desc": "List swarm nodes with custom formatting",
+   "tooltip": "Enumerates swarm nodes with role, status, and availability columns; --format trims it to hostname and status via Go templates. The Leader marker shows the elected manager. Filter by role with --filter role=manager."
+  },
+  {
+   "cmd": "docker node update --availability pause worker1",
+   "desc": "Pause task scheduling on a node",
+   "tooltip": "Sets worker1's availability to pause, so existing tasks keep running but no new tasks are scheduled there. drain stops tasks and moves them elsewhere; active restores scheduling. Useful before maintenance."
+  },
+  {
+   "cmd": "docker node update --label-add role=db worker1",
+   "desc": "Label a swarm node for placement",
+   "tooltip": "Adds the label role=db to worker1; services with matching placement constraints then prefer it. Labels are free-form key-values. Remove with --label-rm."
+  },
+  {
+   "cmd": "docker service create --name redis --replicas 1 --network overlay-net redis:7",
+   "desc": "Create a service on an overlay network",
+   "tooltip": "Deploys a Redis service attached to the overlay network overlay-net, reachable by other services on it. Overlay networks span swarm hosts, giving services a flat virtual network. Requires an existing overlay network."
+  },
+  {
+   "cmd": "docker service create --name worker --replicas 2 --constraint 'node.role==worker' myapp:latest",
+   "desc": "Create a service constrained to worker nodes",
+   "tooltip": "Runs two replicas of myapp only on nodes whose role is worker, keeping managers free of workloads. Constraints are placement rules evaluated per node. Other keys include node.labels and node.hostname."
+  },
+  {
+   "cmd": "docker service create --name cache --publish published=6379,target=6379 redis:7",
+   "desc": "Create a service with explicit publish syntax",
+   "tooltip": "The long --publish syntax separates the host port (published) from the container port (target), allowing ranges and modes. published=6379,target=6379 equals -p 6379:6379. Useful when the two ports differ."
+  },
+  {
+   "cmd": "docker service create --name prom --mode global --publish 9090:9090 prom/prometheus",
+   "desc": "Run a service on every swarm node",
+   "tooltip": "global mode runs exactly one task of the service on every node, ideal for node agents like Prometheus exporters. The default replicated mode spreads a fixed replica count instead. Global tasks follow node availability."
+  },
+  {
+   "cmd": "docker service create --name db --mount type=volume,source=dbdata,target=/var/lib/postgresql/data postgres:16",
+   "desc": "Create a service with a data volume",
+   "tooltip": "Mounts the named volume dbdata at the container's data directory so database files survive task rescheduling. Service mounts use the same --mount syntax as docker run. Volume lifecycles are independent of the service."
+  },
+  {
+   "cmd": "docker service create --name web --env NODE_ENV=production --replicas 3 nginx:1.26",
+   "desc": "Create a service with environment variables",
+   "tooltip": "Deploys three nginx replicas with NODE_ENV=production injected into each task. --env-file loads variables from a file instead. Update later with docker service update --env-add."
+  },
+  {
+   "cmd": "docker service update --image nginx:1.26 web",
+   "desc": "Update a service to a new image",
+   "tooltip": "Rolls the web service over to nginx:1.26, replacing tasks according to the update policy. Rolling updates keep availability by default. Revert with docker service update --rollback web."
+  },
+  {
+   "cmd": "docker service update --force web",
+   "desc": "Force a service redeployment",
+   "tooltip": "Recreates every task of the web service even when nothing changed, picking up config or registry changes. Useful after a node drains or when tasks run stale images. Task history records the redeploy."
+  },
+  {
+   "cmd": "docker service update --publish-add 8080:80 web",
+   "desc": "Add a published port to a service",
+   "tooltip": "Exposes container port 80 on host port 8080 without recreating the service definition. The counterpart --publish-rm removes it. Port changes roll through the service's tasks."
+  },
+  {
+   "cmd": "docker service update --env-add NODE_ENV=staging web",
+   "desc": "Add an environment variable to a service",
+   "tooltip": "Injects NODE_ENV=staging into the service's tasks and rolls them over. --env-rm removes variables by name. Combined with --image, one command can redeploy with new config."
+  },
+  {
+   "cmd": "docker service update --limit-cpu 0.5 --limit-memory 512M web",
+   "desc": "Cap CPU and memory for a service",
+   "tooltip": "Limits each task to half a CPU and 512 MB of memory; exceeding memory kills the task. Limits apply per task, not per service. Reserve values guarantee capacity with --reserve-cpu and --reserve-memory."
+  },
+  {
+   "cmd": "docker service ps web --no-trunc",
+   "desc": "Show full task details of a service",
+   "tooltip": "Lists every task (replica instance) of the web service with state, node, and error columns. --no-trunc stops Docker abbreviating long fields like image digests. Errors from failed tasks appear here."
+  },
+  {
+   "cmd": "docker service logs --tail 100 web",
+   "desc": "Show the last 100 log lines of a service",
+   "tooltip": "Aggregates logs from all tasks of the web service, newest first with --tail 100. --follow streams live output. Requires the json-file or journald logging driver."
+  },
+  {
+   "cmd": "docker service ls --format 'table {{.Name}}\\t{{.Replicas}}'",
+   "desc": "List services as a custom table",
+   "tooltip": "Enumerates swarm services with name and replica counts; --format trims the columns via Go templates. The Replicas column shows ready versus desired counts. Filter with --filter name=web."
+  },
+  {
+   "cmd": "docker service scale web=5 db=3",
+   "desc": "Scale multiple services at once",
+   "tooltip": "Adjusts replica counts for several services in one call, starting or stopping tasks as needed. Each service is scaled independently. The same as docker service update --replicas per service."
+  },
+  {
+   "cmd": "docker stack deploy -c stack.yml mystack",
+   "desc": "Deploy a stack from a compose file",
+   "tooltip": "Creates or updates the mystack stack from stack.yml, converting services into swarm services and networks into overlay networks. Stacks are the production deployment unit of swarm mode. Redeploy to apply changes."
+  },
+  {
+   "cmd": "docker stack deploy -c stack.yml mystack --with-registry-auth",
+   "desc": "Deploy a stack forwarding registry credentials",
+   "tooltip": "Passes the local registry login to the swarm nodes so they can pull private images. Without it, workers hit auth errors on private registries. The credentials are sent to nodes at deploy time."
+  },
+  {
+   "cmd": "docker stack config -c stack.yml",
+   "desc": "Render a stack's merged configuration",
+   "tooltip": "Prints the fully resolved stack config after merging files and interpolation, without deploying. Use it to validate stack.yml before docker stack deploy. The -c flag selects the compose file."
+  },
+  {
+   "cmd": "docker stack ps mystack --no-trunc",
+   "desc": "Show full task details of a stack",
+   "tooltip": "Lists every task across the stack's services with state and node columns. --no-trunc reveals full digests and error messages. The deploy column distinguishes updates."
+  },
+  {
+   "cmd": "echo 's3cr3t' | docker secret create db_pass -",
+   "desc": "Create a swarm secret from stdin",
+   "tooltip": "Feeds the secret value through stdin, with - as the file argument, keeping it out of shell history. Swarm secrets mount into tasks as files at /run/secrets. Rotate by creating a new secret and updating the service."
+  },
+  {
+   "cmd": "docker secret inspect mysecret --pretty",
+   "desc": "Inspect a swarm secret in readable form",
+   "tooltip": "Shows metadata of the secret mysecret, including creation time and ID. --pretty formats the JSON for humans instead of raw output. Secret values themselves are never readable after creation."
+  },
+  {
+   "cmd": "docker config inspect myconfig --pretty",
+   "desc": "Inspect a swarm config in readable form",
+   "tooltip": "Displays metadata of the config myconfig, which holds non-sensitive files like nginx configs distributed to tasks. Configs differ from secrets in being viewable. --pretty makes the JSON readable."
+  },
+  {
+   "cmd": "docker context show",
+   "desc": "Print the active Docker context",
+   "tooltip": "Prints the name of the currently selected context, which determines which daemon docker talks to. Contexts bundle endpoints, credentials, and TLS settings. Switch with docker context use."
+  },
+  {
+   "cmd": "docker context create myremote --docker host=tcp://10.0.0.5:2376",
+   "desc": "Create a context for a remote daemon",
+   "tooltip": "Defines a context pointing at a remote Docker daemon over TCP with TLS on port 2376. The ssh:// form tunnels through SSH instead. Select it with docker context use myremote."
+  },
+  {
+   "cmd": "docker system df --format '{{.Type}}: {{.Size}}'",
+   "desc": "Show disk usage by Docker resource type",
+   "tooltip": "Summarizes disk consumed by images, containers, volumes, and build cache, the first stop for disk-pressure debugging. --format renders a Go template per line. Add --verbose for per-item details."
+  },
+  {
+   "cmd": "docker system info --format '{{.ServerVersion}}'",
+   "desc": "Show the Docker server version",
+   "tooltip": "Prints one field of the daemon's info payload, here the server version, handy for scripts that gate on engine features. Default output is a long human report. The full JSON is available with --format '{{json .}}'."
+  },
+  {
+   "cmd": "docker version --format '{{.Server.Version}}'",
+   "desc": "Show the server version from docker version",
+   "tooltip": "Extracts just the server version from the version report, ideal for CI checks. Default docker version prints client and server sections. Compare with docker system info for the same value."
+  },
+  {
+   "cmd": "dockerd --config-file /etc/docker/daemon.json",
+   "desc": "Start the Docker daemon with a config file",
+   "tooltip": "Launches the daemon using settings from daemon.json, where storage driver, registries, and limits live. Normally started by systemd, so validate configs before hand-running it. Run as root."
+  },
+  {
+   "cmd": "dockerd --data-root /mnt/docker-data",
+   "desc": "Run the daemon with a custom data directory",
+   "tooltip": "Relocates all Docker state (images, containers, volumes) to /mnt/docker-data instead of the default /var/lib/docker. Useful when the root filesystem is small. Existing data must be moved or the daemon starts empty."
+  },
+  {
+   "cmd": "dockerd --storage-driver overlay2",
+   "desc": "Run the daemon with the overlay2 storage driver",
+   "tooltip": "Selects overlay2, the standard modern storage driver using copy-on-write layers. Most distros default to it; set it explicitly on unusual filesystems. A wrong driver can corrupt images, so prefer the default."
+  },
+  {
+   "cmd": "docker build --check .",
+   "desc": "Validate a Dockerfile without building",
+   "tooltip": "Runs BuildKit's checker against the Dockerfile, catching syntax errors and anti-patterns without executing steps. It is shorthand for docker build --call=check. Fast feedback before slow full builds."
+  },
+  {
+   "cmd": "docker build --network host -t myapp .",
+   "desc": "Build using the host network",
+   "tooltip": "Lets RUN steps reach the host's network directly, bypassing BuildKit's default sandboxed networking. Needed when builds pull from private hosts only the host can see. Slower builds and weaker isolation are the trade-off."
+  },
+  {
+   "cmd": "docker trust revoke myapp:latest",
+   "desc": "Revoke a signed image trust record",
+   "tooltip": "Removes the trusted signature for myapp:latest, so clients with Docker Content Trust enabled refuse to pull it. Signatures prove who built the image; revoking is permanent for that tag. Re-sign with docker trust sign."
+  },
+  {
+   "cmd": "docker ps --format 'table {{.Names}}\\t{{.Ports}}'",
+   "desc": "List containers with name and ports only",
+   "tooltip": "Renders the container table with just names and port mappings via Go templates, narrow enough for wide screens. Fields like {{.Status}} and {{.Image}} are available. Omit table for headerless lines."
+  },
+  {
+   "cmd": "docker ps --filter ancestor=nginx",
+   "desc": "List containers created from an image",
+   "tooltip": "Matches containers whose image is nginx or shares its ancestry, useful after bulk image rebuilds. Other filters include name, status, and label. Combine with -q to feed IDs into cleanup loops."
+  }
+ ]
+}

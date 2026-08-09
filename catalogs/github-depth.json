@@ -1,0 +1,750 @@
+{
+ "category": "GitHub CLI",
+ "commands": [
+  {
+   "cmd": "gh pr create --fill --label bug --reviewer alice",
+   "desc": "Create PR from commit info with label and reviewer",
+   "tooltip": "--fill pulls the title and body from your commit messages so you skip the editor prompts. --label attaches a label by name and --reviewer requests a review from a person or team by handle. Combine these flags to create fully-specified PRs in one shot instead of editing afterwards."
+  },
+  {
+   "cmd": "gh pr create -H feature -B main --fill",
+   "desc": "Create PR with explicit head and base branches",
+   "tooltip": "-H (head) names the branch holding your commits, overriding the current checkout. -B (base) names the branch your code merges into, so you can target main or a release branch without switching branches locally. Issue triage stays accurate because the PR is created against exactly the branch you name."
+  },
+  {
+   "cmd": "gh pr create --draft --title 'WIP: spike' --body 'Experimental changes'",
+   "desc": "Create a draft PR with explicit title and body",
+   "tooltip": "--draft marks the pull request as a draft, signaling work-in-progress that cannot be merged yet. Drafts still run CI checks, so reviewers can comment early. Convert to a ready PR later with gh pr ready."
+  },
+  {
+   "cmd": "gh pr list --state merged --limit 50",
+   "desc": "List recently merged pull requests",
+   "tooltip": "--state merged filters to PRs that have been merged, one of open, closed, merged, or all. --limit caps the result set at 50 rows, which keeps the output readable in a terminal. Useful for release-note mining or checking what shipped this sprint."
+  },
+  {
+   "cmd": "gh pr list --search 'is:open label:bug'",
+   "desc": "Search open PRs with a label via query",
+   "tooltip": "--search runs a GitHub search query with qualifiers like is:open, label:, and author: instead of using fixed filters. The query syntax mirrors the web UI's issue search box. Wrap the query in quotes so the shell does not split it."
+  },
+  {
+   "cmd": "gh pr list --author @me --draft",
+   "desc": "List your own draft pull requests",
+   "tooltip": "--author @me is a shortcut that resolves to your authenticated login, while --draft keeps only work-in-progress PRs. Use --author with a teammate's handle to audit their open work. Combine with --state to flip between open, closed, and merged."
+  },
+  {
+   "cmd": "gh pr list --base main --head feature-x",
+   "desc": "List PRs targeting main from a feature branch",
+   "tooltip": "--base filters by the branch the PR merges into and --head by the branch the PR comes from. Together they narrow the list to a single merge path, handy when multiple release branches are active. Values are branch names, not PR numbers."
+  },
+  {
+   "cmd": "gh pr list --json number,title,headRefName --jq '.[] | \"\\(.number) \\(.title)\"'",
+   "desc": "List PRs as custom JSON-formatted lines",
+   "tooltip": "--json selects machine-readable fields and --jq applies a jq filter to reshape them, here printing number and title per line. The jq expression runs over the array of PR objects. This pattern feeds scripts, dashboards, and other tools without parsing gh's pretty table."
+  },
+  {
+   "cmd": "gh pr view 123 --json title,body,files",
+   "desc": "View PR metadata as JSON including changed files",
+   "tooltip": "--json returns the requested fields as a JSON object, and files expands to the list of paths the PR touches. Automate review checks by piping the output into jq. The field names match the GitHub API naming, so body is the PR description."
+  },
+  {
+   "cmd": "gh pr view 123 --comments",
+   "desc": "View a PR including its review comments",
+   "tooltip": "--comments appends the full comment thread to the PR view, mirroring the web page's conversation tab. Each comment shows author, timestamp, and body text. Leave the flag off for a compact summary of title, state, and checks."
+  },
+  {
+   "cmd": "gh pr view 123 --web",
+   "desc": "Open a pull request in the browser",
+   "tooltip": "--web hands the PR URL to your default browser instead of printing a terminal summary. The browser tab lands directly on the PR conversation page. Use it when the terminal view cannot show the diff context you need."
+  },
+  {
+   "cmd": "gh pr diff 123",
+   "desc": "Show the diff of a specific pull request",
+   "tooltip": "Prints the unified diff of all commits in the PR against its base branch, without checking anything out. Accepts a PR number, URL, or branch name. Add --name-only to list changed file paths instead of full diff content."
+  },
+  {
+   "cmd": "gh pr checkout 123 --branch review-fix",
+   "desc": "Check out a PR into a custom local branch",
+   "tooltip": "Fetches the PR's head branch and checks it out locally. --branch names the local branch, overriding the default of using the PR's head branch name, which avoids collisions when reviewing several PRs. Add --force to overwrite an existing local branch."
+  },
+  {
+   "cmd": "gh pr merge 123 --squash --delete-branch",
+   "desc": "Squash-merge a PR and delete its branch",
+   "tooltip": "--squash collapses all commits into one before merging, keeping history tidy. --delete-branch removes both the remote and local branch after the merge completes. The merge only happens when required checks pass unless you add --auto or --admin."
+  },
+  {
+   "cmd": "gh pr merge 123 --rebase --auto",
+   "desc": "Auto-merge a PR once checks pass",
+   "tooltip": "--rebase replays the PR commits onto the base branch without a merge commit. --auto schedules the merge so GitHub applies it automatically the moment required checks pass, ideal for unattended CI. Verify mergeable state with gh pr view before relying on it."
+  },
+  {
+   "cmd": "gh pr merge 123 --merge --admin",
+   "desc": "Force-merge a PR with admin privileges",
+   "tooltip": "--merge creates a standard merge commit while --admin uses repository administrator powers to merge even when required checks fail. Bypassing checks is risky and should be reserved for hotfixes where failure is understood. The merge is recorded with admin as the actor."
+  },
+  {
+   "cmd": "gh pr ready 123 --undo",
+   "desc": "Convert a ready PR back to draft",
+   "tooltip": "gh pr ready flips a draft PR to ready-for-review, and --undo reverses the direction, returning a PR to draft status. Reverting to draft removes it from reviewers' queues. Useful when a PR regresses and needs more work before review."
+  },
+  {
+   "cmd": "gh pr edit 123 --add-label 'needs-review'",
+   "desc": "Add a label to a pull request",
+   "tooltip": "--add-label attaches labels by name without opening the browser. Labels drive filtering and issue triage automation, so tagging needs-review routes the PR into review workflows. Multiple labels can be comma-separated in one flag value."
+  },
+  {
+   "cmd": "gh pr edit 123 --remove-label 'wip'",
+   "desc": "Remove a label from a pull request",
+   "tooltip": "--remove-label detaches the named label from the PR, for example clearing wip once the code is ready. Labels only match exact names, so confirm spelling with gh label list. Combine --add-label and --remove-label in one command to re-tag in a single call."
+  },
+  {
+   "cmd": "gh pr close 123 --comment 'Superseded by #9'",
+   "desc": "Close a PR with an explanatory comment",
+   "tooltip": "Closes the pull request without merging, and --comment leaves a closing note explaining why, such as pointing to a replacement PR. Closed PRs stay visible for history but drop out of open lists. Add --delete-branch to also clean up the head branch."
+  },
+  {
+   "cmd": "gh pr comment 123 --body-file review.md",
+   "desc": "Comment on a PR with text from a file",
+   "tooltip": "--body-file reads the comment body from a file, handy for long, formatted review notes prepared in an editor. Use a dash (-) as the file to read the body from standard input. Existing comments stay untouched unless you pass --edit-last."
+  },
+  {
+   "cmd": "gh pr review 123 --approve",
+   "desc": "Approve a pull request",
+   "tooltip": "Submits an approving review for the PR, which counts toward required review checks. Approval signals the code is ready to merge from your perspective. Add --body to include review notes alongside the approval."
+  },
+  {
+   "cmd": "gh pr review 123 --request-changes --body 'fix tests'",
+   "desc": "Request changes on a PR with a reason",
+   "tooltip": "--request-changes submits a review that blocks merging until the author responds, and --body explains what must change. This is the polite way to reject a PR while leaving actionable feedback. The PR stays open but shows changes-requested status."
+  },
+  {
+   "cmd": "gh pr review 123 --comment --body 'LGTM, one nit'",
+   "desc": "Leave an inline-style review comment",
+   "tooltip": "--comment submits a general review comment without approving or blocking, distinct from --approve and --request-changes. It is the neutral review type for observations that do not gate the merge. Pair with --body for the message text."
+  },
+  {
+   "cmd": "gh pr checks 123",
+   "desc": "Show CI check status for a PR",
+   "tooltip": "Lists every status check, workflow run, and review requirement attached to the PR with its state. Required checks are flagged so you see what blocks merging. Add --watch to poll until checks finish, or --fail-fast to exit on the first failure."
+  },
+  {
+   "cmd": "gh pr checks 123 --watch",
+   "desc": "Watch PR checks until they complete",
+   "tooltip": "--watch polls check status repeatedly and streams updates as runs finish, like following a build to completion. The command exits when every check settles, so scripts can gate on the result. Combine with --interval to tune how often it polls."
+  },
+  {
+   "cmd": "gh pr lock 123 --reason resolved",
+   "desc": "Lock a PR conversation",
+   "tooltip": "Locks the PR so only maintainers can comment, and --reason records why: off_topic, too_heated, resolved, or spam. Locking stops drive-by noise on settled discussions. Reverse it with gh pr unlock."
+  },
+  {
+   "cmd": "gh pr unlock 123",
+   "desc": "Unlock a PR conversation",
+   "tooltip": "Removes a previous conversation lock so everyone can comment again. Use it when a locked PR needs fresh maintainer or contributor input. Lock state is per-PR and independent of merge state."
+  },
+  {
+   "cmd": "gh pr update-branch 123 --rebase",
+   "desc": "Update a PR branch against its base",
+   "tooltip": "Merges or rebases the base branch into the PR's head branch so the diff is current. --rebase replays your commits on top of the base instead of creating a merge commit. Useful before merging when the base moved on and conflicts are trivial."
+  },
+  {
+   "cmd": "gh issue list --assignee @me",
+   "desc": "List issues assigned to you",
+   "tooltip": "--assignee @me resolves to your login and filters the list to issues you own. This is the go-to command for your personal work queue during issue triage. Pass a teammate's handle to see their load instead."
+  },
+  {
+   "cmd": "gh issue list --label bug --milestone 'v2.0'",
+   "desc": "List bug issues in a milestone",
+   "tooltip": "Combines --label and --milestone filters so only issues tagged bug within milestone v2.0 appear. Milestones group issues toward a release, and labels categorize them. Useful for sprint scoping when planning what must ship."
+  },
+  {
+   "cmd": "gh issue list --search 'is:open label:bug' --limit 30",
+   "desc": "Search open bug issues with a query",
+   "tooltip": "--search runs full issue search syntax, here matching open issues labeled bug. Search supports qualifiers label:, assignee:, milestone:, and sort:. --limit caps output at 30. Filtering this way beats stacking many --label flags."
+  },
+  {
+   "cmd": "gh issue list --web",
+   "desc": "Open the issue list in the browser",
+   "tooltip": "--web opens the repository's issue tracker in your default browser with the current filters applied. Useful when you need the full web UI for bulk operations or saved views. The terminal list remains the faster path for simple queries."
+  },
+  {
+   "cmd": "gh issue view 5 --comments",
+   "desc": "View an issue with its comment thread",
+   "tooltip": "Prints the issue title, body, state, labels, and --comments appends the full discussion. Each comment shows author and timestamp, mirroring the web conversation. Leave the flag off for a compact metadata summary."
+  },
+  {
+   "cmd": "gh issue view 5 --json number,title,labels,assignees",
+   "desc": "View issue fields as JSON for scripting",
+   "tooltip": "--json emits only the requested fields so scripts can consume them, with labels and assignees as nested arrays. Pipe into jq to build custom reports. Field names follow the GitHub API, so title is the issue's summary line."
+  },
+  {
+   "cmd": "gh issue edit 5 --add-label triage",
+   "desc": "Add a triage label to an issue",
+   "tooltip": "--add-label attaches the triage label, marking the issue as processed during issue triage workflows. Labels organize issues without changing state. Use --remove-label to strip stale tags and --milestone to slot it into a release."
+  },
+  {
+   "cmd": "gh issue edit 5 --add-assignee @me --remove-label 'needs-triage'",
+   "desc": "Self-assign an issue and clear its triage label",
+   "tooltip": "Combines --add-assignee @me with --remove-label needs-triage in one call, claiming the issue and signaling it is being worked. @me expands to your login. This two-step triage dance happens constantly, so batching it saves a round trip."
+  },
+  {
+   "cmd": "gh issue close 5 --comment 'fixed in #10'",
+   "desc": "Close an issue with a resolution note",
+   "tooltip": "Closes the issue and --comment leaves a note, here pointing at the PR that fixed it. Closing without a comment loses context for future readers. Use --duplicate-of to fold it into another issue instead of closing standalone."
+  },
+  {
+   "cmd": "gh issue close 5 --duplicate-of 12",
+   "desc": "Close an issue as a duplicate",
+   "tooltip": "--duplicate-of 12 closes issue 5 and links it as a duplicate of issue 12, consolidating triage noise into one canonical thread. GitHub shows a banner pointing readers at the original. Prefer this over closing duplicates with no pointer."
+  },
+  {
+   "cmd": "gh issue lock 5 --reason spam",
+   "desc": "Lock an issue conversation",
+   "tooltip": "Locks the issue so only maintainers can comment, with --reason spam recorded for audit. Locking is the standard response to off-topic or abusive threads during issue triage. Unlock with gh issue unlock once the situation resolves."
+  },
+  {
+   "cmd": "gh issue unlock 5",
+   "desc": "Unlock an issue conversation",
+   "tooltip": "Removes the conversation lock, letting everyone comment again. Locking is reversible, so restoring discussion is one command away. Lock state is independent of open or closed status."
+  },
+  {
+   "cmd": "gh issue unpin 5",
+   "desc": "Unpin an issue from the repo top",
+   "tooltip": "Removes an issue from the pinned list shown at the top of the issue tracker. Pinned issues stay prominent, so unpin once the milestone ships or the thread goes stale. The issue itself remains open and fully searchable."
+  },
+  {
+   "cmd": "gh issue develop 5 --name fix-issue-5",
+   "desc": "Create a dev branch for an issue",
+   "tooltip": "Creates a local branch wired to issue 5 so commits reference it, and --name sets the branch name, defaulting to issue-5. Add --checkout to switch to the branch immediately. This keeps development tied to triage-tracked work items."
+  },
+  {
+   "cmd": "gh issue comment 5 --edit-last --body 'Updated repro steps'",
+   "desc": "Replace your last comment on an issue",
+   "tooltip": "Posts a comment and --edit-last rewrites your most recent comment instead of appending, keeping threads tidy when details change. The body replaces the old text entirely. Use --delete-last to remove your previous comment instead."
+  },
+  {
+   "cmd": "gh workflow list --all",
+   "desc": "List every workflow including disabled ones",
+   "tooltip": "Shows all workflow files in the repo; --all includes disabled and hidden workflows that the default view omits. Each row shows the workflow ID, name, and enabled state. Use the ID with gh workflow enable or disable to toggle without typing the filename."
+  },
+  {
+   "cmd": "gh workflow enable 654321",
+   "desc": "Re-enable a disabled workflow by ID",
+   "tooltip": "Turns a disabled workflow back on so it runs on its triggers again. The numeric ID comes from gh workflow list --json id and is more stable than a renamed file. Disabled workflows show in gh workflow list --all with a disabled badge."
+  },
+  {
+   "cmd": "gh workflow disable 654321",
+   "desc": "Disable a workflow by ID",
+   "tooltip": "Stops a workflow from triggering on pushes, schedules, or manual runs without deleting its file. The numeric ID avoids filename ambiguity after renames. Re-enable anytime with gh workflow enable."
+  },
+  {
+   "cmd": "gh workflow run build.yml --ref main",
+   "desc": "Manually trigger a workflow on a branch",
+   "tooltip": "Dispatches a workflow_dispatch run of build.yml, and --ref selects the branch or tag the workflow runs against. Only workflows with a workflow_dispatch trigger accept manual runs. Use this to kick off builds without pushing a commit."
+  },
+  {
+   "cmd": "gh workflow run deploy.yml -f env=prod",
+   "desc": "Trigger a workflow with an input value",
+   "tooltip": "-f passes an input to the workflow in key=value form, here env=prod, which the workflow reads via inputs.env. Inputs must be declared in the workflow's workflow_dispatch section. Repeat -f to pass several inputs, or --json for typed values."
+  },
+  {
+   "cmd": "gh workflow run release.yml --ref v1.2.0 -f version=1.2.0",
+   "desc": "Trigger a release workflow on a tag with input",
+   "tooltip": "Combines --ref v1.2.0 to run against the tag with -f version=1.2.0 to feed the workflow the version string. Tag-triggered release pipelines often need the version echoed as an input. Confirm the workflow accepts the input before dispatching."
+  },
+  {
+   "cmd": "gh workflow view build.yml --yaml",
+   "desc": "Print a workflow's YAML definition",
+   "tooltip": "Displays the workflow file content instead of its run history. --yaml renders the raw definition, useful for reviewing triggers, jobs, and steps before editing. Without the flag, gh shows recent runs of the workflow."
+  },
+  {
+   "cmd": "gh workflow view build.yml --web",
+   "desc": "Open a workflow's page in the browser",
+   "tooltip": "--web opens the workflow's dashboard in the default browser, showing its run history and YAML. Useful when you want the visual run timeline and logs. Terminal users get the same recent runs from gh run list --workflow."
+  },
+  {
+   "cmd": "gh run list --workflow build.yml --branch main",
+   "desc": "List runs of one workflow on one branch",
+   "tooltip": "Narrows run history to a single workflow file and branch, cutting through noise on busy repos. --workflow accepts a filename or ID, --branch a branch name. Add --status to filter further, e.g. failure, for quick triage."
+  },
+  {
+   "cmd": "gh run list --status failure --limit 10",
+   "desc": "List the most recent failed runs",
+   "tooltip": "--status failure filters to runs that ended in failure, and --limit 10 caps the list. This is the fastest way to find broken CI. Other status values include success, cancelled, in_progress, and timed_out."
+  },
+  {
+   "cmd": "gh run view 123 --web",
+   "desc": "Open a workflow run in the browser",
+   "tooltip": "--web opens the run's page in the default browser, where logs, jobs, and artifacts are fully interactive. Terminal log tailing still works via gh run view --log. Use the web view when you need to retry individual failed jobs by clicking."
+  },
+  {
+   "cmd": "gh run view 123 --job 424242 --log-failed",
+   "desc": "View failed logs of one job in a run",
+   "tooltip": "--job 424242 targets a specific job inside the run, and --log-failed prints only the failed steps' logs. Job IDs come from gh run view 123 --json jobs. This isolates the failing step without wading through the whole run log."
+  },
+  {
+   "cmd": "gh run watch 123 --exit-status",
+   "desc": "Watch a run and exit with its status",
+   "tooltip": "Polls the run until it finishes, streaming progress. --exit-status makes the command exit nonzero if the run failed, so CI wrapper scripts can gate on the result. Without it, gh always exits zero after watching."
+  },
+  {
+   "cmd": "gh run rerun 123 --job 424242",
+   "desc": "Rerun a single failed job",
+   "tooltip": "Re-executes one job of a run instead of the whole pipeline, saving time and compute when only that job failed. --job takes the job ID shown by gh run view. The rerun counts as a new attempt on the same run."
+  },
+  {
+   "cmd": "gh run download 123 --pattern '*.tar.gz' --dir dist/",
+   "desc": "Download run artifacts matching a pattern",
+   "tooltip": "Downloads artifacts uploaded by the run's jobs into dist/, with --pattern filtering to files matching the glob. Artifacts are the files jobs upload for later use, such as build outputs. Without --pattern, every artifact of the run downloads."
+  },
+  {
+   "cmd": "gh secret list --env production",
+   "desc": "List secrets scoped to an environment",
+   "tooltip": "Shows secrets configured for the production environment, separate from repository-level secrets. Environments are protected scopes where secrets override repo-level values. Omit --env to list repository secrets instead."
+  },
+  {
+   "cmd": "gh secret set MY_SECRET --env production --body 'supersecret'",
+   "desc": "Set an environment-scoped secret",
+   "tooltip": "Creates or updates MY_SECRET inside the production environment, and --body supplies the value non-interactively for scripting. Environment secrets are visible only to jobs referencing that environment. Prefer this over repo-wide secrets for deployment credentials."
+  },
+  {
+   "cmd": "gh secret set MY_SECRET --org myorg --visibility selected --repos myapp,myapp-api",
+   "desc": "Set an org secret for selected repositories",
+   "tooltip": "Creates an organization-level secret shared across repositories, with --visibility selected limiting it to the repos in --repos. Visibility choices are all, private, or selected. Org secrets ease rotation: update once, and every permitted repo sees the new value."
+  },
+  {
+   "cmd": "gh secret delete MY_SECRET --env production",
+   "desc": "Delete an environment-scoped secret",
+   "tooltip": "Removes MY_SECRET from the production environment, breaking any workflow that references it, so confirm nothing depends on it first. --env scopes the deletion to that environment. Without --env, the repo-level secret is removed."
+  },
+  {
+   "cmd": "gh variable list --env production",
+   "desc": "List variables for an environment",
+   "tooltip": "Shows plaintext variables, not secrets, configured for the production environment. Variables hold non-sensitive config like URLs or feature flags, while secrets hold values that must stay hidden. Omit --env to list repository variables."
+  },
+  {
+   "cmd": "gh variable set MY_VAR --env production --body 'https://api.example.com'",
+   "desc": "Set an environment-scoped variable",
+   "tooltip": "Creates or updates MY_VAR for the production environment with the given plaintext value. Unlike secrets, variable values appear in plain in workflow logs when referenced. Environment variables override repo-level ones of the same name."
+  },
+  {
+   "cmd": "gh variable set MY_VAR --org myorg --body 'value' --visibility selected --repos myapp",
+   "desc": "Set an org variable for selected repos",
+   "tooltip": "Creates an organization-level variable shared across repositories, with --visibility selected restricting it to the repos listed in --repos. Org variables centralize config like shared registry URLs. Values are stored as plaintext."
+  },
+  {
+   "cmd": "gh variable delete MY_VAR --env production",
+   "desc": "Delete an environment-scoped variable",
+   "tooltip": "Removes MY_VAR from the production environment, so any workflow reading it must supply a fallback or fail. --env targets the environment; without it the repo-level variable is deleted. Deleting is immediate and not recoverable via gh."
+  },
+  {
+   "cmd": "gh release create v1.1.0 --generate-notes --target main",
+   "desc": "Create a release with auto-generated notes",
+   "tooltip": "Creates release v1.1.0 from the tag, and --generate-notes has GitHub draft the changelog from merged PRs and commits since the last release. --target pins the branch or SHA the release builds from. Edit the auto notes before publishing if they need polish."
+  },
+  {
+   "cmd": "gh release create v1.1.0 --title 'v1.1.0' --notes-file CHANGELOG.md",
+   "desc": "Create a release with notes from a file",
+   "tooltip": "--title sets the release heading while --notes-file reads the body from CHANGELOG.md, keeping long release notes out of the command line. The file's content becomes the release description verbatim. This is the standard flow for hand-maintained changelogs."
+  },
+  {
+   "cmd": "gh release create v2.0.0-rc.1 --prerelease dist/*.tar.gz",
+   "desc": "Create a prerelease with artifacts attached",
+   "tooltip": "--prerelease marks the release as a release candidate so it is not flagged as the latest stable version, and the file arguments upload dist/*.tar.gz as assets. Prereleases stay clearly labeled in the releases list. Promote later with gh release edit --latest."
+  },
+  {
+   "cmd": "gh release create v1.1.0 --draft --generate-notes",
+   "desc": "Create a draft release with generated notes",
+   "tooltip": "--draft creates the release without publishing it, visible only to maintainers, and --generate-notes prefills the body from merged PRs. Drafts let you review notes and assets before going public. Publish by editing --draft=false or via the web UI."
+  },
+  {
+   "cmd": "gh release upload v1.1.0 dist/app.zip --clobber",
+   "desc": "Upload an asset replacing same-name files",
+   "tooltip": "Attaches dist/app.zip to release v1.1.0, and --clobber overwrites any existing asset with the same filename instead of erroring. Re-uploading without --clobber fails if the name is taken. Assets are the downloadable binaries, archives, and checksums of a release."
+  },
+  {
+   "cmd": "gh release download v1.1.0 --pattern '*.tar.gz' --dir /tmp/releases",
+   "desc": "Download release assets matching a glob",
+   "tooltip": "Downloads matching assets from release v1.1.0 into /tmp/releases. --pattern filters files by glob, handy when a release carries several formats. Without --dir, files land in the current directory. Add --clobber to overwrite existing files."
+  },
+  {
+   "cmd": "gh release download v1.1.0 --archive tar.gz",
+   "desc": "Download the source archive of a release",
+   "tooltip": "--archive tar.gz fetches the source code snapshot GitHub generates for the release, not an uploaded asset. Choose zip or tar.gz. This is the canonical way to get the exact code of a tagged version for auditing or vendoring."
+  },
+  {
+   "cmd": "gh release view v1.1.0 --json tagName,assets,publishedAt",
+   "desc": "View release metadata as JSON",
+   "tooltip": "--json returns release fields such as tagName, assets, and publishedAt for scripts. assets expands to an array of attached files with sizes and download counts. Pair with --jq to shape the output into reports or CI checks."
+  },
+  {
+   "cmd": "gh release view v1.1.0 --web",
+   "desc": "Open a release page in the browser",
+   "tooltip": "--web opens the release's public page, where assets, notes, and download buttons are rendered. Use it to double-check what users will see. The terminal view shows the same metadata as text."
+  },
+  {
+   "cmd": "gh release list --limit 20",
+   "desc": "List the 20 most recent releases",
+   "tooltip": "Shows recent releases with tag, title, and date. --limit caps the list at 20 rows for terminal readability. Add --exclude-drafts and --exclude-pre-releases to show only stable, published releases."
+  },
+  {
+   "cmd": "gh release list --exclude-drafts --exclude-pre-releases --limit 10",
+   "desc": "List only published stable releases",
+   "tooltip": "Filters out draft and prerelease entries so only fully published releases remain, capped at 10. Useful for changelogs and release dashboards where unstable versions would pollute the list. Compare with --json to script the filtered set."
+  },
+  {
+   "cmd": "gh release edit v1.1.0 --latest --title 'v1.1.0 stable'",
+   "desc": "Mark a release as latest and retitle it",
+   "tooltip": "--latest promotes the release to be the newest stable release GitHub recommends, useful after promoting a release candidate, and --title rewrites its heading. The body and assets stay untouched. Demoting is done with --latest=false."
+  },
+  {
+   "cmd": "gh release delete v1.1.0 --cleanup-tag --yes",
+   "desc": "Delete a release and its tag",
+   "tooltip": "Permanently removes release v1.1.0; --cleanup-tag also deletes the git tag it points to, and --yes skips the confirmation prompt. Deleting a release breaks download links and, with --cleanup-tag, the tag, so verify nothing references it. This action cannot be undone."
+  },
+  {
+   "cmd": "gh api user/packages?package_type=container --jq '.[].name'",
+   "desc": "List your container packages via API",
+   "tooltip": "Queries the REST endpoint for packages owned by your account, filtering to container images, and --jq prints each package name. Packages are images and libraries published under your user or org. Listing via gh api unlocks filters the gh CLI has no native command for."
+  },
+  {
+   "cmd": "gh api user/packages/container/myapp/versions --jq '.[].id'",
+   "desc": "List versions of a container package",
+   "tooltip": "Hits the package versions endpoint and prints each version ID, the handle used to delete or inspect individual image versions. Container images accumulate versions on every push. Combine with DELETE on the same endpoint to prune old images."
+  },
+  {
+   "cmd": "gh repo create myorg/webapp --private --add-readme --clone",
+   "desc": "Create a private repo with README and clone it",
+   "tooltip": "Creates myorg/webapp under your organization, --private sets visibility, --add-readme seeds the repository with a README, and --clone checks it out locally afterwards. One command replaces several web clicks. Swap --private for --internal or --public as needed."
+  },
+  {
+   "cmd": "gh repo create webapp --template owner/express-starter --public",
+   "desc": "Create a repo from a template",
+   "tooltip": "--template owner/express-starter scaffolds the new repository from the template's files and history, and --public sets visibility. Template repos copy starter code, CI, and docs so every new project starts consistent. Omit --clone to skip the local checkout."
+  },
+  {
+   "cmd": "gh repo list myorg --archived --limit 50",
+   "desc": "List archived repos in an organization",
+   "tooltip": "Lists repositories owned by myorg, --archived filters to archived ones, and --limit caps output at 50. Archived repos are read-only and useful to audit for cleanup or reference. Drop --archived or add --no-archived to flip the filter."
+  },
+  {
+   "cmd": "gh repo list --topic hacktoberfest --limit 30",
+   "desc": "List repos tagged with a topic",
+   "tooltip": "--topic hacktoberfest filters repositories by their topic tags, which are community-applied keywords on the repo page. --limit 30 keeps the table short. Combine with --language to narrow by stack. Great for finding repos participating in events."
+  },
+  {
+   "cmd": "gh repo view owner/repo --json name,description,stargazerCount",
+   "desc": "View repo metadata as JSON",
+   "tooltip": "Fetches repository fields such as name, description, and stargazerCount as JSON for scripting. stargazerCount is the star total, a rough popularity signal. Add --jq to format or filter the fields further."
+  },
+  {
+   "cmd": "gh repo edit owner/repo --description 'CLI tool' --homepage https://example.com",
+   "desc": "Edit repo description and homepage",
+   "tooltip": "Updates the repository's description and homepage URL in one call, both of which appear on the repo's public page. The --repo flag can target any repo you can write to. Other editable fields include topics, visibility, and merge settings."
+  },
+  {
+   "cmd": "gh repo edit --delete-branch-on-merge=true",
+   "desc": "Auto-delete head branches on merge",
+   "tooltip": "Turns on delete-branch-on-merge for the current repository so merged PR branches are cleaned up automatically. Set to false to disable. This is a repo-level setting that keeps the branch list tidy with zero manual work."
+  },
+  {
+   "cmd": "gh repo sync owner/repo --source upstream/repo",
+   "desc": "Sync a fork from its upstream",
+   "tooltip": "Pulls commits from --source upstream/repo into owner/repo, keeping a fork current with the project it derives from. Without --source, gh syncs from the fork's configured parent. Add --force to discard local diverging commits."
+  },
+  {
+   "cmd": "gh repo fork owner/repo --fork-name myapp-copy",
+   "desc": "Fork a repo under a different name",
+   "tooltip": "Creates a fork of owner/repo and --fork-name names it myapp-copy, useful when the original name is taken or you want a distinct copy. The fork lands in your account by default. Add --clone to check it out locally right away."
+  },
+  {
+   "cmd": "gh repo fork owner/repo --default-branch-only",
+   "desc": "Fork only the default branch",
+   "tooltip": "Creates a fork containing just the repository's default branch instead of every branch, saving storage and clone time. Ideal when you only need the mainline for contributions. Branches can be fetched from the original later if needed."
+  },
+  {
+   "cmd": "gh repo set-default",
+   "desc": "Choose the default repo for gh commands",
+   "tooltip": "Prompts you to pick which repository subsequent gh commands should assume when none is specified. The choice is saved per-directory, so each project can pin its own repo. View the current selection with --view or clear it with --unset."
+  },
+  {
+   "cmd": "gh repo clone owner/repo -- --depth 1",
+   "desc": "Shallow-clone a repo via git passthrough",
+   "tooltip": "Everything after the -- is forwarded to git clone, here --depth 1 for a shallow checkout with no history. Pass any git flag this way, such as --branch or --filter. Shallow clones are much faster for large repositories."
+  },
+  {
+   "cmd": "gh repo rename -R owner/repo myapp-v2 --yes",
+   "desc": "Rename a repository",
+   "tooltip": "Renames owner/repo to myapp-v2; -R targets a specific repo and --yes skips the confirmation prompt. Renaming changes the URL, breaking existing clones and bookmarks, so update remotes afterwards with git remote set-url. The old URL redirects for a while."
+  },
+  {
+   "cmd": "gh gist create - -w",
+   "desc": "Create a gist from stdin and open it",
+   "tooltip": "The dash positional reads gist content from standard input, so you can pipe output from any command into it. -w opens the newly created gist in the browser. By default gists are secret; add --public to share them."
+  },
+  {
+   "cmd": "gh gist create script.py --public --desc 'Deploy helper'",
+   "desc": "Create a public gist with a description",
+   "tooltip": "Uploads script.py as a gist, --public makes it visible to anyone with the URL, and --desc attaches a short description. Gists are lightweight code snippets with their own git history. Secret gists remain private but are not encrypted."
+  },
+  {
+   "cmd": "gh gist edit 1234 --add notes.md",
+   "desc": "Add a file to an existing gist",
+   "tooltip": "--add notes.md appends a new file to gist 1234, letting a gist grow from a snippet into a small project. The file content is read from your working directory. Remove files again with --remove."
+  },
+  {
+   "cmd": "gh gist edit 1234 --remove old.txt",
+   "desc": "Remove a file from a gist",
+   "tooltip": "--remove old.txt deletes that file from gist 1234, updating the gist's content set without recreating it. Gist edits are recorded in the gist's revision history. Pair --add and --remove in one command to restructure a gist in a single step."
+  },
+  {
+   "cmd": "gh gist list --public",
+   "desc": "List only your public gists",
+   "tooltip": "Shows your public gists, with --public filtering out secret ones. The list shows each gist's description, filename, and visibility. Add --limit to cap rows, or --secret to list only private gists."
+  },
+  {
+   "cmd": "gh gist list --secret --limit 50",
+   "desc": "List your secret gists",
+   "tooltip": "--secret filters to gists only you can see, capped at 50 rows. Secret gists are private-by-URL but not encrypted, so avoid sensitive data. The default listing mixes both visibilities."
+  },
+  {
+   "cmd": "gh gist view 1234 --files script.py",
+   "desc": "View one file inside a gist",
+   "tooltip": "Prints the contents of script.py from gist 1234. --files selects specific files when a gist holds several, avoiding a long concatenated dump. Without it, all files print in sequence."
+  },
+  {
+   "cmd": "gh codespace create --repo owner/repo --branch main",
+   "desc": "Create a codespace for a repo and branch",
+   "tooltip": "Provisions a new codespace, a cloud-hosted dev environment, for owner/repo on branch main. Codespaces run in a container configured by devcontainer.json. The machine type defaults sensibly; tune it with --machine."
+  },
+  {
+   "cmd": "gh codespace create --repo owner/repo --branch main --machine standardLinux32gb",
+   "desc": "Create a codespace with a specific machine",
+   "tooltip": "Adds --machine standardLinux32gb to request a 32 GB RAM instance, matching the machine names shown by gh codespace list or the web UI. Bigger machines cost more, so pick by workload. The codespace is ready to connect via ssh, code, or the web."
+  },
+  {
+   "cmd": "gh codespace ssh -c cs-name",
+   "desc": "SSH into a running codespace",
+   "tooltip": "-c names the codespace to connect to, as shown by gh codespace list. This drops you into a shell inside the container, identical to SSHing to a VM. Codespace names look like yourname-project-random; omit -c to pick interactively."
+  },
+  {
+   "cmd": "gh codespace ports -c cs-name",
+   "desc": "List forwarded ports of a codespace",
+   "tooltip": "Shows which ports inside the codespace are forwarded to your local machine and their visibility. Forwarding lets you reach dev servers running in the container via localhost. Change visibility with gh codespace ports visibility."
+  },
+  {
+   "cmd": "gh codespace ports visibility 3000:public -c cs-name",
+   "desc": "Expose a codespace port publicly",
+   "tooltip": "Sets port 3000's visibility to public so anyone with the URL can reach the forwarded service, not just you. Choices are public, private, and org. Public exposure is for demos; keep development ports private."
+  },
+  {
+   "cmd": "gh codespace delete -c cs-name",
+   "desc": "Delete a codespace",
+   "tooltip": "Permanently removes the named codespace, including its container filesystem and any uncommitted work inside it, so commit or push first. Deleted codespaces cannot be restored. Add --force to skip the confirmation prompt."
+  },
+  {
+   "cmd": "gh codespace stop -c cs-name",
+   "desc": "Stop a running codespace",
+   "tooltip": "Shuts down the codespace's container, stopping compute charges while preserving its filesystem. Start it again on next connection. -c targets a specific codespace; without it you pick from a list."
+  },
+  {
+   "cmd": "gh codespace logs -c cs-name --follow",
+   "desc": "Stream a codespace's logs",
+   "tooltip": "Prints the codespace's container logs, and --follow tails them live like tail -f. Useful when a devcontainer fails to build or a service crashes at startup. The logs come from the codespace's lifecycle and application output."
+  },
+  {
+   "cmd": "gh codespace rebuild -c cs-name --full",
+   "desc": "Fully rebuild a codespace container",
+   "tooltip": "Rebuilds the codespace's dev container from its definition, and --full skips cached layers for a clean build. Use it when devcontainer.json changes or the environment is corrupted. A rebuild recreates the container but keeps your files."
+  },
+  {
+   "cmd": "gh codespace view -c cs-name --json state,idleTimeoutMinutes",
+   "desc": "View codespace status as JSON",
+   "tooltip": "--json returns machine-readable fields like state, which is Available, Shutdown, or Building, and idleTimeoutMinutes, the idle limit before auto-stop. Pair with --jq for monitoring scripts. State tells you whether the codespace is ready to connect."
+  },
+  {
+   "cmd": "gh codespace list --json name,repository,state",
+   "desc": "List codespaces as JSON",
+   "tooltip": "Lists your codespaces with --json fields name, repository, and state for scripting. Field names come from the codespace API, so repository is the owning repo. Add --repo to filter by project or --limit to cap rows."
+  },
+  {
+   "cmd": "gh extension install github/gh-copilot --force",
+   "desc": "Install a gh extension, forcing upgrade",
+   "tooltip": "Installs the gh-copilot extension from the github org, and --force upgrades an existing install to the latest release instead of erroring. Extensions add new gh subcommands, here gh copilot for AI assistance. Pin a version with --pin to freeze it."
+  },
+  {
+   "cmd": "gh extension upgrade gh-copilot --force",
+   "desc": "Upgrade a single gh extension",
+   "tooltip": "Updates the gh-copilot extension to its newest released version. --force upgrades even when the local version matches, useful after a manual edit or to escape a stuck state. Use --all to update every installed extension at once."
+  },
+  {
+   "cmd": "gh extension remove gh-copilot",
+   "desc": "Remove a gh extension",
+   "tooltip": "Uninstalls the gh-copilot extension, removing its subcommand from gh. Extensions are user-local, so removal affects only your account. Reinstall anytime with gh extension install github/gh-copilot."
+  },
+  {
+   "cmd": "gh extension create my-extension",
+   "desc": "Scaffold a new gh extension",
+   "tooltip": "Generates the directory layout and starter files for a gh extension named my-extension. Extensions are standalone scripts or Go binaries that add gh subcommands. Add --precompiled to scaffold a Go-based extension instead of a script."
+  },
+  {
+   "cmd": "gh api user --jq '.login'",
+   "desc": "Print your GitHub username via API",
+   "tooltip": "GETs the authenticated user endpoint and --jq extracts the login field. The leading slash is optional in gh api paths. This is a quick identity check that also confirms your token works."
+  },
+  {
+   "cmd": "gh api repos/owner/repo/issues?per_page=100 --jq '.[].number'",
+   "desc": "Fetch issue numbers with a page size",
+   "tooltip": "Requests the issues endpoint with per_page=100 to grab more rows per call, and --jq prints each issue number. Pagination caps REST responses at 30 by default, so raising per_page reduces round trips. Use --paginate to walk all pages automatically."
+  },
+  {
+   "cmd": "gh api -X PATCH repos/owner/repo/issues/5 -f state=closed",
+   "desc": "Close an issue via the REST API",
+   "tooltip": "-X PATCH switches the HTTP method, and -f sends state=closed as a form parameter, closing issue 5 without gh issue close. REST endpoints map one-to-one with GitHub's API documentation. The -f flag adds string parameters; -F infers typed values."
+  },
+  {
+   "cmd": "gh api graphql -f query='query($owner:String!,$repo:String!){ repository(owner:$owner,name:$repo){ stargazerCount } }' -f owner=cli -f repo=cli",
+   "desc": "Query stargazer count via GraphQL with variables",
+   "tooltip": "Runs a GraphQL query where every -f field except query becomes a GraphQL variable, here binding $owner and $repo. GraphQL lets you request exactly the fields you need in one round trip. Variables make queries reusable across repos."
+  },
+  {
+   "cmd": "gh api repos/owner/repo/releases/latest --jq .tag_name",
+   "desc": "Get the latest release tag via API",
+   "tooltip": "Hits the latest-release endpoint and prints the tag name, handy for CI that must fetch the newest version. The endpoint ignores prereleases. Compare with gh release list --limit 1 for tag plus metadata."
+  },
+  {
+   "cmd": "gh api repos/owner/repo/actions/runs/123",
+   "desc": "Fetch a workflow run record via API",
+   "tooltip": "Returns the full JSON record of run 123: status, conclusion, head SHA, and event. Scripts use this to gate deploys on CI results. It is the REST equivalent of gh run view minus the pretty formatting."
+  },
+  {
+   "cmd": "gh api repos/owner/repo/actions/workflows --paginate",
+   "desc": "List all workflows via API, following pages",
+   "tooltip": "--paginate automatically walks every page of results until exhausted, since REST caps at 30 items per page. The workflows endpoint returns each workflow's id, name, and state. Combine with --jq to extract the fields you need from the full list."
+  },
+  {
+   "cmd": "gh api -X POST repos/owner/repo/actions/workflows/build.yml/dispatches -f ref=main",
+   "desc": "Dispatch a workflow run via the REST API",
+   "tooltip": "POSTs a workflow_dispatch event for build.yml on ref main, the API equivalent of gh workflow run. The workflow must declare a workflow_dispatch trigger. Pass inputs as extra -f fields if the workflow defines them."
+  },
+  {
+   "cmd": "gh api -X DELETE repos/owner/repo/actions/caches --silent",
+   "desc": "Delete all Actions caches for a repo",
+   "tooltip": "Wipes every Actions cache entry in the repository, freeing storage but forcing cold builds until caches rebuild. This is destructive and irreversible, so run it only when cache bloat is a real problem. --silent suppresses the success response body."
+  },
+  {
+   "cmd": "gh api rate_limit --jq '.rate | \"\\(.remaining)/\\(.limit)\"'",
+   "desc": "Show your API rate limit usage",
+   "tooltip": "Queries the rate-limit endpoint and prints remaining and total requests for your token, e.g. 4800/5000. REST APIs throttle unauthenticated calls hard, so staying under the limit matters for scripts. Reset time lives in the .rate.reset field."
+  },
+  {
+   "cmd": "gh api -X POST repos/owner/repo/issues/5/comments -f body='Fixed in #10'",
+   "desc": "Comment on an issue via the REST API",
+   "tooltip": "POSTs a comment to issue 5 with the body field, the API form of gh issue comment. Use this when automation, not a human, must post context like CI results. The comment appears in the issue thread like any other."
+  },
+  {
+   "cmd": "gh api -X PUT user/starred/owner/repo --silent",
+   "desc": "Star a repository via the API",
+   "tooltip": "PUTs the current user's star on owner/repo, the API equivalent of clicking the star button. --silent drops the empty success body. Unstar with -X DELETE on the same endpoint. Starring is a lightweight signal of interest or approval."
+  },
+  {
+   "cmd": "gh api repos/owner/repo/contents/README.md -H 'Accept: application/vnd.github.raw'",
+   "desc": "Fetch a file's raw contents via API",
+   "tooltip": "GETs the README through the contents endpoint, and the -H Accept header for the raw media type returns the file bytes instead of base64 JSON. Contents endpoints also list directory trees. This is a scriptable way to pull a file without cloning."
+  },
+  {
+   "cmd": "gh auth token --hostname github.com",
+   "desc": "Print the auth token for a host",
+   "tooltip": "Outputs the OAuth token gh uses for github.com, which scripts and other tools can reuse. The token grants the same permissions as your gh login, so treat it like a password. --hostname selects among hosts when you have several accounts."
+  },
+  {
+   "cmd": "gh auth refresh -s repo,workflow",
+   "desc": "Add scopes to the current token",
+   "tooltip": "-s requests additional scopes, here repo for full repository access and workflow for updating Actions files. Scopes are the permission grants attached to your token. Refresh interactively confirms via the browser and merges the new scopes in."
+  },
+  {
+   "cmd": "gh auth login --hostname github.com --git-protocol ssh --web",
+   "desc": "Log in via browser with SSH git protocol",
+   "tooltip": "Authenticates gh for github.com, --git-protocol ssh makes git operations use SSH URLs, and --web completes the flow in the browser. The web flow avoids pasting tokens into the terminal. Log out anytime with gh auth logout."
+  },
+  {
+   "cmd": "gh auth status --show-token",
+   "desc": "Show auth status including the token",
+   "tooltip": "Prints which accounts and hosts gh is authenticated as, with --show-token also revealing the token itself. The token is a live credential, so this output can be captured by shell history or logs. Prefer plain gh auth status unless a tool truly needs the token."
+  },
+  {
+   "cmd": "gh auth logout --hostname github.com",
+   "desc": "Log out of a specific host",
+   "tooltip": "Revokes the gh credential for github.com, so gh commands requiring auth start failing until you log in again. --hostname targets one host when multiple are configured. Logging out does not delete your git credentials unless they were gh-managed."
+  },
+  {
+   "cmd": "gh config set git_protocol ssh",
+   "desc": "Set git protocol to SSH",
+   "tooltip": "Writes git_protocol ssh into gh's config so git clone and push use SSH URLs, which need an SSH key set up on GitHub. The other value is https. Your existing remotes are not rewritten by this setting."
+  },
+  {
+   "cmd": "gh config get git_protocol",
+   "desc": "Read the configured git protocol",
+   "tooltip": "Prints the current git_protocol value, either ssh or https. Config lookups check host-specific overrides first, then global settings. Useful in scripts that must branch on the transport gh will use."
+  },
+  {
+   "cmd": "gh config set git_protocol https -h github.com",
+   "desc": "Override git protocol for one host",
+   "tooltip": "-h scopes the setting to github.com, so that host uses HTTPS while others keep their own protocol. Host-scoped overrides beat global config for that host. This is how you mix transports across accounts or Enterprise servers."
+  },
+  {
+   "cmd": "gh config list -h github.com",
+   "desc": "Show config for a specific host",
+   "tooltip": "Lists resolved gh settings, with -h github.com filtering to that host's overrides. The output shows keys like git_protocol, editor, and prompt. Use it to debug why a command behaves differently on one host."
+  },
+  {
+   "cmd": "gh config set pager 'less -FRX'",
+   "desc": "Set the pager for long gh output",
+   "tooltip": "Configures the pager gh pipes long output through, here less with -F quit-if-one-screen, -R raw color, and -X no-clear flags. A sensible pager keeps tables readable. Set it to cat to disable paging entirely."
+  },
+  {
+   "cmd": "gh alias set prd 'pr view'",
+   "desc": "Create a short alias for a gh command",
+   "tooltip": "Defines prd as a word that expands to gh pr view, so gh prd 123 shows a PR. Aliases can embed flags, like 'pr list --state merged'. They live in gh's config and work exactly like built-in commands."
+  },
+  {
+   "cmd": "gh alias set --shell prd 'gh pr view \"$1\"'",
+   "desc": "Create a shell-based alias with arguments",
+   "tooltip": "--shell marks the expansion as a shell expression, evaluated through a shell interpreter, so $1 captures the argument after the alias. Here gh prd 123 runs gh pr view 123. Shell aliases unlock pipes, loops, and argument manipulation plain aliases cannot do."
+  },
+  {
+   "cmd": "gh alias set merged 'pr list --state merged --limit 20'",
+   "desc": "Alias a multi-flag pr list query",
+   "tooltip": "Bundles a full command with flags into the single word merged, so gh merged prints your last 20 merged PRs. Aliases that encode routine queries save keystrokes and enforce consistent flags. Overwrite an existing alias by adding --clobber."
+  },
+  {
+   "cmd": "gh alias export > aliases.yml",
+   "desc": "Export all aliases to a YAML file",
+   "tooltip": "Dumps every alias as YAML to standard output, redirected here into aliases.yml. The file round-trips with gh alias import, making aliases portable across machines. Export before wiping a config or setting up a new workstation."
+  },
+  {
+   "cmd": "gh completion -s bash > ~/.bash_completion",
+   "desc": "Install bash completion for gh",
+   "tooltip": "-s bash generates the bash completion script, redirected into ~/.bash_completion so your shell sources it at startup. Tab-completion then fills subcommands, flags, and repo names. Re-run after upgrading gh if completions go stale."
+  },
+  {
+   "cmd": "gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh",
+   "desc": "Install zsh completion for gh",
+   "tooltip": "Writes the zsh completion script into the standard site-functions directory, which zsh loads automatically. The file must be named _gh for zsh to associate it with the gh command. Requires a zsh version of 5.7 or later."
+  },
+  {
+   "cmd": "gh completion -s fish > ~/.config/fish/completions/gh.fish",
+   "desc": "Install fish completion for gh",
+   "tooltip": "Generates the fish completion script into fish's completions directory, where it loads on the next shell start. Fish autoloads completion files by command name, so gh.fish is picked up automatically. Works identically for powershell with -s powershell."
+  },
+  {
+   "cmd": "gh copilot suggest -t gh 'create a release from the latest tag'",
+   "desc": "Ask Copilot to suggest a gh command",
+   "tooltip": "gh copilot suggests a command for the natural-language request, and -t gh constrains the answer to gh commands rather than shell or git. It returns the command plus an explanation, ready to copy. Requires the gh-copilot extension and a Copilot subscription."
+  },
+  {
+   "cmd": "gh copilot explain 'git log --oneline --graph --all'",
+   "desc": "Ask Copilot to explain a git command",
+   "tooltip": "gh copilot explains what the given command does, flag by flag, in plain language. Useful for decoding unfamiliar git invocations. Add -t git to pin the target context when the command is ambiguous."
+  }
+ ]
+}

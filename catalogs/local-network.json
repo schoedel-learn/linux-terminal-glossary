@@ -1,0 +1,745 @@
+{
+  "category": "Local Network & Public Hosting",
+  "commands": [
+    {
+      "cmd": "nmcli general status",
+      "desc": "Show overall NetworkManager state and connectivity",
+      "tooltip": "nmcli is the command-line front end for NetworkManager, the default network service on many Linux desktops and servers. The general status output reports whether networking is enabled, which device manages the connection, and the current connectivity state. Pair it with nmcli device status for a per-interface breakdown."
+    },
+    {
+      "cmd": "nmcli general hostname",
+      "desc": "Print the hostname NetworkManager manages",
+      "tooltip": "NetworkManager can set and hold the system hostname, so this is one more way to check what the machine calls itself on the LAN. Run nmcli general hostname myserver with a name argument to change it persistently. Compare with hostnamectl, which manages the same value through systemd."
+    },
+    {
+      "cmd": "nmcli general hostname myserver",
+      "desc": "Set the system hostname via NetworkManager",
+      "tooltip": "Passing a name after the hostname keyword updates the persistent hostname that NetworkManager reports to DHCP and mDNS, which is how other machines discover this one. The change is stored in /etc/hostname so it survives reboots. Use hostnamectl set-hostname when you want to control the static, transient, and pretty hostnames separately."
+    },
+    {
+      "cmd": "nmcli device show eth0",
+      "desc": "Show detailed settings for one network device",
+      "tooltip": "The device show command dumps the full configuration of a single interface, including its hardware address, IPv4 and IPv6 addresses, routes, DNS servers, and the connection profile bound to it. Run it without an interface name to print every device at once. This is the deep-dive companion to nmcli device status."
+    },
+    {
+      "cmd": "nmcli dev wifi connect MyWiFi password 'secret'",
+      "desc": "Connect to a Wi-Fi network by SSID",
+      "tooltip": "This finds or creates a NetworkManager connection profile for the named network and activates it immediately, like clicking an SSID in a desktop app. The password argument supplies the WPA passphrase on the command line. NetworkManager remembers the profile, so next time the machine will join automatically."
+    },
+    {
+      "cmd": "nmcli dev wifi hotspot ifname wlan0 ssid MyHotspot password 'secret'",
+      "desc": "Create a Wi-Fi hotspot from a wireless card",
+      "tooltip": "This turns the wlan0 radio into an access point broadcasting the SSID MyHotspot with the given WPA password, letting nearby devices join and reach this machine's network. NetworkManager creates a temporary hotspot profile for it, and the connection stays active until you bring it down. Stop the hotspot with nmcli connection down on the generated profile name."
+    },
+    {
+      "cmd": "nmcli dev wifi rescan",
+      "desc": "Force an immediate Wi-Fi scan for access points",
+      "tooltip": "NetworkManager scans for wireless networks on its own schedule, which can leave new networks invisible for a minute or two. This command triggers a fresh scan right away, which also helps discover access points with hidden SSIDs when you pass the ssid option. Follow it with nmcli device wifi list to see the results."
+    },
+    {
+      "cmd": "nmcli radio wifi off",
+      "desc": "Disable all Wi-Fi radios on the machine",
+      "tooltip": "This switches every wireless interface into a powered-down state at the NetworkManager level, which can cut power use and force traffic onto wired connections. It is a software toggle, so no hardware is touched and the change can be reversed instantly. Re-enable with nmcli radio wifi on, or use rfkill to also involve the kernel-level switch."
+    },
+    {
+      "cmd": "nmcli radio wifi on",
+      "desc": "Re-enable Wi-Fi radios after a software block",
+      "tooltip": "This reverses nmcli radio wifi off and lets NetworkManager bring wireless interfaces back up. Radios that were blocked at the kernel level with rfkill still need rfkill unblock wifi first. Check state with nmcli radio."
+    },
+    {
+      "cmd": "nmcli networking off",
+      "desc": "Disable all networking managed by NetworkManager",
+      "tooltip": "This takes every connection down at once, wired and wireless alike, and stops NetworkManager from managing interfaces until told otherwise. Useful before hardware changes or to force a clean reconnection. Bring everything back with nmcli networking on, which restores previous connections."
+    },
+    {
+      "cmd": "nmcli networking on",
+      "desc": "Re-enable all NetworkManager-managed networking",
+      "tooltip": "This reverses nmcli networking off and lets NetworkManager reconnect the devices and profiles that were active before. Connections that autoconnect are re-established automatically. Use it after maintenance that required taking the whole network stack down."
+    },
+    {
+      "cmd": "nmcli connection show --active",
+      "desc": "List only the active connection profiles",
+      "tooltip": "NetworkManager tracks every profile it knows plus which ones are currently in use. Adding --active filters the table to just the connections that are up right now, with their device and state. The full list without the flag includes profiles that only autoconnect later or sit unused."
+    },
+    {
+      "cmd": "nmcli connection show 'MyWiFi'",
+      "desc": "Show all settings of one connection profile",
+      "tooltip": "With a profile name, connection show switches from listing to dumping every stored setting of that profile, from the SSID and security type to IP method, DNS, and routes. Settings live in the profile even when the connection is down. This is the read-only view before you edit with nmcli connection modify."
+    },
+    {
+      "cmd": "nmcli connection up 'Ethernet 1'",
+      "desc": "Activate a saved connection profile",
+      "tooltip": "This brings up the named profile on its configured interface, which is how you reconnect a profile that is currently down or was replaced by another connection. NetworkManager resolves which device the profile belongs to automatically. It is the long-form version of nmcli con up."
+    },
+    {
+      "cmd": "nmcli connection down 'Ethernet 1'",
+      "desc": "Deactivate a connection profile",
+      "tooltip": "This disconnects the named profile without deleting it, freeing the interface for another connection. The profile stays saved, so nmcli connection up 'Ethernet 1' brings it back later. If autoconnect is enabled, NetworkManager may immediately reactivate it or switch to another profile."
+    },
+    {
+      "cmd": "nmcli connection add type ethernet con-name 'home' ifname eth0 ipv4.method auto",
+      "desc": "Create a wired connection profile",
+      "tooltip": "This builds a new profile named home for the eth0 interface that obtains its address through DHCP, which is the ipv4.method auto setting. Nothing is activated until you run nmcli connection up 'home', and the profile persists across reboots. Replace auto with manual and add an address to make it static."
+    },
+    {
+      "cmd": "nmcli connection add type wifi con-name 'office' ssid OfficeWiFi wifi-sec.key-mgmt wpa-psk wifi-sec.psk 'secret'",
+      "desc": "Create a saved Wi-Fi profile with WPA2 key",
+      "tooltip": "This registers a profile that knows the SSID OfficeWiFi and its WPA-PSK passphrase, so the machine can join that network without typing the password again. The wifi-sec.key-mgmt wpa-psk line declares the security mode and wifi-sec.psk carries the key. The profile stays dormant until activated, then autoconnects on future boots."
+    },
+    {
+      "cmd": "nmcli connection modify 'home' ipv4.addresses 192.168.1.50/24",
+      "desc": "Set a static IP address on a profile",
+      "tooltip": "This edits the home profile so it requests the fixed address 192.168.1.50 with a 24-bit subnet mask when it connects. Changing the address alone does nothing until you also set the method to manual and reactivate the profile. The /24 suffix means the first 24 bits identify the network, covering 192.168.1.1 through 192.168.1.254."
+    },
+    {
+      "cmd": "nmcli connection modify 'home' ipv4.gateway 192.168.1.1",
+      "desc": "Set the default gateway on a profile",
+      "tooltip": "The gateway is the router that carries traffic leaving the local subnet, usually your home router at 192.168.1.1. This stores it in the home profile alongside the static address. Apply it with nmcli connection up 'home' and verify with ip route, which should show a default route via that address."
+    },
+    {
+      "cmd": "nmcli connection modify 'home' ipv4.dns 1.1.1.1",
+      "desc": "Set the DNS server for a connection profile",
+      "tooltip": "This tells the profile to use 1.1.1.1, Cloudflare's public resolver, for name lookups instead of the router's DHCP-assigned server. Multiple servers are separated by commas, for example 1.1.1.1,8.8.8.8. The change takes effect after the profile is reactivated."
+    },
+    {
+      "cmd": "nmcli connection modify 'home' ipv4.method manual",
+      "desc": "Switch a profile from DHCP to manual addressing",
+      "tooltip": "This marks the home profile as static so NetworkManager applies the ipv4.addresses, ipv4.gateway, and ipv4.dns values you configured instead of asking DHCP. Reactivate the connection afterwards, otherwise the old settings stay in use. Without this flag, extra addresses are added on top of the DHCP lease."
+    },
+    {
+      "cmd": "nmcli connection delete 'old-wifi'",
+      "desc": "Delete a connection profile permanently",
+      "tooltip": "This removes the named profile and all its stored settings, including saved Wi-Fi passwords, so the machine will no longer autoconnect to that network. There is no undo, and any active connection using the profile is dropped. Export important profiles with nmcli connection export before deleting."
+    },
+    {
+      "cmd": "nmcli -t -f NAME,DEVICE con show",
+      "desc": "List connections in terse script-friendly output",
+      "tooltip": "The -t terse flag removes headers and aligns values with colons, while -f selects only the NAME and DEVICE columns, making the output easy to feed into shell scripts. This is the machine-readable form of nmcli connection show. Add --active to restrict the list to live connections."
+    },
+    {
+      "cmd": "ip addr flush dev eth0",
+      "desc": "Remove every IP address from an interface",
+      "tooltip": "This clears all IPv4 and IPv6 addresses assigned to eth0 in one shot, leaving the interface up but with no addressing, which drops every connection through it. Scope the flush with a subnet, for example ip addr flush dev eth0 scope global, to keep link-local addresses. The addresses return only if DHCP or NetworkManager reassigns them."
+    },
+    {
+      "cmd": "ip link show eth0",
+      "desc": "Show state, MAC, and MTU of one interface",
+      "tooltip": "The ip link family inspects layer-2 settings, and naming the interface prints its administrative state, operstate, hardware address, and MTU. Look for UP in the flags and the LOWER_UP operstate to confirm a live cable or radio link. Run bare ip link to see every interface at once."
+    },
+    {
+      "cmd": "ip link set eth0 address 02:00:00:00:00:01",
+      "desc": "Spoof a new MAC address on an interface",
+      "tooltip": "This rewrites the hardware address the kernel reports for eth0, which some networks use to whitelist devices or to clone a router's MAC. The change is lost on reboot and can break the current connection while it applies. Locally administered addresses start with 02, 06, or 0a to avoid colliding with vendor prefixes."
+    },
+    {
+      "cmd": "ip neigh show",
+      "desc": "List the ARP and neighbor cache",
+      "tooltip": "This prints the kernel's neighbor table, mapping every recently contacted LAN address to its MAC address, interface, and state. Entries marked REACHABLE are freshly confirmed, while STALE ones await revalidation. It is the iproute2 replacement for arp -a and the first place to look when two machines cannot talk."
+    },
+    {
+      "cmd": "ip neigh add 192.168.1.5 lladdr aa:bb:cc:dd:ee:ff dev eth0",
+      "desc": "Manually insert a static neighbor entry",
+      "tooltip": "This pins the MAC address aa:bb:cc:dd:ee:ff to IP 192.168.1.5 in the kernel's neighbor cache, bypassing ARP for that host. Use it when a device answers ARP unreliably or for security on a trusted wired segment. The entry is temporary and vanishes on reboot, and newer kernels may want nud permanent appended to keep it from expiring."
+    },
+    {
+      "cmd": "ip neigh del 192.168.1.5 dev eth0",
+      "desc": "Remove a single neighbor cache entry",
+      "tooltip": "This drops the cached mapping for one IP, forcing the next packet to that host to re-run ARP. It is the fix when a device changes network cards but the kernel keeps using the old MAC. The kernel repopulates the entry automatically the next time the host is contacted."
+    },
+    {
+      "cmd": "ip neigh flush dev eth0",
+      "desc": "Clear the entire neighbor cache on an interface",
+      "tooltip": "This wipes every learned ARP entry on eth0 at once, which can resolve stale-MAC confusion after network reconfiguration. Entries rebuild on demand as traffic flows again. Use ip neigh flush all to clear the neighbor cache on every interface."
+    },
+    {
+      "cmd": "ip maddr show",
+      "desc": "List multicast addresses joined on all interfaces",
+      "tooltip": "Multicast addressing lets one packet reach many hosts, and this command shows every multicast group the kernel has joined per interface. The 01:00:5e prefix marks IPv4 multicast MACs, with 33:33 used for IPv6. It is useful when debugging mDNS or streaming protocols that rely on multicast."
+    },
+    {
+      "cmd": "ip route show table all",
+      "desc": "Display routing tables including local and main",
+      "tooltip": "The kernel keeps several routing tables, and table all walks every one of them, from the local table of directly attached addresses to the main table holding default routes. Compare with plain ip route, which only shows the main table. Multiple tables are typically combined with policy rules from ip rule."
+    },
+    {
+      "cmd": "ip rule add from 192.168.1.100 lookup 100",
+      "desc": "Route a source address through a custom table",
+      "tooltip": "This policy rule sends packets originating from 192.168.1.100 to routing table 100, whose routes you define separately with ip route add table 100. Source-based routing like this can split a machine across two ISPs or VPNs. The rule disappears on reboot unless saved in a config file such as /etc/iproute2/rt_tables."
+    },
+    {
+      "cmd": "ip netns delete testns",
+      "desc": "Remove a network namespace",
+      "tooltip": "Network namespaces isolate their own interfaces, addresses, and routes, and this removes the one named testns, tearing down everything inside it. Interfaces moved into the namespace with ip link set netns return only if explicitly moved back. Deleting a namespace cannot be undone, and the ip netns add testns companion creates it."
+    },
+    {
+      "cmd": "ip netns exec testns bash",
+      "desc": "Run a shell inside a network namespace",
+      "tooltip": "This opens an interactive shell whose network stack is completely isolated from the host, so ip addr and ping inside it see only what testns contains. It is the standard way to poke around a namespace or run a service inside one. Exit the shell to return to the host's networking."
+    },
+    {
+      "cmd": "ip link add veth0 type veth peer name veth1",
+      "desc": "Create a virtual Ethernet pair",
+      "tooltip": "A veth pair is a virtual cable with two ends, and this creates veth0 and veth1 where every packet sent into one end emerges from the other. Pairs are the plumbing that connects a network namespace to the host or a bridge. Remove both ends with ip link del veth0."
+    },
+    {
+      "cmd": "ip link set veth1 netns testns",
+      "desc": "Move one veth end into a namespace",
+      "tooltip": "This slides the veth1 end of a virtual cable into the testns namespace, leaving veth0 on the host, which connects the two network stacks. Assign addresses on both ends, for example 10.0.0.1 and 10.0.0.2, and bring the links up before traffic can flow. This is the classic recipe for namespace-based testing."
+    },
+    {
+      "cmd": "arp -a",
+      "desc": "List all entries in the ARP cache",
+      "tooltip": "The Address Resolution Protocol cache maps IP addresses to MAC addresses for every LAN host this machine has recently talked to, and arp -a prints the whole table in BSD style. An empty or thin cache just means little traffic has flowed yet. It is the net-tools counterpart to ip neigh show."
+    },
+    {
+      "cmd": "arp -d 192.168.1.5",
+      "desc": "Delete one entry from the ARP cache",
+      "tooltip": "This removes the cached mapping for a single IP, so the next packet to that host triggers a fresh ARP exchange. It is the quick fix after a device changes its network card or moves to a new port. Requires root, and the entry is re-learned automatically when traffic resumes."
+    },
+    {
+      "cmd": "arp -s 192.168.1.5 aa:bb:cc:dd:ee:ff",
+      "desc": "Add a permanent static ARP entry",
+      "tooltip": "This hard-codes the mapping between 192.168.1.5 and aa:bb:cc:dd:ee:ff so the kernel never asks the network for that address. It defeats ARP spoofing on that entry but breaks connectivity the moment the device really changes MACs. The entry does not survive a reboot; the ip neigh add form is its iproute2 equivalent."
+    },
+    {
+      "cmd": "arp-scan --localnet",
+      "desc": "Scan the local network for every live host",
+      "tooltip": "arp-scan blasts ARP requests at the whole local subnet and lists every device that answers, showing its IP and MAC address, plus the vendor identified from the MAC prefix. Unlike ping sweeps it finds hosts that block ICMP, making it the most reliable way to inventory a LAN. It needs root because it crafts raw packets."
+    },
+    {
+      "cmd": "arp-scan --interface eth0 192.168.1.0/24",
+      "desc": "Scan a specific subnet through one interface",
+      "tooltip": "This targets an explicit network range on a chosen interface instead of guessing the local network, which matters on multi-homed machines or when scanning a different subnet. The output pairs each responding IP with its MAC and vendor. Combine with --retry for flaky devices that miss the first probe."
+    },
+    {
+      "cmd": "nmap -sS -p 22,80,443 192.168.1.1",
+      "desc": "Stealth-scan three common ports on a host",
+      "tooltip": "The -sS flag runs a SYN scan, which sends bare connection attempts and reads the replies without completing handshakes, making it fast and hard to log. The -p list restricts the probe to SSH, HTTP, and HTTPS. Scan results show which services a LAN device actually exposes, but only scan networks you own or have permission to test."
+    },
+    {
+      "cmd": "nmap -sn 192.168.1.0/24 | awk '/for /{print $5}'",
+      "desc": "List only the IPs that answer a ping sweep",
+      "tooltip": "The ping sweep -sn checks every address in the subnet without port scanning, and the awk filter pulls just the IP from each Nmap scan report line. The result is a clean one-per-line list of live hosts. Use it to feed other tools, for example a loop that pings or SSHes each responder."
+    },
+    {
+      "cmd": "nmap --script smb-os-discovery 192.168.1.1",
+      "desc": "Identify the OS of a Windows or Samba host",
+      "tooltip": "This runs Nmap's smb-os-discovery script, which connects to the SMB service and reads the operating system banner the server volunteers. It reveals whether 192.168.1.1 runs a Windows version, Samba on Linux, or a NAS appliance. SMB must be open for the script to work, and the answer is a hint, not a guarantee."
+    },
+    {
+      "cmd": "ping -c 3 -W 1 192.168.1.1",
+      "desc": "Send three quick pings with a one-second deadline",
+      "tooltip": "The -c 3 flag limits the test to three echo requests and -W 1 caps the wait for each reply at one second, so the whole check finishes in a few seconds. This is the polite, script-friendly way to probe a host that may be down. A clean three replies means the target is reachable and responding."
+    },
+    {
+      "cmd": "ping -I eth0 8.8.8.8",
+      "desc": "Ping using a specific source interface",
+      "tooltip": "The -I flag binds the echo requests to eth0, forcing them out that interface rather than whatever the routing table picks. It is the standard test on multi-homed machines to prove a particular link has internet connectivity. Reply success means the interface, its gateway, and the path beyond all work."
+    },
+    {
+      "cmd": "fping -a -g 192.168.1.0/24",
+      "desc": "Ping an entire subnet and show only live hosts",
+      "tooltip": "fping is built for sweeping: it fans out one ping at a time across the whole 192.168.1.0/24 range instead of waiting on each host. The -g flag generates the address list from the subnet and -a filters output to addresses that answered. Run it with root privileges on systems that require raw sockets."
+    },
+    {
+      "cmd": "mtr -rw 8.8.8.8",
+      "desc": "Run a continuous traceroute as a text report",
+      "tooltip": "mtr fuses ping and traceroute, probing every hop along the path and reporting loss and latency per hop. The -r flag runs a fixed number of cycles and prints a final report instead of the live display, while -w widens the columns for readable output. It is the go-to tool for diagnosing packet loss on a route."
+    },
+    {
+      "cmd": "mtr -T -P 443 8.8.8.8",
+      "desc": "Trace a path using TCP to port 443",
+      "tooltip": "By default mtr probes with ICMP, which some routers deprioritize or drop, hiding real problems. The -T flag switches to TCP connections and -P 443 targets HTTPS, mirroring how browsers traverse the path. Hops that vanish in ICMP mode but appear here suggest ICMP filtering rather than a broken route."
+    },
+    {
+      "cmd": "tracepath 8.8.8.8",
+      "desc": "Discover the path to a host without root",
+      "tooltip": "tracepath walks the route hop by hop like traceroute but needs no special privileges, making it the quick check on locked-down machines. It also measures the path MTU, the largest packet size the route supports. The -n flag skips name lookups for faster output."
+    },
+    {
+      "cmd": "nc -z -v -w 2 192.168.1.1 1-1000",
+      "desc": "Scan a port range with netcat",
+      "tooltip": "The -z flag makes netcat connect without sending data, which is exactly a port probe, and -v reports each open or closed result. Ports are given as a range, 1 through 1000 inclusive, with -w 2 capping the wait per port at two seconds. It is a lightweight alternative to nmap for quick service checks on networks you own."
+    },
+    {
+      "cmd": "avahi-browse -a",
+      "desc": "Browse all mDNS services on the LAN",
+      "tooltip": "avahi-browse watches the multicast DNS traffic on the local network and lists every service other devices advertise, from printers and speakers to SSH and media servers. mDNS is zero-configuration hostname resolution, letting devices announce themselves without a DNS server. New services appear live as plus lines, and departures as minus lines."
+    },
+    {
+      "cmd": "avahi-browse -rt _http._tcp",
+      "desc": "List every web service advertised on the LAN",
+      "tooltip": "The service type _http._tcp filters the mDNS browsing to web servers, which is how a browser finds local dashboards and NAS interfaces. The -r flag resolves each hit to its hostname, IP, and port, and -t terminates after the initial scan instead of watching forever. It is the discovery half of mDNS."
+    },
+    {
+      "cmd": "avahi-resolve-host-name myprinter.local",
+      "desc": "Resolve a .local mDNS hostname to an IP",
+      "tooltip": "Machines on a zero-configuration network announce themselves under names ending in .local, and this command looks up the IP for one of them through the Avahi daemon. It is the mDNS equivalent of dig for ordinary DNS. Use the resolved address with ping, ssh, or a browser when the name itself is not enough."
+    },
+    {
+      "cmd": "avahi-resolve-address 192.168.1.5",
+      "desc": "Reverse-resolve an IP to its mDNS hostname",
+      "tooltip": "This asks the local multicast DNS network which hostname claims a given IP address, the reverse of the host-name lookup. Printers and smart devices often answer with names like myprinter.local. An empty result means the device does not advertise a reverse mapping."
+    },
+    {
+      "cmd": "avahi-publish -s 'My Printer' _ipp._tcp 631",
+      "desc": "Advertise a local service over mDNS",
+      "tooltip": "This registers a service announcement so other machines on the LAN can discover this one as a network printer on port 631 under the _ipp._tcp type. The announcement lives only while the command runs, which is perfect for testing, and production setups use the avahi-daemon service files instead. Other devices see it via avahi-browse."
+    },
+    {
+      "cmd": "sudo systemctl enable --now avahi-daemon",
+      "desc": "Start the mDNS responder at boot",
+      "tooltip": "The avahi-daemon service answers and sends multicast DNS announcements, which is what makes .local hostnames and avahi-browse discovery work at all. enable --now both starts the service immediately and registers it to start on every boot. Check it with systemctl status avahi-daemon if .local lookups fail."
+    },
+    {
+      "cmd": "resolvectl flush-caches",
+      "desc": "Clear the systemd-resolved DNS cache",
+      "tooltip": "Name servers and routers can hand out stale answers, and this wipes the local cache held by systemd-resolved so the next lookup re-queries the real servers. It is the modern replacement for the old systemd-resolve --flush-caches form. Run it after changing DNS settings that seem to have no effect."
+    },
+    {
+      "cmd": "resolvectl statistics",
+      "desc": "Show DNS query and cache counters",
+      "tooltip": "This prints how many DNS lookups systemd-resolved has handled, what share came from its cache, and how many failed, which quickly reveals a resolver that is dropping queries. Rising cache-hit numbers mean lookups are healthy, while failures point at upstream DNS trouble. It is the health dashboard for local name resolution."
+    },
+    {
+      "cmd": "resolvectl mdns eth0 yes",
+      "desc": "Enable multicast DNS on one interface",
+      "tooltip": "This turns on mDNS resolution and advertisement for eth0 in systemd-resolved, letting .local names work even without the Avahi daemon. Set no to disable it again. The setting is per interface, so a multi-homed machine can join mDNS on one link and stay quiet on another."
+    },
+    {
+      "cmd": "networkctl list",
+      "desc": "List all links seen by systemd-networkd",
+      "tooltip": "networkctl is the control tool for systemd-networkd, and list shows every network interface with its type, operational state, and which .network file configured it. The operational state, such as routable or degraded, tells you whether a link actually carries traffic. Machines not using systemd-networkd still show kernel-level info here."
+    },
+    {
+      "cmd": "networkctl status eth0",
+      "desc": "Show full link status for one interface",
+      "tooltip": "This dumps the current state of eth0, including speed, addresses, routes, DNS servers, and the configuration files that produced them. It is the systemd-native answer to ip addr show plus extra driver details. Check the Connected state line first when an interface will not come up."
+    },
+    {
+      "cmd": "networkctl lldp eth0",
+      "desc": "Show neighbors discovered via LLDP",
+      "tooltip": "The Link Layer Discovery Protocol lets switches and routers announce themselves on the wire, and this command prints whatever LLDP neighbor data systemd-networkd has collected on eth0. It identifies the switch port and chassis your cable plugs into, invaluable in server rooms. Enable LLDP reception in the .network file if nothing appears."
+    },
+    {
+      "cmd": "iw dev wlan0 link",
+      "desc": "Show the current Wi-Fi association details",
+      "tooltip": "iw talks directly to the kernel's nl80211 wireless stack, and dev wlan0 link reports whether the card is connected, to which SSID and BSSID, the channel, and the negotiated data rate. A Not connected line means the radio is up but associated with nothing. It is the low-level complement to nmcli device wifi list."
+    },
+    {
+      "cmd": "iw dev wlan0 scan",
+      "desc": "Scan for nearby access points",
+      "tooltip": "This triggers a full wireless scan on wlan0 and prints every detected access point with its SSID, signal strength, channel, and supported security modes. The scan needs root and can take a few seconds. Look for the SSID you expect and a strong signal before blaming the router for a weak connection."
+    },
+    {
+      "cmd": "iw dev wlan0 connect MyWiFi",
+      "desc": "Associate with an open Wi-Fi network directly",
+      "tooltip": "This orders the kernel to join the named network without any encryption, bypassing NetworkManager and wpa_supplicant entirely. WPA or WPA2 networks still need a supplicant, so for those use wpa_supplicant or nmcli instead. The association is not persistent and drops on reboot or disconnect."
+    },
+    {
+      "cmd": "iw dev wlan0 disconnect",
+      "desc": "Drop the current Wi-Fi association",
+      "tooltip": "This forcibly disconnects wlan0 from whatever access point it is joined to, which is handy before switching supplicants or reconfiguring the radio. The card stays up and unassociated, ready for a new connect command. NetworkManager may immediately rejoin a known network, so stop it first if that interferes."
+    },
+    {
+      "cmd": "rfkill list",
+      "desc": "Show the software and hardware radio switches",
+      "tooltip": "Every wireless device has two kill switches: a soft block that software controls and a hard block that a physical laptop switch or key combo sets. This command lists each device, its type, and the state of both blocks. A hard-blocked device cannot be unblocked from software at all."
+    },
+    {
+      "cmd": "rfkill block wifi",
+      "desc": "Soft-block all Wi-Fi radios",
+      "tooltip": "This flips the kernel-level software switch that powers down every wireless LAN device, which is stronger and lower level than nmcli radio wifi off. Aircraft and security policies are the usual reasons. Reverse it with rfkill unblock wifi, and remember that a hard block from a hardware switch overrides everything."
+    },
+    {
+      "cmd": "rfkill unblock all",
+      "desc": "Clear every software radio block",
+      "tooltip": "This flips all wireless devices, Wi-Fi, Bluetooth, and WWAN alike, back to the unblocked state so drivers can power them on. It only affects software blocks, so a hard-blocked device stays off until the physical switch is moved. Use rfkill list afterwards to confirm every device shows unblocked."
+    },
+    {
+      "cmd": "ethtool -S eth0",
+      "desc": "Show per-interface network statistics counters",
+      "tooltip": "This prints the raw counters the driver keeps for eth0, including packets and bytes in and out, drops, errors, and CRC failures. Climbing rx_crc_errors or tx_dropped values point at bad cabling or a saturated queue. Run it twice and compare to see whether a counter is still growing."
+    },
+    {
+      "cmd": "ethtool -i eth0",
+      "desc": "Show the driver and firmware behind an interface",
+      "tooltip": "The -i flag reports which kernel driver owns eth0, its version, the firmware version, and the bus location such as PCI. This is the first stop when an interface misbehaves, since driver bugs are often the cause. Search the driver name when looking for known issues or tuning options."
+    },
+    {
+      "cmd": "ethtool -P eth0",
+      "desc": "Show the permanent MAC address of a NIC",
+      "tooltip": "This prints the hardware address burned into the network card at the factory, which survives MAC spoofing and driver resets. Compare it with ip link show eth0 to spot when a spoofed address is active. Useful for identifying a card when the running address has been changed."
+    },
+    {
+      "cmd": "ethtool -k eth0",
+      "desc": "List the offload features enabled on an interface",
+      "tooltip": "The -k flag dumps protocol offloads such as checksumming, TCP segmentation, and generic receive offload, each shown as on, off, or fixed. Offloads move work from the CPU into the NIC, but broken drivers can corrupt traffic, and toggling them with ethtool -K is a classic packet-capture fix."
+    },
+    {
+      "cmd": "ethtool -p eth0 5",
+      "desc": "Blink the port LED to identify the physical NIC",
+      "tooltip": "This makes the link light on eth0 blink for five seconds, which is how you find which physical port a logical interface name maps to in a rack or behind a desk. The count argument sets the blink duration. It works only when the driver implements the identify operation."
+    },
+    {
+      "cmd": "ethtool -s eth0 wol g",
+      "desc": "Enable wake-on-LAN magic packet support",
+      "tooltip": "This tells the network card to stay listening for a magic packet after shutdown so a wakeonlan command elsewhere can power the machine on. The g mode enables the magic-packet trigger, and the setting lives in the NIC's non-volatile memory on most hardware. Pair it with BIOS settings that allow wake from PCIe."
+    },
+    {
+      "cmd": "wakeonlan aa:bb:cc:dd:ee:ff",
+      "desc": "Send a magic packet to wake a sleeping computer",
+      "tooltip": "Wake-on-LAN works by broadcasting a magic packet, six bytes of 0xFF followed by the target MAC repeated sixteen times, and this sends it to the limited broadcast address on UDP port 9. The target must have WOL enabled in its BIOS and on its NIC. Machines on another subnet need the -i directed broadcast form instead."
+    },
+    {
+      "cmd": "wakeonlan -i 192.168.1.255 aa:bb:cc:dd:ee:ff",
+      "desc": "Send a magic packet to a specific broadcast address",
+      "tooltip": "The -i flag points the magic packet at a chosen broadcast address, such as the 192.168.1.255 directed broadcast of the target's subnet, which crosses routers more reliably than the default limited broadcast. Routers must forward directed broadcasts for this to work across subnets. Port stays at the default 9 unless -p overrides it."
+    },
+    {
+      "cmd": "etherwake -i eth0 aa:bb:cc:dd:ee:ff",
+      "desc": "Send a wake-on-LAN packet from a chosen interface",
+      "tooltip": "etherwake is the C alternative to the Perl wakeonlan script, and -i selects which interface carries the magic packet. It matters on machines with several NICs where only one is on the target's subnet. The target MAC is the single positional argument, and the packet goes out as a broadcast."
+    },
+    {
+      "cmd": "iperf3 -s -p 5202",
+      "desc": "Start an iperf3 server on a custom port",
+      "tooltip": "iperf3 measures raw network throughput between two machines, and this starts the server half on port 5202 instead of the default 5201. Run it on the machine you want to test toward, then point iperf3 -c at its address. The server prints a summary of each completed test."
+    },
+    {
+      "cmd": "iperf3 -c 192.168.1.10 -t 10",
+      "desc": "Run a ten-second throughput test to a server",
+      "tooltip": "This runs the client half of iperf3, pushing as much TCP traffic as possible to the server at 192.168.1.10 for ten seconds and reporting the achieved bandwidth. The result is the practical ceiling of the link, including Wi-Fi interference and switch limits. Repeat the test in both directions to find asymmetric problems."
+    },
+    {
+      "cmd": "iperf3 -c 192.168.1.10 -u -b 100m",
+      "desc": "Test UDP throughput at a fixed bitrate",
+      "tooltip": "The -u flag switches to UDP, where iperf3 sends at exactly the rate given by -b 100m, one hundred megabits per second, and reports how much the receiver actually got. Packet loss shows up as gaps between the sent and received rates. This models real-time traffic such as VoIP or video better than TCP."
+    },
+    {
+      "cmd": "iperf3 -c 192.168.1.10 -R",
+      "desc": "Measure download speed in reverse mode",
+      "tooltip": "By default the client sends and the server receives, which measures upload from the client's perspective. The -R flag reverses the roles so the server floods the client, measuring download instead. Run one test in each direction to see the full picture of a link, since home connections are often asymmetric."
+    },
+    {
+      "cmd": "iperf3 -c 192.168.1.10 -P 4",
+      "desc": "Run four parallel streams in one test",
+      "tooltip": "The -P flag opens multiple concurrent connections, and each stream gets its own report line plus a summed total. Parallel streams better saturate fast links and multi-core hosts that a single connection cannot fill. Compare the aggregate against the single-stream result to estimate how much headroom the link has."
+    },
+    {
+      "cmd": "iperf3 -c 192.168.1.10 -p 5202",
+      "desc": "Point the client at a non-default server port",
+      "tooltip": "This connects the iperf3 client to a server listening on port 5202 rather than the default 5201, matching the iperf3 -s -p 5202 server form. Custom ports dodge firewalls that only allow the standard one or let several tests run side by side. The port must match exactly on both ends."
+    },
+    {
+      "cmd": "smbclient -L //server -U user",
+      "desc": "List the shares a Samba server offers",
+      "tooltip": "smbclient is the command-line client for SMB, the file-sharing protocol used by Windows and Samba, and -L lists every share the server advertises. The -U flag supplies the username, and smbclient prompts for the password. This is the fastest way to inventory what a NAS or Windows box exposes before mounting anything."
+    },
+    {
+      "cmd": "smbclient //server/share -U user",
+      "desc": "Open an interactive SMB session on a share",
+      "tooltip": "This drops you into an FTP-like shell on the named share where commands such as ls, cd, get, and put move files over SMB. The session prompts for the password after the -U username. Use it for one-off transfers without mounting anything, which keeps the filesystem clean."
+    },
+    {
+      "cmd": "smbclient //server/share -U user -c 'ls'",
+      "desc": "Run one SMB command without a shell",
+      "tooltip": "The -c flag executes a single command inside the share and exits, which makes smbclient scriptable. Here it lists the share contents, and the same pattern works with get, put, mkdir, or del. Quote the command so the shell passes it whole to smbclient."
+    },
+    {
+      "cmd": "smbclient //server/share -U user -c 'put report.pdf'",
+      "desc": "Upload a file to an SMB share",
+      "tooltip": "This copies report.pdf from the current directory up to the share using the put command executed non-interactively. The -c form keeps the whole transfer to one line, ideal for cron jobs and scripts. Verify with a follow-up ls against the share that the file landed where expected."
+    },
+    {
+      "cmd": "smbclient //server/share -U user -c 'get report.pdf'",
+      "desc": "Download a file from an SMB share",
+      "tooltip": "The get command fetches report.pdf from the share into the current directory, and wrapping it in -c runs the session non-interactively. Multiple commands can be chained inside the quotes with semicolons. This is the quick way to pull one file without mounting the share."
+    },
+    {
+      "cmd": "smbget smb://server/share/report.pdf -U user",
+      "desc": "Download an SMB file with a wget-style tool",
+      "tooltip": "smbget is the non-interactive downloader for SMB, taking a full smb:// URL instead of a share plus commands. It supports recursive directory downloads with -R and resume with -c. Use it in scripts where the interactive smbclient shell would be clumsy."
+    },
+    {
+      "cmd": "smbtree -U user",
+      "desc": "Map every SMB server and share on the network",
+      "tooltip": "smbtree walks the network browsing the SMB domain and prints a tree of all servers, workgroups, and the shares each one offers. It needs valid credentials because modern Samba refuses anonymous browsing. This is the discovery tool when you do not know what Windows or Samba machines exist."
+    },
+    {
+      "cmd": "cifscreds add -u alice nas",
+      "desc": "Store SMB credentials in the kernel keyring",
+      "tooltip": "cifscreds saves a username and password in the kernel keyring for a host, so multi-user CIFS mounts can authenticate per user without embedding passwords in mount options. The credentials live in the session keyring and expire with the session. Clear them with cifscreds clear nas."
+    },
+    {
+      "cmd": "sudo mount -t cifs //server/share /mnt/share -o username=user",
+      "desc": "Mount a Windows share with CIFS",
+      "tooltip": "This attaches the SMB share //server/share to the local directory /mnt/share, and mount prompts for the password after applying the username option. CIFS mounts need root and the cifs-utils package. Unmount with sudo umount /mnt/share when done."
+    },
+    {
+      "cmd": "sudo mount -t cifs //server/share /mnt/share -o credentials=/etc/samba/credentials",
+      "desc": "Mount a share using a credentials file",
+      "tooltip": "Instead of a password on the command line, this reads username, password, and domain lines from /etc/samba/credentials, which keeps secrets out of shell history and process listings. Protect that file with root-only permissions. The credentials option is the recommended form for fstab entries."
+    },
+    {
+      "cmd": "sudo mount -t cifs //server/share /mnt/share -o username=user,vers=3.0",
+      "desc": "Mount SMB pinning the protocol version",
+      "tooltip": "The vers option forces the SMB dialect, and 3.0 is a common modern baseline that avoids the insecurity of SMB1 and the negotiation quirks of old servers. Errors such as mount error(112) often trace back to version mismatches. Try vers=3.1.1 for newer servers or vers=2.0 for older appliances."
+    },
+    {
+      "cmd": "sudo umount /mnt/share",
+      "desc": "Unmount a network share cleanly",
+      "tooltip": "This detaches the CIFS or NFS mount at /mnt/share after flushing pending writes, so it is the safe counterpart to the mount commands. It fails with a busy error if a process still holds files there, and lazy umount -l defers the teardown instead. Update /etc/fstab first if the mount should not return on reboot."
+    },
+    {
+      "cmd": "sudo mount -t nfs server:/export /mnt/nfs",
+      "desc": "Mount an NFS export from a server",
+      "tooltip": "The Network File System lets many Linux machines share one directory, and this attaches the export named /export on server to /mnt/nfs. NFS v3 mounts like this need the portmap service reachable on the server. Show available exports first with showmount -e server."
+    },
+    {
+      "cmd": "sudo mount -t nfs -o vers=4.2 server:/export /mnt/nfs",
+      "desc": "Mount NFS with a pinned protocol version",
+      "tooltip": "The vers option selects the NFS dialect, and 4.2 is the current mainstream version with server-side copy and better locking than v3. Pinning the version avoids negotiation failures against picky servers. NFSv4 also collapses the firewall port sprawl that v3 required."
+    },
+    {
+      "cmd": "showmount -a server",
+      "desc": "List all clients with active NFS mounts",
+      "tooltip": "showmount queries the NFS server's mount daemon, and -a lists every client machine currently holding a mount plus the export it uses. This reveals who is actually consuming the server's files. The -e flag you may already know lists available exports instead."
+    },
+    {
+      "cmd": "rpcinfo -u server nfs",
+      "desc": "Probe an NFS service over UDP",
+      "tooltip": "rpcinfo asks the portmapper on server which RPC services are registered, and the -u flag sends the probe over UDP to the program named nfs. A response confirms the NFS service is alive and reachable. It is the connectivity check when NFS mounts hang or refuse."
+    },
+    {
+      "cmd": "nfsstat -m",
+      "desc": "Show statistics for mounted NFS filesystems",
+      "tooltip": "This prints every NFS mount on the machine with its server, export, mount options, and current operation counters such as reads, writes, and retransmissions. Climbing retrans counts mean the link to the server is lossy. It is the first diagnostic when an NFS mount feels slow."
+    },
+    {
+      "cmd": "smbstatus -S",
+      "desc": "List open shares and connected clients on a Samba server",
+      "tooltip": "On the Samba server itself, smbstatus -S shows every share currently in use and which client is connected to it. The -L variant lists byte-range locks held by clients. Run it when a file cannot be deleted because someone has it open over the network."
+    },
+    {
+      "cmd": "cloudflared tunnel cleanup mytunnel",
+      "desc": "Remove stale connections for a tunnel",
+      "tooltip": "When cloudflared is killed hard, orphaned connections can linger and block a tunnel from being deleted or restarted, and this command clears them for the named tunnel. It is the standard fix for the unable-to-delete or unable-to-run error after a crash. The tunnel keeps its credentials and DNS routes."
+    },
+    {
+      "cmd": "cloudflared tunnel token mytunnel",
+      "desc": "Print the token that runs a tunnel",
+      "tooltip": "This fetches the credentials token for the named tunnel, a base64 blob that lets any machine run the tunnel without the original cert. Tokens are secrets, so treat the output like a password. Use the token with cloudflared tunnel run --token on other hosts or container orchestrators."
+    },
+    {
+      "cmd": "cloudflared tunnel run --token $TUNNEL_TOKEN",
+      "desc": "Run a tunnel using a token instead of credentials",
+      "tooltip": "A tunnel token bundles all credentials, so this starts the tunnel with nothing but the $TUNNEL_TOKEN environment variable, which is how Kubernetes and remote hosts run tunnels without copying credential files. The token grants the ability to serve the tunnel, so keep it out of public repos. cloudflared stays in the foreground until stopped."
+    },
+    {
+      "cmd": "cloudflared tunnel --config /etc/cloudflared/config.yml run mytunnel",
+      "desc": "Run a tunnel with a config file of ingress rules",
+      "tooltip": "Production tunnels usually route several hostnames to different local services, and the --config flag points cloudflared at the YAML file holding those ingress rules. The run argument names which tunnel the config applies to. Ingress rules map public hostnames to local ports, with a catch-all rule required at the end."
+    },
+    {
+      "cmd": "cloudflared tunnel ingress validate",
+      "desc": "Validate the ingress rules in the config file",
+      "tooltip": "This parses the tunnel's configuration file and reports whether every ingress rule, from hostname to service mapping, is well formed. A config with a missing catch-all rule or a bad service URL fails here before any traffic is routed. Run it after editing config.yml and before restarting the tunnel."
+    },
+    {
+      "cmd": "cloudflared tunnel ingress rule https://app.example.com",
+      "desc": "Test which ingress rule a URL matches",
+      "tooltip": "This checks a concrete URL against every ingress rule in the config file and prints the first rule that matches, with its hostname and target service. It is the dry run for routing decisions, showing exactly where a request would land. Useful when adding a new hostname to an existing tunnel."
+    },
+    {
+      "cmd": "cloudflared tunnel route ip add 10.0.0.0/8 mytunnel",
+      "desc": "Route a private network through the tunnel",
+      "tooltip": "This tells Cloudflare that the 10.0.0.0/8 range is reachable behind mytunnel, so enrolled devices running the Cloudflare One client can reach those private IPs from anywhere. The tunnel must run where that network is actually reachable. List the routing table with cloudflared tunnel route ip show."
+    },
+    {
+      "cmd": "cloudflared tunnel route ip show",
+      "desc": "Show the private network routing table",
+      "tooltip": "This prints every CIDR route mapped to a tunnel in your Cloudflare account, plus which virtual network each belongs to. It is the overview of what private IP space is reachable through Cloudflare. Delete a route with cloudflared tunnel route ip delete when a network moves."
+    },
+    {
+      "cmd": "cloudflared tunnel vnet add myvnet",
+      "desc": "Create a virtual network for tunnel routes",
+      "tooltip": "Virtual networks let overlapping private ranges coexist by scoping routes, and this creates one named myvnet for that purpose. Routes are assigned to a virtual network with the --vnet flag on route ip add. The default network holds any route you create without one."
+    },
+    {
+      "cmd": "cloudflared tail mytunnel",
+      "desc": "Stream live logs from a running tunnel",
+      "tooltip": "This attaches to the named tunnel and streams its connection events and request logs to the terminal, which is the fastest way to see why a tunnel is flapping or a route is failing. The output shows connection attempts, protocol, and errors as they happen. Stop the stream with Ctrl-C without touching the tunnel itself."
+    },
+    {
+      "cmd": "cloudflared access ssh --hostname ssh.example.com --url localhost:22",
+      "desc": "Reach an SSH server through Cloudflare Access",
+      "tooltip": "This proxies the local SSH client to ssh.example.com through Cloudflare's Access service, which authenticates you with your identity provider before the connection reaches the server on localhost:22. It is the client-side half of Access-protected SSH, usually configured as a ProxyCommand in ~/.ssh/config. No VPN is needed."
+    },
+    {
+      "cmd": "cloudflared access tcp --hostname tcp.example.com --url localhost:9210",
+      "desc": "Tunnel arbitrary TCP through Cloudflare Access",
+      "tooltip": "For non-SSH protocols, this forwards a local port through Access: traffic to tcp.example.com authenticates with your identity provider and lands on localhost:9210. Databases and custom protocols are the usual targets. The command stays running, so wrap it as a desktop shortcut or service for everyday use."
+    },
+    {
+      "cmd": "cloudflared access curl https://internal.example.com",
+      "desc": "Fetch a URL behind Cloudflare Access",
+      "tooltip": "This runs curl through cloudflared's Access wrapper, which injects your Access session token into the request automatically. It is the CLI way to hit an internal API protected by Access policies without pasting headers. The token comes from an earlier cloudflared access login for that application."
+    },
+    {
+      "cmd": "cloudflared access login https://app.example.com",
+      "desc": "Authenticate to an Access-protected application",
+      "tooltip": "This opens a browser to the Access login page for app.example.com, and after you authenticate through your identity provider, cloudflared stores the session token locally. Later access commands reuse that token until the session expires. Machines without a browser can copy the printed URL elsewhere."
+    },
+    {
+      "cmd": "cloudflared access token -app=https://app.example.com",
+      "desc": "Print the Access token for an application",
+      "tooltip": "This returns the raw session token for the named application, which other tools can send as the cf-access-token header. The token is scoped to that application and expires with the session. It is the building block for scripting requests to Access-protected APIs."
+    },
+    {
+      "cmd": "sudo cloudflared service uninstall",
+      "desc": "Remove cloudflared as a system service",
+      "tooltip": "This stops and deletes the systemd unit that runs cloudflared in the background, leaving the binary and tunnel config in place. It is the reverse of sudo cloudflared service install. Run it before upgrading the service or switching a tunnel to a new token."
+    },
+    {
+      "cmd": "ngrok tcp 22",
+      "desc": "Expose a local TCP port with a public ngrok address",
+      "tooltip": "This opens a public TCP endpoint on ngrok's infrastructure and forwards it to port 22 on this machine, giving the local SSH server an internet-reachable address. ngrok prints the public host and port, which stay valid while the process runs. Exposing SSH publicly invites brute-force attacks, so add strong authentication or an IP allowlist."
+    },
+    {
+      "cmd": "ngrok start --all",
+      "desc": "Start every tunnel defined in the config file",
+      "tooltip": "The ngrok configuration file at ~/.ngrok.yml can define several tunnels, and this launches all of them at once with one command. Named tunnels mix HTTP, TCP, and TLS endpoints freely. Individual tunnels start with ngrok start <name>."
+    },
+    {
+      "cmd": "ngrok config add-authtoken 1rlHSX3HqrqmOWZdeJ6bIv8rfuo_4cmS1QswRGyxcQD8NOukF",
+      "desc": "Save the ngrok authtoken to the config file",
+      "tooltip": "ngrok requires an account authtoken before tunnels will run, and this writes it into the configuration file so every later command picks it up. The token value comes from the ngrok dashboard and is tied to your account. Without it, tunnels refuse to start."
+    },
+    {
+      "cmd": "ngrok diagnose",
+      "desc": "Run connectivity checks against the ngrok service",
+      "tooltip": "This runs a battery of tests covering DNS resolution, TLS, and reachability of ngrok's ingress servers, then reports which checks pass or fail. Use it when tunnels fail to start or drop constantly. The output pinpoints whether the problem is local, such as a proxy or firewall, or upstream."
+    },
+    {
+      "cmd": "ngrok http 192.168.1.2:80",
+      "desc": "Expose a web service on another LAN machine",
+      "tooltip": "Normally ngrok forwards to localhost, but the target can be any address, so this puts the web interface of a LAN device, for example a NAS or camera at 192.168.1.2, on a public ngrok URL. Both machines must be reachable from this host. Anyone with the public URL can reach the service, so restrict access for sensitive devices."
+    },
+    {
+      "cmd": "sudo ngrok service install --config /etc/ngrok.yml",
+      "desc": "Install ngrok as a background system service",
+      "tooltip": "This creates a systemd unit that runs ngrok in the background and restarts it on boot, with tunnels taken from the config file. The --config flag points the service at a system-wide config instead of the user one. Manage it like any service with systemctl start and status."
+    },
+    {
+      "cmd": "tailscale up",
+      "desc": "Join this machine to your tailnet",
+      "tooltip": "tailscale builds a WireGuard mesh network, and up registers this machine with your account, authenticating via a browser or auth key and opening a secure tunnel to every other device in your tailnet. The first run prints a login URL. Subsequent up commands simply ensure the machine stays connected."
+    },
+    {
+      "cmd": "tailscale up --ssh",
+      "desc": "Enable Tailscale SSH on this machine",
+      "tooltip": "The --ssh flag runs Tailscale's own SSH server, so authorized tailnet users can connect with plain tailscale ssh and never handle keys or passwords. Access is governed by your tailnet's access control policy instead of sshd config. Traditional sshd on port 22 continues to work alongside it."
+    },
+    {
+      "cmd": "tailscale up --advertise-routes=192.168.1.0/24",
+      "desc": "Share your LAN subnet with the tailnet",
+      "tooltip": "This turns the machine into a subnet router, advertising the local 192.168.1.0/24 network so remote tailnet devices can reach it through this host. The routes need approval in the admin console before other machines use them. Clients must also run tailscale up --accept-routes to honor advertised routes."
+    },
+    {
+      "cmd": "tailscale up --exit-node=100.101.102.103",
+      "desc": "Route all internet traffic through another device",
+      "tooltip": "An exit node acts as the tailnet's gateway to the internet, and this sends all of this machine's outbound traffic through the node at the given Tailscale IP, so your public IP becomes theirs. Useful for region-specific services or privacy. The node must advertise itself as an exit node and be approved in the admin console."
+    },
+    {
+      "cmd": "tailscale down",
+      "desc": "Disconnect from the tailnet",
+      "tooltip": "This drops all Tailscale connections and removes the tailscale interface, so this machine becomes unreachable from other tailnet devices until tailscale up runs again. The login and preferences stay saved. Use it before testing how the machine behaves without the tailnet."
+    },
+    {
+      "cmd": "tailscale status",
+      "desc": "Show every device in the tailnet and their state",
+      "tooltip": "This prints the peer list with each device's name, Tailscale IP, OS, and connection state, plus which are reachable right now. The output marks relayed connections, which indicate a direct peer-to-peer path could not be established. Add --json for machine-readable output."
+    },
+    {
+      "cmd": "tailscale ip -4",
+      "desc": "Print this machine's Tailscale IPv4 address",
+      "tooltip": "Each tailnet device gets a stable 100.x.y.z address from the CGNAT range, and this prints this machine's IPv4 one. Use the address for SSH, ping, or service URLs that should only work inside the tailnet. The -6 variant shows the IPv6 address."
+    },
+    {
+      "cmd": "tailscale serve --http=80 localhost:3000",
+      "desc": "Expose a local web app on your tailnet",
+      "tooltip": "This publishes the web server on localhost:3000 to the tailnet at this machine's MagicDNS name on port 80, with TLS handled by Tailscale. Only tailnet devices can reach it, making it perfect for sharing a dev server or internal dashboard. Stop it with the off keyword."
+    },
+    {
+      "cmd": "tailscale serve --bg --https=443 localhost:3000",
+      "desc": "Serve a local service in the background",
+      "tooltip": "The --bg flag detaches the serve process so it keeps running after the terminal closes, and --https=443 publishes the local server on the standard HTTPS port. Without --bg, the tunnel dies when you log out. Persist the config with tailscale serve reset for reboot survival."
+    },
+    {
+      "cmd": "tailscale funnel --https=443 localhost:3000",
+      "desc": "Expose a local service to the public internet",
+      "tooltip": "Funnel is serve with the privacy removed: it publishes the local service at a public *.ts.net address that anyone on the internet can reach, not just tailnet members. That makes it a full public hosting option, but it also means the service faces the whole internet. Use it deliberately and only for things meant to be public."
+    },
+    {
+      "cmd": "tailscale file cp notes.txt laptop:",
+      "desc": "Send a file to another device via Taildrop",
+      "tooltip": "Taildrop moves files between your own devices over the encrypted tailnet, and this copies notes.txt to the machine named laptop, with the trailing colon marking it as a target. The recipient accepts or rejects the transfer. Pull incoming files on the receiving side with tailscale file get."
+    },
+    {
+      "cmd": "tailscale file get .",
+      "desc": "Retrieve files sent to this machine via Taildrop",
+      "tooltip": "This downloads everything waiting in this device's Taildrop inbox into the current directory, which is how the receiving side of a tailscale file cp completes. The target directory argument can be any path. Files expire after a few days if never collected."
+    },
+    {
+      "cmd": "tailscale netcheck",
+      "desc": "Test NAT traversal and connectivity quality",
+      "tooltip": "This probes the network with STUN to determine NAT type, whether UDP is blocked, and which DERP relay servers are reachable and how fast. The output explains why peers fall back to relayed connections instead of direct ones. Run it when tailscale ping shows high latency or relayed paths."
+    },
+    {
+      "cmd": "tailscale ping nas",
+      "desc": "Ping another device over the tailnet",
+      "tooltip": "This sends a probe to the device named nas over the tailnet and reports whether the path is direct or relayed through a DERP server, plus the round-trip time. Unlike ordinary ping it tests the actual encrypted tunnel. A relayed result usually means NAT traversal failed on one side."
+    },
+    {
+      "cmd": "tailscale whois 100.101.102.103",
+      "desc": "Identify the owner of a Tailscale IP address",
+      "tooltip": "This looks up the given Tailscale address and returns which user and device it belongs to, plus their login state. It is the tailnet equivalent of reverse DNS for diagnosing unknown peers in status output. Requires the lookup to happen inside your own tailnet."
+    },
+    {
+      "cmd": "tailscale cert myserver.mytailnet.ts.net",
+      "desc": "Issue a TLS certificate for a tailnet hostname",
+      "tooltip": "This fetches a Let's Encrypt certificate for the machine's MagicDNS name, which is what lets tailscale serve and funnel terminate TLS automatically. The cert and key land in the current directory. Use it when running your own HTTPS service on the tailnet."
+    },
+    {
+      "cmd": "tailscale logout",
+      "desc": "Disconnect and expire this device's login",
+      "tooltip": "This removes the machine from the tailnet and invalidates its login, so tailscale up must reauthenticate before it can rejoin. It also deletes the node's key from your account. Use it before handing a machine to someone else or to force a fresh identity."
+    },
+    {
+      "cmd": "tailscale ssh user@nas",
+      "desc": "Open an SSH session through Tailscale SSH",
+      "tooltip": "This connects to the device nas using Tailscale's managed SSH, which authenticates with your tailnet identity instead of passwords or copied keys. The target must run tailscale up --ssh and your access policy must permit the connection. The session inherits the tailnet's audit and logging controls."
+    },
+    {
+      "cmd": "ssh -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 443:localhost:8443 user@tunnel.example.com",
+      "desc": "Hold a persistent SSH reverse tunnel open",
+      "tooltip": "The -R flag asks the remote server to listen on port 443 and forward connections back to localhost:8443, exposing the local service through the remote machine. ExitOnForwardFailure makes ssh abort instead of silently running without the tunnel, and ServerAliveInterval keeps the connection from idling out. This is the classic no-dependency public hosting pattern."
+    },
+    {
+      "cmd": "autossh -M 0 -N -o ServerAliveInterval=60 -R 8080:localhost:3000 user@tunnel.example.com",
+      "desc": "Keep an SSH tunnel alive across drops",
+      "tooltip": "autossh supervises an ssh process and restarts it whenever the connection dies, turning a fragile reverse tunnel into a service. The -M 0 form disables autossh's own monitor port and relies on OpenSSH's ServerAliveInterval to detect dead links, which is the recommended modern setup. Run it under systemd for boot persistence."
+    },
+    {
+      "cmd": "sshuttle -r user@vpn.example.com 10.0.0.0/8",
+      "desc": "Forward a subnet through SSH like a mini-VPN",
+      "tooltip": "sshuttle tunnels traffic to the given network over an ordinary SSH connection without needing root on the remote side or any VPN software there. Everything destined for 10.0.0.0/8 is routed through vpn.example.com. It is the fast way to reach a private office network from a laptop."
+    },
+    {
+      "cmd": "socat TCP-LISTEN:8080,reuseaddr,fork TCP:192.168.1.10:80",
+      "desc": "Forward a local port to another LAN host",
+      "tooltip": "socat is a Swiss-army data relay, and this listens on port 8080 locally and pipes every connection to the web server at 192.168.1.10:80. The fork option handles each client in its own process, and reuseaddr lets the port rebind instantly after a restart. It is a one-line port forwarder without firewall changes."
+    }
+  ]
+}

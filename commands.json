@@ -97,7 +97,7 @@
     {
       "category": "Administration",
       "cmd": "hostnamectl status",
-      "desc": "show hostname and OS metadata",
+      "desc": "Show hostname and OS metadata",
       "tooltip": "Use `hostnamectl status` to show hostname and OS metadata. Helpful when you need this quickly on a Linux server.",
       "id": 3060
     },
@@ -111,7 +111,7 @@
     {
       "category": "Administration",
       "cmd": "timedatectl set-ntp true",
-      "desc": "enable network time synchronization",
+      "desc": "Enable network time synchronization",
       "tooltip": "Use `timedatectl set-ntp true` to enable network time synchronization. Helpful when you need this quickly on a Linux server.",
       "id": 3054
     },
@@ -216,7 +216,7 @@
     {
       "category": "Administration",
       "cmd": "du -xhd1 /var",
-      "desc": "show top-level disk usage without crossing filesystems",
+      "desc": "Show top-level disk usage without crossing filesystems",
       "tooltip": "Use `du -xhd1 /var` to show top-level disk usage without crossing filesystems. Helpful when you need this quickly on a Linux server.",
       "id": 3075
     },
@@ -265,7 +265,7 @@
     {
       "category": "Administration",
       "cmd": "iostat -xz 1",
-      "desc": "show CPU and block-device I/O utilization",
+      "desc": "Show CPU and block-device I/O utilization",
       "tooltip": "Use `iostat -xz 1` to show CPU and block-device I/O utilization. Helpful when you need this quickly on a Linux server.",
       "id": 3167
     },
@@ -279,7 +279,7 @@
     {
       "category": "Administration",
       "cmd": "last -a",
-      "desc": "show login history with remote host at the end",
+      "desc": "Show login history with remote host at the end",
       "tooltip": "Use `last -a` to show login history with remote host at the end. Helpful when you need this quickly on a Linux server.",
       "id": 3148
     },
@@ -384,7 +384,7 @@
     {
       "category": "Administration",
       "cmd": "vmstat 1",
-      "desc": "show memory, CPU, and scheduler statistics continuously",
+      "desc": "Show memory, CPU, and scheduler statistics continuously",
       "tooltip": "Use `vmstat 1` to show memory, CPU, and scheduler statistics continuously. Helpful when you need this quickly on a Linux server.",
       "id": 3166
     },
@@ -412,7 +412,7 @@
     {
       "category": "Administration",
       "cmd": "who -a",
-      "desc": "show detailed logged-in user information",
+      "desc": "Show detailed logged-in user information",
       "tooltip": "Use `who -a` to show detailed logged-in user information. Helpful when you need this quickly on a Linux server.",
       "id": 3147
     },
@@ -433,7 +433,7 @@
     {
       "category": "Administration",
       "cmd": "fuser -v 80/tcp",
-      "desc": "show which process is using a port",
+      "desc": "Show which process is using a port",
       "tooltip": "Use `fuser -v 80/tcp` to show which process is using a port. Helpful when you need this quickly on a Linux server.",
       "id": 3163
     },
@@ -489,7 +489,7 @@
     {
       "category": "Administration",
       "cmd": "pgrep -af nginx",
-      "desc": "find matching processes with full command lines",
+      "desc": "Find matching processes with full command lines",
       "tooltip": "Use `pgrep -af nginx` to find matching processes with full command lines. Helpful when you need this quickly on a Linux server.",
       "id": 3161
     },
@@ -685,7 +685,7 @@
     {
       "category": "Administration",
       "cmd": "journalctl -p err -b",
-      "desc": "show errors from the current boot",
+      "desc": "Show errors from the current boot",
       "tooltip": "Use `journalctl -p err -b` to show errors from the current boot. Helpful when you need this quickly on a Linux server.",
       "id": 3070
     },
@@ -699,7 +699,7 @@
     {
       "category": "Administration",
       "cmd": "journalctl -u nginx -f",
-      "desc": "follow logs for one systemd service",
+      "desc": "Follow logs for one systemd service",
       "tooltip": "Use `journalctl -u nginx -f` to follow logs for one systemd service. Helpful when you need this quickly on a Linux server.",
       "id": 3071
     },
@@ -1091,7 +1091,7 @@
     {
       "category": "Administration",
       "cmd": "sudo -l",
-      "desc": "list commands the current user may run with sudo",
+      "desc": "List commands the current user may run with sudo",
       "tooltip": "Use `sudo -l` to list commands the current user may run with sudo. Helpful when you need this quickly on a Linux server.",
       "id": 3160
     },
@@ -1245,7 +1245,7 @@
     {
       "category": "Administration",
       "cmd": "pkill -f gunicorn",
-      "desc": "kill processes by matching the full command line",
+      "desc": "Kill processes by matching the full command line",
       "tooltip": "Use `pkill -f gunicorn` to kill processes by matching the full command line. Helpful when you need this quickly on a Linux server.",
       "id": 3162
     },
@@ -1266,7 +1266,7 @@
     {
       "category": "Administration",
       "cmd": "renice -n 10 -p 1234",
-      "desc": "change CPU scheduling priority for a process",
+      "desc": "Change CPU scheduling priority for a process",
       "tooltip": "Use `renice -n 10 -p 1234` to change CPU scheduling priority for a process. Helpful when you need this quickly on a Linux server.",
       "id": 3164
     },
@@ -1287,14 +1287,14 @@
     {
       "category": "Administration",
       "cmd": "chage -M 90 alice",
-      "desc": "set a password max age in days",
+      "desc": "Set a password max age in days",
       "tooltip": "Use `chage -M 90 alice` to set a password max age in days. Helpful when you need this quickly on a Linux server.",
       "id": 3154
     },
     {
       "category": "Administration",
       "cmd": "chage -l alice",
-      "desc": "show password aging information for a user",
+      "desc": "Show password aging information for a user",
       "tooltip": "Use `chage -l alice` to show password aging information for a user. Helpful when you need this quickly on a Linux server.",
       "id": 3153
     },
@@ -1441,7 +1441,7 @@
     {
       "category": "Administration",
       "cmd": "usermod -aG sudo alice",
-      "desc": "add a user to the sudo group",
+      "desc": "Add a user to the sudo group",
       "tooltip": "Use `usermod -aG sudo alice` to add a user to the sudo group. Helpful when you need this quickly on a Linux server.",
       "id": 3152
     },
@@ -1469,7 +1469,7 @@
     {
       "category": "Administration",
       "cmd": "visudo -c",
-      "desc": "validate sudoers configuration",
+      "desc": "Validate sudoers configuration",
       "tooltip": "Use `visudo -c` to validate sudoers configuration. Helpful when you need this quickly on a Linux server.",
       "id": 3159
     },
@@ -1784,14 +1784,14 @@
     {
       "category": "Administration",
       "cmd": "findmnt",
-      "desc": "show all mounted filesystems",
+      "desc": "Show all mounted filesystems",
       "tooltip": "Use `findmnt` to show all mounted filesystems. Helpful when you need this quickly on a Linux server.",
       "id": 3072
     },
     {
       "category": "Administration",
       "cmd": "findmnt -no SOURCE,TARGET,FSTYPE /var",
-      "desc": "show the source device and type for one mount",
+      "desc": "Show the source device and type for one mount",
       "tooltip": "Use `findmnt -no SOURCE,TARGET,FSTYPE /var` to show the source device and type for one mount. Helpful when you need this quickly on a Linux server.",
       "id": 3077
     },
@@ -1805,7 +1805,7 @@
     {
       "category": "Administration",
       "cmd": "mount -a",
-      "desc": "mount everything from /etc/fstab",
+      "desc": "Mount everything from /etc/fstab",
       "tooltip": "Use `mount -a` to mount everything from /etc/fstab. Helpful when you need this quickly on a Linux server.",
       "id": 3073
     },
@@ -1840,7 +1840,7 @@
     {
       "category": "Administration",
       "cmd": "umount -l /mnt/data",
-      "desc": "lazy-unmount a busy filesystem",
+      "desc": "Lazy-unmount a busy filesystem",
       "tooltip": "Use `umount -l /mnt/data` to lazy-unmount a busy filesystem. Helpful when you need this quickly on a Linux server.",
       "id": 3074
     },
@@ -1854,49 +1854,49 @@
     {
       "category": "Administration",
       "cmd": "btrfs balance start /",
-      "desc": "start a Btrfs balance operation",
+      "desc": "Start a Btrfs balance operation",
       "tooltip": "Use `btrfs balance start /` to start a Btrfs balance operation. Helpful when you need this quickly on a Linux server.",
       "id": 3091
     },
     {
       "category": "Administration",
       "cmd": "btrfs balance status /",
-      "desc": "show Btrfs balance status",
+      "desc": "Show Btrfs balance status",
       "tooltip": "Use `btrfs balance status /` to show Btrfs balance status. Helpful when you need this quickly on a Linux server.",
       "id": 3090
     },
     {
       "category": "Administration",
       "cmd": "btrfs filesystem df /",
-      "desc": "show Btrfs space usage",
+      "desc": "Show Btrfs space usage",
       "tooltip": "Use `btrfs filesystem df /` to show Btrfs space usage. Helpful when you need this quickly on a Linux server.",
       "id": 3086
     },
     {
       "category": "Administration",
       "cmd": "btrfs scrub start -Bd /",
-      "desc": "start and wait for a Btrfs scrub",
+      "desc": "Start and wait for a Btrfs scrub",
       "tooltip": "Use `btrfs scrub start -Bd /` to start and wait for a Btrfs scrub. Helpful when you need this quickly on a Linux server.",
       "id": 3089
     },
     {
       "category": "Administration",
       "cmd": "btrfs scrub status /",
-      "desc": "show Btrfs scrub progress",
+      "desc": "Show Btrfs scrub progress",
       "tooltip": "Use `btrfs scrub status /` to show Btrfs scrub progress. Helpful when you need this quickly on a Linux server.",
       "id": 3088
     },
     {
       "category": "Administration",
       "cmd": "btrfs subvolume list /",
-      "desc": "list Btrfs subvolumes",
+      "desc": "List Btrfs subvolumes",
       "tooltip": "Use `btrfs subvolume list /` to list Btrfs subvolumes. Helpful when you need this quickly on a Linux server.",
       "id": 3087
     },
     {
       "category": "Administration",
       "cmd": "dumpe2fs -h /dev/sdb1",
-      "desc": "print ext filesystem superblock details",
+      "desc": "Print ext filesystem superblock details",
       "tooltip": "Use `dumpe2fs -h /dev/sdb1` to print ext filesystem superblock details. Helpful when you need this quickly on a Linux server.",
       "id": 3079
     },
@@ -1910,7 +1910,7 @@
     {
       "category": "Administration",
       "cmd": "fsck -f /dev/sdb1",
-      "desc": "force a filesystem check",
+      "desc": "Force a filesystem check",
       "tooltip": "Use `fsck -f /dev/sdb1` to force a filesystem check. Helpful when you need this quickly on a Linux server.",
       "id": 3078
     },
@@ -1945,7 +1945,7 @@
     {
       "category": "Administration",
       "cmd": "resize2fs /dev/vgdata/lvdata",
-      "desc": "grow an ext filesystem after extending the volume",
+      "desc": "Grow an ext filesystem after extending the volume",
       "tooltip": "Use `resize2fs /dev/vgdata/lvdata` to grow an ext filesystem after extending the volume. Helpful when you need this quickly on a Linux server.",
       "id": 3107
     },
@@ -1966,7 +1966,7 @@
     {
       "category": "Administration",
       "cmd": "xfs_info /mnt/data",
-      "desc": "show XFS geometry information",
+      "desc": "Show XFS geometry information",
       "tooltip": "Use `xfs_info /mnt/data` to show XFS geometry information. Helpful when you need this quickly on a Linux server.",
       "id": 3092
     },
@@ -2001,7 +2001,7 @@
     {
       "category": "Administration",
       "cmd": "atop",
-      "desc": "open an advanced interactive system monitor",
+      "desc": "Open an advanced interactive system monitor",
       "tooltip": "Use `atop` to open an advanced interactive system monitor. Helpful when you need this quickly on a Linux server.",
       "id": 3168
     },
@@ -2036,7 +2036,7 @@
     {
       "category": "Administration",
       "cmd": "cat /proc/mdstat",
-      "desc": "show Linux software RAID status",
+      "desc": "Show Linux software RAID status",
       "tooltip": "Use `cat /proc/mdstat` to show Linux software RAID status. Helpful when you need this quickly on a Linux server.",
       "id": 3118
     },
@@ -2050,35 +2050,35 @@
     {
       "category": "Administration",
       "cmd": "chronyc makestep",
-      "desc": "force an immediate time correction",
+      "desc": "Force an immediate time correction",
       "tooltip": "Use `chronyc makestep` to force an immediate time correction. Helpful when you need this quickly on a Linux server.",
       "id": 3057
     },
     {
       "category": "Administration",
       "cmd": "chronyc sources -v",
-      "desc": "list Chrony time sources",
+      "desc": "List Chrony time sources",
       "tooltip": "Use `chronyc sources -v` to list Chrony time sources. Helpful when you need this quickly on a Linux server.",
       "id": 3056
     },
     {
       "category": "Administration",
       "cmd": "chronyc tracking",
-      "desc": "show Chrony time sync status",
+      "desc": "Show Chrony time sync status",
       "tooltip": "Use `chronyc tracking` to show Chrony time sync status. Helpful when you need this quickly on a Linux server.",
       "id": 3055
     },
     {
       "category": "Administration",
       "cmd": "coredumpctl info nginx",
-      "desc": "show details for a captured crash dump",
+      "desc": "Show details for a captured crash dump",
       "tooltip": "Use `coredumpctl info nginx` to show details for a captured crash dump. Helpful when you need this quickly on a Linux server.",
       "id": 3065
     },
     {
       "category": "Administration",
       "cmd": "coredumpctl list",
-      "desc": "list captured crash dumps",
+      "desc": "List captured crash dumps",
       "tooltip": "Use `coredumpctl list` to list captured crash dumps. Helpful when you need this quickly on a Linux server.",
       "id": 3064
     },
@@ -2106,21 +2106,21 @@
     {
       "category": "Administration",
       "cmd": "faillog",
-      "desc": "show failed login counters",
+      "desc": "Show failed login counters",
       "tooltip": "Use `faillog` to show failed login counters. Helpful when you need this quickly on a Linux server.",
       "id": 3149
     },
     {
       "category": "Administration",
       "cmd": "filefrag -v /var/lib/postgresql/data/base/1/12345",
-      "desc": "inspect file fragmentation",
+      "desc": "Inspect file fragmentation",
       "tooltip": "Use `filefrag -v /var/lib/postgresql/data/base/1/12345` to inspect file fragmentation. Helpful when you need this quickly on a Linux server.",
       "id": 3080
     },
     {
       "category": "Administration",
       "cmd": "fio --name=randread --filename=/tmp/fio.test --size=1G --rw=randread",
-      "desc": "benchmark random read performance",
+      "desc": "Benchmark random read performance",
       "tooltip": "Use `fio --name=randread --filename=/tmp/fio.test --size=1G --rw=randread` to benchmark random read performance. Helpful when you need this quickly on a Linux server.",
       "id": 3083
     },
@@ -2141,21 +2141,21 @@
     {
       "category": "Administration",
       "cmd": "getent group sudo",
-      "desc": "query the group database for one group",
+      "desc": "Query the group database for one group",
       "tooltip": "Use `getent group sudo` to query the group database for one group. Helpful when you need this quickly on a Linux server.",
       "id": 3151
     },
     {
       "category": "Administration",
       "cmd": "getent passwd alice",
-      "desc": "query the passwd database for one user",
+      "desc": "Query the passwd database for one user",
       "tooltip": "Use `getent passwd alice` to query the passwd database for one user. Helpful when you need this quickly on a Linux server.",
       "id": 3150
     },
     {
       "category": "Administration",
       "cmd": "glances",
-      "desc": "open a broad interactive system monitor",
+      "desc": "Open a broad interactive system monitor",
       "tooltip": "Use `glances` to open a broad interactive system monitor. Helpful when you need this quickly on a Linux server.",
       "id": 3169
     },
@@ -2169,7 +2169,7 @@
     {
       "category": "Administration",
       "cmd": "grpck",
-      "desc": "check group file integrity",
+      "desc": "Check group file integrity",
       "tooltip": "Use `grpck` to check group file integrity. Helpful when you need this quickly on a Linux server.",
       "id": 3156
     },
@@ -2183,28 +2183,28 @@
     {
       "category": "Administration",
       "cmd": "ioping -c 10 /var",
-      "desc": "measure storage latency for a path",
+      "desc": "Measure storage latency for a path",
       "tooltip": "Use `ioping -c 10 /var` to measure storage latency for a path. Helpful when you need this quickly on a Linux server.",
       "id": 3082
     },
     {
       "category": "Administration",
       "cmd": "localectl status",
-      "desc": "show locale and keyboard settings",
+      "desc": "Show locale and keyboard settings",
       "tooltip": "Use `localectl status` to show locale and keyboard settings. Helpful when you need this quickly on a Linux server.",
       "id": 3061
     },
     {
       "category": "Administration",
       "cmd": "loginctl list-sessions",
-      "desc": "list active logind sessions",
+      "desc": "List active logind sessions",
       "tooltip": "Use `loginctl list-sessions` to list active logind sessions. Helpful when you need this quickly on a Linux server.",
       "id": 3062
     },
     {
       "category": "Administration",
       "cmd": "loginctl show-session 2",
-      "desc": "inspect one logind session",
+      "desc": "Inspect one logind session",
       "tooltip": "Use `loginctl show-session 2` to inspect one logind session. Helpful when you need this quickly on a Linux server.",
       "id": 3063
     },
@@ -2253,14 +2253,14 @@
     {
       "category": "Administration",
       "cmd": "ncdu /var",
-      "desc": "browse directory disk usage interactively",
+      "desc": "Browse directory disk usage interactively",
       "tooltip": "Use `ncdu /var` to browse directory disk usage interactively. Helpful when you need this quickly on a Linux server.",
       "id": 3076
     },
     {
       "category": "Administration",
       "cmd": "nmon",
-      "desc": "open the nmon performance monitor",
+      "desc": "Open the nmon performance monitor",
       "tooltip": "Use `nmon` to open the nmon performance monitor. Helpful when you need this quickly on a Linux server.",
       "id": 3170
     },
@@ -2274,35 +2274,35 @@
     {
       "category": "Administration",
       "cmd": "ntpq -p",
-      "desc": "show NTP peers and offsets",
+      "desc": "Show NTP peers and offsets",
       "tooltip": "Use `ntpq -p` to show NTP peers and offsets. Helpful when you need this quickly on a Linux server.",
       "id": 3058
     },
     {
       "category": "Administration",
       "cmd": "ntpstat",
-      "desc": "print concise NTP synchronization status",
+      "desc": "Print concise NTP synchronization status",
       "tooltip": "Use `ntpstat` to print concise NTP synchronization status. Helpful when you need this quickly on a Linux server.",
       "id": 3059
     },
     {
       "category": "Administration",
       "cmd": "pidstat 1",
-      "desc": "show per-process CPU and I/O statistics continuously",
+      "desc": "Show per-process CPU and I/O statistics continuously",
       "tooltip": "Use `pidstat 1` to show per-process CPU and I/O statistics continuously. Helpful when you need this quickly on a Linux server.",
       "id": 3165
     },
     {
       "category": "Administration",
       "cmd": "pvmove /dev/sdb",
-      "desc": "move extents off one physical volume",
+      "desc": "Move extents off one physical volume",
       "tooltip": "Use `pvmove /dev/sdb` to move extents off one physical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3110
     },
     {
       "category": "Administration",
       "cmd": "pwck",
-      "desc": "check passwd and shadow file integrity",
+      "desc": "Check passwd and shadow file integrity",
       "tooltip": "Use `pwck` to check passwd and shadow file integrity. Helpful when you need this quickly on a Linux server.",
       "id": 3155
     },
@@ -2337,28 +2337,28 @@
     {
       "category": "Administration",
       "cmd": "systemd-analyze blame",
-      "desc": "show slowest systemd units during boot",
+      "desc": "Show slowest systemd units during boot",
       "tooltip": "Use `systemd-analyze blame` to show slowest systemd units during boot. Helpful when you need this quickly on a Linux server.",
       "id": 3066
     },
     {
       "category": "Administration",
       "cmd": "systemd-analyze critical-chain",
-      "desc": "show the boot dependency chain",
+      "desc": "Show the boot dependency chain",
       "tooltip": "Use `systemd-analyze critical-chain` to show the boot dependency chain. Helpful when you need this quickly on a Linux server.",
       "id": 3067
     },
     {
       "category": "Administration",
       "cmd": "systemd-cgls",
-      "desc": "display the systemd cgroup tree",
+      "desc": "Display the systemd cgroup tree",
       "tooltip": "Use `systemd-cgls` to display the systemd cgroup tree. Helpful when you need this quickly on a Linux server.",
       "id": 3068
     },
     {
       "category": "Administration",
       "cmd": "systemd-cgtop",
-      "desc": "show resource usage by cgroup",
+      "desc": "Show resource usage by cgroup",
       "tooltip": "Use `systemd-cgtop` to show resource usage by cgroup. Helpful when you need this quickly on a Linux server.",
       "id": 3069
     },
@@ -2379,21 +2379,21 @@
     {
       "category": "Administration",
       "cmd": "unattended-upgrade -d",
-      "desc": "run unattended upgrades in debug mode",
+      "desc": "Run unattended upgrades in debug mode",
       "tooltip": "Use `unattended-upgrade -d` to run unattended upgrades in debug mode. Helpful when you need this quickly on a Linux server.",
       "id": 3053
     },
     {
       "category": "Administration",
       "cmd": "vigr",
-      "desc": "edit /etc/group safely with locking",
+      "desc": "Edit /etc/group safely with locking",
       "tooltip": "Use `vigr` to edit /etc/group safely with locking. Helpful when you need this quickly on a Linux server.",
       "id": 3158
     },
     {
       "category": "Administration",
       "cmd": "vipw",
-      "desc": "edit /etc/passwd safely with locking",
+      "desc": "Edit /etc/passwd safely with locking",
       "tooltip": "Use `vipw` to edit /etc/passwd safely with locking. Helpful when you need this quickly on a Linux server.",
       "id": 3157
     },
@@ -2414,14 +2414,14 @@
     {
       "category": "Administration",
       "cmd": "xfs_growfs /mnt/data",
-      "desc": "grow an XFS filesystem after extending storage",
+      "desc": "Grow an XFS filesystem after extending storage",
       "tooltip": "Use `xfs_growfs /mnt/data` to grow an XFS filesystem after extending storage. Helpful when you need this quickly on a Linux server.",
       "id": 3094
     },
     {
       "category": "Administration",
       "cmd": "xfs_repair /dev/sdb1",
-      "desc": "repair an XFS filesystem",
+      "desc": "Repair an XFS filesystem",
       "tooltip": "Use `xfs_repair /dev/sdb1` to repair an XFS filesystem. Helpful when you need this quickly on a Linux server.",
       "id": 3093
     },
@@ -2463,7 +2463,7 @@
     {
       "category": "Administration",
       "cmd": "swapoff -a",
-      "desc": "disable all swap devices and files",
+      "desc": "Disable all swap devices and files",
       "tooltip": "Use `swapoff -a` to disable all swap devices and files. Helpful when you need this quickly on a Linux server.",
       "id": 3085
     },
@@ -2477,7 +2477,7 @@
     {
       "category": "Administration",
       "cmd": "swapon --show",
-      "desc": "show active swap devices and files",
+      "desc": "Show active swap devices and files",
       "tooltip": "Use `swapon --show` to show active swap devices and files. Helpful when you need this quickly on a Linux server.",
       "id": 3084
     },
@@ -2491,154 +2491,154 @@
     {
       "category": "Administration",
       "cmd": "lvcreate -L 50G -n lvdata vgdata",
-      "desc": "create a new logical volume",
+      "desc": "Create a new logical volume",
       "tooltip": "Use `lvcreate -L 50G -n lvdata vgdata` to create a new logical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3105
     },
     {
       "category": "Administration",
       "cmd": "lvextend -L +20G /dev/vgdata/lvdata",
-      "desc": "extend a logical volume",
+      "desc": "Extend a logical volume",
       "tooltip": "Use `lvextend -L +20G /dev/vgdata/lvdata` to extend a logical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3106
     },
     {
       "category": "Administration",
       "cmd": "lvreduce -L 20G /dev/vgdata/lvdata",
-      "desc": "shrink a logical volume",
+      "desc": "Shrink a logical volume",
       "tooltip": "Use `lvreduce -L 20G /dev/vgdata/lvdata` to shrink a logical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3108
     },
     {
       "category": "Administration",
       "cmd": "lvremove /dev/vgdata/lvdata",
-      "desc": "remove a logical volume",
+      "desc": "Remove a logical volume",
       "tooltip": "Use `lvremove /dev/vgdata/lvdata` to remove a logical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3112
     },
     {
       "category": "Administration",
       "cmd": "lvs",
-      "desc": "list logical volumes",
+      "desc": "List logical volumes",
       "tooltip": "Use `lvs` to list logical volumes. Helpful when you need this quickly on a Linux server.",
       "id": 3102
     },
     {
       "category": "Administration",
       "cmd": "lvscan",
-      "desc": "scan for logical volumes",
+      "desc": "Scan for logical volumes",
       "tooltip": "Use `lvscan` to scan for logical volumes. Helpful when you need this quickly on a Linux server.",
       "id": 3114
     },
     {
       "category": "Administration",
       "cmd": "pvcreate /dev/sdb",
-      "desc": "initialize a disk as an LVM physical volume",
+      "desc": "Initialize a disk as an LVM physical volume",
       "tooltip": "Use `pvcreate /dev/sdb` to initialize a disk as an LVM physical volume. Helpful when you need this quickly on a Linux server.",
       "id": 3103
     },
     {
       "category": "Administration",
       "cmd": "pvs",
-      "desc": "list physical volumes",
+      "desc": "List physical volumes",
       "tooltip": "Use `pvs` to list physical volumes. Helpful when you need this quickly on a Linux server.",
       "id": 3100
     },
     {
       "category": "Administration",
       "cmd": "vgcreate vgdata /dev/sdb",
-      "desc": "create a new LVM volume group",
+      "desc": "Create a new LVM volume group",
       "tooltip": "Use `vgcreate vgdata /dev/sdb` to create a new LVM volume group. Helpful when you need this quickly on a Linux server.",
       "id": 3104
     },
     {
       "category": "Administration",
       "cmd": "vgextend vgdata /dev/sdc",
-      "desc": "add a disk to an existing volume group",
+      "desc": "Add a disk to an existing volume group",
       "tooltip": "Use `vgextend vgdata /dev/sdc` to add a disk to an existing volume group. Helpful when you need this quickly on a Linux server.",
       "id": 3109
     },
     {
       "category": "Administration",
       "cmd": "vgremove vgdata",
-      "desc": "remove an LVM volume group",
+      "desc": "Remove an LVM volume group",
       "tooltip": "Use `vgremove vgdata` to remove an LVM volume group. Helpful when you need this quickly on a Linux server.",
       "id": 3111
     },
     {
       "category": "Administration",
       "cmd": "vgs",
-      "desc": "list volume groups",
+      "desc": "List volume groups",
       "tooltip": "Use `vgs` to list volume groups. Helpful when you need this quickly on a Linux server.",
       "id": 3101
     },
     {
       "category": "Administration",
       "cmd": "vgscan",
-      "desc": "scan for volume groups",
+      "desc": "Scan for volume groups",
       "tooltip": "Use `vgscan` to scan for volume groups. Helpful when you need this quickly on a Linux server.",
       "id": 3113
     },
     {
       "category": "Administration",
       "cmd": "mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc",
-      "desc": "create a RAID1 array",
+      "desc": "Create a RAID1 array",
       "tooltip": "Use `mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc` to create a RAID1 array. Helpful when you need this quickly on a Linux server.",
       "id": 3116
     },
     {
       "category": "Administration",
       "cmd": "mdadm --detail /dev/md0",
-      "desc": "show RAID array details",
+      "desc": "Show RAID array details",
       "tooltip": "Use `mdadm --detail /dev/md0` to show RAID array details. Helpful when you need this quickly on a Linux server.",
       "id": 3115
     },
     {
       "category": "Administration",
       "cmd": "mdadm --examine /dev/sdb",
-      "desc": "show RAID metadata on a device",
+      "desc": "Show RAID metadata on a device",
       "tooltip": "Use `mdadm --examine /dev/sdb` to show RAID metadata on a device. Helpful when you need this quickly on a Linux server.",
       "id": 3117
     },
     {
       "category": "Administration",
       "cmd": "cryptsetup luksClose securedata",
-      "desc": "close an opened LUKS mapping",
+      "desc": "Close an opened LUKS mapping",
       "tooltip": "Use `cryptsetup luksClose securedata` to close an opened LUKS mapping. Helpful when you need this quickly on a Linux server.",
       "id": 3097
     },
     {
       "category": "Administration",
       "cmd": "cryptsetup luksDump /dev/sdb1",
-      "desc": "show LUKS metadata and key slots",
+      "desc": "Show LUKS metadata and key slots",
       "tooltip": "Use `cryptsetup luksDump /dev/sdb1` to show LUKS metadata and key slots. Helpful when you need this quickly on a Linux server.",
       "id": 3099
     },
     {
       "category": "Administration",
       "cmd": "cryptsetup luksFormat /dev/sdb1",
-      "desc": "initialize a LUKS-encrypted device",
+      "desc": "Initialize a LUKS-encrypted device",
       "tooltip": "Use `cryptsetup luksFormat /dev/sdb1` to initialize a LUKS-encrypted device. Helpful when you need this quickly on a Linux server.",
       "id": 3095
     },
     {
       "category": "Administration",
       "cmd": "cryptsetup luksOpen /dev/sdb1 securedata",
-      "desc": "open an encrypted LUKS device",
+      "desc": "Open an encrypted LUKS device",
       "tooltip": "Use `cryptsetup luksOpen /dev/sdb1 securedata` to open an encrypted LUKS device. Helpful when you need this quickly on a Linux server.",
       "id": 3096
     },
     {
       "category": "Administration",
       "cmd": "cryptsetup status securedata",
-      "desc": "show status for an open LUKS mapping",
+      "desc": "Show status for an open LUKS mapping",
       "tooltip": "Use `cryptsetup status securedata` to show status for an open LUKS mapping. Helpful when you need this quickly on a Linux server.",
       "id": 3098
     },
     {
       "category": "Administration",
       "cmd": "badblocks -sv /dev/sdb",
-      "desc": "scan a disk for bad sectors",
+      "desc": "Scan a disk for bad sectors",
       "tooltip": "Use `badblocks -sv /dev/sdb` to scan a disk for bad sectors. Helpful when you need this quickly on a Linux server.",
       "id": 3081
     },
@@ -2666,56 +2666,56 @@
     {
       "category": "Administration",
       "cmd": "bpftrace -l 'tracepoint:*'",
-      "desc": "list available BPF tracepoints",
+      "desc": "List available BPF tracepoints",
       "tooltip": "Use `bpftrace -l 'tracepoint:*'` to list available BPF tracepoints. Helpful when you need this quickly on a Linux server.",
       "id": 3175
     },
     {
       "category": "Administration",
       "cmd": "perf record -p 1234 -- sleep 30",
-      "desc": "record CPU profiling data for a process",
+      "desc": "Record CPU profiling data for a process",
       "tooltip": "Use `perf record -p 1234 -- sleep 30` to record CPU profiling data for a process. Helpful when you need this quickly on a Linux server.",
       "id": 3173
     },
     {
       "category": "Administration",
       "cmd": "perf report",
-      "desc": "read a saved perf profile report",
+      "desc": "Read a saved perf profile report",
       "tooltip": "Use `perf report` to read a saved perf profile report. Helpful when you need this quickly on a Linux server.",
       "id": 3174
     },
     {
       "category": "Administration",
       "cmd": "perf stat -p 1234",
-      "desc": "collect performance counters for a process",
+      "desc": "Collect performance counters for a process",
       "tooltip": "Use `perf stat -p 1234` to collect performance counters for a process. Helpful when you need this quickly on a Linux server.",
       "id": 3171
     },
     {
       "category": "Administration",
       "cmd": "perf top",
-      "desc": "show hot CPU code paths live",
+      "desc": "Show hot CPU code paths live",
       "tooltip": "Use `perf top` to show hot CPU code paths live. Helpful when you need this quickly on a Linux server.",
       "id": 3172
     },
     {
       "category": "Administration",
       "cmd": "stress --vm 2 --timeout 60",
-      "desc": "stress-test memory allocation",
+      "desc": "Stress-test memory allocation",
       "tooltip": "Use `stress --vm 2 --timeout 60` to stress-test memory allocation. Helpful when you need this quickly on a Linux server.",
       "id": 3178
     },
     {
       "category": "Administration",
       "cmd": "stress-ng --cpu 4 --timeout 60",
-      "desc": "stress-test CPU resources",
+      "desc": "Stress-test CPU resources",
       "tooltip": "Use `stress-ng --cpu 4 --timeout 60` to stress-test CPU resources. Helpful when you need this quickly on a Linux server.",
       "id": 3177
     },
     {
       "category": "Administration",
       "cmd": "sysdig",
-      "desc": "capture and inspect system activity",
+      "desc": "Capture and inspect system activity",
       "tooltip": "Use `sysdig` to capture and inspect system activity. Helpful when you need this quickly on a Linux server.",
       "id": 3176
     },
@@ -5095,7 +5095,7 @@
     {
       "id": 583,
       "category": "Networking",
-      "cmd": "curl -H 'Authorization: Bearer TOKEN' https://api.example.com",
+      "cmd": "curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.com",
       "desc": "Add a custom header to a request",
       "tooltip": "Adds a custom HTTP header to the request — commonly used for authentication tokens."
     },
@@ -14868,7 +14868,7 @@
       "id": 2062,
       "category": "Gemini CLI",
       "cmd": "# .toml format: [command]\\nname = 'review'\\ndescription = 'Review code'\\nprompt = 'Review @$1 for bugs'",
-      "desc": "Define a custom Gemini CLI slash command in TOML format with a name, description, and prompt template",
+      "desc": "Define a custom Gemini CLI slash command in TOML format with a name, description, and prompt",
       "tooltip": "Shows the TOML format for defining a custom Gemini CLI slash command with a name, description, and prompt template."
     },
     {
@@ -15148,7 +15148,7 @@
       "id": 2105,
       "category": "Node.js & npm/yarn",
       "cmd": "npm install --legacy-peer-deps package",
-      "desc": "Install ignoring peer dependency conflicts — useful when older packages haven't updated their peer ranges",
+      "desc": "Install ignoring peer dependency conflicts — useful when older packages haven't updated their peer",
       "tooltip": "Installs while ignoring peer dependency conflicts. Peer deps are 'you must also have X installed' requirements; --legacy-peer-deps skips enforcing them — helpful when upgrading React or other frameworks where the ecosystem is still catching up."
     },
     {
@@ -15239,14 +15239,14 @@
       "id": 2118,
       "category": "Node.js & npm/yarn",
       "cmd": "npm ci",
-      "desc": "Clean install from package-lock.json exactly — faster and stricter than npm install, ideal for CI/CD pipelines",
+      "desc": "Clean install from package-lock.json exactly — faster and stricter than npm install, ideal for",
       "tooltip": "Performs a clean install strictly from package-lock.json without updating it. Faster than 'npm install' and fails loudly if the lockfile is out of sync — the gold standard for CI/CD pipelines."
     },
     {
       "id": 2119,
       "category": "Node.js & npm/yarn",
       "cmd": "npm ci --omit=dev",
-      "desc": "Clean install production dependencies only, skipping devDependencies — use in Docker production builds",
+      "desc": "Clean install production dependencies only, skipping devDependencies — use in Docker production",
       "tooltip": "Like 'npm ci' but skips devDependencies. Use this in your Dockerfile's production stage to get a lean image with only runtime code."
     },
     {
@@ -15435,7 +15435,7 @@
       "id": 2146,
       "category": "Node.js & npm/yarn",
       "cmd": "npm pack",
-      "desc": "Create a .tgz tarball of the package exactly as it would appear on npm — useful for testing before publishing",
+      "desc": "Create a .tgz tarball of the package exactly as it would appear on npm — useful for testing before",
       "tooltip": "Bundles your package into a .tgz tarball exactly as it would appear on npm. Install this tarball locally to test your package before publishing."
     },
     {
@@ -15518,7 +15518,7 @@
     {
       "id": 2158,
       "category": "Node.js & npm/yarn",
-      "cmd": "npm token revoke <token>",
+      "cmd": "npm token revoke abc123",
       "desc": "Revoke a specific npm authentication token",
       "tooltip": "Permanently invalidates an npm auth token — do this immediately if a token is accidentally exposed."
     },
@@ -15722,7 +15722,7 @@
       "id": 2187,
       "category": "Node.js & npm/yarn",
       "cmd": "npm link package-name",
-      "desc": "Link a previously 'npm link'd global package into the current project — replaces the installed version",
+      "desc": "Link a previously 'npm link'd global package into the current project — replaces the installed",
       "tooltip": "Connects the globally symlinked local package into node_modules of the current project, replacing the registry version. Changes to the local package appear immediately."
     },
     {
@@ -15841,7 +15841,7 @@
       "id": 2204,
       "category": "Node.js & npm/yarn",
       "cmd": "npx create-vite@latest myapp",
-      "desc": "Create a new Vite project — Vite is a fast modern bundler for React, Vue, Svelte, etc.",
+      "desc": "Create a new Vite project — Vite is a fast modern bundler for React, Vue, Svelte, etc",
       "tooltip": "Scaffolds a new project using Vite — a modern build tool much faster than webpack, supporting React, Vue, Svelte, and vanilla JS."
     },
     {
@@ -16037,7 +16037,7 @@
       "id": 2232,
       "category": "Node.js & npm/yarn",
       "cmd": "node --watch script.js",
-      "desc": "Restart the script automatically whenever the file changes — built-in alternative to nodemon (Node 18+)",
+      "desc": "Restart the script automatically whenever the file changes — built-in alternative to nodemon (Node",
       "tooltip": "Restarts the script automatically when the file is saved. Node 18+'s built-in alternative to the popular 'nodemon' package."
     },
     {
@@ -16282,7 +16282,7 @@
       "id": 2267,
       "category": "Node.js & npm/yarn",
       "cmd": "volta pin node@20",
-      "desc": "Pin a specific Node.js version to this project in package.json so every teammate uses the same version",
+      "desc": "Pin a specific Node.js version to this project in package.json so every teammate uses the same",
       "tooltip": "Writes 'node@20' into the 'volta' field of package.json, locking this project to Node 20 for everyone who uses Volta — no .nvmrc or manual switching needed."
     },
     {
@@ -16772,7 +16772,7 @@
       "id": 2337,
       "category": "Self-Hosting",
       "cmd": "sudo apt install nginx",
-      "desc": "Install the Nginx web server on Ubuntu/Debian — the most popular open-source server for self-hosted apps",
+      "desc": "Install the Nginx web server on Ubuntu/Debian — the most popular open-source server for self-hosted",
       "tooltip": "Nginx (pronounced 'engine-X') is a high-performance web server that can also act as a reverse proxy — sitting in front of your app and forwarding traffic to it. It's the most common way to expose a self-hosted app to the internet."
     },
     {
@@ -16961,7 +16961,7 @@
       "id": 2364,
       "category": "Self-Hosting",
       "cmd": "docker run -d --name traefik -p 80:80 -p 443:443 -p 8080:8080 traefik:v3.0",
-      "desc": "Run the Traefik reverse proxy in Docker — it auto-discovers other containers and routes traffic to them",
+      "desc": "Run the Traefik reverse proxy in Docker — it auto-discovers other containers and routes traffic to",
       "tooltip": "Runs Traefik — a cloud-native reverse proxy that auto-discovers Docker containers via labels and routes traffic to them. Popular in Docker-heavy self-hosted setups."
     },
     {
@@ -17017,7 +17017,7 @@
       "id": 2372,
       "category": "Self-Hosting",
       "cmd": "sudo certbot certonly --standalone -d example.com",
-      "desc": "Get a certificate using Certbot's built-in web server (no Nginx/Apache needed) — stops any running web server first",
+      "desc": "Get a certificate using Certbot's built-in web server (no Nginx/Apache needed) — stops any running",
       "tooltip": "Gets a certificate without touching any running web server — Certbot briefly spins up its own server on port 80. Useful for custom server setups."
     },
     {
@@ -17094,7 +17094,7 @@
       "id": 2383,
       "category": "Self-Hosting",
       "cmd": "sudo ufw enable",
-      "desc": "Enable UFW and start enforcing firewall rules — do this only after allowing SSH to avoid locking yourself out",
+      "desc": "Enable UFW and start enforcing firewall rules — do this only after allowing SSH to avoid locking",
       "tooltip": "Turns on the firewall and begins enforcing rules. Make sure port 22 (SSH) is allowed BEFORE running this on a remote server or you'll lock yourself out."
     },
     {
@@ -17185,7 +17185,7 @@
       "id": 2396,
       "category": "Self-Hosting",
       "cmd": "sudo ufw limit ssh",
-      "desc": "Rate-limit SSH connections to block brute-force login attempts — automatically bans IPs with too many failed attempts",
+      "desc": "Rate-limit SSH connections to block brute-force login attempts — automatically bans IPs with too",
       "tooltip": "Implements connection-rate limiting on SSH — automatically blocks IPs that attempt more than 6 connections in 30 seconds. A simple brute-force defence."
     },
     {
@@ -17381,7 +17381,7 @@
       "id": 2424,
       "category": "Self-Hosting",
       "cmd": "curl -sv https://example.com 2>&1 | head -30",
-      "desc": "Verbose curl request showing TLS handshake details and response headers — useful for debugging HTTPS setups",
+      "desc": "Verbose curl request showing TLS handshake details and response headers — useful for debugging",
       "tooltip": "Verbose TLS debug output showing the certificate chain, cipher suite, and HTTP response headers. Use this when HTTPS isn't working."
     },
     {
@@ -17395,7 +17395,7 @@
       "id": 2426,
       "category": "Self-Hosting",
       "cmd": "ss -tlnp",
-      "desc": "List all TCP ports currently listening on the server with the process name — see what's actually bound",
+      "desc": "List all TCP ports currently listening on the server with the process name — see what's actually",
       "tooltip": "Shows all listening TCP sockets with the process that owns each one. Faster and more detailed than netstat. Use this to see what services are actually bound to which ports."
     },
     {
@@ -17451,7 +17451,7 @@
       "id": 2434,
       "category": "Self-Hosting",
       "cmd": "dig +trace example.com",
-      "desc": "Trace the full DNS delegation path from root servers down to the authoritative nameserver — deep debugging",
+      "desc": "Trace the full DNS delegation path from root servers down to the authoritative nameserver — deep",
       "tooltip": "Traces the complete DNS resolution path from root servers through TLDs to the authoritative nameserver. The deepest DNS debugging tool."
     },
     {
@@ -17465,7 +17465,7 @@
       "id": 2436,
       "category": "Self-Hosting",
       "cmd": "sudo nano /etc/hosts",
-      "desc": "Edit the local hosts file to add custom hostname-to-IP mappings (e.g. for local dev or internal services)",
+      "desc": "Edit the local hosts file to add custom hostname-to-IP mappings (e.g. for local dev or internal",
       "tooltip": "Edit the local hosts file to add custom mappings — like pointing 'db.local' to a server IP for internal use without DNS setup."
     },
     {
@@ -17479,7 +17479,7 @@
       "id": 2438,
       "category": "Self-Hosting",
       "cmd": "resolvectl status",
-      "desc": "Show detailed DNS resolver status per network interface — modern replacement for /etc/resolv.conf inspection",
+      "desc": "Show detailed DNS resolver status per network interface — modern replacement for /etc/resolv.conf",
       "tooltip": "Shows DNS resolution status per network interface, which servers are being used, and whether DNSSEC is active — the modern way to inspect DNS config."
     },
     {
@@ -17549,7 +17549,7 @@
       "id": 2448,
       "category": "Self-Hosting",
       "cmd": "cloudflared tunnel create mytunnel",
-      "desc": "Create a named Cloudflare Tunnel — generates credentials that let traffic reach your server without opening firewall ports",
+      "desc": "Create a named Cloudflare Tunnel — generates credentials that let traffic reach your server without",
       "tooltip": "Registers a named tunnel with Cloudflare and saves credentials locally. The tunnel can expose local services to the internet without opening any firewall ports."
     },
     {
@@ -17605,14 +17605,14 @@
       "id": 2456,
       "category": "Self-Hosting",
       "cmd": "openssl req -new -key server.key -out server.csr",
-      "desc": "Generate a Certificate Signing Request (CSR) from a private key — needed for commercial TLS certificates",
+      "desc": "Generate a Certificate Signing Request (CSR) from a private key — needed for commercial TLS",
       "tooltip": "Creates a Certificate Signing Request containing your domain info and public key. Send this to a commercial CA to get a signed certificate."
     },
     {
       "id": 2457,
       "category": "Self-Hosting",
       "cmd": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout selfsigned.key -out selfsigned.crt",
-      "desc": "Create a self-signed TLS certificate valid for 365 days — useful for internal services and local testing",
+      "desc": "Create a self-signed TLS certificate valid for 365 days — useful for internal services and local",
       "tooltip": "Generates a self-signed certificate that browsers will warn about but which provides encrypted transport. Perfect for internal services."
     },
     {
@@ -17710,7 +17710,7 @@
       "id": 2471,
       "category": "Self-Hosting",
       "cmd": "sudo mysql_secure_installation",
-      "desc": "Run the MySQL security hardening wizard — sets root password, removes test databases, and restricts remote root login",
+      "desc": "Run the MySQL security hardening wizard — sets root password, removes test databases, and restricts",
       "tooltip": "Interactive post-install wizard that sets the MySQL root password, removes anonymous users, disables remote root login, and drops the test database — run this immediately after install."
     },
     {
@@ -17752,7 +17752,7 @@
       "id": 2477,
       "category": "Self-Hosting",
       "cmd": "docker run -d -p 9090:9090 --name prometheus -v prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus",
-      "desc": "Run Prometheus metrics collection server in Docker — the foundation of the self-hosted monitoring stack",
+      "desc": "Run Prometheus metrics collection server in Docker — the foundation of the self-hosted monitoring",
       "tooltip": "Runs Prometheus — it scrapes metrics endpoints from your apps and stores them in a time-series database for querying and alerting."
     },
     {
@@ -17780,7 +17780,7 @@
       "id": 2481,
       "category": "Self-Hosting",
       "cmd": "iostat -x 1 5",
-      "desc": "Show disk I/O statistics every second for 5 iterations — useful for diagnosing slow database or storage performance",
+      "desc": "Show disk I/O statistics every second for 5 iterations — useful for diagnosing slow database or",
       "tooltip": "Reports disk read/write throughput and utilization for each block device every second. High %util values indicate disk I/O is a bottleneck."
     },
     {
@@ -17801,14 +17801,14 @@
       "id": 2484,
       "category": "Self-Hosting",
       "cmd": "dmesg | tail -20",
-      "desc": "Show the last 20 lines of kernel messages — useful for diagnosing hardware errors, OOM kills, or driver issues",
+      "desc": "Show the last 20 lines of kernel messages — useful for diagnosing hardware errors, OOM kills, or",
       "tooltip": "Shows the last 20 kernel messages. Look here for hardware errors, Out-Of-Memory (OOM) kill events, or file system errors that cause mysterious crashes."
     },
     {
       "id": 2485,
       "category": "Self-Hosting",
       "cmd": "rsync -avz /data/ user@remote:/backup/data/",
-      "desc": "Incrementally sync a local directory to a remote server — only transfers changed files, with compression",
+      "desc": "Incrementally sync a local directory to a remote server — only transfers changed files, with",
       "tooltip": "Incrementally copies only changed files from /data/ to a remote server. The -a flag preserves permissions, -v is verbose, -z compresses data during transfer."
     },
     {
@@ -17948,7 +17948,7 @@
       "id": 2505,
       "category": "Self-Hosting",
       "cmd": "sudo systemctl restart sshd",
-      "desc": "Restart the SSH daemon to apply config changes — stay in the current session, it won't disconnect you",
+      "desc": "Restart the SSH daemon to apply config changes — stay in the current session, it won't disconnect",
       "tooltip": "Applies sshd_config changes. You stay connected in your current session; only new connections use the new config."
     },
     {
@@ -18004,7 +18004,7 @@
       "id": 2513,
       "category": "Self-Hosting",
       "cmd": "sudo chmod 600 ~/.ssh/authorized_keys",
-      "desc": "Set correct permissions on the authorized_keys file — SSH will refuse to use it if it's world-readable",
+      "desc": "Set correct permissions on the authorized_keys file — SSH will refuse to use it if it's",
       "tooltip": "Sets the authorized_keys file to be readable only by its owner. SSH will silently refuse to use the file if it's writable by other users."
     },
     {
@@ -18018,7 +18018,7 @@
       "id": 2515,
       "category": "Self-Hosting",
       "cmd": "cp .env.example .env",
-      "desc": "Create a local .env file from the provided example — then fill in your actual secrets and credentials",
+      "desc": "Create a local .env file from the provided example — then fill in your actual secrets and",
       "tooltip": "Most open-source self-hosted apps ship a .env.example file with all required variables listed but values blank. Copy it to .env then fill in your secrets."
     },
     {
@@ -18039,7 +18039,7 @@
       "id": 2518,
       "category": "Self-Hosting",
       "cmd": "docker secret create mysecret secret.txt",
-      "desc": "Create a Docker Swarm secret from a file — secrets are encrypted at rest and only available inside containers that need them",
+      "desc": "Create a Docker Swarm secret from a file — secrets are encrypted at rest and only available inside",
       "tooltip": "Creates a Docker Swarm secret — an encrypted value accessible only inside containers that are explicitly granted permission. More secure than environment variables for passwords."
     },
     {
@@ -18088,7 +18088,7 @@
       "id": 2525,
       "category": "Self-Hosting",
       "cmd": "docker pull plausible/analytics:latest",
-      "desc": "Pull Plausible — a lightweight, privacy-friendly self-hosted website analytics alternative to Google Analytics",
+      "desc": "Pull Plausible — a lightweight, privacy-friendly self-hosted website analytics alternative to",
       "tooltip": "Pulls Plausible Analytics — a GDPR-compliant website analytics tool that doesn't use cookies. A simple, ethical alternative to Google Analytics."
     },
     {
@@ -18235,28 +18235,28 @@
       "id": 2546,
       "category": "Self-Hosting",
       "cmd": "curl -o /dev/null -s -w '%{http_code}' http://localhost:3000/health",
-      "desc": "Check an app's HTTP health endpoint and print only the status code — useful in scripts and monitoring",
+      "desc": "Check an app's HTTP health endpoint and print only the status code — useful in scripts and",
       "tooltip": "Returns only the HTTP status code of a health endpoint (e.g., 200 or 503). The -o /dev/null discards the body and -s suppresses progress. Great for monitoring scripts."
     },
     {
       "id": 2547,
       "category": "Self-Hosting",
       "cmd": "curl -sf http://localhost:3000/health || echo 'UNHEALTHY'",
-      "desc": "Health check that prints UNHEALTHY if the endpoint returns an error — use in Docker health check scripts",
+      "desc": "Health check that prints UNHEALTHY if the endpoint returns an error — use in Docker health check",
       "tooltip": "Health check that prints 'UNHEALTHY' if the endpoint returns a non-200 status or isn't reachable. Use this in Docker health check scripts or CI."
     },
     {
       "id": 2548,
       "category": "Self-Hosting",
       "cmd": "sudo journalctl -xe",
-      "desc": "Show the last journal entries with explanations — the best starting point when a service fails to start",
+      "desc": "Show the last journal entries with explanations — the best starting point when a service fails to",
       "tooltip": "Shows the end of the system journal with extra explanatory messages. The -x flag adds contextual help text for error messages — start here when a service fails."
     },
     {
       "id": 2549,
       "category": "Self-Hosting",
       "cmd": "sudo dmesg -T | grep -i 'oom\\|kill'",
-      "desc": "Check kernel logs for Out-Of-Memory kills — if your app keeps crashing, this reveals if the kernel is terminating it",
+      "desc": "Check kernel logs for Out-Of-Memory kills — if your app keeps crashing, this reveals if the kernel",
       "tooltip": "Searches kernel ring buffer messages for Out-Of-Memory events. If your app keeps crashing without obvious errors, the kernel may be killing it to reclaim memory."
     },
     {
@@ -18270,14 +18270,14 @@
       "id": 2551,
       "category": "Self-Hosting",
       "cmd": "traceroute example.com",
-      "desc": "Trace the network path from the server to a destination — diagnose routing issues or high latency hops",
+      "desc": "Trace the network path from the server to a destination — diagnose routing issues or high latency",
       "tooltip": "Shows each hop a network packet takes to reach a destination with its latency. High latency at a specific hop identifies where slowness is introduced."
     },
     {
       "id": 2552,
       "category": "Self-Hosting",
       "cmd": "mtr --report example.com",
-      "desc": "Run a continuous traceroute that shows packet loss and latency at each hop — better than traceroute for diagnosing network issues",
+      "desc": "Run a continuous traceroute that shows packet loss and latency at each hop — better than traceroute",
       "tooltip": "Combines ping and traceroute into a live display showing packet loss and round-trip time at every hop. The best tool for diagnosing intermittent network problems."
     },
     {
@@ -18402,56 +18402,56 @@
     {
       "id": 2570,
       "category": "Dokploy",
-      "cmd": "dokploy app deploy <app-name>",
+      "cmd": "dokploy app deploy myapp",
       "desc": "Trigger a new deployment for a specific application by name",
       "tooltip": "Forces a redeploy of a named app — equivalent to clicking 'Deploy' in the dashboard. Useful for scripting automated deployments from CI/CD pipelines outside of Git webhooks."
     },
     {
       "id": 2571,
       "category": "Dokploy",
-      "cmd": "dokploy app start <app-name>",
+      "cmd": "dokploy app start myapp",
       "desc": "Start a stopped application",
       "tooltip": "Starts containers for an app that was previously stopped. The app's last deployed image is used — no new build or pull happens."
     },
     {
       "id": 2572,
       "category": "Dokploy",
-      "cmd": "dokploy app stop <app-name>",
+      "cmd": "dokploy app stop myapp",
       "desc": "Stop a running application without deleting it",
       "tooltip": "Stops the app's containers. The deployment configuration and volumes are preserved. Useful for temporarily taking an app offline for maintenance."
     },
     {
       "id": 2573,
       "category": "Dokploy",
-      "cmd": "dokploy app restart <app-name>",
+      "cmd": "dokploy app restart myapp",
       "desc": "Restart a running application",
       "tooltip": "Sends a stop then start to the app's containers. Useful when an app has become unresponsive or you need to clear its in-memory state."
     },
     {
       "id": 2574,
       "category": "Dokploy",
-      "cmd": "dokploy app logs <app-name>",
+      "cmd": "dokploy app logs myapp",
       "desc": "Stream live logs from a deployed application",
       "tooltip": "Tails the stdout/stderr of the app's containers. Equivalent to 'docker logs -f' but accessed through the Dokploy API by app name rather than container ID."
     },
     {
       "id": 2575,
       "category": "Dokploy",
-      "cmd": "dokploy app env list <app-name>",
+      "cmd": "dokploy app env list myapp",
       "desc": "List all environment variables set for a specific application",
       "tooltip": "Shows every env var configured for the app in Dokploy — both those set in the dashboard and those inherited from the project's env groups."
     },
     {
       "id": 2576,
       "category": "Dokploy",
-      "cmd": "dokploy app env set <app-name> KEY=value",
+      "cmd": "dokploy app env set myapp KEY=value",
       "desc": "Set or update an environment variable for an application",
       "tooltip": "Adds or overwrites an environment variable for the named app. The change takes effect on the next deployment — running containers are not automatically updated."
     },
     {
       "id": 2577,
       "category": "Dokploy",
-      "cmd": "dokploy app env delete <app-name> KEY",
+      "cmd": "dokploy app env delete myapp KEY",
       "desc": "Remove an environment variable from an application",
       "tooltip": "Deletes a specific env var from the app's configuration. The deletion takes effect on the next deployment."
     },
@@ -18479,21 +18479,21 @@
     {
       "id": 2581,
       "category": "Dokploy",
-      "cmd": "dokploy compose deploy <stack-name>",
+      "cmd": "dokploy compose deploy my-stack",
       "desc": "Deploy or redeploy a Docker Compose stack managed by Dokploy",
       "tooltip": "Triggers a fresh deployment of a Compose stack defined in Dokploy. Pulls images and recreates containers according to the latest docker-compose.yml stored in the project."
     },
     {
       "id": 2582,
       "category": "Dokploy",
-      "cmd": "dokploy compose start <stack-name>",
+      "cmd": "dokploy compose start my-stack",
       "desc": "Start a stopped Compose stack",
       "tooltip": "Starts all services in a Dokploy-managed Compose stack. The last deployed configuration is used."
     },
     {
       "id": 2583,
       "category": "Dokploy",
-      "cmd": "dokploy compose stop <stack-name>",
+      "cmd": "dokploy compose stop my-stack",
       "desc": "Stop all services in a Compose stack without removing them",
       "tooltip": "Stops the stack's containers. Volumes and network configuration are preserved."
     },
@@ -18507,63 +18507,63 @@
     {
       "id": 2585,
       "category": "Dokploy",
-      "cmd": "dokploy database start <db-name>",
+      "cmd": "dokploy database start mydb",
       "desc": "Start a stopped database service managed by Dokploy",
       "tooltip": "Starts the container for a Dokploy-managed database. The data volume is preserved across stops and starts — no data is lost."
     },
     {
       "id": 2586,
       "category": "Dokploy",
-      "cmd": "dokploy database stop <db-name>",
+      "cmd": "dokploy database stop mydb",
       "desc": "Stop a running database service",
       "tooltip": "Gracefully stops the database container. Applications connected to this database will lose their connection until it's restarted."
     },
     {
       "id": 2587,
       "category": "Dokploy",
-      "cmd": "dokploy database backup <db-name>",
+      "cmd": "dokploy database backup mydb",
       "desc": "Trigger a manual backup of a Dokploy-managed database",
       "tooltip": "Creates a dump of the database and stores it in the configured backup location. Dokploy supports scheduled automatic backups, but this command creates one on-demand."
     },
     {
       "id": 2588,
       "category": "Dokploy",
-      "cmd": "dokploy database restore <db-name> --backup <backup-id>",
+      "cmd": "dokploy database restore mydb --backup bkp-2401",
       "desc": "Restore a database from a specific backup",
       "tooltip": "Restores the database to the state captured in a specific backup. The database is stopped, overwritten with the backup data, then restarted. Destructive — confirm the backup ID with 'dokploy database backup list' first."
     },
     {
       "id": 2589,
       "category": "Dokploy",
-      "cmd": "dokploy domain add <app-name> --host app.example.com",
+      "cmd": "dokploy domain add myapp --host app.example.com",
       "desc": "Add a custom domain to an application in Dokploy",
       "tooltip": "Registers a domain with Dokploy's Traefik router so traffic for app.example.com is routed to the named app. You must also point your DNS A record to the server's IP before requests will work."
     },
     {
       "id": 2590,
       "category": "Dokploy",
-      "cmd": "dokploy domain list <app-name>",
+      "cmd": "dokploy domain list myapp",
       "desc": "List all domains assigned to an application",
       "tooltip": "Shows every hostname that routes to this app, along with their HTTPS/certificate status."
     },
     {
       "id": 2591,
       "category": "Dokploy",
-      "cmd": "dokploy domain delete <app-name> --host app.example.com",
+      "cmd": "dokploy domain delete myapp --host app.example.com",
       "desc": "Remove a domain from an application",
       "tooltip": "Removes the Traefik routing rule for this hostname. Requests to app.example.com will no longer be routed to the app."
     },
     {
       "id": 2592,
       "category": "Dokploy",
-      "cmd": "dokploy ssl enable <app-name>",
+      "cmd": "dokploy ssl enable myapp",
       "desc": "Enable automatic Let's Encrypt SSL certificate for an application",
       "tooltip": "Instructs Traefik (Dokploy's built-in reverse proxy) to request and auto-renew a free Let's Encrypt certificate for the app's domain. The domain must be publicly reachable on port 80 for the ACME challenge to succeed."
     },
     {
       "id": 2593,
       "category": "Dokploy",
-      "cmd": "dokploy ssl status <app-name>",
+      "cmd": "dokploy ssl status myapp",
       "desc": "Check the SSL certificate status for an application's domain",
       "tooltip": "Shows whether a Let's Encrypt certificate has been issued, its expiry date, and whether Traefik is serving HTTPS traffic for this app."
     },
@@ -18584,28 +18584,28 @@
     {
       "id": 2596,
       "category": "Dokploy",
-      "cmd": "dokploy env-group attach <app-name> --group production-secrets",
+      "cmd": "dokploy env-group attach myapp --group production-secrets",
       "desc": "Attach an env group to an application so it inherits those variables",
       "tooltip": "Merges the group's variables into the app's environment on the next deployment. App-level variables take precedence over group variables if the same key exists in both."
     },
     {
       "id": 2597,
       "category": "Dokploy",
-      "cmd": "dokploy app set-git <app-name> --repo https://github.com/user/repo --branch main",
+      "cmd": "dokploy app set-git myapp --repo https://github.com/user/repo --branch main",
       "desc": "Link an application to a GitHub/GitLab repository and branch for auto-deploy",
       "tooltip": "Connects the app to a Git repository. Every push to the specified branch will trigger an automatic build and deployment via Dokploy's webhook. Set up the webhook in your GitHub repo settings using the URL shown in the Dokploy dashboard."
     },
     {
       "id": 2598,
       "category": "Dokploy",
-      "cmd": "dokploy app set-builder <app-name> --builder nixpacks",
+      "cmd": "dokploy app set-builder myapp --builder nixpacks",
       "desc": "Set the build system Dokploy uses to compile and containerize the application",
       "tooltip": "Dokploy supports multiple builders: nixpacks (auto-detects language, no Dockerfile needed), dockerfile (builds from a Dockerfile in the repo), and heroku buildpacks. Nixpacks works out-of-the-box for Node, Python, Ruby, Go, and more."
     },
     {
       "id": 2599,
       "category": "Dokploy",
-      "cmd": "dokploy app set-builder <app-name> --builder dockerfile",
+      "cmd": "dokploy app set-builder myapp --builder dockerfile",
       "desc": "Configure Dokploy to build the app using a Dockerfile in the repository root",
       "tooltip": "Switches the builder from nixpacks to Dockerfile mode. Dokploy will look for a Dockerfile (or Dockerfile.dokploy) in the repository root and build the image from it."
     },
@@ -18682,14 +18682,14 @@
     {
       "id": 2610,
       "category": "Dokploy",
-      "cmd": "curl -X POST http://localhost:3000/api/deploy -H 'Authorization: Bearer <token>' -H 'Content-Type: application/json' -d '{\"appName\": \"myapp\"}'",
+      "cmd": "curl -X POST http://localhost:3000/api/deploy -H 'Authorization: Bearer $API_TOKEN' -H 'Content-Type: application/json' -d '{\"appName\": \"myapp\"}'",
       "desc": "Trigger a deployment via Dokploy's REST API — useful for CI/CD integration",
       "tooltip": "Programmatically triggers a deployment without the CLI. Replace <token> with your API token from Dokploy Settings. Integrate this into GitHub Actions, GitLab CI, or any script that needs to deploy after a build."
     },
     {
       "id": 2611,
       "category": "Dokploy",
-      "cmd": "curl http://localhost:3000/api/project/all -H 'Authorization: Bearer <token>'",
+      "cmd": "curl http://localhost:3000/api/project/all -H 'Authorization: Bearer $API_TOKEN'",
       "desc": "Fetch all projects and their services via the Dokploy REST API",
       "tooltip": "Returns a JSON list of all projects. Use the project IDs returned here for other API calls. The Authorization header must contain your API token from Dokploy Settings → API Tokens."
     },
@@ -18780,42 +18780,42 @@
     {
       "id": 2624,
       "category": "VPS Management",
-      "cmd": "ssh root@YOUR_SERVER_IP",
+      "cmd": "ssh root@203.0.113.10",
       "desc": "Connect to a freshly provisioned VPS as root for the first time",
       "tooltip": "First login to a new VPS. Most providers give you root access with a password emailed to you. Immediately create a non-root user and disable password auth after this first login."
     },
     {
       "id": 2625,
       "category": "VPS Management",
-      "cmd": "ssh -p 22 user@YOUR_SERVER_IP",
+      "cmd": "ssh -p 22 user@203.0.113.10",
       "desc": "Connect to a VPS on the default SSH port 22",
-      "tooltip": "Standard SSH login. Replace user with your username and YOUR_SERVER_IP with the server's public IP address or hostname."
+      "tooltip": "Standard SSH login. Replace user with your username and 203.0.113.10 with the server's public IP address or hostname."
     },
     {
       "id": 2626,
       "category": "VPS Management",
-      "cmd": "ssh -i ~/.ssh/id_ed25519 user@YOUR_SERVER_IP",
+      "cmd": "ssh -i ~/.ssh/id_ed25519 user@203.0.113.10",
       "desc": "Connect using a specific SSH private key file instead of password",
       "tooltip": "Use this when you have multiple SSH keys. The -i flag specifies which private key to use. This is the standard way to authenticate after setting up key-based auth."
     },
     {
       "id": 2627,
       "category": "VPS Management",
-      "cmd": "ssh -L 5432:localhost:5432 user@YOUR_SERVER_IP",
+      "cmd": "ssh -L 5432:localhost:5432 user@203.0.113.10",
       "desc": "Forward the remote server's PostgreSQL port to your local machine",
       "tooltip": "SSH local port forwarding — creates a tunnel so you can connect to the VPS's database from your local machine as if it were running locally. Connect your DB client to localhost:5432 while this tunnel is open."
     },
     {
       "id": 2628,
       "category": "VPS Management",
-      "cmd": "ssh -L 8080:localhost:3000 user@YOUR_SERVER_IP",
+      "cmd": "ssh -L 8080:localhost:3000 user@203.0.113.10",
       "desc": "Forward a remote app port to your local machine for browser testing",
       "tooltip": "Tunnels the server's port 3000 to your local port 8080. Open http://localhost:8080 in your browser to access the remote app without opening a public firewall port."
     },
     {
       "id": 2629,
       "category": "VPS Management",
-      "cmd": "ssh -N -f -L 5432:localhost:5432 user@YOUR_SERVER_IP",
+      "cmd": "ssh -N -f -L 5432:localhost:5432 user@203.0.113.10",
       "desc": "Create a persistent SSH tunnel in the background (-f background, -N no command)",
       "tooltip": "The -N flag opens the tunnel without running a remote command. The -f flag backgrounds the process. Useful for long-running tunnels to databases or private services."
     },
@@ -18836,7 +18836,7 @@
     {
       "id": 2632,
       "category": "VPS Management",
-      "cmd": "echo 'YOUR_PUBLIC_KEY' >> ~/.ssh/authorized_keys",
+      "cmd": "echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJiYV8m9zKq6cQd2sEaXzWmRgTnBvLpNhJfCk3HtQa laptop' >> ~/.ssh/authorized_keys",
       "desc": "Add your public SSH key to authorized_keys to enable passwordless login",
       "tooltip": "Paste your public key (from ~/.ssh/id_ed25519.pub on your local machine) here. After this, SSH will accept your private key instead of asking for a password."
     },
@@ -20495,7 +20495,7 @@
     {
       "id": 2869,
       "cmd": "extract() { case \"$1\" in *.tar.gz) tar xzf \"$1\" ;; *.zip) unzip \"$1\" ;; *.gz) gunzip \"$1\" ;; *) echo \"Unknown\" ;; esac; }",
-      "desc": "Universal extract function — handles tar.gz, zip, gz, etc.",
+      "desc": "Universal extract function — handles tar.gz, zip, gz, etc",
       "category": "Terminal Configuration",
       "tooltip": "Instead of remembering different flags for each archive type, this function detects the extension and runs the right command. Extend the case statement for .bz2, .xz, .7z, .rar as needed."
     },
@@ -20985,7 +20985,7 @@
     {
       "id": 2939,
       "category": "AI Agents & MCP",
-      "cmd": "uvx mcp install <server-name>",
+      "cmd": "uvx mcp install playwright",
       "desc": "Install a Python MCP server with uv (fast Python runner)",
       "tooltip": "uvx runs Python packages without installing them permanently — similar to npx for Node. Many MCP servers are published as Python packages. Use `pip install mcp` for the Python SDK, or `uvx` for one-off server execution."
     },
@@ -21482,1113 +21482,1113 @@
     {
       "category": "VPS Management",
       "cmd": "ufw enable",
-      "desc": "enable the uncomplicated firewall",
+      "desc": "Enable the uncomplicated firewall",
       "tooltip": "Use `ufw enable` to enable the uncomplicated firewall. Helpful when you need this quickly on a Linux server.",
       "id": 3011
     },
     {
       "category": "VPS Management",
       "cmd": "ufw status verbose",
-      "desc": "show firewall status and active rules",
+      "desc": "Show firewall status and active rules",
       "tooltip": "Use `ufw status verbose` to show firewall status and active rules. Helpful when you need this quickly on a Linux server.",
       "id": 3012
     },
     {
       "category": "VPS Management",
       "cmd": "ufw allow 22/tcp",
-      "desc": "allow SSH through the firewall",
+      "desc": "Allow SSH through the firewall",
       "tooltip": "Use `ufw allow 22/tcp` to allow SSH through the firewall. Helpful when you need this quickly on a Linux server.",
       "id": 3013
     },
     {
       "category": "VPS Management",
       "cmd": "ufw allow 80,443/tcp",
-      "desc": "allow HTTP and HTTPS through the firewall",
+      "desc": "Allow HTTP and HTTPS through the firewall",
       "tooltip": "Use `ufw allow 80,443/tcp` to allow HTTP and HTTPS through the firewall. Helpful when you need this quickly on a Linux server.",
       "id": 3014
     },
     {
       "category": "VPS Management",
       "cmd": "ufw deny 23/tcp",
-      "desc": "block Telnet on the firewall",
+      "desc": "Block Telnet on the firewall",
       "tooltip": "Use `ufw deny 23/tcp` to block Telnet on the firewall. Helpful when you need this quickly on a Linux server.",
       "id": 3015
     },
     {
       "category": "VPS Management",
       "cmd": "ufw delete allow 22/tcp",
-      "desc": "remove a firewall allow rule",
+      "desc": "Remove a firewall allow rule",
       "tooltip": "Use `ufw delete allow 22/tcp` to remove a firewall allow rule. Helpful when you need this quickly on a Linux server.",
       "id": 3016
     },
     {
       "category": "VPS Management",
       "cmd": "ufw reload",
-      "desc": "reload firewall rules without rebooting",
+      "desc": "Reload firewall rules without rebooting",
       "tooltip": "Use `ufw reload` to reload firewall rules without rebooting. Helpful when you need this quickly on a Linux server.",
       "id": 3017
     },
     {
       "category": "VPS Management",
       "cmd": "ufw reset",
-      "desc": "reset firewall rules back to defaults",
+      "desc": "Reset firewall rules back to defaults",
       "tooltip": "Use `ufw reset` to reset firewall rules back to defaults. Helpful when you need this quickly on a Linux server.",
       "id": 3018
     },
     {
       "category": "VPS Management",
       "cmd": "firewall-cmd --state",
-      "desc": "check whether firewalld is running",
+      "desc": "Check whether firewalld is running",
       "tooltip": "Use `firewall-cmd --state` to check whether firewalld is running. Helpful when you need this quickly on a Linux server.",
       "id": 3019
     },
     {
       "category": "VPS Management",
       "cmd": "firewall-cmd --list-all",
-      "desc": "list all firewalld rules for the current zone",
+      "desc": "List all firewalld rules for the current zone",
       "tooltip": "Use `firewall-cmd --list-all` to list all firewalld rules for the current zone. Helpful when you need this quickly on a Linux server.",
       "id": 3020
     },
     {
       "category": "VPS Management",
       "cmd": "firewall-cmd --add-service=http --permanent",
-      "desc": "permanently allow HTTP in firewalld",
+      "desc": "Permanently allow HTTP in firewalld",
       "tooltip": "Use `firewall-cmd --add-service=http --permanent` to permanently allow HTTP in firewalld. Helpful when you need this quickly on a Linux server.",
       "id": 3021
     },
     {
       "category": "VPS Management",
       "cmd": "firewall-cmd --reload",
-      "desc": "reload firewalld after rule changes",
+      "desc": "Reload firewalld after rule changes",
       "tooltip": "Use `firewall-cmd --reload` to reload firewalld after rule changes. Helpful when you need this quickly on a Linux server.",
       "id": 3022
     },
     {
       "category": "VPS Management",
       "cmd": "nft add table inet filter",
-      "desc": "create a new nftables filter table",
+      "desc": "Create a new nftables filter table",
       "tooltip": "Use `nft add table inet filter` to create a new nftables filter table. Helpful when you need this quickly on a Linux server.",
       "id": 3023
     },
     {
       "category": "VPS Management",
       "cmd": "nft flush ruleset",
-      "desc": "remove all nftables rules",
+      "desc": "Remove all nftables rules",
       "tooltip": "Use `nft flush ruleset` to remove all nftables rules. Helpful when you need this quickly on a Linux server.",
       "id": 3024
     },
     {
       "category": "VPS Management",
       "cmd": "iptables -L -n -v",
-      "desc": "list iptables rules with counters and no DNS lookups",
+      "desc": "List iptables rules with counters and no DNS lookups",
       "tooltip": "Use `iptables -L -n -v` to list iptables rules with counters and no DNS lookups. Helpful when you need this quickly on a Linux server.",
       "id": 3025
     },
     {
       "category": "VPS Management",
       "cmd": "iptables-save",
-      "desc": "dump the current iptables ruleset",
+      "desc": "Dump the current iptables ruleset",
       "tooltip": "Use `iptables-save` to dump the current iptables ruleset. Helpful when you need this quickly on a Linux server.",
       "id": 3026
     },
     {
       "category": "VPS Management",
       "cmd": "fail2ban-client status",
-      "desc": "show jail status for fail2ban",
+      "desc": "Show jail status for fail2ban",
       "tooltip": "Use `fail2ban-client status` to show jail status for fail2ban. Helpful when you need this quickly on a Linux server.",
       "id": 3027
     },
     {
       "category": "VPS Management",
       "cmd": "fail2ban-client status sshd",
-      "desc": "show details for the SSH fail2ban jail",
+      "desc": "Show details for the SSH fail2ban jail",
       "tooltip": "Use `fail2ban-client status sshd` to show details for the SSH fail2ban jail. Helpful when you need this quickly on a Linux server.",
       "id": 3028
     },
     {
       "category": "VPS Management",
       "cmd": "fail2ban-client set sshd unbanip 1.2.3.4",
-      "desc": "remove an IP from a fail2ban jail",
+      "desc": "Remove an IP from a fail2ban jail",
       "tooltip": "Use `fail2ban-client set sshd unbanip 1.2.3.4` to remove an IP from a fail2ban jail. Helpful when you need this quickly on a Linux server.",
       "id": 3029
     },
     {
       "category": "VPS Management",
       "cmd": "lynis audit system",
-      "desc": "run a full security audit",
+      "desc": "Run a full security audit",
       "tooltip": "Use `lynis audit system` to run a full security audit. Helpful when you need this quickly on a Linux server.",
       "id": 3030
     },
     {
       "category": "VPS Management",
       "cmd": "rkhunter --check",
-      "desc": "scan for rootkits with rkhunter",
+      "desc": "Scan for rootkits with rkhunter",
       "tooltip": "Use `rkhunter --check` to scan for rootkits with rkhunter. Helpful when you need this quickly on a Linux server.",
       "id": 3031
     },
     {
       "category": "VPS Management",
       "cmd": "chkrootkit",
-      "desc": "scan for common rootkits",
+      "desc": "Scan for common rootkits",
       "tooltip": "Use `chkrootkit` to scan for common rootkits. Helpful when you need this quickly on a Linux server.",
       "id": 3032
     },
     {
       "category": "VPS Management",
       "cmd": "clamscan -r /var/www",
-      "desc": "scan a directory recursively for malware",
+      "desc": "Scan a directory recursively for malware",
       "tooltip": "Use `clamscan -r /var/www` to scan a directory recursively for malware. Helpful when you need this quickly on a Linux server.",
       "id": 3033
     },
     {
       "category": "VPS Management",
       "cmd": "freshclam",
-      "desc": "update ClamAV signatures",
+      "desc": "Update ClamAV signatures",
       "tooltip": "Use `freshclam` to update ClamAV signatures. Helpful when you need this quickly on a Linux server.",
       "id": 3034
     },
     {
       "category": "VPS Management",
       "cmd": "auditctl -l",
-      "desc": "list auditd rules",
+      "desc": "List auditd rules",
       "tooltip": "Use `auditctl -l` to list auditd rules. Helpful when you need this quickly on a Linux server.",
       "id": 3035
     },
     {
       "category": "VPS Management",
       "cmd": "ausearch -k sshd",
-      "desc": "search audit logs by key",
+      "desc": "Search audit logs by key",
       "tooltip": "Use `ausearch -k sshd` to search audit logs by key. Helpful when you need this quickly on a Linux server.",
       "id": 3036
     },
     {
       "category": "VPS Management",
       "cmd": "aureport -au",
-      "desc": "show an audit report for authentication events",
+      "desc": "Show an audit report for authentication events",
       "tooltip": "Use `aureport -au` to show an audit report for authentication events. Helpful when you need this quickly on a Linux server.",
       "id": 3037
     },
     {
       "category": "VPS Management",
       "cmd": "aa-status",
-      "desc": "show AppArmor status",
+      "desc": "Show AppArmor status",
       "tooltip": "Use `aa-status` to show AppArmor status. Helpful when you need this quickly on a Linux server.",
       "id": 3038
     },
     {
       "category": "VPS Management",
       "cmd": "aa-enforce /etc/apparmor.d/usr.sbin.nginx",
-      "desc": "put an AppArmor profile into enforce mode",
+      "desc": "Put an AppArmor profile into enforce mode",
       "tooltip": "Use `aa-enforce /etc/apparmor.d/usr.sbin.nginx` to put an AppArmor profile into enforce mode. Helpful when you need this quickly on a Linux server.",
       "id": 3039
     },
     {
       "category": "VPS Management",
       "cmd": "getenforce",
-      "desc": "show current SELinux mode",
+      "desc": "Show current SELinux mode",
       "tooltip": "Use `getenforce` to show current SELinux mode. Helpful when you need this quickly on a Linux server.",
       "id": 3040
     },
     {
       "category": "VPS Management",
       "cmd": "setenforce 1",
-      "desc": "switch SELinux to enforcing mode",
+      "desc": "Switch SELinux to enforcing mode",
       "tooltip": "Use `setenforce 1` to switch SELinux to enforcing mode. Helpful when you need this quickly on a Linux server.",
       "id": 3041
     },
     {
       "category": "VPS Management",
       "cmd": "sestatus",
-      "desc": "show detailed SELinux status",
+      "desc": "Show detailed SELinux status",
       "tooltip": "Use `sestatus` to show detailed SELinux status. Helpful when you need this quickly on a Linux server.",
       "id": 3042
     },
     {
       "category": "VPS Management",
       "cmd": "semanage port -l",
-      "desc": "list SELinux port labels",
+      "desc": "List SELinux port labels",
       "tooltip": "Use `semanage port -l` to list SELinux port labels. Helpful when you need this quickly on a Linux server.",
       "id": 3043
     },
     {
       "category": "VPS Management",
       "cmd": "restorecon -Rv /var/www",
-      "desc": "restore SELinux contexts recursively",
+      "desc": "Restore SELinux contexts recursively",
       "tooltip": "Use `restorecon -Rv /var/www` to restore SELinux contexts recursively. Helpful when you need this quickly on a Linux server.",
       "id": 3044
     },
     {
       "category": "VPS Management",
       "cmd": "chcon -t httpd_sys_content_t /srv/site",
-      "desc": "temporarily change an SELinux file context",
+      "desc": "Temporarily change an SELinux file context",
       "tooltip": "Use `chcon -t httpd_sys_content_t /srv/site` to temporarily change an SELinux file context. Helpful when you need this quickly on a Linux server.",
       "id": 3045
     },
     {
       "category": "VPS Management",
       "cmd": "getcap -r / 2>/dev/null",
-      "desc": "list Linux file capabilities",
+      "desc": "List Linux file capabilities",
       "tooltip": "Use `getcap -r / 2>/dev/null` to list Linux file capabilities. Helpful when you need this quickly on a Linux server.",
       "id": 3046
     },
     {
       "category": "VPS Management",
       "cmd": "setcap cap_net_bind_service=+ep /usr/local/bin/app",
-      "desc": "allow a binary to bind privileged ports",
+      "desc": "Allow a binary to bind privileged ports",
       "tooltip": "Use `setcap cap_net_bind_service=+ep /usr/local/bin/app` to allow a binary to bind privileged ports. Helpful when you need this quickly on a Linux server.",
       "id": 3047
     },
     {
       "category": "VPS Management",
       "cmd": "unshare -n bash",
-      "desc": "start a shell in a new network namespace",
+      "desc": "Start a shell in a new network namespace",
       "tooltip": "Use `unshare -n bash` to start a shell in a new network namespace. Helpful when you need this quickly on a Linux server.",
       "id": 3048
     },
     {
       "category": "VPS Management",
       "cmd": "nsenter --target 1234 --mount --uts --ipc --net --pid",
-      "desc": "enter the namespaces of another process",
+      "desc": "Enter the namespaces of another process",
       "tooltip": "Use `nsenter --target 1234 --mount --uts --ipc --net --pid` to enter the namespaces of another process. Helpful when you need this quickly on a Linux server.",
       "id": 3049
     },
     {
       "category": "VPS Management",
       "cmd": "debsums -s",
-      "desc": "check installed package files for checksum mismatches",
+      "desc": "Check installed package files for checksum mismatches",
       "tooltip": "Use `debsums -s` to check installed package files for checksum mismatches. Helpful when you need this quickly on a Linux server.",
       "id": 3050
     },
     {
       "category": "VPS Management",
       "cmd": "debscan",
-      "desc": "list known security issues for installed packages",
+      "desc": "List known security issues for installed packages",
       "tooltip": "Use `debscan` to list known security issues for installed packages. Helpful when you need this quickly on a Linux server.",
       "id": 3051
     },
     {
       "category": "VPS Management",
       "cmd": "needrestart -r a",
-      "desc": "restart services after package upgrades",
+      "desc": "Restart services after package upgrades",
       "tooltip": "Use `needrestart -r a` to restart services after package upgrades. Helpful when you need this quickly on a Linux server.",
       "id": 3052
     },
     {
       "category": "Networking",
       "cmd": "lsof -i -P -n",
-      "desc": "list open network sockets without DNS lookups",
+      "desc": "List open network sockets without DNS lookups",
       "tooltip": "Use `lsof -i -P -n` to list open network sockets without DNS lookups. Helpful when you need this quickly on a Linux server.",
       "id": 3119
     },
     {
       "category": "Networking",
       "cmd": "ip -br address",
-      "desc": "show IP addresses in a brief format",
+      "desc": "Show IP addresses in a brief format",
       "tooltip": "Use `ip -br address` to show IP addresses in a brief format. Helpful when you need this quickly on a Linux server.",
       "id": 3120
     },
     {
       "category": "Networking",
       "cmd": "ip rule show",
-      "desc": "show policy routing rules",
+      "desc": "Show policy routing rules",
       "tooltip": "Use `ip rule show` to show policy routing rules. Helpful when you need this quickly on a Linux server.",
       "id": 3121
     },
     {
       "category": "Networking",
       "cmd": "nmcli connection show",
-      "desc": "list NetworkManager connections",
+      "desc": "List NetworkManager connections",
       "tooltip": "Use `nmcli connection show` to list NetworkManager connections. Helpful when you need this quickly on a Linux server.",
       "id": 3122
     },
     {
       "category": "Networking",
       "cmd": "vnstat -d",
-      "desc": "show daily bandwidth statistics",
+      "desc": "Show daily bandwidth statistics",
       "tooltip": "Use `vnstat -d` to show daily bandwidth statistics. Helpful when you need this quickly on a Linux server.",
       "id": 3123
     },
     {
       "category": "Networking",
       "cmd": "iptraf-ng",
-      "desc": "watch live network traffic interactively",
+      "desc": "Watch live network traffic interactively",
       "tooltip": "Use `iptraf-ng` to watch live network traffic interactively. Helpful when you need this quickly on a Linux server.",
       "id": 3124
     },
     {
       "category": "Networking",
       "cmd": "tcptrack -i eth0",
-      "desc": "watch active TCP connections on an interface",
+      "desc": "Watch active TCP connections on an interface",
       "tooltip": "Use `tcptrack -i eth0` to watch active TCP connections on an interface. Helpful when you need this quickly on a Linux server.",
       "id": 3125
     },
     {
       "category": "Networking",
       "cmd": "mtr example.com",
-      "desc": "run a combined ping and traceroute",
+      "desc": "Run a combined ping and traceroute",
       "tooltip": "Use `mtr example.com` to run a combined ping and traceroute. Helpful when you need this quickly on a Linux server.",
       "id": 3126
     },
     {
       "category": "Networking",
       "cmd": "tcpdump -ni eth0 port 80",
-      "desc": "capture traffic on an interface without name lookups",
+      "desc": "Capture traffic on an interface without name lookups",
       "tooltip": "Use `tcpdump -ni eth0 port 80` to capture traffic on an interface without name lookups. Helpful when you need this quickly on a Linux server.",
       "id": 3127
     },
     {
       "category": "Networking",
       "cmd": "bridge link",
-      "desc": "show Linux bridge member interfaces",
+      "desc": "Show Linux bridge member interfaces",
       "tooltip": "Use `bridge link` to show Linux bridge member interfaces. Helpful when you need this quickly on a Linux server.",
       "id": 3128
     },
     {
       "category": "Networking",
       "cmd": "brctl show",
-      "desc": "show bridge devices with bridge-utils",
+      "desc": "Show bridge devices with bridge-utils",
       "tooltip": "Use `brctl show` to show bridge devices with bridge-utils. Helpful when you need this quickly on a Linux server.",
       "id": 3129
     },
     {
       "category": "Networking",
       "cmd": "ip link add br0 type bridge",
-      "desc": "create a Linux bridge",
+      "desc": "Create a Linux bridge",
       "tooltip": "Use `ip link add br0 type bridge` to create a Linux bridge. Helpful when you need this quickly on a Linux server.",
       "id": 3130
     },
     {
       "category": "Networking",
       "cmd": "ip link add link eth0 name eth0.100 type vlan id 100",
-      "desc": "create a VLAN subinterface",
+      "desc": "Create a VLAN subinterface",
       "tooltip": "Use `ip link add link eth0 name eth0.100 type vlan id 100` to create a VLAN subinterface. Helpful when you need this quickly on a Linux server.",
       "id": 3131
     },
     {
       "category": "Networking",
       "cmd": "ovs-vsctl show",
-      "desc": "show Open vSwitch configuration",
+      "desc": "Show Open vSwitch configuration",
       "tooltip": "Use `ovs-vsctl show` to show Open vSwitch configuration. Helpful when you need this quickly on a Linux server.",
       "id": 3132
     },
     {
       "category": "Networking",
       "cmd": "wg genkey",
-      "desc": "generate a WireGuard private key",
+      "desc": "Generate a WireGuard private key",
       "tooltip": "Use `wg genkey` to generate a WireGuard private key. Helpful when you need this quickly on a Linux server.",
       "id": 3133
     },
     {
       "category": "Networking",
       "cmd": "wg pubkey",
-      "desc": "derive a WireGuard public key from a private key",
+      "desc": "Derive a WireGuard public key from a private key",
       "tooltip": "Use `wg pubkey` to derive a WireGuard public key from a private key. Helpful when you need this quickly on a Linux server.",
       "id": 3134
     },
     {
       "category": "Networking",
       "cmd": "wg showconf wg0",
-      "desc": "show the running WireGuard config for an interface",
+      "desc": "Show the running WireGuard config for an interface",
       "tooltip": "Use `wg showconf wg0` to show the running WireGuard config for an interface. Helpful when you need this quickly on a Linux server.",
       "id": 3135
     },
     {
       "category": "Networking",
       "cmd": "openvpn --config client.ovpn",
-      "desc": "start an OpenVPN client from a config file",
+      "desc": "Start an OpenVPN client from a config file",
       "tooltip": "Use `openvpn --config client.ovpn` to start an OpenVPN client from a config file. Helpful when you need this quickly on a Linux server.",
       "id": 3136
     },
     {
       "category": "Networking",
       "cmd": "exportfs -rav",
-      "desc": "re-export all NFS shares",
+      "desc": "Re-export all NFS shares",
       "tooltip": "Use `exportfs -rav` to re-export all NFS shares. Helpful when you need this quickly on a Linux server.",
       "id": 3137
     },
     {
       "category": "Networking",
       "cmd": "showmount -e server",
-      "desc": "list NFS exports from a server",
+      "desc": "List NFS exports from a server",
       "tooltip": "Use `showmount -e server` to list NFS exports from a server. Helpful when you need this quickly on a Linux server.",
       "id": 3138
     },
     {
       "category": "Networking",
       "cmd": "rpcinfo -p server",
-      "desc": "list RPC services exposed by a host",
+      "desc": "List RPC services exposed by a host",
       "tooltip": "Use `rpcinfo -p server` to list RPC services exposed by a host. Helpful when you need this quickly on a Linux server.",
       "id": 3139
     },
     {
       "category": "Networking",
       "cmd": "mount -t nfs server:/share /mnt/share",
-      "desc": "mount an NFS share",
+      "desc": "Mount an NFS share",
       "tooltip": "Use `mount -t nfs server:/share /mnt/share` to mount an NFS share. Helpful when you need this quickly on a Linux server.",
       "id": 3140
     },
     {
       "category": "Networking",
       "cmd": "smbclient -L //server -N",
-      "desc": "list Samba shares on a server",
+      "desc": "List Samba shares on a server",
       "tooltip": "Use `smbclient -L //server -N` to list Samba shares on a server. Helpful when you need this quickly on a Linux server.",
       "id": 3141
     },
     {
       "category": "Networking",
       "cmd": "testparm",
-      "desc": "validate Samba configuration",
+      "desc": "Validate Samba configuration",
       "tooltip": "Use `testparm` to validate Samba configuration. Helpful when you need this quickly on a Linux server.",
       "id": 3142
     },
     {
       "category": "Networking",
       "cmd": "smbstatus",
-      "desc": "show active Samba sessions and locks",
+      "desc": "Show active Samba sessions and locks",
       "tooltip": "Use `smbstatus` to show active Samba sessions and locks. Helpful when you need this quickly on a Linux server.",
       "id": 3143
     },
     {
       "category": "Networking",
       "cmd": "nmblookup server",
-      "desc": "query NetBIOS names",
+      "desc": "Query NetBIOS names",
       "tooltip": "Use `nmblookup server` to query NetBIOS names. Helpful when you need this quickly on a Linux server.",
       "id": 3144
     },
     {
       "category": "Networking",
       "cmd": "pdbedit -L",
-      "desc": "list Samba users from the passdb",
+      "desc": "List Samba users from the passdb",
       "tooltip": "Use `pdbedit -L` to list Samba users from the passdb. Helpful when you need this quickly on a Linux server.",
       "id": 3145
     },
     {
       "category": "Networking",
       "cmd": "smbpasswd -a alice",
-      "desc": "add or update a Samba user password",
+      "desc": "Add or update a Samba user password",
       "tooltip": "Use `smbpasswd -a alice` to add or update a Samba user password. Helpful when you need this quickly on a Linux server.",
       "id": 3146
     },
     {
       "category": "VPS Management",
       "cmd": "certbot --nginx -d example.com",
-      "desc": "obtain a Let's Encrypt certificate with the nginx plugin",
+      "desc": "Obtain a Let's Encrypt certificate with the nginx plugin",
       "tooltip": "Use `certbot --nginx -d example.com` to obtain a Let's Encrypt certificate with the nginx plugin. Helpful when you need this quickly on a Linux server.",
       "id": 3179
     },
     {
       "category": "VPS Management",
       "cmd": "certbot --apache -d example.com",
-      "desc": "obtain a Let's Encrypt certificate with the Apache plugin",
+      "desc": "Obtain a Let's Encrypt certificate with the Apache plugin",
       "tooltip": "Use `certbot --apache -d example.com` to obtain a Let's Encrypt certificate with the Apache plugin. Helpful when you need this quickly on a Linux server.",
       "id": 3180
     },
     {
       "category": "VPS Management",
       "cmd": "certbot renew --dry-run",
-      "desc": "test certificate renewal",
+      "desc": "Test certificate renewal",
       "tooltip": "Use `certbot renew --dry-run` to test certificate renewal. Helpful when you need this quickly on a Linux server.",
       "id": 3181
     },
     {
       "category": "VPS Management",
       "cmd": "certbot certificates",
-      "desc": "list managed certificates",
+      "desc": "List managed certificates",
       "tooltip": "Use `certbot certificates` to list managed certificates. Helpful when you need this quickly on a Linux server.",
       "id": 3182
     },
     {
       "category": "VPS Management",
       "cmd": "certbot delete --cert-name example.com",
-      "desc": "delete a managed certificate",
+      "desc": "Delete a managed certificate",
       "tooltip": "Use `certbot delete --cert-name example.com` to delete a managed certificate. Helpful when you need this quickly on a Linux server.",
       "id": 3183
     },
     {
       "category": "VPS Management",
       "cmd": "openssl s_client -connect example.com:443 -servername example.com",
-      "desc": "inspect a live TLS handshake and certificate chain",
+      "desc": "Inspect a live TLS handshake and certificate chain",
       "tooltip": "Use `openssl s_client -connect example.com:443 -servername example.com` to inspect a live TLS handshake and certificate chain. Helpful when you need this quickly on a Linux server.",
       "id": 3184
     },
     {
       "category": "VPS Management",
       "cmd": "openssl req -new -newkey rsa:4096 -nodes -keyout server.key -out server.csr",
-      "desc": "generate a private key and CSR",
+      "desc": "Generate a private key and CSR",
       "tooltip": "Use `openssl req -new -newkey rsa:4096 -nodes -keyout server.key -out server.csr` to generate a private key and CSR. Helpful when you need this quickly on a Linux server.",
       "id": 3185
     },
     {
       "category": "VPS Management",
       "cmd": "openssl x509 -in server.crt -text -noout",
-      "desc": "inspect certificate contents",
+      "desc": "Inspect certificate contents",
       "tooltip": "Use `openssl x509 -in server.crt -text -noout` to inspect certificate contents. Helpful when you need this quickly on a Linux server.",
       "id": 3186
     },
     {
       "category": "VPS Management",
       "cmd": "openssl verify -CAfile chain.pem server.crt",
-      "desc": "verify a certificate against a CA chain",
+      "desc": "Verify a certificate against a CA chain",
       "tooltip": "Use `openssl verify -CAfile chain.pem server.crt` to verify a certificate against a CA chain. Helpful when you need this quickly on a Linux server.",
       "id": 3187
     },
     {
       "category": "VPS Management",
       "cmd": "openssl pkcs12 -info -in bundle.p12",
-      "desc": "inspect a PKCS#12 bundle",
+      "desc": "Inspect a PKCS#12 bundle",
       "tooltip": "Use `openssl pkcs12 -info -in bundle.p12` to inspect a PKCS#12 bundle. Helpful when you need this quickly on a Linux server.",
       "id": 3188
     },
     {
       "category": "VPS Management",
       "cmd": "nginx -t",
-      "desc": "test nginx configuration syntax",
+      "desc": "Test nginx configuration syntax",
       "tooltip": "Use `nginx -t` to test nginx configuration syntax. Helpful when you need this quickly on a Linux server.",
       "id": 3189
     },
     {
       "category": "VPS Management",
       "cmd": "nginx -s reload",
-      "desc": "reload nginx without dropping connections",
+      "desc": "Reload nginx without dropping connections",
       "tooltip": "Use `nginx -s reload` to reload nginx without dropping connections. Helpful when you need this quickly on a Linux server.",
       "id": 3190
     },
     {
       "category": "VPS Management",
       "cmd": "apache2ctl configtest",
-      "desc": "test Apache configuration syntax",
+      "desc": "Test Apache configuration syntax",
       "tooltip": "Use `apache2ctl configtest` to test Apache configuration syntax. Helpful when you need this quickly on a Linux server.",
       "id": 3191
     },
     {
       "category": "VPS Management",
       "cmd": "apache2ctl -S",
-      "desc": "show Apache virtual host mapping",
+      "desc": "Show Apache virtual host mapping",
       "tooltip": "Use `apache2ctl -S` to show Apache virtual host mapping. Helpful when you need this quickly on a Linux server.",
       "id": 3192
     },
     {
       "category": "VPS Management",
       "cmd": "a2ensite example.conf",
-      "desc": "enable an Apache site",
+      "desc": "Enable an Apache site",
       "tooltip": "Use `a2ensite example.conf` to enable an Apache site. Helpful when you need this quickly on a Linux server.",
       "id": 3193
     },
     {
       "category": "VPS Management",
       "cmd": "a2dissite example.conf",
-      "desc": "disable an Apache site",
+      "desc": "Disable an Apache site",
       "tooltip": "Use `a2dissite example.conf` to disable an Apache site. Helpful when you need this quickly on a Linux server.",
       "id": 3194
     },
     {
       "category": "VPS Management",
       "cmd": "a2enmod rewrite",
-      "desc": "enable an Apache module",
+      "desc": "Enable an Apache module",
       "tooltip": "Use `a2enmod rewrite` to enable an Apache module. Helpful when you need this quickly on a Linux server.",
       "id": 3195
     },
     {
       "category": "VPS Management",
       "cmd": "php-fpm8.2 -t",
-      "desc": "test PHP-FPM configuration",
+      "desc": "Test PHP-FPM configuration",
       "tooltip": "Use `php-fpm8.2 -t` to test PHP-FPM configuration. Helpful when you need this quickly on a Linux server.",
       "id": 3196
     },
     {
       "category": "VPS Management",
       "cmd": "supervisorctl status",
-      "desc": "show process status from Supervisor",
+      "desc": "Show process status from Supervisor",
       "tooltip": "Use `supervisorctl status` to show process status from Supervisor. Helpful when you need this quickly on a Linux server.",
       "id": 3197
     },
     {
       "category": "VPS Management",
       "cmd": "supervisorctl restart all",
-      "desc": "restart all Supervisor-managed processes",
+      "desc": "Restart all Supervisor-managed processes",
       "tooltip": "Use `supervisorctl restart all` to restart all Supervisor-managed processes. Helpful when you need this quickly on a Linux server.",
       "id": 3198
     },
     {
       "category": "VPS Management",
       "cmd": "postfix status",
-      "desc": "check Postfix service status",
+      "desc": "Check Postfix service status",
       "tooltip": "Use `postfix status` to check Postfix service status. Helpful when you need this quickly on a Linux server.",
       "id": 3199
     },
     {
       "category": "VPS Management",
       "cmd": "postfix reload",
-      "desc": "reload Postfix after configuration changes",
+      "desc": "Reload Postfix after configuration changes",
       "tooltip": "Use `postfix reload` to reload Postfix after configuration changes. Helpful when you need this quickly on a Linux server.",
       "id": 3200
     },
     {
       "category": "VPS Management",
       "cmd": "mailq",
-      "desc": "show queued mail",
+      "desc": "Show queued mail",
       "tooltip": "Use `mailq` to show queued mail. Helpful when you need this quickly on a Linux server.",
       "id": 3201
     },
     {
       "category": "VPS Management",
       "cmd": "postqueue -p",
-      "desc": "print the Postfix mail queue",
+      "desc": "Print the Postfix mail queue",
       "tooltip": "Use `postqueue -p` to print the Postfix mail queue. Helpful when you need this quickly on a Linux server.",
       "id": 3202
     },
     {
       "category": "VPS Management",
       "cmd": "postsuper -d ALL",
-      "desc": "delete all messages from the Postfix queue",
+      "desc": "Delete all messages from the Postfix queue",
       "tooltip": "Use `postsuper -d ALL` to delete all messages from the Postfix queue. Helpful when you need this quickly on a Linux server.",
       "id": 3203
     },
     {
       "category": "VPS Management",
       "cmd": "postconf -n",
-      "desc": "show non-default Postfix settings",
+      "desc": "Show non-default Postfix settings",
       "tooltip": "Use `postconf -n` to show non-default Postfix settings. Helpful when you need this quickly on a Linux server.",
       "id": 3204
     },
     {
       "category": "VPS Management",
       "cmd": "mail -s 'test' admin@example.com",
-      "desc": "send a quick test email",
+      "desc": "Send a quick test email",
       "tooltip": "Use `mail -s 'test' admin@example.com` to send a quick test email. Helpful when you need this quickly on a Linux server.",
       "id": 3205
     },
     {
       "category": "VPS Management",
       "cmd": "mutt",
-      "desc": "open the mutt terminal mail client",
+      "desc": "Open the mutt terminal mail client",
       "tooltip": "Use `mutt` to open the mutt terminal mail client. Helpful when you need this quickly on a Linux server.",
       "id": 3206
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli ping",
-      "desc": "test connectivity to Redis",
+      "desc": "Test connectivity to Redis",
       "tooltip": "Use `redis-cli ping` to test connectivity to Redis. Helpful when you need this quickly on a Linux server.",
       "id": 3207
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli info memory",
-      "desc": "show Redis memory information",
+      "desc": "Show Redis memory information",
       "tooltip": "Use `redis-cli info memory` to show Redis memory information. Helpful when you need this quickly on a Linux server.",
       "id": 3208
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli monitor",
-      "desc": "watch every command hitting Redis",
+      "desc": "Watch every command hitting Redis",
       "tooltip": "Use `redis-cli monitor` to watch every command hitting Redis. Helpful when you need this quickly on a Linux server.",
       "id": 3209
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli save",
-      "desc": "force a Redis RDB snapshot",
+      "desc": "Force a Redis RDB snapshot",
       "tooltip": "Use `redis-cli save` to force a Redis RDB snapshot. Helpful when you need this quickly on a Linux server.",
       "id": 3210
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli flushdb",
-      "desc": "delete all keys in the current Redis database",
+      "desc": "Delete all keys in the current Redis database",
       "tooltip": "Use `redis-cli flushdb` to delete all keys in the current Redis database. Helpful when you need this quickly on a Linux server.",
       "id": 3211
     },
     {
       "category": "VPS Management",
       "cmd": "redis-cli latency doctor",
-      "desc": "show Redis latency analysis",
+      "desc": "Show Redis latency analysis",
       "tooltip": "Use `redis-cli latency doctor` to show Redis latency analysis. Helpful when you need this quickly on a Linux server.",
       "id": 3212
     },
     {
       "category": "VPS Management",
       "cmd": "mysqlcheck --all-databases",
-      "desc": "check all MySQL tables",
+      "desc": "Check all MySQL tables",
       "tooltip": "Use `mysqlcheck --all-databases` to check all MySQL tables. Helpful when you need this quickly on a Linux server.",
       "id": 3213
     },
     {
       "category": "VPS Management",
       "cmd": "mysqloptimize --all-databases",
-      "desc": "optimize all MySQL tables",
+      "desc": "Optimize all MySQL tables",
       "tooltip": "Use `mysqloptimize --all-databases` to optimize all MySQL tables. Helpful when you need this quickly on a Linux server.",
       "id": 3214
     },
     {
       "category": "VPS Management",
       "cmd": "pg_basebackup -D /backups/pgbase -Fp -Xs -P",
-      "desc": "take a base backup from PostgreSQL",
+      "desc": "Take a base backup from PostgreSQL",
       "tooltip": "Use `pg_basebackup -D /backups/pgbase -Fp -Xs -P` to take a base backup from PostgreSQL. Helpful when you need this quickly on a Linux server.",
       "id": 3215
     },
     {
       "category": "VPS Management",
       "cmd": "pg_lsclusters",
-      "desc": "list PostgreSQL clusters on Debian and Ubuntu",
+      "desc": "List PostgreSQL clusters on Debian and Ubuntu",
       "tooltip": "Use `pg_lsclusters` to list PostgreSQL clusters on Debian and Ubuntu. Helpful when you need this quickly on a Linux server.",
       "id": 3216
     },
     {
       "category": "VPS Management",
       "cmd": "mongodump --out /backups/mongo",
-      "desc": "dump MongoDB data to a directory",
+      "desc": "Dump MongoDB data to a directory",
       "tooltip": "Use `mongodump --out /backups/mongo` to dump MongoDB data to a directory. Helpful when you need this quickly on a Linux server.",
       "id": 3217
     },
     {
       "category": "VPS Management",
       "cmd": "mongorestore /backups/mongo",
-      "desc": "restore a MongoDB dump",
+      "desc": "Restore a MongoDB dump",
       "tooltip": "Use `mongorestore /backups/mongo` to restore a MongoDB dump. Helpful when you need this quickly on a Linux server.",
       "id": 3218
     },
     {
       "category": "VPS Management",
       "cmd": "restic init",
-      "desc": "initialize a new Restic repository",
+      "desc": "Initialize a new Restic repository",
       "tooltip": "Use `restic init` to initialize a new Restic repository. Helpful when you need this quickly on a Linux server.",
       "id": 3219
     },
     {
       "category": "VPS Management",
       "cmd": "restic backup /etc /var/www",
-      "desc": "back up paths with Restic",
+      "desc": "Back up paths with Restic",
       "tooltip": "Use `restic backup /etc /var/www` to back up paths with Restic. Helpful when you need this quickly on a Linux server.",
       "id": 3220
     },
     {
       "category": "VPS Management",
       "cmd": "restic snapshots",
-      "desc": "list Restic snapshots",
+      "desc": "List Restic snapshots",
       "tooltip": "Use `restic snapshots` to list Restic snapshots. Helpful when you need this quickly on a Linux server.",
       "id": 3221
     },
     {
       "category": "VPS Management",
       "cmd": "restic restore latest --target /restore",
-      "desc": "restore the latest Restic snapshot",
+      "desc": "Restore the latest Restic snapshot",
       "tooltip": "Use `restic restore latest --target /restore` to restore the latest Restic snapshot. Helpful when you need this quickly on a Linux server.",
       "id": 3222
     },
     {
       "category": "VPS Management",
       "cmd": "restic check",
-      "desc": "verify repository integrity with Restic",
+      "desc": "Verify repository integrity with Restic",
       "tooltip": "Use `restic check` to verify repository integrity with Restic. Helpful when you need this quickly on a Linux server.",
       "id": 3223
     },
     {
       "category": "VPS Management",
       "cmd": "restic forget --keep-daily 7 --prune",
-      "desc": "expire old Restic snapshots and prune data",
+      "desc": "Expire old Restic snapshots and prune data",
       "tooltip": "Use `restic forget --keep-daily 7 --prune` to expire old Restic snapshots and prune data. Helpful when you need this quickly on a Linux server.",
       "id": 3224
     },
     {
       "category": "VPS Management",
       "cmd": "duplicity /etc file:///backup/duplicity",
-      "desc": "back up data with Duplicity",
+      "desc": "Back up data with Duplicity",
       "tooltip": "Use `duplicity /etc file:///backup/duplicity` to back up data with Duplicity. Helpful when you need this quickly on a Linux server.",
       "id": 3225
     },
     {
       "category": "VPS Management",
       "cmd": "ddrescue /dev/sdb image.dd rescue.log",
-      "desc": "recover data from a failing disk",
+      "desc": "Recover data from a failing disk",
       "tooltip": "Use `ddrescue /dev/sdb image.dd rescue.log` to recover data from a failing disk. Helpful when you need this quickly on a Linux server.",
       "id": 3226
     },
     {
       "category": "VPS Management",
       "cmd": "testdisk",
-      "desc": "recover lost partitions and files interactively",
+      "desc": "Recover lost partitions and files interactively",
       "tooltip": "Use `testdisk` to recover lost partitions and files interactively. Helpful when you need this quickly on a Linux server.",
       "id": 3227
     },
     {
       "category": "VPS Management",
       "cmd": "lnav /var/log/syslog",
-      "desc": "open logs in a log-focused viewer",
+      "desc": "Open logs in a log-focused viewer",
       "tooltip": "Use `lnav /var/log/syslog` to open logs in a log-focused viewer. Helpful when you need this quickly on a Linux server.",
       "id": 3228
     },
     {
       "category": "VPS Management",
       "cmd": "multitail -f /var/log/syslog /var/log/auth.log",
-      "desc": "tail multiple log files together",
+      "desc": "Tail multiple log files together",
       "tooltip": "Use `multitail -f /var/log/syslog /var/log/auth.log` to tail multiple log files together. Helpful when you need this quickly on a Linux server.",
       "id": 3229
     },
     {
       "category": "VPS Management",
       "cmd": "goaccess access.log -o report.html",
-      "desc": "analyze web access logs into a report",
+      "desc": "Analyze web access logs into a report",
       "tooltip": "Use `goaccess access.log -o report.html` to analyze web access logs into a report. Helpful when you need this quickly on a Linux server.",
       "id": 3230
     },
     {
       "category": "VPS Management",
       "cmd": "logwatch --detail High --service all --range today",
-      "desc": "generate a daily log summary",
+      "desc": "Generate a daily log summary",
       "tooltip": "Use `logwatch --detail High --service all --range today` to generate a daily log summary. Helpful when you need this quickly on a Linux server.",
       "id": 3231
     },
     {
       "category": "VPS Management",
       "cmd": "pflogsumm /var/log/mail.log",
-      "desc": "summarize Postfix mail logs",
+      "desc": "Summarize Postfix mail logs",
       "tooltip": "Use `pflogsumm /var/log/mail.log` to summarize Postfix mail logs. Helpful when you need this quickly on a Linux server.",
       "id": 3232
     },
     {
       "category": "VPS Management",
       "cmd": "ansible all -m ping",
-      "desc": "test Ansible connectivity to all hosts",
+      "desc": "Test Ansible connectivity to all hosts",
       "tooltip": "Use `ansible all -m ping` to test Ansible connectivity to all hosts. Helpful when you need this quickly on a Linux server.",
       "id": 3233
     },
     {
       "category": "VPS Management",
       "cmd": "ansible-playbook site.yml",
-      "desc": "run an Ansible playbook",
+      "desc": "Run an Ansible playbook",
       "tooltip": "Use `ansible-playbook site.yml` to run an Ansible playbook. Helpful when you need this quickly on a Linux server.",
       "id": 3234
     },
     {
       "category": "VPS Management",
       "cmd": "ansible-inventory --list",
-      "desc": "print resolved Ansible inventory",
+      "desc": "Print resolved Ansible inventory",
       "tooltip": "Use `ansible-inventory --list` to print resolved Ansible inventory. Helpful when you need this quickly on a Linux server.",
       "id": 3235
     },
     {
       "category": "VPS Management",
       "cmd": "ansible-vault encrypt secrets.yml",
-      "desc": "encrypt a file with Ansible Vault",
+      "desc": "Encrypt a file with Ansible Vault",
       "tooltip": "Use `ansible-vault encrypt secrets.yml` to encrypt a file with Ansible Vault. Helpful when you need this quickly on a Linux server.",
       "id": 3236
     },
     {
       "category": "VPS Management",
       "cmd": "ansible-galaxy install -r requirements.yml",
-      "desc": "install required Ansible roles or collections",
+      "desc": "Install required Ansible roles or collections",
       "tooltip": "Use `ansible-galaxy install -r requirements.yml` to install required Ansible roles or collections. Helpful when you need this quickly on a Linux server.",
       "id": 3237
     },
     {
       "category": "VPS Management",
       "cmd": "terraform init",
-      "desc": "initialize a Terraform working directory",
+      "desc": "Initialize a Terraform working directory",
       "tooltip": "Use `terraform init` to initialize a Terraform working directory. Helpful when you need this quickly on a Linux server.",
       "id": 3238
     },
     {
       "category": "VPS Management",
       "cmd": "terraform plan",
-      "desc": "preview Terraform changes",
+      "desc": "Preview Terraform changes",
       "tooltip": "Use `terraform plan` to preview Terraform changes. Helpful when you need this quickly on a Linux server.",
       "id": 3239
     },
     {
       "category": "VPS Management",
       "cmd": "terraform apply",
-      "desc": "apply Terraform infrastructure changes",
+      "desc": "Apply Terraform infrastructure changes",
       "tooltip": "Use `terraform apply` to apply Terraform infrastructure changes. Helpful when you need this quickly on a Linux server.",
       "id": 3240
     },
     {
       "category": "VPS Management",
       "cmd": "terraform destroy",
-      "desc": "destroy Terraform-managed infrastructure",
+      "desc": "Destroy Terraform-managed infrastructure",
       "tooltip": "Use `terraform destroy` to destroy Terraform-managed infrastructure. Helpful when you need this quickly on a Linux server.",
       "id": 3241
     },
     {
       "category": "VPS Management",
       "cmd": "puppet apply site.pp",
-      "desc": "apply a Puppet manifest locally",
+      "desc": "Apply a Puppet manifest locally",
       "tooltip": "Use `puppet apply site.pp` to apply a Puppet manifest locally. Helpful when you need this quickly on a Linux server.",
       "id": 3242
     },
     {
       "category": "VPS Management",
       "cmd": "podman ps",
-      "desc": "list running Podman containers",
+      "desc": "List running Podman containers",
       "tooltip": "Use `podman ps` to list running Podman containers. Helpful when you need this quickly on a Linux server.",
       "id": 3243
     },
     {
       "category": "VPS Management",
       "cmd": "buildah bud -t app:latest .",
-      "desc": "build a container image with Buildah",
+      "desc": "Build a container image with Buildah",
       "tooltip": "Use `buildah bud -t app:latest .` to build a container image with Buildah. Helpful when you need this quickly on a Linux server.",
       "id": 3244
     },
     {
       "category": "VPS Management",
       "cmd": "skopeo inspect docker://docker.io/library/nginx:latest",
-      "desc": "inspect a remote container image",
+      "desc": "Inspect a remote container image",
       "tooltip": "Use `skopeo inspect docker://docker.io/library/nginx:latest` to inspect a remote container image. Helpful when you need this quickly on a Linux server.",
       "id": 3245
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl get pods -A",
-      "desc": "list pods in all Kubernetes namespaces",
+      "desc": "List pods in all Kubernetes namespaces",
       "tooltip": "Use `kubectl get pods -A` to list pods in all Kubernetes namespaces. Helpful when you need this quickly on a Linux server.",
       "id": 3246
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl describe pod mypod -n default",
-      "desc": "show detailed information about a pod",
+      "desc": "Show detailed information about a pod",
       "tooltip": "Use `kubectl describe pod mypod -n default` to show detailed information about a pod. Helpful when you need this quickly on a Linux server.",
       "id": 3247
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl logs deploy/web -n default",
-      "desc": "show logs from a deployment",
+      "desc": "Show logs from a deployment",
       "tooltip": "Use `kubectl logs deploy/web -n default` to show logs from a deployment. Helpful when you need this quickly on a Linux server.",
       "id": 3248
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl exec -it deploy/web -n default -- sh",
-      "desc": "open a shell in a Kubernetes workload",
+      "desc": "Open a shell in a Kubernetes workload",
       "tooltip": "Use `kubectl exec -it deploy/web -n default -- sh` to open a shell in a Kubernetes workload. Helpful when you need this quickly on a Linux server.",
       "id": 3249
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl apply -f manifest.yaml",
-      "desc": "apply Kubernetes manifest changes",
+      "desc": "Apply Kubernetes manifest changes",
       "tooltip": "Use `kubectl apply -f manifest.yaml` to apply Kubernetes manifest changes. Helpful when you need this quickly on a Linux server.",
       "id": 3250
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl delete -f manifest.yaml",
-      "desc": "delete resources from a Kubernetes manifest",
+      "desc": "Delete resources from a Kubernetes manifest",
       "tooltip": "Use `kubectl delete -f manifest.yaml` to delete resources from a Kubernetes manifest. Helpful when you need this quickly on a Linux server.",
       "id": 3251
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl scale deploy/web --replicas=3",
-      "desc": "scale a Kubernetes deployment",
+      "desc": "Scale a Kubernetes deployment",
       "tooltip": "Use `kubectl scale deploy/web --replicas=3` to scale a Kubernetes deployment. Helpful when you need this quickly on a Linux server.",
       "id": 3252
     },
     {
       "category": "VPS Management",
       "cmd": "kubectl rollout status deploy/web",
-      "desc": "wait for a deployment rollout",
+      "desc": "Wait for a deployment rollout",
       "tooltip": "Use `kubectl rollout status deploy/web` to wait for a deployment rollout. Helpful when you need this quickly on a Linux server.",
       "id": 3253
     },
     {
       "category": "VPS Management",
       "cmd": "helm list -A",
-      "desc": "list Helm releases in all namespaces",
+      "desc": "List Helm releases in all namespaces",
       "tooltip": "Use `helm list -A` to list Helm releases in all namespaces. Helpful when you need this quickly on a Linux server.",
       "id": 3254
     },
     {
       "category": "VPS Management",
       "cmd": "helm install web chart/ -n default",
-      "desc": "install a Helm chart",
+      "desc": "Install a Helm chart",
       "tooltip": "Use `helm install web chart/ -n default` to install a Helm chart. Helpful when you need this quickly on a Linux server.",
       "id": 3255
     },
     {
       "category": "VPS Management",
       "cmd": "helm upgrade web chart/ -n default",
-      "desc": "upgrade a Helm release",
+      "desc": "Upgrade a Helm release",
       "tooltip": "Use `helm upgrade web chart/ -n default` to upgrade a Helm release. Helpful when you need this quickly on a Linux server.",
       "id": 3256
     },
     {
       "category": "VPS Management",
       "cmd": "helm rollback web 1 -n default",
-      "desc": "roll back a Helm release",
+      "desc": "Roll back a Helm release",
       "tooltip": "Use `helm rollback web 1 -n default` to roll back a Helm release. Helpful when you need this quickly on a Linux server.",
       "id": 3257
     },
     {
       "category": "VPS Management",
       "cmd": "helm uninstall web -n default",
-      "desc": "remove a Helm release",
+      "desc": "Remove a Helm release",
       "tooltip": "Use `helm uninstall web -n default` to remove a Helm release. Helpful when you need this quickly on a Linux server.",
       "id": 3258
     },
     {
       "category": "VPS Management",
       "cmd": "lxc list",
-      "desc": "list LXC containers",
+      "desc": "List LXC containers",
       "tooltip": "Use `lxc list` to list LXC containers. Helpful when you need this quickly on a Linux server.",
       "id": 3259
     },
     {
       "category": "VPS Management",
       "cmd": "lxc start web01",
-      "desc": "start an LXC container",
+      "desc": "Start an LXC container",
       "tooltip": "Use `lxc start web01` to start an LXC container. Helpful when you need this quickly on a Linux server.",
       "id": 3260
     },
     {
       "category": "VPS Management",
       "cmd": "lxc stop web01",
-      "desc": "stop an LXC container",
+      "desc": "Stop an LXC container",
       "tooltip": "Use `lxc stop web01` to stop an LXC container. Helpful when you need this quickly on a Linux server.",
       "id": 3261
     },
     {
       "category": "VPS Management",
       "cmd": "lxc exec web01 -- bash",
-      "desc": "open a shell inside an LXC container",
+      "desc": "Open a shell inside an LXC container",
       "tooltip": "Use `lxc exec web01 -- bash` to open a shell inside an LXC container. Helpful when you need this quickly on a Linux server.",
       "id": 3262
     },
     {
       "category": "VPS Management",
       "cmd": "virsh list --all",
-      "desc": "list virtual machines managed by libvirt",
+      "desc": "List virtual machines managed by libvirt",
       "tooltip": "Use `virsh list --all` to list virtual machines managed by libvirt. Helpful when you need this quickly on a Linux server.",
       "id": 3263
     },
     {
       "category": "VPS Management",
       "cmd": "virsh dominfo web01",
-      "desc": "show libvirt guest details",
+      "desc": "Show libvirt guest details",
       "tooltip": "Use `virsh dominfo web01` to show libvirt guest details. Helpful when you need this quickly on a Linux server.",
       "id": 3264
     },
     {
       "category": "VPS Management",
       "cmd": "virt-install --name web01 --memory 2048 --vcpus 2 --disk size=20 --cdrom image.iso",
-      "desc": "create a VM with virt-install",
+      "desc": "Create a VM with virt-install",
       "tooltip": "Use `virt-install --name web01 --memory 2048 --vcpus 2 --disk size=20 --cdrom image.iso` to create a VM with virt-install. Helpful when you need this quickly on a Linux server.",
       "id": 3265
     },
     {
       "category": "VPS Management",
       "cmd": "qemu-img info disk.qcow2",
-      "desc": "show metadata about a disk image",
+      "desc": "Show metadata about a disk image",
       "tooltip": "Use `qemu-img info disk.qcow2` to show metadata about a disk image. Helpful when you need this quickly on a Linux server.",
       "id": 3266
     },
     {
       "category": "VPS Management",
       "cmd": "qemu-img create -f qcow2 disk.qcow2 20G",
-      "desc": "create a new QCOW2 disk image",
+      "desc": "Create a new QCOW2 disk image",
       "tooltip": "Use `qemu-img create -f qcow2 disk.qcow2 20G` to create a new QCOW2 disk image. Helpful when you need this quickly on a Linux server.",
       "id": 3267
     },
@@ -40165,7 +40165,7 @@
     {
       "id": 5778,
       "category": "Node.js & npm/yarn",
-      "cmd": "npm token revoke 4f2a9c1e8b3d7f5a",
+      "cmd": "npm token revoke abc123",
       "desc": "Revoke an npm access token",
       "tooltip": "Immediately invalidates the token with the given id, cutting off every system that used it. Rotate tokens when they leak or when a developer leaves the team. Find the id with npm token list before revoking."
     },
@@ -41334,7 +41334,7 @@
     {
       "id": 5945,
       "category": "Web App Development",
-      "cmd": "curl -H 'Authorization: Bearer TOKEN' https://api.example.com/me",
+      "cmd": "curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.com/me",
       "desc": "Call an API with a bearer token header",
       "tooltip": "Sends a raw Authorization header carrying a bearer token, the standard way to authenticate against modern APIs. Replace TOKEN with the value from your login response. Store it in a shell variable to avoid pasting secrets into history."
     },
@@ -41565,7 +41565,7 @@
     {
       "id": 5978,
       "category": "Web App Development",
-      "cmd": "wscat -c ws://localhost:3000 -H 'Authorization: Bearer TOKEN'",
+      "cmd": "wscat -c ws://localhost:3000 -H 'Authorization: Bearer $API_TOKEN'",
       "desc": "Connect to a local WebSocket with an auth header",
       "tooltip": "Opens a WebSocket to your local server while sending an Authorization header with the token, matching how your app authenticates sockets. The -H flag repeats for multiple headers. If the handshake fails, check the token and the ws path."
     },
@@ -41649,7 +41649,7 @@
     {
       "id": 5990,
       "category": "Web App Development",
-      "cmd": "ab -n 100 -c 10 -H 'Authorization: Bearer TOKEN' http://localhost:3000/",
+      "cmd": "ab -n 100 -c 10 -H 'Authorization: Bearer $API_TOKEN' http://localhost:3000/",
       "desc": "Load test an authenticated endpoint",
       "tooltip": "Sends 100 requests with a bearer token header on every one, exercising routes that require login. The -H flag repeats for additional headers. Watch the non-2xx count in the report to confirm auth is not failing under load."
     },
@@ -50098,9 +50098,9 @@
     {
       "id": 7197,
       "category": "n8n & Workflow Automation",
-      "cmd": "n8n export:workflow --id=123 --version=8f3a2c1e-5b7d-4e9a-9c2f-1d4b6a8e0f3a --output=workflow-v1.json",
+      "cmd": "n8n export:workflow --id=123 --output=workflow-v1.json",
       "desc": "Export a historical workflow version",
-      "tooltip": "Writes the historical version whose version ID is 8f3a2c1e-5b7d-4e9a-9c2f-1d4b6a8e0f3a, not the current draft, to workflow-v1.json. Version IDs come from the workflow history and are listed in the editor's version panel. The --version flag cannot be combined with --all or --published."
+      "tooltip": "Writes the historical version whose version ID is the version id, not the current draft, to workflow-v1.json. Version IDs come from the workflow history and are listed in the editor's version panel. The --version flag cannot be combined with --all or --published."
     },
     {
       "id": 7198,
@@ -53052,238 +53052,238 @@
     {
       "id": 7619,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/all\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "List all mailboxes via the Mailcow API",
       "tooltip": "The v1 API authenticates with the X-API-Key header, where the key comes from the admin UI under System, API. This call returns every mailbox with its quota, active flag, and attributes as JSON. Pipe through jq to filter on fields."
     },
     {
       "id": 7620,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/jane@example.com\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/jane@example.com\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show one mailbox's full details via the API",
       "tooltip": "The mailbox address in the URL path selects a single mailbox and returns its complete attribute set. Faster than scanning the full mailbox list for one account. The address must be URL-encoded if it contains special characters."
     },
     {
       "id": 7621,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"local_part\":\"jane\",\"domain\":\"example.com\",\"password\":\"S3curePass!2026\",\"quota\":\"10240\",\"active\":\"1\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/mailbox\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"local_part\":\"jane\",\"domain\":\"example.com\",\"password\":\"S3curePass!2026\",\"quota\":\"10240\",\"active\":\"1\"}'",
       "desc": "Create a mailbox through the Mailcow API",
       "tooltip": "This POST creates the mailbox jane@example.com with the given password and 10 GB quota in one call. The response includes the new mailbox's details or an error message. Set the domain's default values first so the mailbox inherits sensible limits."
     },
     {
       "id": 7622,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailbox\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"]}'",
       "desc": "Delete a mailbox and its maildir via the API",
       "tooltip": "The items array names the mailboxes to remove, and deletion also schedules the user's maildir for garbage collection. This is permanent: mail is unrecoverable once the maildir is purged. Export the account with IMAP or backup the vmail target first."
     },
     {
       "id": 7623,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/alias\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"address\":\"info@example.com\",\"goto\":\"jane@example.com\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/alias\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"address\":\"info@example.com\",\"goto\":\"jane@example.com\"}'",
       "desc": "Create an alias that forwards to a mailbox",
       "tooltip": "This creates info@example.com as an alias whose mail is delivered to jane@example.com. The goto field can hold several comma-separated recipients. Aliases do not consume quota and cannot log in by themselves."
     },
     {
       "id": 7624,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/alias\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"info@example.com\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/alias\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[\"info@example.com\"]}'",
       "desc": "Delete one or more aliases via the API",
       "tooltip": "The items array names the alias addresses to remove. Deleting an alias immediately stops delivery to its targets, so mail to that address bounces. Verify nothing important still uses the alias before removing it."
     },
     {
       "id": 7625,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/domain\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"domain\":\"example.com\",\"aliases\":\"10\",\"mailboxes\":\"10\",\"defquota\":\"10240\",\"maxquota\":\"102400\",\"quota\":\"102400\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/domain\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"domain\":\"example.com\",\"aliases\":\"10\",\"mailboxes\":\"10\",\"defquota\":\"10240\",\"maxquota\":\"102400\",\"quota\":\"102400\"}'",
       "desc": "Add a mail domain through the Mailcow API",
       "tooltip": "This registers example.com with limits for aliases, mailboxes, default per-mailbox quota, and total domain quota. MX and autodiscover DNS records must already point at your server. New mailboxes inherit defquota unless overridden."
     },
     {
       "id": 7626,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/domain/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/domain/all\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "List all domains via the Mailcow API",
       "tooltip": "This returns every domain with its quota usage, alias and mailbox counts, and active state. Useful for audits of how many domains the server hosts. Filter with jq to find domains over their quota."
     },
     {
       "id": 7627,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/quarantine/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/quarantine/all\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "List messages held in quarantine via the API",
       "tooltip": "This returns messages flagged as spam and held for review, with sender, recipient, subject, and reason. Quarantine is where Rspamd puts mail scored above the reject threshold. Release or delete individual items with edit/qitem and delete/qitem."
     },
     {
       "id": 7628,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"release\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"action\":\"release\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
       "desc": "Release a quarantined message for delivery",
       "tooltip": "The action release delivers the listed quarantine IDs to their original recipients, bypassing the spam hold. Useful when a legitimate message was caught. The ID comes from the quarantine listing and is tied to the stored message copy."
     },
     {
       "id": 7629,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"learnham\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"action\":\"learnham\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
       "desc": "Release a message and train the filter as ham",
       "tooltip": "The learnham action delivers the quarantined message and feeds it to Rspamd's Bayesian filter as legitimate mail. This both fixes the false positive and makes the filter less likely to catch similar mail. The learned state persists in Redis."
     },
     {
       "id": 7630,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/qitem\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
       "desc": "Delete quarantined messages permanently",
       "tooltip": "The items array names quarantine entries whose stored message copies are deleted without delivery. This is irreversible, so review the sender and subject first. Use it to purge old spam instead of releasing it."
     },
     {
       "id": 7631,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/dkim\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"],\"key_size\":2048}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/dkim\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"],\"key_size\":2048}'",
       "desc": "Generate a DKIM key pair for a domain",
       "tooltip": "This creates a 2048-bit DKIM signing key for example.com under the selector default. DKIM lets receiving servers verify mail authenticity, so publish the returned TXT record at default._domainkey.example.com. Without the DNS record, signed mail fails verification."
     },
     {
       "id": 7632,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/dkim\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/dkim\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"]}'",
       "desc": "Delete a DKIM key pair for a domain",
       "tooltip": "Removing the DKIM key stops Mailcow from signing mail for the domain, and receivers that still verify the old record will fail DKIM checks. That typically worsens spam scores and deliverability. Export the private key first if you may need it again."
     },
     {
       "id": 7633,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/dkim/example.com\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/dkim/example.com\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show the DKIM DNS records for a domain",
       "tooltip": "This returns the DNS record to publish for the domain's DKIM selector, including the public key. Compare it with what is actually published using dig to debug failing DKIM verification. The selector appears in the returned record name."
     },
     {
       "id": 7634,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/bcc\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"local_dest\":\"jane@example.com\",\"bcc_dest\":\"archive@example.com\",\"type\":\"sender\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/bcc\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"local_dest\":\"jane@example.com\",\"bcc_dest\":\"archive@example.com\",\"type\":\"sender\"}'",
       "desc": "Add a BCC copy rule for a mailbox",
       "tooltip": "This adds a blind-copy rule where every message sent by jane@example.com is also delivered to archive@example.com. BCC rules are the standard way Mailcow archives sent and received mail. The type field selects sender or recipient direction."
     },
     {
       "id": 7635,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/bcc/1\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/bcc/1\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show one BCC rule by its ID",
       "tooltip": "This fetches a single BCC rule identified by its numeric ID, showing the local address, blind-copy destination, and direction. Use it to confirm a rule before editing or deleting it. The ID appears in the list returned by the BCC endpoints."
     },
     {
       "id": 7636,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/bcc\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[1]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/bcc\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[1]}'",
       "desc": "Delete BCC copy rules by ID",
       "tooltip": "The items array holds the numeric IDs of BCC rules to remove, which stops the blind copies immediately. Archiving setups lose coverage the moment the rule is gone. Confirm the ID with get/bcc first."
     },
     {
       "id": 7637,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailq/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailq/all\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "List the Postfix queue via the Mailcow API",
       "tooltip": "This returns every message currently in the Postfix queue with ID, sender, recipients, and deferral reason. Equivalent to postqueue -p but over HTTP with the same API key. Useful for scripts that alert on queue growth."
     },
     {
       "id": 7638,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailq\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"super_delete\",\"mailq_ids\":[\"4A2B3C7D9E\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailq\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"action\":\"super_delete\",\"mailq_ids\":[\"4A2B3C7D9E\"]}'",
       "desc": "Delete queued messages without bounce notices",
       "tooltip": "The super_delete action removes the listed queue IDs and suppresses bounce messages to the senders, unlike the plain delete action. Mail that is still undelivered is dropped permanently. Verify the IDs against get/mailq/all before deleting."
     },
     {
       "id": 7639,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"attr\":\"active\",\"items\":[\"jane@example.com\"]}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/mailbox\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"attr\":\"active\",\"items\":[\"jane@example.com\"]}'",
       "desc": "Toggle a mailbox attribute via the API",
       "tooltip": "The attr field selects which mailbox property to change, here active, applied to every address in items. Setting active disables login and delivery while keeping the maildir intact. Other attrs such as password or quota follow the same pattern."
     },
     {
       "id": 7640,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/rl-mbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"rl_value\":\"50\",\"rl_frame\":\"minute\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/rl-mbox\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"rl_value\":\"50\",\"rl_frame\":\"minute\"}'",
       "desc": "Set a per-mailbox sending rate limit",
       "tooltip": "This limits jane@example.com to 50 messages per minute, the frame given by rl_frame. Rate limits are enforced by Postfix and Rspamd together to throttle compromised accounts. Use a larger frame such as hour for gentler limits."
     },
     {
       "id": 7641,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/spam-score\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"score\":5}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/spam-score\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"score\":5}'",
       "desc": "Set a custom spam score threshold for a mailbox",
       "tooltip": "This overrides the global spam score for the listed mailboxes, here making jane@example.com quarantine anything Rspamd scores above 5. Lower values catch more spam but raise false positives. The global threshold stays in the Rspamd config."
     },
     {
       "id": 7642,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/domain/footer\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"attr\":\"footer\",\"items\":[\"example.com\"],\"footer\":\"Sent from example.com\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/domain/footer\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"attr\":\"footer\",\"items\":[\"example.com\"],\"footer\":\"Sent from example.com\"}'",
       "desc": "Set an email footer for a domain",
       "tooltip": "This appends the given footer text to outgoing mail from the listed domains. Mailcow injects footers during delivery, so stored mail is unchanged. HTML footers are supported with the appropriate markup in the footer field."
     },
     {
       "id": 7643,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/quarantine_notification\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"active\":true,\"interval\":\"daily\"}'",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/quarantine_notification\" -H \"X-API-Key: $MAILCOW_API_KEY\" -H \"Content-Type: application/json\" -d '{\"active\":true,\"interval\":\"daily\"}'",
       "desc": "Configure quarantine digest notifications",
       "tooltip": "This enables the daily quarantine digest that tells users which of their mail is held. The interval accepts values like hourly, daily, or weekly. Users can still manage quarantined mail from the UI regardless of digest settings."
     },
     {
       "id": 7644,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/dovecot\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/dovecot\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch recent Dovecot logs via the API",
       "tooltip": "This returns the tail of the Dovecot log with auth and IMAP events as JSON. Quick way to scan for failed logins without shelling into the container. The same pattern works for other get/logs endpoints."
     },
     {
       "id": 7645,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/postfix\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/postfix\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch recent Postfix logs via the API",
       "tooltip": "This returns the tail of the Postfix log showing SMTP transactions and delivery results. Useful to confirm a message left the server or find the deferral reason. Combine with get/mailq/all for a full queue picture."
     },
     {
       "id": 7646,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/sasl\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/sasl\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch recent SMTP authentication logs via the API",
       "tooltip": "This returns the SASL authentication log, listing every successful and failed SMTP login. A burst of failures from one IP signals a brute-force attack on the submission port. Pair it with netfilter logs to confirm bans were applied."
     },
     {
       "id": 7647,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/rspamd-history\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/rspamd-history\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch Rspamd scan history via the API",
       "tooltip": "This returns the recent scan history with scores, actions, and matched rules for each message. The data mirrors the History tab in the admin UI. Use it to find why a specific message was classified as spam."
     },
     {
       "id": 7648,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/netfilter\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/netfilter\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch firewall ban logs via the API",
       "tooltip": "This returns netfilter events showing which IPs were banned and why. Mailcow's netfilter container maintains the iptables rules that block abusive senders. Persistent bans for one IP usually mean repeated auth failures."
     },
     {
       "id": 7649,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/api\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/api\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Fetch API access logs via the API",
       "tooltip": "This returns the audit trail of API requests, including which key called which endpoint. Review it to spot unexpected API activity that could mean a leaked key. Rotate the key in the admin UI if you see calls you do not recognize."
     },
     {
       "id": 7650,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/containers\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/containers\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Check health of all Mailcow containers via API",
       "tooltip": "This returns every container with its state and health as seen by the watchdog. A container stuck unhealthy shows up here before mail delivery breaks. Poll it in monitoring scripts instead of parsing docker ps."
     },
     {
       "id": 7651,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/vmail\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/vmail\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show vmail storage usage via the API",
       "tooltip": "This reports the disk usage of the vmail volume that holds all maildirs, plus per-user totals where available. Watch it to plan disk upgrades before the mail store fills up. A full vmail volume stops delivery entirely."
     },
     {
       "id": 7652,
       "category": "Mail Servers & Postfix",
-      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/version\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/version\" -H \"X-API-Key: $MAILCOW_API_KEY\"",
       "desc": "Show the installed Mailcow version via the API",
       "tooltip": "This returns the running Mailcow version, which helps confirm whether an update actually applied. Compare it with the latest release on GitHub before planning an upgrade. The version string matches what the UI shows in the bottom-left corner."
     }

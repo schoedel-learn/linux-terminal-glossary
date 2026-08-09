@@ -1,0 +1,920 @@
+{
+  "category": "Data Science & Analysis",
+  "commands": [
+    {
+      "cmd": "datamash --header-in sum 4 < data.tsv",
+      "desc": "Sum column 4 of a TSV, treating the first line as a header",
+      "tooltip": "Datamash is GNU's statistics toolkit for tabular text. This sums the numeric values in column 4 of a tab-separated file, the default delimiter, so no -t flag is needed. The --header-in flag tells datamash the first line is a column-name header that must not be summed. Add -t, to apply the same command to comma-separated data."
+    },
+    {
+      "cmd": "datamash -t, --header-in sum 4 < data.csv",
+      "desc": "Sum column 4 of a CSV file with datamash",
+      "tooltip": "The -t, flag sets the field delimiter to a comma, which is how datamash reads CSV (comma-separated values) files. Summing column 4 then produces one number for the whole file, and --header-in keeps the header row out of the math. Use this one-liner instead of awk when you want a quick total of a numeric column. Add -g for per-group totals, as in the grouped examples in this catalog."
+    },
+    {
+      "cmd": "datamash -t, --header-in mean 2 median 2 pstdev 2 < data.csv",
+      "desc": "Show mean, median, and population stddev of column 2",
+      "tooltip": "Computes three statistics for column 2 in one pass: the mean (average), the median (middle value when sorted), and pstdev (population standard deviation, a measure of how spread out values are around the mean). Multiple operation and field pairs can follow each other, so mean 2 median 2 pstdev 2 all run in a single command. Each statistic is a separate keyword, which keeps the syntax readable."
+    },
+    {
+      "cmd": "datamash -t, --header-in -g 3 mean 4 < data.csv",
+      "desc": "Compute mean of column 4 grouped by column 3",
+      "tooltip": "The -g 3 flag groups rows by the values in column 3 before applying the statistic, a group-by operation. Here each unique value in column 3 (say a department name) gets its own mean of column 4 (say salary). Output rows appear in first-seen order unless you add -s to sort the groups. This is the datamash equivalent of a SQL GROUP BY with AVG."
+    },
+    {
+      "cmd": "datamash -t, --header-in perc:95 4 < data.csv",
+      "desc": "Compute the 95th percentile of column 4",
+      "tooltip": "The perc:95 operation reports the 95th percentile, the value below which 95 percent of the data falls. Percentiles summarize the shape of a column better than the mean when outliers are present. Change the number to get any percentile, such as perc:50 for the median. Pair it with -g to get per-group percentiles."
+    },
+    {
+      "cmd": "datamash -t, --header-in -s -g 3 mean 4 < data.csv",
+      "desc": "Sort groups, then compute mean of column 4 by column 3",
+      "tooltip": "Adding -s (sort) orders the group-by output by the grouping key instead of first-seen order. The sort applies to the grouping column, so group labels appear alphabetically. Compare this with the unsorted grouped mean to see the difference in row order. Pipe the output through sort -k2 -nr if you want groups ranked by their mean instead."
+    },
+    {
+      "cmd": "datamash -H -t, --header-in sum 4 < data.csv",
+      "desc": "Sum column 4 and print the column name as a header",
+      "tooltip": "The -H flag prints a header line in the output, naming the statistic and the field it came from. Combined with --header-in (input has a header) this round-trips the column name into the result, keeping downstream tools and reports readable. Without -H the output is just the bare number. This flag pair is the common pattern for datamash one-liners."
+    },
+    {
+      "cmd": "datamash -t, --header-in q1 2 q3 2 iqr 2 < data.csv",
+      "desc": "Show quartiles and interquartile range of column 2",
+      "tooltip": "Computes q1 (the 25th percentile), q3 (the 75th percentile), and iqr (interquartile range, q3 minus q1) for column 2. The IQR measures the middle 50 percent spread of the data and is a robust alternative to the standard deviation. Box plots typically visualize exactly these three numbers. Use perc:5 and perc:95 for wider fences when screening for outliers."
+    },
+    {
+      "cmd": "datamash -t, --header-in unique 3 countunique 3 < data.csv",
+      "desc": "List unique values in column 3 and count them",
+      "tooltip": "The unique operation lists each distinct value in column 3 once, and countunique reports how many distinct values there are. Running them side by side shows both the values themselves and the total number of categories in one pass. This answers questions like how many departments exist and what they are called. Use the -g flag with count to get per-group row counts instead."
+    },
+    {
+      "cmd": "datamash -t, --header-in -g 3 collapse 1 < data.csv",
+      "desc": "Collapse column 1 values into one comma list per group",
+      "tooltip": "The collapse operation joins every value of column 1 inside a group into a single comma-separated list. Grouped by column 3, each output row pairs one group label with all its associated values from column 1. This is handy for building lookup tables or summarizing many-to-one relations. The separator between collapsed values can be changed with the --collapse-delimiter flag."
+    },
+    {
+      "cmd": "datamash -t, --header-in geomean 2 harmmean 2 < data.csv",
+      "desc": "Compute geometric and harmonic means of column 2",
+      "tooltip": "The geomean (geometric mean) suits growth rates and ratios, while harmmean (harmonic mean) suits rates and speeds, both of which the plain arithmetic mean handles poorly. Each operation is another statistic datamash can compute in the same one-line pass. Rate-of-change data and averaged speeds are the classic use cases. Use plain mean for everyday averages."
+    },
+    {
+      "cmd": "datamash -t, --header-in trimmean:0.1 2 < data.csv",
+      "desc": "Compute a 10% trimmed mean of column 2",
+      "tooltip": "The trimmean:0.1 operation drops the lowest and highest 10 percent of values (5 percent off each end) before averaging, which dampens the effect of outliers. The number after the colon is the total fraction trimmed, so trimmean:0.2 removes 10 percent off each side. Trimmed means are a standard robust-statistics alternative to the plain mean. Note that the fraction comes before the field number, unlike other operations."
+    },
+    {
+      "cmd": "datamash -t, --header-in pstdev 2 pvar 2 svar 2 mad 2 < data.csv",
+      "desc": "Show population and sample variance plus MAD of column 2",
+      "tooltip": "Reports four spread statistics for column 2: pstdev and pvar (population standard deviation and variance), svar (sample variance), and mad (median absolute deviation). Population versions divide by the count while sample versions divide by count minus one, matching statistics conventions. MAD is a robust spread measure resistant to outliers. Use pstdev alone when you only need one number."
+    },
+    {
+      "cmd": "datamash -t, --header-in spearson 2:4 < data.csv",
+      "desc": "Compute Spearman rank correlation between columns 2 and 4",
+      "tooltip": "The spearson operation computes the Spearman rank correlation between two columns named as a colon pair, here columns 2 and 4. The result ranges from -1 (perfect inverse relationship) to 1 (perfect direct relationship), with 0 meaning no monotonic association. Spearman works on ranks, so it tolerates outliers better than Pearson. For covariance instead of correlation, use the pcov operation with the same syntax."
+    },
+    {
+      "cmd": "datamash -t, --header-in pcov 2:4 < data.csv",
+      "desc": "Compute population covariance between columns 2 and 4",
+      "tooltip": "The pcov operation reports the population covariance of the two fields given as a colon pair, columns 2 and 4 here. Covariance measures how two variables move together, with positive values meaning they rise and fall in step. Unlike correlation it is not bounded to the -1 to 1 range, so its magnitude depends on the units of the data. Use spearson for a unit-free measure of association."
+    },
+    {
+      "cmd": "datamash -t, --header-in range 2 absmax 2 < data.csv",
+      "desc": "Show value range and absolute max of column 2",
+      "tooltip": "Computes range (maximum minus minimum) and absmax (the value farthest from zero) for column 2. Range is the simplest possible spread measure, while absmax matters when negative and positive values both appear in the data. Min and max are available as separate operations when you need the actual endpoints. These pair naturally with mean for a quick numeric summary."
+    },
+    {
+      "cmd": "datamash -t, --header-in -g 3 count 4 sum 4 min 4 max 4 < data.csv",
+      "desc": "Summarize column 4 with count, sum, min, and max per group",
+      "tooltip": "Combines four aggregations on column 4 inside one group-by on column 3: row count, sum, minimum, and maximum. This single command replaces a whole spreadsheet pivot table for per-category summaries. Any mix of operations can be listed this way, and each is computed over the same grouping. Add median 4 to the list for a fuller picture of each group's distribution."
+    },
+    {
+      "cmd": "datamash -t, --header-in -g 3 trimmean:0.1 4 < data.csv",
+      "desc": "Compute trimmed mean of column 4 grouped by column 3",
+      "tooltip": "Applies the 10 percent trimmed mean to column 4 separately for each group found in column 3. Per-group trimmed means are useful when some groups contain outlier values that would skew a plain average. The grouping flag -g works with every datamash operation, not just this one. Results are one row per group, in first-seen order unless -s is added."
+    },
+    {
+      "cmd": "datamash -t, transpose < data.csv",
+      "desc": "Transpose rows and columns of a CSV file",
+      "tooltip": "The transpose line-operation swaps rows and columns, turning the first row into the first column and so on. This is the same transformation as a spreadsheet paste-special transpose feature. It is a standalone operation, so no statistic or field number is needed. Transposed files are sometimes required by tools that expect one observation per column."
+    },
+    {
+      "cmd": "datamash -t, check < data.csv",
+      "desc": "Check a CSV for consistent field counts per row",
+      "tooltip": "The check operation verifies that every row has the same number of fields and that numeric columns contain only numbers. It prints the number of lines checked and reports any problems, making it a quick data-quality gate before analysis. Rows with missing trailing fields fail unless --no-strict is given. Run this on freshly exported spreadsheets before feeding them to statistics tools."
+    },
+    {
+      "cmd": "datamash --no-strict -t, sum 1 < ragged.csv",
+      "desc": "Sum column 1 of a ragged CSV, tolerating missing fields",
+      "tooltip": "The --no-strict flag lets datamash accept ragged rows, where some lines have fewer fields than the header. Without it datamash errors out on the first short line; with it, missing trailing fields are treated as empty. This example sums the first field of a messy CSV export where later columns are often blank. For permanently fixing ragged files, xsv fixlengths pads them to a uniform width."
+    },
+    {
+      "cmd": "mlr --csv head -n 5 data.csv",
+      "desc": "Show the first 5 rows of a CSV with Miller",
+      "tooltip": "Miller (mlr) is a data-processing toolkit that treats CSV and JSON as first-class citizens. The head verb prints the first 5 records of the input, similar to the head command but CSV-aware and format-safe. The --csv flag declares comma-separated input and output. Pair with the tail verb to see the end of a file."
+    },
+    {
+      "cmd": "mlr --csv stats1 -a mean,min,max -f score data.csv",
+      "desc": "Compute mean, min, and max of the score column",
+      "tooltip": "The stats1 verb computes one-pass aggregations over the fields named by -f, here score. The -a flag lists which statistics to produce, with mean, min, and max being the common starting set. Output is one row per input field per statistic. Add -g dept to compute these same numbers separately for each department."
+    },
+    {
+      "cmd": "mlr --csv stats1 -a sum,mean -f salary -g dept data.csv",
+      "desc": "Group by dept, then sum and average salary",
+      "tooltip": "stats1 with -g dept performs a group-by, splitting rows by the values in the dept field and running the aggregations within each group. This mirrors a SQL GROUP BY and is the core pattern for per-category summaries in Miller. The -a sum,mean flag list can be extended with min, max, or count. Output has one row per department."
+    },
+    {
+      "cmd": "mlr --csv sort -f age data.csv",
+      "desc": "Sort CSV rows by the age column, lexicographically",
+      "tooltip": "The sort verb orders records by the fields given to -f, here age, in ascending order. Text fields sort lexicographically, so ages like 100 sort before 20; use -nr for numeric ordering instead. Multiple sort keys can follow -f, applied left to right. This is Miller's replacement for the sort command when headers must be preserved."
+    },
+    {
+      "cmd": "mlr --csv sort -nr score data.csv",
+      "desc": "Sort CSV rows by score, numeric descending",
+      "tooltip": "The -nr flag sorts numerically in descending order, putting the largest score first. Numeric sorting matters for columns that are stored as text, where 9 would otherwise sort after 100. This is the Miller equivalent of sort -k2 -nr for CSV files with headers. Combine with head to print the top few rows."
+    },
+    {
+      "cmd": "mlr --csv sort -f dept -nr salary data.csv",
+      "desc": "Sort by dept ascending, then salary numeric descending",
+      "tooltip": "Sorts on two keys in priority order: dept first (ascending, text), then salary within each department (numeric descending). The sort verb applies -f and -nr flags as a key list, so this ranks the highest-paid people first inside every department. Multi-key sorting is the standard way to prepare ranked reports. Add more -f or -nr flags to extend the key chain."
+    },
+    {
+      "cmd": "mlr --csv filter '$age > 30' data.csv",
+      "desc": "Keep CSV rows where the age field exceeds 30",
+      "tooltip": "The filter verb keeps only records whose expression evaluates true, using awk-like syntax where $age refers to the age field. Comparison operators, boolean logic with and and or, and function calls are all supported in the expression. The result is Miller's version of a SQL WHERE clause. Compare a text field the same way, with the value quoted inside the expression."
+    },
+    {
+      "cmd": "mlr --csv cut -f name,age data.csv",
+      "desc": "Keep only the name and age columns",
+      "tooltip": "The cut verb keeps just the fields named by -f and drops everything else, like a column-wise filter. Field order in the output follows the input unless -o is used to reorder. This is the Miller way to slim wide files before analysis. Use cut -x to do the inverse and drop the named fields instead."
+    },
+    {
+      "cmd": "mlr --csv put '$ratio = $salary / $score' data.csv",
+      "desc": "Add a computed ratio column to each row",
+      "tooltip": "The put verb adds a new field computed by an expression, here ratio equals salary divided by score for every row. New fields appear at the end of the record and are carried into the output. Expressions can reference any existing field with the dollar sign. This is the workhorse for deriving features on tabular data."
+    },
+    {
+      "cmd": "mlr --csv put -S '$pct = $score * 100' data.csv",
+      "desc": "Add a percentage column, keeping the value as text",
+      "tooltip": "The -S flag makes put treat the computed value as a string instead of guessing a numeric type. Without it Miller would infer the type of the new pct field, which can change downstream formatting. The -S option is useful when you want to preserve leading zeros or exact text. Miller normally infers types, so this flag exists for when that inference is wrong."
+    },
+    {
+      "cmd": "mlr --csv put '$ts = sec2gmt(1700000000)' data.csv",
+      "desc": "Convert a Unix timestamp column to GMT time",
+      "tooltip": "The sec2gmt function converts a Unix epoch timestamp, seconds since 1970, into a human-readable GMT date and time. Here the literal 1700000000 becomes a fixed timestamp column for every row; reference a field like $ts instead to convert real data. Miller ships a library of such functions for dates, strings, and math. Use gmt2sec for the reverse direction."
+    },
+    {
+      "cmd": "mlr --icsv --ojson cat data.csv",
+      "desc": "Convert a CSV file to JSON records",
+      "tooltip": "Miller converts formats through its input and output flags: --icsv reads comma-separated data and --ojson writes one JSON object per record. The cat verb passes records through unchanged, making this a clean CSV-to-JSON converter on the command line. Each CSV row becomes a flat JSON object with the header names as keys. Use --ojsonl for JSON Lines output instead."
+    },
+    {
+      "cmd": "mlr --icsv --ojsonl cat data.csv",
+      "desc": "Convert a CSV file to JSON Lines format",
+      "tooltip": "JSON Lines (--ojsonl) writes each record as a single compact JSON object on its own line, unlike --ojson which emits a pretty array. Line-delimited JSON streams well through pipes and log processors, making it a popular interchange format. Each CSV row maps to one line of JSON. This is the fastest way to hand a spreadsheet to a JSON-consuming tool."
+    },
+    {
+      "cmd": "mlr --json head -n 1 data.json",
+      "desc": "Show the first record of a JSON file",
+      "tooltip": "With --json, Miller reads a JSON array of objects and treats it like a table. The head verb prints the first record, here just one with -n 1. This mirrors head for text files but operates on whole records, so one JSON object never gets cut mid-way. Use the tail verb to inspect the last records of the same file."
+    },
+    {
+      "cmd": "mlr --json tail -n 2 data.json",
+      "desc": "Show the last 2 records of a JSON file",
+      "tooltip": "The tail verb prints the final records of a JSON input, here the last 2 objects in the array. This is the record-aware counterpart to the tail command for text. Combined with --json input, it is a quick way to check how a JSON dataset ends. Note that the -n flag counts records, not lines."
+    },
+    {
+      "cmd": "mlr --csv join -f emp-ids.csv -j name data.csv",
+      "desc": "Join two CSVs on the name field",
+      "tooltip": "The join verb merges two files on a key field, here name, combining columns from emp-ids.csv into the rows of data.csv. The -f flag names the file to join against and -j names the shared key column. Rows without a match are dropped unless -u is passed to keep unpaired records. This is Miller's answer to a SQL JOIN between two CSV tables."
+    },
+    {
+      "cmd": "mlr --csv nest --explode --values --across-records -f tags tags.csv",
+      "desc": "Explode a tags field into one row per tag",
+      "tooltip": "The nest verb restructures fields; --explode splits one field's value into multiple values, and --across-records turns each value into its own row. Here a semicolon-separated tags column becomes one row per tag, the classic data-cleaning step called unnesting. The --values flag says the field holds plain values rather than key-value pairs. The inverse operation, --implode, collapses rows back into one field."
+    },
+    {
+      "cmd": "mlr --csv uniq -a data.csv",
+      "desc": "Remove duplicate rows, comparing all fields",
+      "tooltip": "The uniq verb drops duplicate records; -a compares every field of the record. Use it after concatenating files to de-duplicate a dataset where whole rows repeat. Only the first occurrence of each unique row is kept. For duplicates based on a single key column, use -g instead."
+    },
+    {
+      "cmd": "mlr --csv uniq -g dept data.csv",
+      "desc": "Keep one row per unique dept value",
+      "tooltip": "With -g dept, uniq keeps the first record for each distinct value of the dept field, like SELECT DISTINCT on one column. This answers questions such as which departments appear in the data and where each first occurs. Whole-row dedup uses -a instead. The output row count equals the number of unique departments."
+    },
+    {
+      "cmd": "mlr --csv count-distinct -f dept data.csv",
+      "desc": "Count distinct dept values with a header row",
+      "tooltip": "The count-distinct verb counts how many unique values appear in the fields named by -f, here dept. Output includes a header line naming the field and the count unless -n is given. This is a fast category census for any column of a CSV. Add more fields to -f to count distinct combinations instead."
+    },
+    {
+      "cmd": "mlr --csv count-distinct -n -f dept data.csv",
+      "desc": "Count distinct dept values without a header row",
+      "tooltip": "The -n flag suppresses the header line from count-distinct output, leaving just the bare count number. This makes the result directly usable in scripts or arithmetic pipelines. The plain form with header is friendlier for interactive use. Both variants count the same unique values of the dept field."
+    },
+    {
+      "cmd": "mlr --csv top -n 5 -f score data.csv",
+      "desc": "Show the 5 highest score values",
+      "tooltip": "The top verb lists the largest values of the fields named by -f, here the top 5 scores. Unlike sorting then taking the head, top is a single streaming pass and prints each value with a rank column. Add -g dept to get the top 5 per department. This is the quickest way to find record-setting rows in a CSV."
+    },
+    {
+      "cmd": "mlr --csv rename name,employee data.csv",
+      "desc": "Rename the name column to employee",
+      "tooltip": "The rename verb changes field names, here name becomes employee throughout the file. Multiple renames can be given as comma-separated old,new pairs. Headers in the output reflect the new names while all values stay untouched. This keeps downstream tools seeing consistent column names."
+    },
+    {
+      "cmd": "mlr --csv tac data.csv",
+      "desc": "Reverse the row order of a CSV",
+      "tooltip": "The tac verb prints records in reverse order, last row first, which is useful for time series where the newest entries sit at the bottom. It is the record-aware counterpart of the tac command for plain text. Headers are preserved and printed once at the top. Use head after tac to see the last few rows in original order."
+    },
+    {
+      "cmd": "mlr --csv sample -k 2 data.csv",
+      "desc": "Draw a random sample of 2 rows",
+      "tooltip": "The sample verb picks k records at random, here 2, without replacement. It is a handy way to eyeball a large file or build a small test set. The -k flag sets the sample size. Unlike shuf, sampling happens inside Miller with full CSV awareness."
+    },
+    {
+      "cmd": "mlr --csv reorder -f name,score data.csv",
+      "desc": "Move the name and score columns to the front",
+      "tooltip": "The reorder verb moves the fields named by -f to the front of each record, keeping every other column in its original relative order. This is useful when a tool expects certain columns first. The remaining fields follow in their original sequence. Column order is cosmetic for most tools but matters for fixed-position parsers."
+    },
+    {
+      "cmd": "mlr --csv merge-fields -a sum -f salary,score -o total data.csv",
+      "desc": "Add a total column summing salary and score",
+      "tooltip": "The merge-fields verb combines several fields into one; -a sum adds them and -o total names the new column. The original salary and score fields are removed from the output. This is a fast way to build row totals without writing a put expression. Use -a mean or min to combine fields with other operations."
+    },
+    {
+      "cmd": "mlr --csv histogram -f score --lo 0.7 --hi 1.0 --nbins 3 data.csv",
+      "desc": "Build a 3-bin histogram of the score column",
+      "tooltip": "The histogram verb bins the score field into a fixed number of buckets between --lo and --hi, here 3 bins from 0.7 to 1.0. Output lists each bin's range and the count of rows in it, the raw material of a distribution chart. Choose bounds that cover the data's full range, or rows outside them are ignored. Feed the output to a plotting tool for a bar chart."
+    },
+    {
+      "cmd": "mlr --csv step -a delta -f score data.csv",
+      "desc": "Add a delta column with row-to-row score changes",
+      "tooltip": "The step verb computes rolling statistics across consecutive records; -a delta adds a column holding the change from the previous row's score. The first row has no predecessor, so its delta is blank. This is the standard way to turn a series of values into a series of differences for time-series analysis. Add -g dept to restart the delta at each department boundary."
+    },
+    {
+      "cmd": "printf 'a,b,c\\n1,,3\\n' | mlr --csv remove-empty-columns",
+      "desc": "Drop columns that are empty in every row",
+      "tooltip": "The remove-empty-columns verb deletes any column whose values are all blank, cleaning files where some headers have no data. The example pipes a two-row CSV where column b is empty, so the output keeps only a and c. The pipe symbol (|) feeds printf's output into mlr's input. This is a fast data-quality fix for sparse spreadsheet exports."
+    },
+    {
+      "cmd": "xsv headers data.csv",
+      "desc": "List the column names of a CSV file",
+      "tooltip": "xsv is a high-performance CSV toolkit written in Rust. The headers command prints each column name on its own numbered line, a fast way to inspect a file's schema before writing queries. Column numbers matter because every other xsv command addresses fields by name or index. Use this first when exploring an unfamiliar dataset."
+    },
+    {
+      "cmd": "xsv stats data.csv",
+      "desc": "Show summary statistics for every column",
+      "tooltip": "The stats command computes summary statistics for all columns: count, mean, standard deviation, min, max, and more, one row per field. It is the fastest way to get a numeric overview of a CSV without loading it into a spreadsheet. Mean and standard deviation are always included by default. Add --median or --mode for distribution measures, and -s to limit which columns are analyzed."
+    },
+    {
+      "cmd": "xsv stats --median --mode data.csv",
+      "desc": "Add median and mode to the column statistics",
+      "tooltip": "The --median and --mode flags extend xsv stats output with the median (middle value) and mode (most frequent value) of each column. These flags combine freely and can be used together in one command. There is no --mean flag because the mean is already part of the default output. Use --cardinality to also count distinct values per column."
+    },
+    {
+      "cmd": "xsv stats -s age,salary data.csv",
+      "desc": "Compute statistics only for the age and salary columns",
+      "tooltip": "The -s flag (short for --select) limits stats to the named columns, here age and salary, skipping the rest. This keeps output readable when a file has many fields and speeds up analysis on wide files. Column names or 1-based indices both work in the selection list. Combine with --median to get a compact distribution summary."
+    },
+    {
+      "cmd": "xsv select name,age data.csv",
+      "desc": "Extract just the name and age columns",
+      "tooltip": "The select command keeps only the named columns and drops the rest, like a column filter. Fields can be listed by name, by 1-based index, or as ranges such as 1-3. Output preserves the header order as listed. This is the xsv equivalent of cut for comma-separated data that also understands quoted fields."
+    },
+    {
+      "cmd": "xsv search eng data.csv",
+      "desc": "Find rows containing the pattern eng",
+      "tooltip": "The search command keeps rows where any field matches a regex pattern, here eng. Regular expressions give it more power than a plain text grep; for example ^eng matches the start of a field only. Search applies to the whole row, unlike csvgrep which targets one column. Combine with select to filter first and then keep only relevant fields."
+    },
+    {
+      "cmd": "xsv frequency -s dept data.csv",
+      "desc": "Count how often each dept value occurs",
+      "tooltip": "The frequency command tallies the values in the -s selected columns and prints a table of value, count, and percentage. It ranks by frequency descending, so the most common department appears first. Multiple columns can be listed to count value combinations. This is the fastest category census available for CSV data."
+    },
+    {
+      "cmd": "xsv table data.csv",
+      "desc": "Render a CSV as an aligned table",
+      "tooltip": "The table command pretty-prints a CSV with aligned columns and trimmed cells, making it readable in the terminal. It does not modify the data, only the display. Wide rows wrap or truncate depending on terminal width, so use it on narrow slices. This is the xsv counterpart of csvlook for quick eyeballing."
+    },
+    {
+      "cmd": "xsv slice -s 2 -e 4 data.csv",
+      "desc": "Print rows 2 through 3 of the CSV",
+      "tooltip": "The slice command extracts a contiguous range of rows by 0-based index: -s 2 starts at the third row and -e 4 stops before the fifth, so rows 2 and 3 are printed. This is the CSV-aware replacement for sed -n on tabular data. Without -e the slice runs to the end of the file. Negative indices count from the end."
+    },
+    {
+      "cmd": "xsv sort -s age data.csv",
+      "desc": "Sort CSV rows by the age column",
+      "tooltip": "The sort command orders rows by the columns named by -s, here age, ascending by default. Add -R to reverse the order or -N for numeric sorting, since lexicographic sort puts 100 before 20. Sorting a CSV with xsv is safe for quoted fields and embedded commas, which plain sort mishandles. This is the xsv way to order records by any column."
+    },
+    {
+      "cmd": "xsv join name data.csv name emp-ids.csv",
+      "desc": "Join two CSVs on their name columns",
+      "tooltip": "The join command merges two CSV files on a key column, taking the column name, first file, second column name, and second file as four arguments. Here data.csv and emp-ids.csv share the name field, and matching rows combine their columns. Rows without a match in the other file are dropped by default. Add --left to keep all rows of the first file, like a SQL LEFT JOIN."
+    },
+    {
+      "cmd": "xsv count data.csv",
+      "desc": "Count the data rows in a CSV",
+      "tooltip": "The count command prints the number of data rows, excluding the header, as a single number. It streams the file, so it handles files of any size quickly. This is the CSV-aware answer to wc -l, which would also count the header. Combine with slice or sample when you need to know how many rows you are working with."
+    },
+    {
+      "cmd": "xsv sample 3 data.csv",
+      "desc": "Draw a random sample of 3 rows",
+      "tooltip": "The sample command randomly selects the given number of rows, here 3, for a quick look at a large file. The header row is always included in the output. Sampling beats reading everything when you are exploring unfamiliar data. Use mlr sample or shuf for the same idea in other toolchains."
+    },
+    {
+      "cmd": "xsv flatten data.csv",
+      "desc": "Print one field per line for each record",
+      "tooltip": "The flatten command expands each record into multiple lines, one field per line labeled with its column name. This makes long rows readable and is ideal for inspecting a single record's full content. Flattened output is for humans, not for further processing. Pipe a slice of rows into flatten to examine them one at a time."
+    },
+    {
+      "cmd": "xsv fmt -t '|'",
+      "desc": "Convert CSV on stdin to pipe-delimited output",
+      "tooltip": "The fmt command reformats CSV, and -t '|' changes the output delimiter to a pipe character. Run it as a pipe stage, for example cat data.csv | xsv fmt -t '|', to convert a comma-separated file into pipe-delimited text. The -t flag is short for --out-delimiter. Output quoting is adjusted automatically so delimiters inside fields stay safe."
+    },
+    {
+      "cmd": "xsv cat rows a.csv b.csv",
+      "desc": "Stack two CSVs vertically, header once",
+      "tooltip": "The cat command concatenates files; rows mode stacks them vertically, appending b.csv's rows under a.csv's with the header printed once. Column counts must match or the merge fails. This is the xsv equivalent of csvstack for simple appends. Use cat columns to glue files side by side instead."
+    },
+    {
+      "cmd": "xsv cat columns a.csv b.csv",
+      "desc": "Join two CSVs side by side, row by row",
+      "tooltip": "The cat columns mode merges files horizontally, placing b.csv's columns to the right of a.csv's, matched by row position. Both files need the same number of rows for the alignment to make sense. This is a positional join, unlike xsv join which matches on key values. Header rows are combined into one."
+    },
+    {
+      "cmd": "xsv input -d '|'",
+      "desc": "Normalize pipe-delimited stdin into standard CSV",
+      "tooltip": "The input command guesses or accepts a delimiter with -d and normalizes the stream into standard quoted CSV on stdout. Run it as a pipe stage, for example cat data.psv | xsv input -d '|', when a file uses a non-comma separator. This is the first step before other xsv commands that expect commas. The -d flag also accepts tabs and other single characters."
+    },
+    {
+      "cmd": "xsv index data.csv",
+      "desc": "Create a fast random-access index file",
+      "tooltip": "The index command builds data.csv.idx, a sidecar index that lets other xsv commands jump to any row instantly. It costs one pass over the file but makes repeated slice and sample operations much faster on huge CSVs. The index is rebuilt automatically when the data file changes size. This is the xsv performance trick for multi-gigabyte files."
+    },
+    {
+      "cmd": "xsv split --size 2 split data.csv",
+      "desc": "Split a CSV into chunks of 2 rows each",
+      "tooltip": "The split command divides a CSV into multiple files, here chunks of 2 rows, written into the split directory. Each chunk keeps the header row, so the pieces stay usable on their own. Use --size for rows per file or --chunks for a target number of output files. This is how you break one big file into parallel-processing batches."
+    },
+    {
+      "cmd": "xsv partition dept part data.csv",
+      "desc": "Split a CSV into one file per dept value",
+      "tooltip": "The partition command writes one output file per distinct value of the selected column, here dept, into the part directory. Every output file keeps the header and is named after the value it contains. This is the classic way to split work per category before parallel processing. Choose the column by name rather than index for readable filenames."
+    },
+    {
+      "cmd": "xsv fixlengths data.csv",
+      "desc": "Pad or truncate rows to a uniform field count",
+      "tooltip": "The fixlengths command forces every row to have the same number of fields, padding short rows with empty fields and truncating long ones. Ragged rows from hand-edited spreadsheets otherwise break stats and join operations. The output is a clean rectangular table ready for analysis. Run datamash check first to see how bad the damage is."
+    },
+    {
+      "cmd": "csvcut -n data.csv",
+      "desc": "List column names and indices of a CSV",
+      "tooltip": "csvcut is part of csvkit, a Python suite of CSV utilities. The -n flag prints each column's 1-based index and name, the reference for every other csvcut invocation. It also reveals the delimiter of the input file. Use this before cutting columns so you address fields correctly."
+    },
+    {
+      "cmd": "csvcut -c name,age data.csv",
+      "desc": "Extract the name and age columns",
+      "tooltip": "The -c flag selects columns by name or 1-based index, here name and age. Output keeps the header row and only the chosen fields. Column order in the output matches the order you list them, which can differ from the input. This is csvkit's equivalent of xsv select."
+    },
+    {
+      "cmd": "csvstat data.csv",
+      "desc": "Print a full statistical profile of every column",
+      "tooltip": "csvstat analyzes each column of a CSV and prints count, mean, standard deviation, min, max, and other summary values in a readable report. It also detects the type of each column and warns about blank values. This is the single best command for a first look at a dataset's health. Add --freq to see the most common values of each column."
+    },
+    {
+      "cmd": "csvstat --mean data.csv",
+      "desc": "Print only the mean of each column",
+      "tooltip": "The --mean flag narrows csvstat output to just the mean (average) of every column. csvstat accepts only one such operation flag per run, so --mean and --median cannot be combined in a single command. Pair it with other single-op flags like --median or --stdev for focused reports. Use the full csvstat when you want everything at once."
+    },
+    {
+      "cmd": "csvstat --median data.csv",
+      "desc": "Print only the median of each column",
+      "tooltip": "The --median flag restricts csvstat output to the median, the middle value when a column is sorted. Because csvstat takes one operation flag at a time, run this separately from --mean. Medians resist outliers better than means for skewed data. Run both when you need the pair."
+    },
+    {
+      "cmd": "csvstat --json data.csv",
+      "desc": "Dump column statistics as JSON",
+      "tooltip": "The --json flag switches csvstat output from a human report to a JSON object that scripts can parse. Each column becomes a key holding its statistics as nested values. This is the machine-readable form for feeding summaries into other tools. The same flag shape is used by csvjson for converting whole files."
+    },
+    {
+      "cmd": "csvgrep -c name -m 'alice' data.csv",
+      "desc": "Keep rows where the name column equals alice",
+      "tooltip": "csvgrep filters rows like grep but column-aware. The -c flag names the column and -m matches a literal string, here alice, keeping rows where that column equals it exactly. It is case-sensitive by default. Use -r with a regex for pattern matching instead of exact strings."
+    },
+    {
+      "cmd": "csvgrep -c name -r '^a' data.csv",
+      "desc": "Keep rows whose name starts with the letter a",
+      "tooltip": "The -r flag switches csvgrep to regular-expression matching, here ^a which anchors to the start of the field. Regexes unlock patterns that literal matching cannot express, such as digit ranges or alternations. The match applies to the single column named by -c. This is the column-scoped cousin of grep for tabular data."
+    },
+    {
+      "cmd": "csvgrep -i -c dept -m 'ENG' data.csv",
+      "desc": "Drop rows where dept equals ENG, case-insensitive",
+      "tooltip": "The -i flag inverts the match, keeping every row that does not match, and makes the comparison case-insensitive. Here all rows whose dept field is eng in any casing are removed, keeping the rest. Inversion turns a whitelist filter into a blacklist filter. Use it to exclude known-bad categories from an analysis."
+    },
+    {
+      "cmd": "csvjoin --left -c name data.csv emp-ids.csv",
+      "desc": "Left-join two CSVs on the name column",
+      "tooltip": "csvjoin merges two CSV files on a key column named by -c, here name, like a SQL JOIN. The --left flag keeps every row of the first file even when no match exists in the second, filling missing columns with blanks. Without --left only matching rows survive. This is the go-to command for enriching a dataset with a lookup table."
+    },
+    {
+      "cmd": "csvsort -c age data.csv",
+      "desc": "Sort rows by the age column",
+      "tooltip": "csvsort orders rows by the column named by -c, here age, ascending by default. Sorting is type-aware, so numeric columns order numerically rather than lexicographically. Add -r to reverse the order, and pass comma-separated names to -c to sort by several columns. The header row always stays on top."
+    },
+    {
+      "cmd": "csvsort -c age -r data.csv",
+      "desc": "Sort rows by age, descending",
+      "tooltip": "The -r flag reverses csvsort's ordering, putting the largest age first. Combine -c and -r for ranked reports, such as a top-N list after slicing. Type-aware sorting means 100 orders after 20 for a numeric column. This is the csvkit way to rank records before cutting off a top-N."
+    },
+    {
+      "cmd": "csvstack a.csv b.csv",
+      "desc": "Stack two CSVs vertically, header once",
+      "tooltip": "csvstack appends the rows of b.csv below a.csv, printing the header once. Both files must share the same column names and order. This is the standard way to combine monthly or per-source exports into one dataset. Add the -g flag to record which file each row came from."
+    },
+    {
+      "cmd": "csvstack -g one,two a.csv b.csv",
+      "desc": "Stack two CSVs and tag rows with their source",
+      "tooltip": "The -g flag adds a grouping column, here with the values one and two, that labels each row's origin file. The new column is prepended as the first field of every row. This provenance marker lets you filter or group by source after merging. The number of -g values must match the number of input files."
+    },
+    {
+      "cmd": "csvlook data.csv",
+      "desc": "Render a CSV as a Markdown table",
+      "tooltip": "csvlook pretty-prints a CSV as a Markdown table with aligned columns, ready to paste into documentation or issue reports. The output is human-oriented and not meant for further processing. It truncates wide tables to the terminal width. This is the csvkit counterpart of xsv table for shareable output."
+    },
+    {
+      "cmd": "csvformat -T data.csv",
+      "desc": "Convert a CSV to tab-delimited output",
+      "tooltip": "The -T flag is shorthand for tab-delimited output, converting commas to tabs while preserving quoting rules. The result is a TSV (tab-separated values) file suitable for tools that prefer tabs. Use -D '|' to choose any other delimiter. This command only changes the format, never the data."
+    },
+    {
+      "cmd": "csvformat -D '|' data.csv",
+      "desc": "Convert a CSV to pipe-delimited output",
+      "tooltip": "The -D flag sets a custom output delimiter, here the pipe character, producing pipe-delimited text. Delimiters inside quoted fields are preserved correctly because csvformat rewrites quoting as needed. This is handy for formats that must not contain commas, such as certain report exports. The -T flag is the shortcut for the tab variant."
+    },
+    {
+      "cmd": "csvpy data.csv",
+      "desc": "Open a Python REPL with the CSV preloaded",
+      "tooltip": "csvpy launches an interactive Python session with the CSV already read into a variable named after the file, so data becomes a csvkit table object. You can then run Python expressions and csvkit methods against it directly. Exit with Ctrl+D to return to the shell. This is a quick bridge between CSV files and ad-hoc Python exploration."
+    },
+    {
+      "cmd": "csvsql --query 'SELECT dept, AVG(salary) FROM data GROUP BY dept' data.csv",
+      "desc": "Run SQL against a CSV, grouping by dept",
+      "tooltip": "csvsql turns any CSV into a queryable table named after the file, then runs the SQL you pass to --query against it. Here a GROUP BY dept with AVG(salary) reproduces a pivot-table summary in one line. The table name comes from the filename without its extension. This is the fastest way to apply SQL thinking to spreadsheet data."
+    },
+    {
+      "cmd": "csvsql --query 'SELECT dept, MAX(salary) AS top FROM data GROUP BY dept' data.csv",
+      "desc": "Find the top salary per dept with SQL",
+      "tooltip": "This csvsql query returns the maximum salary per department, aliased to top with AS. Any SQL that SQLite supports works inside --query, including joins, subqueries, and window functions. Writing the analysis in SQL often beats chaining awk one-liners. Add a WHERE clause to restrict rows before grouping."
+    },
+    {
+      "cmd": "csvsql --db sqlite:///test.db --insert data.csv",
+      "desc": "Load a CSV into a SQLite database table",
+      "tooltip": "The --db flag points csvsql at a database connection string, here a SQLite file, and --insert writes the CSV into a new table named after the file. The table is created automatically with types inferred from the data. Repeat for other files to build a relational dataset, then query it with sqlite3. Other dialects such as PostgreSQL work through the same --db URI."
+    },
+    {
+      "cmd": "csvjson data.csv",
+      "desc": "Convert a CSV to a JSON array",
+      "tooltip": "csvjson converts each CSV row into a JSON object keyed by the header names, wrapped in an array. The result is the standard shape most JSON APIs and tools expect. Numeric-looking fields are converted to JSON numbers automatically. Use --indent for a human-readable version."
+    },
+    {
+      "cmd": "csvjson --indent 2 data.csv",
+      "desc": "Convert a CSV to pretty-printed JSON",
+      "tooltip": "The --indent flag adds whitespace formatting, here 2 spaces per level, making the JSON readable in editors and diffs. Compact output is smaller but harder to inspect. The structure is identical to the plain csvjson form. This is the format to save when the JSON will be reviewed by humans."
+    },
+    {
+      "cmd": "in2csv -f json api.json",
+      "desc": "Convert a JSON file to CSV",
+      "tooltip": "in2csv converts between tabular formats. The -f json flag declares the input as JSON, here a JSON array of objects from an API export, and the output is CSV. Without -f the input format is guessed from the extension, and nested objects are flattened into dotted column names. This is the standard way to turn API responses into spreadsheet data."
+    },
+    {
+      "cmd": "in2csv data.xlsx",
+      "desc": "Convert an Excel workbook to CSV",
+      "tooltip": "in2csv reads Excel files directly, converting the first worksheet of data.xlsx to CSV on stdout. Extension detection figures out the format automatically, so no -f flag is needed. Only the first sheet is converted unless --sheet names another. This bridges the gap between spreadsheet exports and command-line analysis."
+    },
+    {
+      "cmd": "in2csv --sheet Sheet2 book.xlsx",
+      "desc": "Convert a specific worksheet to CSV",
+      "tooltip": "The --sheet flag selects a named worksheet, here Sheet2, instead of the default first sheet. Sheet names are case-sensitive and must match the workbook exactly. There is no --sheet-names flag for listing sheets, so use a spreadsheet tool or Python to enumerate them. The chosen sheet becomes the CSV on stdout."
+    },
+    {
+      "cmd": "jq 'group_by(.dept) | map({dept: .[0].dept, total: map(.salary) | add})' data.json",
+      "desc": "Sum salaries per department with jq",
+      "tooltip": "jq is a JSON processor built around a pipeline of filters. Here group_by(.dept) buckets objects by department, then map builds one summary object per bucket, adding all salary values with add. The pipe symbol (|) chains filters, feeding each stage's output into the next. This is the jq equivalent of a SQL GROUP BY with SUM."
+    },
+    {
+      "cmd": "jq -r '.[] | [.name, .age] | @tsv' data.json",
+      "desc": "Convert JSON objects to TSV lines",
+      "tooltip": "The -r flag outputs raw strings instead of JSON-quoted text. The filter .[] streams each array element, [.name, .age] builds a two-value array, and @tsv renders it as a tab-separated line. This turns a JSON array into a TSV (tab-separated values) table for spreadsheet tools. Use @csv instead of @tsv for comma-separated output."
+    },
+    {
+      "cmd": "jq 'map(select(.age > 30))' data.json",
+      "desc": "Keep JSON objects where age exceeds 30",
+      "tooltip": "The select filter keeps only inputs that satisfy its condition, and map applies it to every element of the array. The result is a filtered array, the jq version of a WHERE clause. Comparison operators work on numbers, strings, and dates as expected. Chain another select after the pipe to add more conditions."
+    },
+    {
+      "cmd": "jq 'sort_by(.age) | reverse | .[0]' data.json",
+      "desc": "Find the object with the highest age",
+      "tooltip": "sort_by(.age) orders the array by age, reverse flips it to descending, and .[0] grabs the first element, the oldest record. This is the jq recipe for top-1 queries on any field. Use .[0:3] to take the top three instead. Sorting is stable, so ties keep their original order."
+    },
+    {
+      "cmd": "jq 'length' data.json",
+      "desc": "Count the elements in a JSON array",
+      "tooltip": "The length filter returns the number of elements for arrays, characters for strings, or keys for objects. Applied to a top-level array this is a quick record count for a JSON dataset. It streams cheaply for most inputs. This is the jq counterpart of wc -l for JSON data."
+    },
+    {
+      "cmd": "jq -n '{sum: (100 + 200)}'",
+      "desc": "Build a JSON object with computed values",
+      "tooltip": "The -n flag runs jq with no input, so the filter alone builds the output from scratch. Here an object literal computes sum as 100 plus 200, printing a JSON object with the value 300. This mode is handy for generating JSON payloads in scripts. Arithmetic, string concatenation, and functions all work inside the braces."
+    },
+    {
+      "cmd": "jq '.[0] | keys' data.json",
+      "desc": "List the keys of the first JSON object",
+      "tooltip": "The keys filter returns the field names of an object as a sorted array. Applied to .[0], the first element, it reveals the schema of one record. This is the fastest way to discover what fields a JSON dataset contains. Use keys_unsorted to preserve the original field order."
+    },
+    {
+      "cmd": "jq --arg v alice '.[] | select(.name == $v)' data.json",
+      "desc": "Filter JSON by a shell variable value",
+      "tooltip": "The --arg flag binds a shell string to a jq variable, here v holding alice, referenced as $v inside the filter. This keeps the filter free of hard-coded values so the same command works for any name. Variable values are always strings; use --argjson for numbers and booleans. This is the safe way to inject data into jq expressions."
+    },
+    {
+      "cmd": "jq '.results[0:2] | map(.title)' data.json",
+      "desc": "Take the first 2 results and list their titles",
+      "tooltip": "The slice .results[0:2] extracts the first two elements of the results array, mirroring Python's half-open slicing. map(.title) then pulls the title field from each, producing a two-element array of strings. API responses with a results wrapper are the classic use case. Use -r to print the titles as plain lines instead of JSON."
+    },
+    {
+      "cmd": "jq 'to_entries[] | \"\\(.key): \\(.value)\"' object.json",
+      "desc": "Print each key and value as one line",
+      "tooltip": "to_entries converts an object into an array of key and value pairs, and .[] streams them. The string interpolation \\(.key) and \\(.value) injects each pair into a formatted line. The result is one key and value pair per line. This is the standard jq idiom for flattening an object into grep-friendly text."
+    },
+    {
+      "cmd": "jq -c '.[]' data.json",
+      "desc": "Stream JSON objects one compact line at a time",
+      "tooltip": "The -c flag emits compact output with no extra whitespace, and .[] streams each array element onto its own line. The result is JSON Lines, one object per line, ideal for piping into grep or other line-oriented tools. Large arrays can be processed incrementally this way. Use jq -c without .[] to compact a whole document instead."
+    },
+    {
+      "cmd": "jupyter lab --no-browser --port 8888",
+      "desc": "Start JupyterLab on port 8888 without opening a browser",
+      "tooltip": "JupyterLab is the web IDE for notebooks, Python and R kernels, and data files. The --no-browser flag skips auto-launching a browser, which matters when running on a remote server, and --port 8888 fixes the listening port. The printed URL contains a token that grants access, so keep it private. On a remote host, tunnel the port with ssh before visiting it."
+    },
+    {
+      "cmd": "jupyter notebook --no-browser",
+      "desc": "Start the classic Jupyter Notebook server",
+      "tooltip": "The classic notebook interface runs through the same server as JupyterLab but shows the older notebook-only UI. The notebook subcommand requires the separate notebook package, so installing jupyterlab alone is not enough. The --no-browser flag is useful on servers where no local browser exists. Choose this when you prefer the simpler single-document workflow."
+    },
+    {
+      "cmd": "jupyter nbconvert --to html notebook.ipynb",
+      "desc": "Export a notebook to a standalone HTML page",
+      "tooltip": "nbconvert converts notebooks between formats. The --to html flag produces a self-contained HTML page with code, output, and markdown rendered, ready to share with anyone. Styling is embedded, so the file works offline. This is the standard way to publish an analysis without installing notebook software on the reader's machine."
+    },
+    {
+      "cmd": "jupyter nbconvert --to markdown notebook.ipynb",
+      "desc": "Export a notebook to Markdown",
+      "tooltip": "The --to markdown target converts a notebook into a Markdown document with code blocks and rendered outputs. Images are written to a companion folder referenced by the Markdown. This format is ideal for documentation sites and version-controlled analysis write-ups. Code cells become fenced code blocks with language tags."
+    },
+    {
+      "cmd": "jupyter nbconvert --to script notebook.ipynb",
+      "desc": "Strip a notebook down to a plain Python script",
+      "tooltip": "The --to script target extracts only the code cells into a .py file, dropping markdown and outputs. The result runs with plain python3 and is easy to diff or schedule. Markdown cells are turned into comments for context. This is the standard way to move a notebook prototype into production code."
+    },
+    {
+      "cmd": "jupyter nbconvert --execute --to notebook --inplace notebook.ipynb",
+      "desc": "Run all notebook cells and save the outputs",
+      "tooltip": "The --execute flag runs every cell in order, and --to notebook --inplace writes the executed results back into the original file. This turns a bare notebook into one with fresh outputs and is the headless equivalent of clicking Run All. Use it before sharing to guarantee the results are reproducible. Errors stop execution unless --allow-errors is added."
+    },
+    {
+      "cmd": "jupyter nbconvert --clear-output --inplace notebook.ipynb",
+      "desc": "Remove all cell outputs from a notebook",
+      "tooltip": "The --clear-output flag deletes every cell's printed output and figures, leaving code and markdown intact, and --inplace saves the result over the original file. Cleaning outputs shrinks notebooks and avoids committing stale results to version control. Re-running with --execute regenerates everything. This is standard hygiene before committing notebooks to git."
+    },
+    {
+      "cmd": "jupyter nbconvert --to pdf notebook.ipynb",
+      "desc": "Export a notebook to a PDF document",
+      "tooltip": "The --to pdf target produces a typeset PDF through LaTeX. A working LaTeX engine such as texlive is required, and missing packages cause confusing errors. For quick PDFs without LaTeX, export to HTML first and print it to PDF from a browser. The result embeds code and outputs in a paginated report format."
+    },
+    {
+      "cmd": "jupyter kernelspec list",
+      "desc": "List the installed Jupyter kernels",
+      "tooltip": "A kernel is the computation engine a notebook runs against, such as Python 3 or R. The kernelspec list command shows every installed kernel with its display name and path. Multiple kernels can coexist, letting one notebook server serve different languages. Use this before installing a new kernel to see what is already available."
+    },
+    {
+      "cmd": "jupyter kernelspec install --user ./mykernel",
+      "desc": "Register a local kernel with Jupyter",
+      "tooltip": "The kernelspec install command registers a kernel directory, here ./mykernel containing a kernel.json, so it appears in the launcher. The --user flag installs it for the current account instead of system-wide, avoiding permission issues. Kernel specs point to the interpreter and its display name. Re-run after changing the kernel configuration."
+    },
+    {
+      "cmd": "jupyter trust notebook.ipynb",
+      "desc": "Mark a notebook as trusted",
+      "tooltip": "Untrusted notebooks hide their outputs until you trust them, a security feature against malicious embedded HTML. The trust command marks a notebook as safe, making outputs visible. Trusting does not execute code; it only records a signature in the file. Trust only notebooks you have reviewed or generated yourself."
+    },
+    {
+      "cmd": "ipython -c 'print(2**10)'",
+      "desc": "Run a one-line Python expression in IPython",
+      "tooltip": "IPython is an enhanced Python shell with tab completion, history, and inline help. The -c flag runs the given code and exits, here printing 2 raised to the power of 10. This is handy for quick math and for testing snippets without opening a notebook. The same pattern works with plain python3 -c."
+    },
+    {
+      "cmd": "ipython --pdb",
+      "desc": "Drop into the debugger on any exception",
+      "tooltip": "The --pdb flag makes IPython start the interactive debugger automatically whenever code raises an exception. You can then inspect variables and step through frames at the exact failure point. This is faster than adding print statements when debugging a session. The debugger prompt supports commands like up, down, and where to navigate the call stack."
+    },
+    {
+      "cmd": "ipython --matplotlib",
+      "desc": "Start IPython with interactive matplotlib plotting",
+      "tooltip": "The --matplotlib flag enables interactive plotting inside the IPython terminal, showing figures in a separate window as you create them. In notebooks the equivalent is the inline magic, which embeds plots into cells. Figures update live during a session instead of requiring explicit show calls. This is the terminal workbench for exploratory data visualization."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"out.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot columns 2 and 4 of a CSV as a line chart",
+      "tooltip": "gnuplot is a mature plotting program driven by commands. The -e flag executes a command string before plotting, here setting the pngcairo terminal, naming the output file out.png, and declaring the comma delimiter with set datafile separator. The plot command draws column 4 against column 2 using the 2:4 column specifier, with lines connecting the points. The result is a PNG image ready to view or embed."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal svg; set output \"out.svg\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Render a line chart as an SVG vector image",
+      "tooltip": "The svg terminal writes a scalable vector graphic instead of a bitmap, so out.svg stays sharp at any zoom level. SVG output is ideal for web pages and documents. The rest of the command mirrors the PNG recipe: comma separator and columns 2 against 4. Vector files also remain editable in illustration tools."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo size 1200,800; set output \"big.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a custom canvas size of 1200 by 800",
+      "tooltip": "The size keyword inside the terminal setting fixes the output dimensions, here 1200 by 800 pixels, which controls resolution and aspect ratio. Larger canvases suit wide datasets and presentation slides. The default size varies by terminal, so setting it explicitly makes output predictable. Fonts and line widths scale with the canvas."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"hist.png\"; set datafile separator \",\"; plot \"data.csv\" using 4 smooth frequency with boxes'",
+      "desc": "Draw a histogram of column 4 with boxes",
+      "tooltip": "The smooth frequency modifier bins identical column 4 values and counts them, and with boxes renders the counts as a bar chart. This turns raw values into a frequency histogram without any preprocessing. The using 4 specifier selects the field to count. Bin the data yourself with mlr histogram when you need custom bin widths."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"scatter.png\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with points pt 7'",
+      "desc": "Scatter plot columns 2 and 4 with round markers",
+      "tooltip": "The with points style draws one marker per data pair instead of connecting lines, the right choice for scatter plots of two variables. The pt 7 setting selects point type 7, a filled circle, and ps can follow to control marker size. Scatter plots reveal correlation and clustering between the two columns. Switch to with lines when the order of points matters."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"log.png\"; set logscale y; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a logarithmic y axis",
+      "tooltip": "The set logscale y command switches the y axis to a logarithmic scale, which straightens exponential growth and widens small-value detail. Use set logscale x or set logscale xy for the other axis variants. Data values must be positive, since logarithms of zero or negatives are undefined. Log axes are standard for financial and growth data."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal pngcairo; set output \"lab.png\"; set title \"Age vs Salary\"; set xlabel \"Age\"; set ylabel \"Salary\"; set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines'",
+      "desc": "Plot with a title and labeled axes",
+      "tooltip": "The set title, set xlabel, and set ylabel commands annotate the chart, here labeling a plot of age against salary. Labels are essential when the chart will be read by others or published. The -e string can hold any number of set commands separated by semicolons. This is the base template for presentation-ready gnuplot output."
+    },
+    {
+      "cmd": "gnuplot -e 'set datafile separator \",\"; plot \"data.csv\" using 2:4 with lines' -p",
+      "desc": "Plot and keep the interactive window open",
+      "tooltip": "Without an explicit terminal, gnuplot opens an interactive window, and the -p flag (persist) keeps it open after the script finishes. The window supports zooming and panning with the mouse. Interactive mode is ideal for exploring data before exporting a final image. In -e strings, each set command still needs its semicolon separator."
+    },
+    {
+      "cmd": "gnuplot analyze.gp",
+      "desc": "Run a gnuplot script file",
+      "tooltip": "A .gp script file contains gnuplot commands, one per line, executed in order when passed as the argument. Scripts scale beyond -e one-liners because they can define functions, loops, and multiple plots. Comments start with a hash sign. This is the format to save when a plot recipe will be re-run on updated data."
+    },
+    {
+      "cmd": "gnuplot -e 'set terminal dumb size 60,20; plot sin(x)'",
+      "desc": "Draw an ASCII plot of sin(x) in the terminal",
+      "tooltip": "The dumb terminal renders plots as ASCII characters directly in the terminal, needing no display server or image viewer. The size 60,20 sets the plot width and height in characters. This is the fastest way to eyeball a function or quick dataset from a headless shell. The output is plain text, so it also pastes into chat and bug reports."
+    },
+    {
+      "cmd": "Rscript -e 'summary(read.csv(\"data.csv\"))'",
+      "desc": "Print summary statistics for every CSV column",
+      "tooltip": "Rscript runs R code from the command line without opening the interactive session. The -e flag takes code as a string: read.csv loads data.csv into a data frame, and summary prints min, quartiles, mean, max, and missing-value counts per column. This one-liner is the R equivalent of csvstat. For a single column, wrap it like summary of the column with the dollar sign syntax."
+    },
+    {
+      "cmd": "Rscript -e 'x <- c(1,2,3); print(mean(x))'",
+      "desc": "Compute the mean of a vector in R",
+      "tooltip": "The c() function builds a vector from its arguments, the <- operator assigns it to x, and mean() computes the average. Semicolons separate statements within the -e string. This is the minimal R one-liner pattern for any computation. Replace mean with median, sd, or var for other statistics."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(tapply(df$salary, df$dept, mean))'",
+      "desc": "Average salary per dept with tapply",
+      "tooltip": "tapply applies a function to groups of a vector: here it splits df$salary by the df$dept factor and computes the mean within each group, a group-by operation. The dollar sign syntax selects a column from the data frame df. The result is a named vector of per-department averages. This is base R's answer to SQL GROUP BY without loading extra packages."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); png(\"rplot.png\"); plot(df$age, df$salary); dev.off()'",
+      "desc": "Scatter plot age against salary to a PNG file",
+      "tooltip": "The png() function opens a PNG graphics device, plot() draws the scatter of age versus salary, and dev.off() closes the device and finalizes the file. Forgetting dev.off() leaves the file empty or truncated. The resulting rplot.png appears in the working directory. Use hist() instead of plot() for a single-column distribution."
+    },
+    {
+      "cmd": "Rscript --vanilla -e 'print(1+1)'",
+      "desc": "Run R code without loading startup files",
+      "tooltip": "The --vanilla flag disables loading .Rprofile and site startup files, restoring packages, and saving the workspace, giving a clean, reproducible environment. Startup files can otherwise change behavior between machines. This flag is recommended for scripts and cron jobs where reproducibility matters. The code itself is a trivial arithmetic check."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(quantile(df$salary))'",
+      "desc": "Show the five-number summary of the salary column",
+      "tooltip": "quantile() returns the 0, 25, 50, 75, and 100 percent percentiles of a vector, the classic five-number summary. Percentiles describe the distribution's shape and spread far better than a single average. Add probs=c(0.05, 0.95) to request custom quantiles instead. This is the R counterpart of the datamash perc: operations."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(cor(df$age, df$salary))'",
+      "desc": "Compute the correlation between age and salary",
+      "tooltip": "cor() returns the Pearson correlation between two vectors, ranging from -1 to 1. Values near 1 mean the variables move together, near -1 they move oppositely, and near 0 there is no linear relationship. Correlation does not imply causation, so interpret with care. Pass a data frame with several numeric columns to cor() for a full correlation matrix."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(head(df, 3))'",
+      "desc": "Show the first 3 rows of a data frame",
+      "tooltip": "head() prints the first n rows of a data frame, here 3, with column names as the header. It is the R version of head for tabular data and the standard first step after loading a file. Use tail() for the last rows or str(df) for a compact structure dump. The print() wrapper makes the result visible in Rscript's non-interactive mode."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(table(df$dept))'",
+      "desc": "Count rows per department with table",
+      "tooltip": "table() builds a frequency table from a factor or vector, counting how many rows each department has. The output is a named count per category, sorted by name. This is base R's quick category census, equivalent to xsv frequency. Pass two vectors to table() to build a cross-tabulation of combinations."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(summary(lm(salary ~ age, data = df))$coefficients)'",
+      "desc": "Fit a linear model of salary on age",
+      "tooltip": "The lm() function fits a linear regression, here salary modeled as a function of age, and summary() extracts its statistics. The dollar sign coefficients selection prints just the intercept and slope with their standard errors, p-values, and significance stars. This is the command-line entry point to statistical modeling in R. The tilde separates the outcome from the predictors."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); png(\"rhist.png\"); hist(df$salary, main=\"Salary distribution\"); dev.off()'",
+      "desc": "Draw a histogram of salary to a PNG file",
+      "tooltip": "hist() bins a numeric vector and draws a histogram, with main setting the title. Wrapped between png() and dev.off(), it writes rhist.png instead of opening a window. Histograms reveal the shape, center, and spread of a distribution at a glance. Adjust bin width with the breaks argument, such as breaks=50."
+    },
+    {
+      "cmd": "Rscript analyze.R",
+      "desc": "Run an R analysis script file",
+      "tooltip": "Rscript executes a .R script file top to bottom, printing output to stdout. Scripts allow multi-step analyses with comments, functions, and saved results, far beyond -e one-liners. Shebang lines in the file can even make it executable directly. This is the standard way to run reproducible analyses from cron or CI pipelines."
+    },
+    {
+      "cmd": "Rscript -e 'x <- rnorm(1000, mean=50, sd=10); print(summary(x))'",
+      "desc": "Generate 1000 normal samples and summarize them",
+      "tooltip": "rnorm() draws random numbers from a normal distribution, here 1000 samples with mean 50 and standard deviation 10. summary() then reports its min, quartiles, mean, and max. The sample mean and median should land near 50 for a large draw. Set a seed with set.seed(42) first to make the random draw reproducible."
+    },
+    {
+      "cmd": "Rscript -e 'df <- read.csv(\"data.csv\"); print(colMeans(df[c(\"age\",\"salary\",\"score\")]))'",
+      "desc": "Average several numeric columns at once",
+      "tooltip": "colMeans() computes the mean of every column in a data frame or matrix in one call. The df[c(...)] subsetting selects just the three numeric columns. The result is a named vector of column means, skipping any non-numeric columns you leave out. Use colSums() for totals or apply(df, 2, median) for per-column medians."
+    },
+    {
+      "cmd": "sqlite3 data.db -header -column 'SELECT dept, COUNT(*), AVG(salary) FROM employees GROUP BY dept;'",
+      "desc": "Query per-dept counts and average salary from SQLite",
+      "tooltip": "sqlite3 runs SQL directly against a database file, here data.db. The -header and -column flags format the output as a readable aligned table with column names. The query groups employees by department and reports each group's row count and average salary, a group-by summary. This is the fastest way to interrogate a SQLite database without a GUI."
+    },
+    {
+      "cmd": "sqlite3 data.db '.mode csv' 'SELECT * FROM employees;' > employees.csv",
+      "desc": "Export a SQLite table to a CSV file",
+      "tooltip": "Dot commands like .mode csv change the output format for the queries that follow, here switching to comma-separated values. The shell redirect (>) saves the query result into employees.csv. This is the standard recipe for moving SQLite data into spreadsheets and analysis tools. Other modes include .mode json and .mode markdown."
+    },
+    {
+      "cmd": "sqlite3 data.db -csv 'SELECT * FROM employees LIMIT 2;'",
+      "desc": "Run a query with CSV output via a flag",
+      "tooltip": "The -csv flag is the command-line shortcut for .mode csv, producing comma-separated output without typing a dot command. The query selects all columns but limits the result to 2 rows. Use -header with it to include column names in the first line. This form fits pipelines better than the interactive dot-command variant."
+    },
+    {
+      "cmd": "sqlite3 :memory: 'CREATE TABLE t(x); INSERT INTO t VALUES (42); SELECT x*2 FROM t;'",
+      "desc": "Run an in-memory SQLite experiment with no file",
+      "tooltip": "The :memory: database name creates a temporary database that lives only for the command. Multiple SQL statements can be passed in one quoted argument, separated by semicolons. Here a table is created, one row inserted, and a computed value selected. This is ideal for testing SQL syntax without touching disk."
+    },
+    {
+      "cmd": "sqlite3 data.db 'SELECT * FROM employees ORDER BY CAST(salary AS INTEGER) DESC LIMIT 2;'",
+      "desc": "Sort by salary numerically and take the top 2",
+      "tooltip": "SQLite's import tool stores values as TEXT, so sorting a numeric-looking column lexicographically puts 9 before 100. CAST(salary AS INTEGER) converts the text to a number for a true numeric sort. The DESC keyword orders descending and LIMIT 2 keeps the top two rows. This CAST pattern is mandatory whenever imported columns sort wrongly."
+    },
+    {
+      "cmd": "sqlite3 data.db 'WITH s AS (SELECT dept, AVG(salary) AS a FROM employees GROUP BY dept) SELECT * FROM s WHERE a > 70000;'",
+      "desc": "Filter grouped results with a common table expression",
+      "tooltip": "A common table expression (WITH s AS ...) names a subquery so the outer query can filter its result, here keeping only departments whose average salary exceeds 70000. This two-step pattern is how you put a WHERE clause on an aggregate, since WHERE cannot directly follow GROUP BY. CTEs also make complex queries readable. The alias a refers to the computed average inside the outer query."
+    },
+    {
+      "cmd": "sqlite3 data.db 'SELECT dept, ROUND(AVG(salary),2) AS avg_salary FROM employees GROUP BY dept ORDER BY avg_salary DESC;'",
+      "desc": "Rank departments by rounded average salary",
+      "tooltip": "ROUND(AVG(salary),2) rounds each department's average to 2 decimal places for tidy output, aliased as avg_salary with AS. The ORDER BY then sorts the grouped result by that alias, putting the highest-paying department first. Aliases can be referenced in ORDER BY but not in WHERE. This is the canonical grouped ranking query for SQLite."
+    },
+    {
+      "cmd": "echo 'scale=4; 22/7' | bc -l",
+      "desc": "Divide with 4 decimal places using bc",
+      "tooltip": "bc is an arbitrary-precision calculator language. The -l flag loads the math library, and scale=4 sets 4 decimal places for division, giving 22/7 as 3.1428. Without scale, integer division would truncate. The echo pipe feeds the expression into bc's stdin; the pipe symbol (|) connects the two commands."
+    },
+    {
+      "cmd": "echo 'sqrt(144)' | bc -l",
+      "desc": "Compute a square root with bc",
+      "tooltip": "With the -l math library loaded, bc gains functions like sqrt, sine, and logarithms. The expression sqrt(144) prints 12. Use scale to control decimal precision of the result. This is a quick way to do scientific calculations in the shell without starting Python."
+    },
+    {
+      "cmd": "seq 1 10 | paste -sd+ | bc",
+      "desc": "Sum the numbers 1 through 10",
+      "tooltip": "seq generates the numbers 1 to 10, one per line, and paste -sd+ joins them into a single line separated by plus signs. The resulting expression is piped into bc, which evaluates it to 55. The pipe symbol (|) chains the three commands. Swap the seq range for any series you need totaled."
+    },
+    {
+      "cmd": "numfmt --to=si 1500000",
+      "desc": "Format 1500000 with SI unit suffixes",
+      "tooltip": "numfmt converts numbers between human and machine formats. The --to=si flag prints 1500000 as 1.5M using SI (powers of 1000) suffixes. The iec variant uses powers of 1024 and is common for memory sizes. Feed it file sizes from du or stat to make them readable, and add --padding to right-align a column of values."
+    },
+    {
+      "cmd": "numfmt --to=iec --suffix=B 1048576",
+      "desc": "Format a byte count in IEC units with a B suffix",
+      "tooltip": "The iec target uses binary units (powers of 1024), so 1048576 becomes 1.0M, and --suffix=B appends the letter B to yield 1.0MB. This is the exact formatting used by ls -lh for file sizes. The raw number can come from a pipe instead of the argument. Use --from=iec to parse such strings back into plain numbers."
+    },
+    {
+      "cmd": "paste -sd, list.txt",
+      "desc": "Join all lines of a file with commas",
+      "tooltip": "The paste command merges lines, and -s serial mode treats each input file as one stream, with -d, setting the comma as the joining delimiter. The result is the whole file on a single line, one item per comma. This converts a line-per-item list into a comma-separated string for config files or SQL IN clauses. Use + instead of the comma to build arithmetic expressions."
+    },
+    {
+      "cmd": "comm -23 x1.txt x2.txt",
+      "desc": "Show lines present only in the first file",
+      "tooltip": "comm compares two sorted files and prints three columns: lines only in file 1, only in file 2, and common to both. The flags -2 and -3 suppress the second and third columns, leaving just the lines unique to x1.txt. Both inputs must be sorted first, or results are wrong. This is the standard way to diff two sorted lists for missing entries."
+    },
+    {
+      "cmd": "join -t, -1 1 -2 1 ids.s.csv scores.s.csv",
+      "desc": "Join two sorted CSVs on their first column",
+      "tooltip": "join merges two sorted files on a common key column: -1 1 and -2 1 name the key as column 1 of each file, and -t, declares the comma delimiter. Both inputs must be pre-sorted on the key or the join silently misses matches. This is the classic text-tools join, distinct from CSV-aware tools like xsv join. The output combines matching rows into one line."
+    },
+    {
+      "cmd": "join -t, -1 1 -2 1 <(sort -t, -k1,1 ids.csv) <(sort -t, -k1,1 scores.csv)",
+      "desc": "Sort two CSVs in-process, then join them",
+      "tooltip": "Process substitution (<(...)) runs each sort command and presents its output as a file-like stream, so the join receives already-sorted inputs. Sorting on the key is required because join demands sorted files. This one-liner turns two unsorted CSVs into a joined result without intermediate files. The -k1,1 key ensures sorting only on the first field."
+    },
+    {
+      "cmd": "split -l 10 big.csv chunk_",
+      "desc": "Split a file into 10-line chunks",
+      "tooltip": "split divides a file into pieces, here 10 lines each, named chunk_aa, chunk_ab, and so on. The prefix argument chunk_ sets the output naming scheme. Splitting by rows is the way to parallelize processing of huge datasets. Use split -b 100M to split by size instead of line count."
+    },
+    {
+      "cmd": "shuf -n 2 data.csv",
+      "desc": "Pick 2 random lines from a file",
+      "tooltip": "shuf randomizes the order of input lines, and -n 2 prints just 2 of them, a quick random sample. It is the simplest sampling tool on the command line, though it treats lines as text rather than CSV records. For header-aware sampling of a CSV, use xsv sample or mlr sample instead. Reproducible draws need --random-source pointing at a fixed file."
+    },
+    {
+      "cmd": "factor 123456789",
+      "desc": "Print the prime factors of a number",
+      "tooltip": "factor decomposes a number into its prime factors, here 3, 3, 3607, and 3803 for 123456789. Prime factorization underpins modular arithmetic and number-theory checks in data validation. Multiple numbers can be listed on one line. This is a small but surprisingly handy math utility."
+    },
+    {
+      "cmd": "seq 1 10 | awk '{s+=$1} END {print s}'",
+      "desc": "Sum a stream of numbers with awk",
+      "tooltip": "awk processes input line by line: the pattern {s+=$1} accumulates the first field of every line into s, and the special END block prints the total after the last line. The pipe symbol (|) feeds seq's output into awk's input. This is the canonical awk accumulator pattern. It works on any whitespace-separated stream, not just seq output."
+    },
+    {
+      "cmd": "sort -t, -k4 -nr data.csv | head -2",
+      "desc": "Sort a CSV by column 4 numerically and take the top 2",
+      "tooltip": "The -t, flag sets the comma field delimiter, -k4 selects column 4 as the key, and -nr sorts numerically in descending order. Piping the sorted output into head -2 keeps only the two highest rows. Because this is plain sort, the header row may end up in the middle of the output; CSV-aware tools like mlr sort keep headers on top. The pipe symbol (|) chains the two commands."
+    },
+    {
+      "cmd": "awk -F, 'NR>1 {s+=$4; n++} END {print s/n}' data.csv",
+      "desc": "Average column 4 of a CSV, skipping the header",
+      "tooltip": "The -F, flag sets the field separator to a comma. NR>1 skips the header row, then each line adds field 4 to s and counts it in n; the END block prints the mean. This is the minimal awk averaging pattern for CSV files. For multiple statistics, datamash is easier and less error-prone; field numbers start at 1, with $1 the first column."
+    },
+    {
+      "cmd": "awk -F, 'NR>1 {a[$3]+=$4} END {for (k in a) print k, a[k]}' data.csv",
+      "desc": "Sum column 4 per value of column 3 with awk",
+      "tooltip": "This awk one-liner implements a group-by sum: the array a indexes by field 3's value and accumulates field 4 into it, then the END loop prints each key with its total. It is the classic awk pivot idiom, but hand-rolled. For readability and extra statistics, prefer datamash -g or mlr stats1, which do the same with clearer syntax. The output order of keys is unspecified."
+    },
+    {
+      "cmd": "cut -d, -f3 data.csv | sort | uniq -c | sort -nr",
+      "desc": "Rank the most frequent values of column 3",
+      "tooltip": "This pipeline is the classic frequency tally: cut extracts column 3, sort orders the values, uniq -c counts consecutive duplicates, and the final sort -nr ranks them by count descending. The pipe symbol (|) connects all four stages. The result is a leaderboard of the most common values. For CSV-aware counting with headers, xsv frequency is cleaner."
+    },
+    {
+      "cmd": "tail -n +2 data.csv | head -2",
+      "desc": "Skip the header, then show the next 2 rows",
+      "tooltip": "The -n +2 argument makes tail start at line 2, dropping the CSV header, and head -2 keeps the first two data rows. This pattern peeks at sample rows without including the header. Combine with wc -l to count data rows precisely. For CSV-aware alternatives use mlr head or xsv slice."
+    },
+    {
+      "cmd": "tr ',' '\\t' < data.csv | head -2",
+      "desc": "Convert commas to tabs in the first 2 lines",
+      "tooltip": "tr translates characters, here every comma into a tab, converting CSV into TSV (tab-separated values). The input redirection (<) reads data.csv, and head -2 limits output to two lines. tr does not understand quotes, so commas inside quoted fields are converted too, which can corrupt data. For safe delimiter conversion use csvformat or xsv fmt."
+    },
+    {
+      "cmd": "paste <(cut -d, -f1 data.csv) <(cut -d, -f4 data.csv) | head -2",
+      "desc": "Combine two columns side by side with paste",
+      "tooltip": "Process substitution (<(...)) runs each cut as a virtual file, and paste places their lines side by side, pairing column 1 with column 4 of the same rows. This is a lightweight way to extract and recombine columns without intermediate files. The head -2 limits the preview. Column counts must match for clean alignment."
+    },
+    {
+      "cmd": "echo 'analysis step 1' | ts '%F %T'",
+      "desc": "Timestamp each line of a log stream",
+      "tooltip": "ts from the moreutils package prefixes every input line with a timestamp; the '%F %T' format yields date and time like 2026-08-09 11:47:50. Piping log output through ts gives every analysis step a recorded time. This is invaluable for auditing long-running jobs and measuring step durations. Plain ts adds only a time, without the date."
+    },
+    {
+      "cmd": "sort sp.txt | sponge sp.txt",
+      "desc": "Sort a file in place",
+      "tooltip": "Redirecting sorted output back onto the input file truncates it before sort finishes reading, destroying data. sponge from moreutils soaks up all input first and writes the file only after the command completes. This makes in-place transforms like sort sp.txt | sponge sp.txt safe. The same pattern works for any file-modifying pipeline."
+    },
+    {
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.describe())'",
+      "desc": "Print pandas summary statistics for a CSV",
+      "tooltip": "pandas is Python's data analysis library, and read_csv loads a CSV into a DataFrame, the table-like core structure. The describe() method prints count, mean, standard deviation, min, quartiles, and max for every numeric column. The -c flag runs the whole snippet as one program. This one-liner matches csvstat and R's summary() output."
+    },
+    {
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.groupby(\"dept\")[\"salary\"].mean())'",
+      "desc": "Average salary per dept with pandas groupby",
+      "tooltip": "The groupby method splits the DataFrame by the dept column's values, the square brackets select the salary column, and mean() aggregates each group. The result is a per-department average, the pandas equivalent of a SQL GROUP BY. Chain sort_values() to order the groups by their means. This is the standard pandas idiom for grouped summaries."
+    },
+    {
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df[df.age > 30])'",
+      "desc": "Filter pandas rows where age exceeds 30",
+      "tooltip": "The expression df[df.age > 30] applies a boolean mask: pandas keeps only rows where the condition is true, here age greater than 30. The mask must reference the column with df.age or bracket notation. This is the pandas equivalent of a WHERE clause. Combine multiple conditions with the & operator and parentheses."
+    },
+    {
+      "cmd": "python3 -c 'import pandas as pd; df=pd.read_csv(\"data.csv\"); print(df.sort_values(\"salary\", ascending=False).head(3))'",
+      "desc": "Sort pandas rows by salary and show the top 3",
+      "tooltip": "sort_values orders the DataFrame by the salary column, ascending=False puts the largest first, and head(3) keeps the top three rows. This is the pandas recipe for a top-N ranking. The default ascending=True gives the smallest values first. Chain reset_index() if you need fresh row indices after sorting."
+    },
+    {
+      "cmd": "python3 -c 'import numpy as np; print(np.mean([1,2,3,4]))'",
+      "desc": "Compute a mean with NumPy",
+      "tooltip": "NumPy is Python's numeric array library, imported here as np. np.mean() averages the list [1,2,3,4] to 2.5 in one call. NumPy functions also operate on arrays and DataFrames with the same syntax. This is the minimal NumPy check that the library is installed and working."
+    },
+    {
+      "cmd": "python3 -m pip install pandas numpy matplotlib",
+      "desc": "Install the core Python data stack",
+      "tooltip": "The -m pip form runs pip as a module, which works even when pip is not on the PATH. This installs pandas, numpy, and matplotlib, the foundational trio for data analysis and plotting in Python. On system-managed Python installs, create a virtual environment first with python3 -m venv .venv. Pin versions with == to keep results reproducible."
+    }
+  ]
+}

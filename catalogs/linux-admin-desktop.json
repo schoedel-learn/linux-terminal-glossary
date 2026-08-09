@@ -1,0 +1,780 @@
+{
+  "category": "Administration",
+  "commands": [
+    {
+      "cmd": "chmod u+s helper.sh",
+      "desc": "Set the setuid bit on a file",
+      "tooltip": "Setuid means the file runs with the privileges of its owner, not the user who launches it. The s replaces the owner execute bit and shows as rws in ls -l. The kernel ignores setuid on shell scripts, so this only works on compiled binaries and carries real security risk."
+    },
+    {
+      "cmd": "chmod g+s /srv/shared",
+      "desc": "Set the setgid bit on a directory",
+      "tooltip": "Setgid on a directory makes new files created inside it inherit the directory's group instead of the creator's primary group. This is the classic trick for team-shared folders. It shows as rwxr-sr-x in ls -l and pairs with group ACLs."
+    },
+    {
+      "cmd": "chmod +t /tmp/shared",
+      "desc": "Set the sticky bit on a directory",
+      "tooltip": "The sticky bit means only the file owner, the directory owner, or root can delete files inside the directory, no matter who has write access. /tmp is the classic example and shows a t in the last permission position. Run chmod +t on shared drop folders to stop users deleting each other's files."
+    },
+    {
+      "cmd": "chmod 4755 /usr/local/bin/app",
+      "desc": "Set setuid with numeric permissions",
+      "tooltip": "The leading 4 in the four-digit mode sets the setuid bit while 755 grants the owner rwx and everyone else rx. Numeric chmod 4755 is the exact same as chmod u+s plus chmod 755 in one step. Remove the bit with chmod u-s or chmod 0755, and audit setuid files with find / -perm -4000."
+    },
+    {
+      "cmd": "sudo chattr +a /var/log/app.log",
+      "desc": "Make a log file append-only",
+      "tooltip": "The +a flag makes a file append-only, so processes can add lines but nothing can overwrite or delete existing content, not even root. This is ideal for audit logs that must stay tamper-proof. Reverse it with sudo chattr -a."
+    },
+    {
+      "cmd": "sudo chattr +i /etc/hosts",
+      "desc": "Make a file immutable",
+      "tooltip": "The +i flag makes a file completely immutable, so even root cannot modify, rename, or delete it until the flag is removed. This hardens critical files like /etc/hosts or /etc/passwd against accidental edits and malware. Reverse it with sudo chattr -i and list attributes with lsattr."
+    },
+    {
+      "cmd": "lsattr -d /srv/data",
+      "desc": "List extended attributes of a directory",
+      "tooltip": "lsattr shows the ext filesystem attributes such as i for immutable and a for append-only. The -d flag lists the directory itself rather than descending into its contents, like ls -d does. Use lsattr -R to walk a whole tree."
+    },
+    {
+      "cmd": "getfacl -R /srv/shared",
+      "desc": "Show ACLs recursively",
+      "tooltip": "An ACL (access control list) grants permissions to extra users and groups beyond the classic owner, group, and other bits. getfacl prints the base mode plus every named user and group entry, and -R walks all subdirectories. Look for the mask line, which caps what the named entries can receive."
+    },
+    {
+      "cmd": "sudo setfacl -m g:devs:rx /srv/shared",
+      "desc": "Grant a group read and execute ACL",
+      "tooltip": "setfacl -m modifies an ACL in place, and the g:devs:rx argument gives the group devs read and execute rights without touching the base mode. The colon syntax is scope:name:permissions, so u:alice:rw would target a single user. Existing entries are overwritten, not duplicated."
+    },
+    {
+      "cmd": "sudo setfacl -R -m g:devs:rx /srv/shared",
+      "desc": "Apply a group ACL recursively",
+      "tooltip": "Adding -R makes setfacl walk every file and directory under /srv/shared, applying the g:devs:rx entry everywhere. This is the efficient way to open up a whole project tree to one group. Files created later do not inherit the entry unless the directory also carries a default ACL."
+    },
+    {
+      "cmd": "sudo setfacl -x g:devs /srv/shared",
+      "desc": "Remove a group ACL entry",
+      "tooltip": "The -x flag deletes one named entry from the ACL instead of modifying values. Here it strips the group devs entry from /srv/shared while leaving every other entry untouched. Verify the result with getfacl."
+    },
+    {
+      "cmd": "sudo setfacl -m m::rx /srv/shared",
+      "desc": "Set the ACL mask entry",
+      "tooltip": "The mask entry is the ceiling for what named users and groups can actually use, so m::rx caps every named entry at read and execute even if one was granted write. Tighten the mask to block group access without deleting the entries themselves. The mask only limits named entries, never the file owner."
+    },
+    {
+      "cmd": "sudo setcap -r /usr/local/bin/app",
+      "desc": "Remove all capabilities from a file",
+      "tooltip": "Capabilities are fine-grained privileges like cap_net_bind_service that let a binary bind low ports without full root. The -r flag deletes every capability from the file, restoring normal execution. Audit what is set with getcap -r / 2>/dev/null."
+    },
+    {
+      "cmd": "ls -Z /etc/passwd",
+      "desc": "Show the SELinux context of a file",
+      "tooltip": "The -Z flag prints the SELinux security context column, which labels each file with a type such as etc_t or shadow_t. SELinux is the mandatory access control system used on RHEL and Fedora, and Ubuntu systems show an empty column instead. Pair it with getenforce to see whether SELinux is enforcing."
+    },
+    {
+      "cmd": "chown --reference=template.txt report.pdf",
+      "desc": "Copy ownership from a reference file",
+      "tooltip": "The --reference form copies the user and group of template.txt onto report.pdf instead of typing a user:group pair. This is handy when a file was restored or extracted with the wrong owner. The same reference trick exists in chmod --reference for permissions."
+    },
+    {
+      "cmd": "ln -s /usr/share/zoneinfo/Europe/Madrid /etc/localtime",
+      "desc": "Symlink the system timezone",
+      "tooltip": "This is how a Linux system selects its timezone: /etc/localtime is a symlink into the IANA zoneinfo database, so no file is copied. Read the link with readlink /etc/localtime to see the chosen zone. Prefer timedatectl set-timezone, which manages this link for you."
+    },
+    {
+      "cmd": "readlink /etc/alternatives/python3",
+      "desc": "Print a symlink's target path",
+      "tooltip": "readlink resolves a symlink and prints where it actually points. Without -f it shows only one level, so the /etc/alternatives link reveals the real interpreter binary. Add -f to keep resolving until a final non-link path is reached."
+    },
+    {
+      "cmd": "realpath script.sh",
+      "desc": "Resolve a path to its absolute form",
+      "tooltip": "realpath prints the canonical absolute path, resolving symlinks and collapsing .. segments along the way. It answers questions like where this script really lives when launched through a symlink. Use it in scripts before cd-ing or storing paths."
+    },
+    {
+      "cmd": "realpath -m /etc/../usr/bin/env",
+      "desc": "Resolve a path without requiring existence",
+      "tooltip": "The -m flag canonicalizes a path purely by string logic, so the target does not need to exist on disk. This is useful for building paths that a program will create later. Symlinks are not resolved in this mode."
+    },
+    {
+      "cmd": "stat -c '%F %s %y' report.pdf",
+      "desc": "Print file type, size, and mtime",
+      "tooltip": "stat -c takes a custom format string: %F is the file type, %s the size in bytes, and %y the last modification time with full precision. It is the fastest way to get exactly the fields a script needs. See stat --help for the full format specifier list."
+    },
+    {
+      "cmd": "stat -f /home",
+      "desc": "Show filesystem information",
+      "tooltip": "The -f flag switches stat from file details to the underlying filesystem: type, block size, and free blocks. It is the quick way to check what filesystem a path lives on and how much space remains. Compare with df, which shows the same data in human units."
+    },
+    {
+      "cmd": "file --mime-type report.pdf",
+      "desc": "Print the MIME type of a file",
+      "tooltip": "MIME types are the standard labels such as application/pdf that identify a file's format. The --mime-type flag prints just the type, while plain file adds a human description and -i includes the charset. file inspects magic bytes, not extensions, so it works on renamed files."
+    },
+    {
+      "cmd": "file -z data.tar.gz",
+      "desc": "Identify a compressed file's contents",
+      "tooltip": "The -z flag makes file peek inside compressed archives and report what the decompressed data really is. It detects gzip, bzip2, zip, and other containers automatically. Useful for checking whether a download is a tarball or something else entirely."
+    },
+    {
+      "cmd": "basename /path/to/file.txt",
+      "desc": "Print the last path component",
+      "tooltip": "basename strips the directory part and prints file.txt, the final component of the path. It is the standard tool for pulling a filename out of a full path in scripts. Pair it with dirname to get the directory half."
+    },
+    {
+      "cmd": "basename -s .txt /path/to/file.txt",
+      "desc": "Strip a suffix from the basename",
+      "tooltip": "The -s flag removes a trailing suffix, so this prints just file instead of file.txt. Scripts use it to derive output names from inputs, like turning report.txt into report.pdf. The suffix is matched literally at the end of the name."
+    },
+    {
+      "cmd": "dirname /path/to/file.txt",
+      "desc": "Print the directory portion of a path",
+      "tooltip": "dirname prints everything before the last component, so this yields /path/to. It is the inverse of basename and together they split any path into its two halves. Scripts commonly wrap it around realpath to get an absolute directory."
+    },
+    {
+      "cmd": "which -a python3",
+      "desc": "Show every location of a command",
+      "tooltip": "The -a flag lists every match for python3 across PATH, not just the first one. This reveals shadowed installations where one binary hides another. Plain which stops at the first hit, which is the one the shell would actually run."
+    },
+    {
+      "cmd": "type -a ls",
+      "desc": "Show how the shell resolves a command",
+      "tooltip": "type tells you whether a name is an alias, a function, a builtin, or an external binary. The -a flag prints every definition in lookup order, so you see both the alias and the /usr/bin/ls it expands to. Use it before debugging why a command behaves unexpectedly."
+    },
+    {
+      "cmd": "command -v ls",
+      "desc": "Print the path a command would run",
+      "tooltip": "command -v is the POSIX-standard way to ask which binary the shell would execute, and unlike which it understands aliases and builtins. For a builtin like cd it prints the name itself instead of a path. Scripts use it to locate tools before calling them."
+    },
+    {
+      "cmd": "hash -r",
+      "desc": "Clear the shell's command hash table",
+      "tooltip": "Bash caches the PATH lookup for every command it runs, and hash -r forgets that cache so the next call re-searches PATH. Run it after installing a new binary that shadows an old one, or after moving executables. Plain hash lists the cached entries."
+    },
+    {
+      "cmd": "printf '%05d\\n' 42",
+      "desc": "Format a number with zero padding",
+      "tooltip": "printf is the shell's formatted output builtin, and %05d pads the number 42 to five digits with leading zeros, printing 00042. The same format specifiers as C and Python apply, so %x gives hex and %.2f fixes decimals. It is more predictable than echo for scripted output."
+    },
+    {
+      "cmd": "ulimit -n 4096",
+      "desc": "Raise the soft open-file limit",
+      "tooltip": "The -n limit controls how many file descriptors one shell session may hold, and this raises the soft limit to 4096. The soft limit can be raised only up to the hard limit, which needs root to increase. Set it in ~/.bashrc or a systemd unit for persistence."
+    },
+    {
+      "cmd": "ulimit -u",
+      "desc": "Show the max user processes limit",
+      "tooltip": "The -u limit caps how many processes and threads a single user may run, and this prints the current value. Hitting it produces fork: Cannot allocate memory errors despite plenty of RAM. Raise it with ulimit -u or in /etc/security/limits.conf."
+    },
+    {
+      "cmd": "ulimit -a",
+      "desc": "Show all resource limits",
+      "tooltip": "ulimit -a dumps every soft limit for the current shell: open files, core dumps, stack size, CPU time, and process count. It is the first stop when a program dies with mysterious resource errors. Each line maps to a single-letter flag like -n or -u."
+    },
+    {
+      "cmd": "setsid ./daemon.sh",
+      "desc": "Run a program in a new session",
+      "tooltip": "setsid starts the program in a fresh session with no controlling terminal, so terminal close and SIGHUP do not kill it. Unlike a plain background job, it fully detaches from the login session. Pair it with nohup or systemd-run for long-running tasks."
+    },
+    {
+      "cmd": "disown -a",
+      "desc": "Remove all jobs from the shell's job table",
+      "tooltip": "disown detaches background jobs from the shell so they survive your logout without receiving SIGHUP. The -a form removes every job at once, while plain disown %1 targets one. Use it after starting a long task with the background operator."
+    },
+    {
+      "cmd": "wait -n",
+      "desc": "Wait for the next background job to finish",
+      "tooltip": "wait -n blocks until any one of the shell's background jobs completes and then returns its status, available since Bash 5.1. It lets a script run several jobs in parallel and reap them as they finish. Plain wait with no argument waits for all of them."
+    },
+    {
+      "cmd": "kill -s TERM 1234",
+      "desc": "Send a TERM signal to a process",
+      "tooltip": "The -s flag names the signal explicitly, so this politely asks process 1234 to terminate and gives it a chance to clean up. TERM is the default signal and the first choice; escalate to kill -9 only if the process ignores it. List signal names with kill -l."
+    },
+    {
+      "cmd": "killall -u alice",
+      "desc": "Terminate every process owned by a user",
+      "tooltip": "killall -u alice sends TERM to all of alice's processes at once, effectively logging her out and discarding unsaved work. This is a blunt instrument, so check who is affected with pgrep -u alice first. Add -9 to force-kill anything that ignores TERM."
+    },
+    {
+      "cmd": "pkill -x nginx",
+      "desc": "Kill processes by exact name match",
+      "tooltip": "The -x flag makes pkill match the process name exactly instead of as a substring, so nginx matches only nginx. Plain pkill nginx would also hit processes like nginx-cache. Use pgrep first to preview what will be killed."
+    },
+    {
+      "cmd": "pgrep -c nginx",
+      "desc": "Count processes matching a name",
+      "tooltip": "pgrep -c prints how many running processes match the name nginx instead of their PIDs. A count of zero also means pgrep exits nonzero, which is handy in script conditions. Combine with -f to match against the full command line."
+    },
+    {
+      "cmd": "renice -n -5 -p 1234",
+      "desc": "Raise a process priority",
+      "tooltip": "renice changes the nice value of a running process, and negative values mean higher priority, so -5 boosts process 1234. Raising priority requires root, while lowering it is allowed for your own processes. Revert with renice -n 0 -p 1234 and watch impact with top."
+    },
+    {
+      "cmd": "ionice -c 3 -p 1234",
+      "desc": "Set a process to idle I/O class",
+      "tooltip": "ionice controls disk I/O priority, and class 3 means idle, so process 1234 only touches the disk when nobody else needs it. This is perfect for overnight backups that must not slow down interactive work. Classes are 0 none, 1 realtime, 2 best-effort, and 3 idle."
+    },
+    {
+      "cmd": "ionice -c 2 -n 4 -p 1234",
+      "desc": "Set best-effort I/O priority level",
+      "tooltip": "Best-effort class 2 is the default, and the -n level from 0 to 7 tunes priority within it, where 4 sits in the middle. Lower numbers get the disk first, so a compile job at -n 0 would starve everything else. Combine with nice for CPU plus I/O tuning."
+    },
+    {
+      "cmd": "taskset -c 0,1 ./task",
+      "desc": "Pin a process to specific CPUs",
+      "tooltip": "taskset sets CPU affinity, and -c 0,1 restricts the new process to the first two CPU cores. Pinning improves cache locality for latency-sensitive workloads and contains noisy neighbors on shared boxes. Verify placement with taskset -pc on the PID."
+    },
+    {
+      "cmd": "taskset -pc 2 1234",
+      "desc": "Move a running process to a CPU",
+      "tooltip": "The -pc form operates on an existing process, so this migrates process 1234 onto CPU 2 without restarting it. It prints the old and new affinity lists on success. Use it when a process ends up on a busy core and you cannot stop it."
+    },
+    {
+      "cmd": "sort -V versions.txt",
+      "desc": "Sort version numbers naturally",
+      "tooltip": "The -V flag understands version numbers, so 1.10 sorts after 1.9 instead of before it as plain lexicographic sort would do. It handles dotted numbers and suffixes like rc1 sensibly. Use it to order release tags and package versions."
+    },
+    {
+      "cmd": "sort -t, -k2,2nr scores.csv",
+      "desc": "Sort a CSV by a numeric column",
+      "tooltip": "The -t, flag sets the field delimiter to a comma, and -k2,2nr sorts by field 2 with n for numeric and r for reverse order. The start,end key range form -k2,2 pins the sort to exactly one field. Extend the range like -k2,3 to break ties with a second column."
+    },
+    {
+      "cmd": "cut -d: -f1,3 /etc/passwd",
+      "desc": "Extract specific fields from a file",
+      "tooltip": "cut -d: sets the delimiter to a colon and -f1,3 keeps only the first and third fields, so /etc/passwd yields username and UID pairs. Field lists accept ranges such as 2-5 and commas mixed with ranges. Pair with sort or uniq to analyze columnar data."
+    },
+    {
+      "cmd": "tr -d '\\r' < win.txt",
+      "desc": "Strip carriage returns from a file",
+      "tooltip": "The -d flag deletes characters, so this removes every carriage return from a Windows CRLF file, leaving clean Unix line endings. Feed the result to a new file with a redirect instead of printing it. The same trick fixes files that show ^M in editors."
+    },
+    {
+      "cmd": "tr '[:upper:]' '[:lower:]' < file",
+      "desc": "Lowercase text using character classes",
+      "tooltip": "POSIX character classes in brackets handle locale-aware ranges, so [:upper:] maps cleanly to [:lower:] for any alphabet. This is more reliable than tr A-Z a-z for accented letters. Read from a file with the input redirect and write with an output redirect."
+    },
+    {
+      "cmd": "join -a 1 -t, -1 1 -2 1 <(sort -t, -k1,1 ids.csv) <(sort -t, -k1,1 scores.csv)",
+      "desc": "Join two CSVs keeping unmatched rows",
+      "tooltip": "join merges two sorted files on a key column, here field 1 of both, and -a 1 keeps every row from the first file even without a match in the second. The process substitution runs each sort as a virtual file, satisfying join's sorted-input requirement. Without -a, unmatched rows are dropped silently."
+    },
+    {
+      "cmd": "comm -13 a.txt b.txt",
+      "desc": "Show lines unique to the second file",
+      "tooltip": "comm compares two sorted files and prints three columns: lines only in the first, only in the second, and in both. The -13 flag suppresses the first two columns so only lines unique to b.txt remain. The reverse filter comm -23 shows lines only in a.txt."
+    },
+    {
+      "cmd": "split -b 10m bigfile part_",
+      "desc": "Split a file into fixed-size chunks",
+      "tooltip": "The -b flag splits by size, producing part_aa, part_ab, and so on, each 10 megabytes except the last. Splitting helps upload large files through size-limited channels. Reassemble in order with cat part_* > bigfile."
+    },
+    {
+      "cmd": "csplit -f part_ -b '%02d.txt' report.txt '/^Chapter/' '{*}'",
+      "desc": "Split a file at matching lines",
+      "tooltip": "csplit cuts a file wherever a line matches the pattern, so '/^Chapter/' starts a new part at each chapter heading and '{*}' repeats the split for every match. The -f flag sets the prefix and -b '%02d.txt' formats the numeric suffixes. Unlike split, the parts differ in size."
+    },
+    {
+      "cmd": "wc -L file",
+      "desc": "Print the longest line length",
+      "tooltip": "The -L flag reports the length of the longest line in characters instead of counting lines or words. It is handy for checking whether any line overflows a fixed-width report or terminal column. Combine with sort -n to rank line lengths across many files."
+    },
+    {
+      "cmd": "head -n -5 file",
+      "desc": "Print all but the last five lines",
+      "tooltip": "A negative count flips head around, so -n -5 prints every line except the final five. This is the mirror of tail -n -5 and handy when the end of a file contains a footer you want to exclude. The feature needs the explicit -n form."
+    },
+    {
+      "cmd": "seq -w 1 10",
+      "desc": "Print a sequence with zero padding",
+      "tooltip": "seq prints consecutive numbers, and -w pads them to equal width, giving 01 through 10 instead of 1 through 10. This keeps filenames and columns sorting correctly in scripts. Add a step like seq 1 2 99 to count odd numbers."
+    },
+    {
+      "cmd": "shuf -i 1-100 -n 5",
+      "desc": "Pick random numbers from a range",
+      "tooltip": "The -i flag turns shuf into a random number generator for the inclusive range 1 to 100, and -n 5 prints five distinct picks. Without -n it shuffles the whole range. For random lines from a file, pass the filename instead of -i."
+    },
+    {
+      "cmd": "nl -ba notes.txt",
+      "desc": "Number all lines including blanks",
+      "tooltip": "nl prepends line numbers in the classic cat -n style, and -ba numbers every line, including empty ones, instead of skipping them. The default skips blank lines unless -ba is given. Tune the format with -w for width and -s for the separator."
+    },
+    {
+      "cmd": "od -A x -t x1z firmware.bin",
+      "desc": "Dump binary with hex offsets and ASCII",
+      "tooltip": "od is the octal dump utility, and -A x switches addresses to hex while -t x1z prints each byte in hex followed by printable ASCII in the margin. This is the fastest way to eyeball binary file contents. Plain od -c shows bytes as escaped characters."
+    },
+    {
+      "cmd": "xxd -i logo.png",
+      "desc": "Export a file as a C array",
+      "tooltip": "The -i flag formats the file as an initialized C array named after the input, ready to embed in source code. This is the standard way to bundle small assets like icons into a binary. Add a length variable with -i plus -l to cap the size."
+    },
+    {
+      "cmd": "hexdump -C file",
+      "desc": "Show a canonical hex and ASCII dump",
+      "tooltip": "The -C flag is the canonical hexdump layout, showing offset, sixteen hex bytes, and the printable ASCII column. It is the tool of choice for inspecting binary files and network captures. Compare with od -A x -t x1z, which produces a similar view."
+    },
+    {
+      "cmd": "sha256sum ubuntu-24.04.iso",
+      "desc": "Compute a SHA-256 checksum",
+      "tooltip": "sha256sum prints the 64-character SHA-256 digest of a file, the standard way to verify a download matches the publisher's checksum. Compare the output against the value on the official download page. The same digest confirms two files are identical."
+    },
+    {
+      "cmd": "sha256sum -c SHA256SUMS",
+      "desc": "Verify checksums from a manifest",
+      "tooltip": "The -c flag reads a manifest of hash plus filename lines and verifies each file, printing OK or FAILED per line. A FAILED line means the file was corrupted or tampered with. Generate the manifest itself with sha256sum file > SHA256SUMS."
+    },
+    {
+      "cmd": "md5sum file",
+      "desc": "Compute an MD5 checksum",
+      "tooltip": "md5sum prints the 32-character MD5 digest of a file. MD5 is fast but cryptographically broken, so use it only for quick integrity checks, never for security. Prefer sha256sum whenever authenticity matters."
+    },
+    {
+      "cmd": "base64 file",
+      "desc": "Encode a file as base64",
+      "tooltip": "base64 converts binary data into the printable base64 alphabet so it survives email and JSON transport. It prints the encoded text to stdout, ready to redirect to a file. The encoding inflates size by roughly a third."
+    },
+    {
+      "cmd": "base64 -d file",
+      "desc": "Decode base64 back to binary",
+      "tooltip": "The -d flag reverses the encoding and restores the original bytes, so a file encoded with base64 comes back intact. Add -i to ignore invalid characters in sloppy input. This is how base64-encoded attachments and config blobs are unpacked."
+    },
+    {
+      "cmd": "fold -s -w 40 README.md",
+      "desc": "Wrap long lines at spaces",
+      "tooltip": "fold wraps lines longer than the width, and -s breaks at spaces instead of splitting words in half. The -w flag sets the width, here 40 columns. This formats plain text for narrow terminals or email without a full text formatter."
+    },
+    {
+      "cmd": "rev file",
+      "desc": "Reverse each line character-wise",
+      "tooltip": "rev mirrors every line, so hello becomes olleh, useful for right-aligning text or trick questions. It is often chained with sort to find lines that share reversed endings. Character order reverses but lines stay in place."
+    },
+    {
+      "cmd": "pr -t -2 names.txt",
+      "desc": "Format text into two columns",
+      "tooltip": "pr paginates and columns text for printing, and the -2 flag lays the file out in two side-by-side columns. The -t flag suppresses the page headers and footers, keeping only the data. Column counts like -4 work for wide listings."
+    },
+    {
+      "cmd": "gsettings get org.gnome.desktop.background picture-uri",
+      "desc": "Read a GNOME settings key",
+      "tooltip": "gsettings reads and writes the DConf settings database through the session's DBus, and this fetches the current wallpaper URI. Keys are addressed as schema plus key name, here the background schema's picture-uri. The value prints in GVariant syntax with quotes."
+    },
+    {
+      "cmd": "gsettings set org.gnome.desktop.background picture-uri 'file:///home/alice/wall.jpg'",
+      "desc": "Change the desktop wallpaper",
+      "tooltip": "This sets the wallpaper by writing the picture-uri key, and single quotes protect the file URI from shell expansion. The change applies to the running session immediately with no restart. Use dconf read to confirm the stored value."
+    },
+    {
+      "cmd": "gsettings list-recursively org.gnome.desktop.interface",
+      "desc": "Dump all keys in a schema",
+      "tooltip": "list-recursively prints every key in the interface schema with its current value, one per line. A schema is a named group of related settings, and this is the fastest way to discover what is configurable. Pair it with gsettings range to see a key's allowed values."
+    },
+    {
+      "cmd": "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'",
+      "desc": "Switch the GTK theme",
+      "tooltip": "This sets the GTK theme for GNOME applications, with Adwaita-dark being the built-in dark theme. Installed third-party themes appear as new options in the same key. The change applies live to most running GTK apps."
+    },
+    {
+      "cmd": "gsettings set org.gnome.desktop.interface text-scaling-factor 1.25",
+      "desc": "Scale up interface text",
+      "tooltip": "The text-scaling-factor key multiplies all on-screen text, and 1.25 enlarges it by a quarter for easier reading. The valid range is 0.5 to 3.0, checkable with gsettings range. This is the accessibility-friendly alternative to lowering the whole display resolution."
+    },
+    {
+      "cmd": "gsettings monitor org.gnome.desktop.interface",
+      "desc": "Watch for live settings changes",
+      "tooltip": "monitor subscribes to a schema and prints every key change as it happens, ideal for seeing what an app or setting dialog modifies. It runs until Ctrl+C. The same trick works on a single key path for narrower output."
+    },
+    {
+      "cmd": "dconf dump /org/gnome/ > gnome-backup.conf",
+      "desc": "Back up GNOME settings to a file",
+      "tooltip": "dconf is the low-level settings database behind gsettings, and dump writes an entire subtree as readable keyfile text. The redirect saves it to gnome-backup.conf for later restore. Dump the whole /org/gnome/ tree to capture every GNOME app's settings."
+    },
+    {
+      "cmd": "dconf load /org/gnome/ < gnome-backup.conf",
+      "desc": "Restore GNOME settings from a backup",
+      "tooltip": "load reads a keyfile from stdin and writes every key back into the database, the exact inverse of dconf dump. Keys present in the file are overwritten, so this restores a full backup in one shot. Run it while logged into the same session so apps pick up the changes."
+    },
+    {
+      "cmd": "dconf watch /org/gnome/desktop/",
+      "desc": "Watch a settings path for changes",
+      "tooltip": "watch prints every write to keys under the given path as it happens, showing the key and its new value. It is the raw DConf-level equivalent of gsettings monitor and catches changes from any source. Press Ctrl+C to stop."
+    },
+    {
+      "cmd": "dconf reset -f /org/gnome/desktop/",
+      "desc": "Reset an entire settings subtree",
+      "tooltip": "The -f flag makes reset recurse, returning every key under /org/gnome/desktop/ to its factory default in one command. This is irreversible for custom settings, so dump a backup first. The same flag resets whole apps when pointed at their paths."
+    },
+    {
+      "cmd": "dconf read /org/gnome/desktop/background/picture-uri",
+      "desc": "Read one settings value",
+      "tooltip": "dconf read prints a single key's value using the raw path form, with slash-separated schema and key names. It is the direct database access behind gsettings get. The output uses GVariant syntax, so strings appear quoted."
+    },
+    {
+      "cmd": "gnome-extensions list --enabled",
+      "desc": "List enabled GNOME Shell extensions",
+      "tooltip": "GNOME Shell extensions are JavaScript add-ons that alter the desktop, identified by UUIDs like ubuntu-appindicators@ubuntu.com. The --enabled filter shows only active ones, while plain list shows everything installed. Pipe to grep for a specific extension."
+    },
+    {
+      "cmd": "gnome-extensions disable ubuntu-appindicators@ubuntu.com",
+      "desc": "Disable a Shell extension",
+      "tooltip": "This turns off the Ubuntu AppIndicators extension by its UUID, and the desktop reacts immediately without a shell restart. Disabling keeps the files installed, so the extension can be enabled again later. Use gnome-extensions list --enabled first to confirm the UUID."
+    },
+    {
+      "cmd": "gnome-extensions enable appindicators@ubuntu.com",
+      "desc": "Enable a Shell extension",
+      "tooltip": "This reactivates a disabled or freshly installed extension by UUID. The change applies to the current session at once. If it still does not appear, log out and back in so the shell reloads its extension set."
+    },
+    {
+      "cmd": "gnome-extensions info appindicators@ubuntu.com",
+      "desc": "Show details of a Shell extension",
+      "tooltip": "info prints an extension's name, version, description, and current state such as enabled or error. The state field is the first place to check when an extension misbehaves. A broken extension shows ERROR here and may need a reset."
+    },
+    {
+      "cmd": "gio trash file.txt",
+      "desc": "Move a file to the trash",
+      "tooltip": "gio is the GLib command-line front end to GVfs, and trash moves a file into the desktop trash instead of deleting it. The file can be restored from the file manager's trash view, so this is the safe delete. Trash lives in ~/.local/share/Trash."
+    },
+    {
+      "cmd": "gio trash --empty",
+      "desc": "Empty the trash permanently",
+      "tooltip": "This deletes every file in the trash for good, freeing the disk space they occupied. There is no undo, so check the trash first. The flag is --empty, not --empty-trash."
+    },
+    {
+      "cmd": "gio open file.pdf",
+      "desc": "Open a file with the default application",
+      "tooltip": "gio open launches the default application registered for the file's MIME type, exactly like double-clicking in the file manager. It respects the same associations as xdg-open. From a terminal it works with any MIME-registered file type."
+    },
+    {
+      "cmd": "gio info file.txt",
+      "desc": "Show metadata about a file",
+      "tooltip": "gio info prints attributes such as size, type, permissions, and modification time, plus trash status for trashed files. It reads the same GVfs metadata layer the file manager uses. Add -a with attribute names to filter the output."
+    },
+    {
+      "cmd": "gio list ~/Documents",
+      "desc": "List a directory like ls",
+      "tooltip": "gio list prints the contents of a location through the GVfs layer, which also understands remote schemes like sftp:// and trash://. It is ls for anything the file manager can open. Use -a attributes to request metadata columns."
+    },
+    {
+      "cmd": "xrandr",
+      "desc": "List connected displays and modes",
+      "tooltip": "xrandr is the X11 RandR extension client, and running it bare lists every output with its supported resolutions and refresh rates. Output names like HDMI-1 and eDP-1 come from the left column. It only works on X11 sessions, not Wayland."
+    },
+    {
+      "cmd": "xrandr --output HDMI-1 --mode 1920x1080",
+      "desc": "Set a display resolution",
+      "tooltip": "The --output flag names a display and --mode picks one of its supported resolutions, so this switches HDMI-1 to 1080p. The mode must appear in the plain xrandr listing. Add --rate to also set the refresh rate."
+    },
+    {
+      "cmd": "xrandr --output HDMI-1 --rate 144",
+      "desc": "Set a display refresh rate",
+      "tooltip": "The --rate flag sets the refresh in hertz, and this asks HDMI-1 to run at 144 Hz for smoother motion. The monitor must support the rate at the current resolution, or xrandr refuses. Combine it in the same command as --mode for a precise mode plus rate pair."
+    },
+    {
+      "cmd": "xrandr --output eDP-1 --left-of HDMI-1",
+      "desc": "Position a display left of another",
+      "tooltip": "Relative position flags arrange outputs on the virtual desktop, so eDP-1 sits to the left of HDMI-1 and the mouse moves between them naturally. Siblings include --right-of, --above, and --below. The arrangement persists only for the current X session."
+    },
+    {
+      "cmd": "xrandr --output HDMI-1 --primary",
+      "desc": "Mark a display as primary",
+      "tooltip": "The primary output is where new windows and panels appear by default on X11. This marks HDMI-1 as primary while the others stay secondary. Only one output can be primary at a time."
+    },
+    {
+      "cmd": "xrandr --output HDMI-1 --off",
+      "desc": "Turn off a display output",
+      "tooltip": "This disables the HDMI-1 output, mirroring the settings panel's display off toggle. Turning off the only active monitor blanks the screen, so have a fallback ready. Re-enable it with xrandr --output HDMI-1 --auto."
+    },
+    {
+      "cmd": "xset s off",
+      "desc": "Disable the X11 screensaver",
+      "tooltip": "xset configures the X server directly, and the s command controls the screensaver, so s off disables it entirely. The setting lasts until the X session ends or the server restarts. Pair with xset dpms to also control display power saving."
+    },
+    {
+      "cmd": "xset dpms 600 600 600",
+      "desc": "Set display power-down timers",
+      "tooltip": "The dpms command sets the Display Power Management Signaling delays in seconds for standby, suspend, and off. This sequence powers the monitor down after ten minutes of inactivity. Pass 0 0 0 to disable power saving entirely."
+    },
+    {
+      "cmd": "xset q",
+      "desc": "Show current X server settings",
+      "tooltip": "The q flag queries the X server and prints screensaver, DPMS, keyboard, and pointer settings in one dump. It is the fastest way to see what the server is actually configured to do. Look at the DPMS and screensaver sections to confirm prior xset changes."
+    },
+    {
+      "cmd": "wlr-randr",
+      "desc": "List Wayland outputs and modes",
+      "tooltip": "wlr-randr manages displays on wlroots-based Wayland compositors, the Wayland world's answer to xrandr. Wayland is the modern display protocol replacing X11, and this tool talks to its output-management protocol. Bare wlr-randr lists outputs, resolutions, and refresh rates."
+    },
+    {
+      "cmd": "wlr-randr --output DP-1 --mode 2560x1440@60",
+      "desc": "Set a Wayland output mode",
+      "tooltip": "This configures the DP-1 output on a wlroots compositor, with the mode given as width, height, and refresh rate joined by an at sign. The @60 sets the hertz; omitting it keeps the current rate. Add --scale 1.5 for HiDPI scaling."
+    },
+    {
+      "cmd": "pactl info",
+      "desc": "Show PulseAudio server information",
+      "tooltip": "pactl talks to the PulseAudio sound server, and info prints the server version, default sink, and default source. PulseAudio is the classic Linux sound daemon, now often bridged to PipeWire. The default sink name here is what set-default-sink expects."
+    },
+    {
+      "cmd": "pactl list sinks short",
+      "desc": "List audio output devices",
+      "tooltip": "A sink is an audio output device, and the short form prints a terse table of sinks with names and states, perfect for scripting. The first column contains the full names used by set-default-sink. Drop short for the verbose per-sink detail dump."
+    },
+    {
+      "cmd": "pactl set-sink-volume @DEFAULT_SINK@ 80%",
+      "desc": "Set the default output volume",
+      "tooltip": "The @DEFAULT_SINK@ token stands for whatever sink is currently the default, and 80% sets the volume as a percentage. Volumes also accept linear factors like 0.8 or decibel values. A leading plus or minus adjusts relative to the current level."
+    },
+    {
+      "cmd": "pactl set-default-sink alsa_output.pci-0000_00_1f.3.analog-stereo",
+      "desc": "Change the default audio output",
+      "tooltip": "This makes the named ALSA sink the default, so new playback streams route there. The exact sink name comes from pactl list sinks short. Switching between speakers and headphones is the classic use."
+    },
+    {
+      "cmd": "pactl load-module module-null-sink sink_name=test",
+      "desc": "Create a virtual audio device",
+      "tooltip": "module-null-sink creates a virtual sink that accepts audio but plays nothing, useful for recording application output or routing experiments. The command prints the new module's numeric index, which unload-module expects. Remove it with pactl unload-module followed by that index."
+    },
+    {
+      "cmd": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+      "desc": "Toggle mute on the default output",
+      "tooltip": "This flips the mute state of the default sink between muted and unmuted, the command-line version of the volume menu's mute button. The third argument also accepts 1 for mute and 0 for unmute. The change is immediate for all streams on that sink."
+    },
+    {
+      "cmd": "pw-cli info all",
+      "desc": "Dump all PipeWire objects",
+      "tooltip": "pw-cli is the low-level admin console for PipeWire, the modern audio and video server on most desktops. info all prints every global object with its properties, from devices to link nodes. The output is dense, so grep for a specific interface type."
+    },
+    {
+      "cmd": "pw-cli ls Node",
+      "desc": "List PipeWire nodes",
+      "tooltip": "The ls command lists objects, and filtering by the Node interface shows audio devices, virtual sinks, and streams. Each entry carries an object id used by other pw-cli commands. PipeWire nodes are the building blocks of the audio graph."
+    },
+    {
+      "cmd": "pw-dump | jq -r '.[] | select(.type == \"PipeWire:Interface:Node\") | .info.props[\"node.name\"]'",
+      "desc": "List PipeWire node names as JSON",
+      "tooltip": "pw-dump prints the entire PipeWire state as JSON, and the jq filter extracts just the node.name property of every Node object. This is the script-friendly way to enumerate audio devices. The same dump feeds any jq query for graph inspection."
+    },
+    {
+      "cmd": "wpctl status",
+      "desc": "Show WirePlumber device graph",
+      "tooltip": "wpctl is the control tool for WirePlumber, the session manager that wires PipeWire devices together. status prints the audio graph with sinks, sources, and their default markers. The numbered ids shown here are what set-volume and friends accept."
+    },
+    {
+      "cmd": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.8",
+      "desc": "Set the default sink volume",
+      "tooltip": "This sets the default audio sink's volume to 0.8, meaning 80 percent, and @DEFAULT_AUDIO_SINK@ is the magic name for the current default. The value accepts fractions, percentages like 80%, and relative adjustments with a plus or minus. The same command works with a numeric sink id."
+    },
+    {
+      "cmd": "wpctl get-volume @DEFAULT_AUDIO_SINK@",
+      "desc": "Read the default sink volume",
+      "tooltip": "get-volume prints the current volume of the default sink, such as Volume: 0.80. It is the quick sanity check before scripting volume changes. The id argument can be the magic default name or any sink id from wpctl status."
+    },
+    {
+      "cmd": "systemctl --user status pipewire",
+      "desc": "Check a user service status",
+      "tooltip": "The --user flag targets the per-user systemd instance instead of the system-wide one, so this checks the PipeWire service running under your session. User services live in ~/.config/systemd/user and start at login. Status shows active or failed plus recent log lines."
+    },
+    {
+      "cmd": "systemctl --user restart pipewire",
+      "desc": "Restart a user service",
+      "tooltip": "This restarts the PipeWire service inside your user session, picking up config changes without a reboot. Restarting audio services briefly cuts sound and can reset volume levels. The same pattern manages any user unit, from syncthing to podman socket activation."
+    },
+    {
+      "cmd": "journalctl --user -u pipewire -n 20",
+      "desc": "Show recent logs for a user service",
+      "tooltip": "journalctl --user restricts the log view to your session's services, and -u pipewire filters to that unit while -n 20 keeps the last twenty lines. This is the first stop when a desktop service misbehaves. Add -f to follow new messages live."
+    },
+    {
+      "cmd": "flatpak info org.gimp.GIMP",
+      "desc": "Show details of an installed Flatpak",
+      "tooltip": "Flatpak distributes sandboxed apps identified by reverse-DNS ids like org.gimp.GIMP, and info prints the installed version, origin remote, and runtime. The runtime line shows which shared platform the app depends on. Compare with flatpak list for a summary table."
+    },
+    {
+      "cmd": "flatpak ps",
+      "desc": "List running Flatpak applications",
+      "tooltip": "flatpak ps shows every Flatpak app currently running, with its instance id and application id. The instance id is what flatpak kill expects. If nothing is listed, no sandboxed apps are open."
+    },
+    {
+      "cmd": "flatpak uninstall --unused",
+      "desc": "Remove unused Flatpak runtimes",
+      "tooltip": "Runtimes are the shared dependency platforms that Flatpak apps are built against, and this removes every runtime no installed app needs anymore. It is the single best disk-space reclaim for Flatpak systems. The command lists what it would remove and asks before deleting."
+    },
+    {
+      "cmd": "flatpak kill org.gimp.GIMP",
+      "desc": "Stop a running Flatpak app",
+      "tooltip": "This politely terminates the running GIMP instance managed by Flatpak, equivalent to closing the app normally. Unlike killing the process tree by hand, it goes through the sandbox instance. Use flatpak ps to confirm the app is actually running first."
+    },
+    {
+      "cmd": "snap services",
+      "desc": "List snap service status",
+      "tooltip": "Snaps can bundle background daemons, and snap services prints each one with its startup setting and current state. Service names follow the snap name, like nextcloud.nextcloud-cron. Control them with snap start, stop, and restart."
+    },
+    {
+      "cmd": "snap changes",
+      "desc": "Show snap task history",
+      "tooltip": "snap changes lists every snap operation with an id, status, and timestamp, from installs to refreshes. A long-running change can be followed with snap change followed by its id. Failed changes show a red error status worth investigating."
+    },
+    {
+      "cmd": "snap set system refresh.retain=2",
+      "desc": "Keep only two snap revisions",
+      "tooltip": "This tells snapd to keep just two revisions of each snap, down from the default three, freeing disk space on snap-heavy systems. Older revisions are what snap revert rolls back to, so a smaller retain window means fewer rollback options. Read the current value with snap get system refresh.retain."
+    },
+    {
+      "cmd": "snap get system refresh.retain",
+      "desc": "Read a snap system setting",
+      "tooltip": "snap get reads configuration keys from the snapd store, and this prints the current refresh.retain value. It confirms whether a snap set change actually took effect. Other useful keys live under the refresh and proxy namespaces."
+    },
+    {
+      "cmd": "sudo update-alternatives --set editor /usr/bin/nano",
+      "desc": "Force a default alternative",
+      "tooltip": "update-alternatives manages symlink groups where several programs compete, like the editor group pointing /etc/alternatives/editor at one binary. The --set form pins the choice non-interactively, ideal for scripts and image builds. List the group's candidates with --list first."
+    },
+    {
+      "cmd": "sudo update-alternatives --auto editor",
+      "desc": "Restore automatic alternative selection",
+      "tooltip": "The --auto flag returns the editor group to automatic mode, where the alternative with the highest priority wins. This undoes a manual --set choice and lets package upgrades re-decide the default. Automatic status shows as auto in --display output."
+    },
+    {
+      "cmd": "sudo update-alternatives --config editor",
+      "desc": "Pick an alternative interactively",
+      "tooltip": "--config shows a numbered menu of every candidate in the editor group and applies the one you choose. It is the interactive counterpart to --set. The menu also reveals the current selection and each candidate's priority."
+    },
+    {
+      "cmd": "update-alternatives --list editor",
+      "desc": "List candidates for an alternative",
+      "tooltip": "--list prints every binary registered in the editor group, one path per line, without needing root. It is the read-only way to see what a --config menu would offer. Each entry is a real executable registered via --install."
+    },
+    {
+      "cmd": "sudo adduser alice",
+      "desc": "Create a user interactively",
+      "tooltip": "adduser is the friendly Debian wrapper around useradd, prompting for a password and full name as it creates the account. It also builds the home directory and copies in the default skeleton files. The interactive prompts can be skipped with flags like --disabled-password."
+    },
+    {
+      "cmd": "sudo adduser alice sudo",
+      "desc": "Add an existing user to a group",
+      "tooltip": "The adduser USER GROUP form adds an existing user to an existing group, here granting alice sudo privileges. The user must log out and back in for the new group to take effect. It is the interactive equivalent of usermod -aG."
+    },
+    {
+      "cmd": "sudo adduser --disabled-password --comment '' alice",
+      "desc": "Create a user without a password",
+      "tooltip": "The --disabled-password flag creates the account with no password, so it cannot log in interactively until one is set, and --comment '' skips the full-name prompt. This is the standard recipe for service accounts. Lock it down further with --shell /usr/sbin/nologin."
+    },
+    {
+      "cmd": "sudo deluser alice",
+      "desc": "Delete a user account",
+      "tooltip": "deluser removes alice's account but leaves her home directory and files on disk. Remove those too with deluser --remove-home, or --remove-all-files for files owned elsewhere. Back up anything needed first, since group memberships and ownership records are gone for good."
+    },
+    {
+      "cmd": "sudo deluser --remove-home alice",
+      "desc": "Delete a user and their home directory",
+      "tooltip": "The --remove-home flag deletes the account and its home directory together, freeing the disk space immediately. This is irreversible, so confirm nothing important lives in /home/alice first. For a full sweep add --remove-all-files to catch files owned in other directories."
+    },
+    {
+      "cmd": "sudo groupadd developers",
+      "desc": "Create a new group",
+      "tooltip": "A group is a named set of users that shares permissions, and groupadd creates one, here developers. The system assigns the next free GID automatically. Assign users to it with usermod -aG or adduser USER GROUP."
+    },
+    {
+      "cmd": "sudo groupadd -g 1500 developers",
+      "desc": "Create a group with a fixed GID",
+      "tooltip": "The -g flag pins the group's GID to 1500 instead of letting the system choose, useful when NFS or config files expect a specific number. Check existing GIDs with getent group first to avoid collisions. The same -g flag works for useradd."
+    },
+    {
+      "cmd": "getent group developers",
+      "desc": "Look up a group in NSS",
+      "tooltip": "getent queries the NSS (name service switch) databases that back user and group lookups, so this shows the developers group's GID and members. It sees accounts from /etc/passwd, LDAP, and NIS alike. Use it to verify a groupadd or usermod took effect."
+    },
+    {
+      "cmd": "getent services ssh",
+      "desc": "Look up a service port in NSS",
+      "tooltip": "The services database maps service names to port numbers, so this prints ssh 22/tcp. getent services is the reliable way to look up standard ports without guessing. The same getent command works on passwd, group, and hosts entries."
+    },
+    {
+      "cmd": "sudo chage -d 0 alice",
+      "desc": "Force a password change at next login",
+      "tooltip": "chage manages password aging, and -d 0 sets the last-change date to the epoch, so alice must set a new password on her next login. It is the standard way to expire a password immediately. Peek at the full aging policy with chage -l alice."
+    },
+    {
+      "cmd": "sudo passwd -S alice",
+      "desc": "Show a user's password status",
+      "tooltip": "The -S flag prints the account's password status: L for locked, P for a usable password, and NP for no password at all. The output also shows the last change date and aging policy. Use it before locking or unlocking accounts to see where they stand."
+    },
+    {
+      "cmd": "sudo usermod -aG developers alice",
+      "desc": "Add a user to a group",
+      "tooltip": "usermod -aG appends alice to the developers group, and the -a flag is essential because plain -G replaces her entire group list. New group membership needs a fresh login to apply. Verify with groups alice or getent group developers."
+    },
+    {
+      "cmd": "sudo usermod -s /usr/sbin/nologin alice",
+      "desc": "Disable shell login for a user",
+      "tooltip": "Setting the login shell to nologin means alice cannot open an interactive shell, though her other services and file access keep working. This is the clean way to lock down a service account without deleting it. Reverse it with usermod -s /bin/bash alice."
+    },
+    {
+      "cmd": "sudo usermod -c 'Alice Smith' alice",
+      "desc": "Set a user's GECOS comment",
+      "tooltip": "The GECOS field holds the account's real name and contact info, and -c sets it, here to Alice Smith. This is what finger and some login screens display. Quote the value so spaces survive the shell."
+    },
+    {
+      "cmd": "useradd -D",
+      "desc": "Show default useradd settings",
+      "tooltip": "The -D flag prints the defaults useradd applies to new accounts: base home directory, default shell, skeleton, and expiry policy. These defaults live in /etc/default/useradd. Root can override individual defaults with useradd -D -s /bin/bash."
+    },
+    {
+      "cmd": "sudo useradd -r -s /usr/sbin/nologin svc-backup",
+      "desc": "Create a system service account",
+      "tooltip": "The -r flag creates a system account with a UID below 1000, and -s /usr/sbin/nologin blocks interactive login, the standard recipe for daemons. System accounts skip the normal home directory creation unless -m is added. Use adduser for interactive human accounts instead."
+    },
+    {
+      "cmd": "sudo lastb",
+      "desc": "Show failed login attempts",
+      "tooltip": "lastb reads /var/log/btmp and lists failed login attempts with usernames and source addresses, so it is the first stop when investigating break-in attempts. Reading btmp needs root, hence sudo. The output can be noisy, so pipe it through sort uniq -c to spot brute-force patterns."
+    },
+    {
+      "cmd": "last -x",
+      "desc": "Show shutdown and runlevel records",
+      "tooltip": "The -x flag adds system shutdown, reboot, and runlevel-change entries to last's usual login listing. It reconstructs the machine's boot and power history at a glance. Combine with last reboot to isolate just the reboot events."
+    },
+    {
+      "cmd": "w alice",
+      "desc": "Show one user's sessions and activity",
+      "tooltip": "w with a username limits the report to that user's sessions, showing login time, idle duration, and the command each terminal runs. The WHAT column reveals whether alice is idle or actively working. Bare w covers everyone logged in."
+    },
+    {
+      "cmd": "loginctl show-session 2 -p State",
+      "desc": "Show one property of a session",
+      "tooltip": "loginctl talks to systemd-logind, the session manager, and show-session prints properties of session 2. The -p State filter limits output to that one property, here whether the session is active. Find session numbers with loginctl list-sessions."
+    },
+    {
+      "cmd": "sudo loginctl terminate-user alice",
+      "desc": "End all sessions of a user",
+      "tooltip": "This force-ends every login session alice has, killing her processes and discarding unsaved work. It is the systemd-native way to log a user out, stronger than just closing terminals. Check what she runs with w or ps -u alice first."
+    },
+    {
+      "cmd": "loginctl list-users",
+      "desc": "List logged-in users",
+      "tooltip": "list-users shows every user with an active session, their UID, and whether linger is enabled. Linger lets services keep running after logout. The user list pairs with loginctl list-sessions to map sessions to users."
+    },
+    {
+      "cmd": "loginctl lock-session",
+      "desc": "Lock the current session screen",
+      "tooltip": "This asks systemd-logind to lock the session, triggering the configured screen locker immediately. It is the command-line equivalent of the Super+L shortcut. No argument locks the caller's own session; a session id targets a specific one."
+    },
+    {
+      "cmd": "timedatectl list-timezones | grep -i madrid",
+      "desc": "Search the timezone database",
+      "tooltip": "timedatectl list-timezones dumps every IANA timezone name, and the grep filters it down to matches like Europe/Madrid. Timezone names are region/city pairs that avoid the ambiguities of UTC offsets. Feed the exact result to timedatectl set-timezone."
+    },
+    {
+      "cmd": "sudo localectl set-locale LANG=es_ES.UTF-8",
+      "desc": "Change the system locale",
+      "tooltip": "The locale controls language, date formats, and character encoding for system services, and this sets the primary LANG to Spanish. New sessions inherit the change while running ones keep their old locale. The locale must exist in localectl list-locales or it will be rejected."
+    },
+    {
+      "cmd": "localectl list-locales | grep es_ES",
+      "desc": "List installed locales",
+      "tooltip": "list-locales prints every locale the system can actually use, and the grep filters for the Spanish ones. Only locales shown here can be selected with set-locale. Generate missing ones with locale-gen or dpkg-reconfigure locales."
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+{
+  "category": "Listmonk & Newsletters",
+  "commands": [
+    {
+      "cmd": "listmonk --version",
+      "desc": "Show the installed listmonk build version",
+      "tooltip": "Prints the version string of the compiled binary, for example 6.2.0. Run it right after downloading a release to confirm the file is intact and to match the version against release notes before upgrading. The same flag works inside a container via `docker compose exec app ./listmonk --version`."
+    },
+    {
+      "cmd": "listmonk --new-config",
+      "desc": "Generate a sample config.toml for a new install",
+      "tooltip": "Writes a fully commented config.toml sample into the current directory. The file holds the database connection, app address, and SMTP settings, where SMTP is the mail-sending protocol listmonk uses to deliver campaigns. Edit it before the first run, then launch listmonk with the same --config path."
+    },
+    {
+      "cmd": "listmonk --new-config --config /etc/listmonk/config.toml",
+      "desc": "Generate a sample config file at a custom path",
+      "tooltip": "Combines --new-config with --config so the sample lands at the path you will actually use, which suits packaged installs where /etc/listmonk is the config directory. The directory must already exist and be writable. Run `listmonk --install` afterwards to create the database schema."
+    },
+    {
+      "cmd": "listmonk --config config.toml",
+      "desc": "Start the listmonk server with an explicit config file",
+      "tooltip": "Launches the web app, API, and campaign scheduler using the given TOML file. The flag is repeatable and multiple files are merged in order, so you can layer a base config with environment-specific overrides. config.toml is already the default, so pass the flag explicitly when running from another directory."
+    },
+    {
+      "cmd": "LISTMONK_db__host=localhost LISTMONK_db__user=listmonk LISTMONK_db__password=listmonk LISTMONK_db__database=listmonk listmonk --config ''",
+      "desc": "Start listmonk configured entirely by environment variables",
+      "tooltip": "Every config.toml key maps to an env var with the LISTMONK_ prefix and double underscores for dots, so db.host becomes LISTMONK_db__host. Passing --config '' disables file config and makes environment variables the only source. This is exactly how the official docker-compose.yml configures the container."
+    },
+    {
+      "cmd": "listmonk --install",
+      "desc": "Create the listmonk database schema on first run",
+      "tooltip": "Connects to Postgres using the current config and creates all tables, indexes, and materialized views; Postgres 12 or newer is required. Run it once against an empty database, since re-running against an existing schema errors out. The Super Admin account is created on the first visit to the admin UI, or in advance via the LISTMONK_ADMIN_USER and LISTMONK_ADMIN_PASSWORD environment variables."
+    },
+    {
+      "cmd": "listmonk --install --idempotent --yes",
+      "desc": "Install the schema only when the database is not set up",
+      "tooltip": "--idempotent makes the install skip silently when the database already contains the schema, and --yes answers the confirmation prompts automatically. This combination is exactly what the official Docker entrypoint runs so that container restarts never re-create an existing database."
+    },
+    {
+      "cmd": "listmonk --upgrade --yes --config config.toml",
+      "desc": "Run database migrations after upgrading the binary",
+      "tooltip": "Applies any pending schema migrations to bring an existing database in line with the new binary version. Upgrades are idempotent, so running them repeatedly has no side effects. Always back up the Postgres database before upgrading listmonk itself, as release notes warn."
+    },
+    {
+      "cmd": "LISTMONK_ADMIN_USER=admin LISTMONK_ADMIN_PASSWORD=change-me-now ./listmonk --install",
+      "desc": "Create the Super Admin account during install via env vars",
+      "tooltip": "LISTMONK_ADMIN_USER and LISTMONK_ADMIN_PASSWORD seed the Super Admin login while the schema is installed, skipping the interactive setup page. The values are honored only on the very first installation. Swap the example password for a strong one before running."
+    },
+    {
+      "cmd": "listmonk --passive",
+      "desc": "Run listmonk without processing campaign sends",
+      "tooltip": "Starts the server and admin UI but disables the campaign scheduler, so queued campaigns are not sent and subscribers are not processed. Useful for maintenance windows, upgrades, or when you only need the API. The log line 'running in passive mode' confirms the flag took effect."
+    },
+    {
+      "cmd": "listmonk --static-dir /etc/listmonk/static",
+      "desc": "Serve static assets from an external directory",
+      "tooltip": "Points the embedded file system at a directory holding email templates and public assets, overriding the files bundled inside the binary. Needed when the binary is installed somewhere the assets are not, such as /usr/bin. The packaged systemd unit uses this flag."
+    },
+    {
+      "cmd": "listmonk > listmonk.log",
+      "desc": "Write listmonk logs to a file instead of stdout",
+      "tooltip": "listmonk logs to standard output only, so redirecting into a file preserves history across restarts; the admin UI Logs page only keeps the last 1000 lines in memory. Append 2>&1 to also capture error output. Rotate the file with logrotate to avoid unbounded growth."
+    },
+    {
+      "cmd": "curl -sSL https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_linux_amd64.tar.gz | tar xz",
+      "desc": "Download and extract the listmonk release binary",
+      "tooltip": "Fetches the prebuilt amd64 tarball from GitHub Releases and extracts the listmonk binary into the current directory. Pick the arm64 asset on ARM servers. Compare the sha256 checksums listed on the release page against the downloaded file before running the binary."
+    },
+    {
+      "cmd": "curl -O https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml",
+      "desc": "Fetch the official listmonk docker-compose file",
+      "tooltip": "Downloads the maintained compose file that defines the app service, a Postgres 17 database, and the shared network. Customize the LISTMONK_* environment and port mapping before starting it. The recommended Docker install path is compose rather than a bare docker run."
+    },
+    {
+      "cmd": "git clone git@github.com:knadh/listmonk.git",
+      "desc": "Clone the listmonk source repository over SSH",
+      "tooltip": "Fetches the master branch for building from source or contributing. The project is a single Go binary with a Vue frontend. Requires an SSH key registered on GitHub; use the https URL instead if you have no key configured."
+    },
+    {
+      "cmd": "make dist",
+      "desc": "Compile the listmonk binary from source",
+      "tooltip": "Runs the Makefile target that builds the production binary into the repo root after compiling the frontend. Requires go, nodejs, and yarn on the PATH. Run it inside the cloned repository; the resulting ./listmonk is self-contained with assets embedded."
+    },
+    {
+      "cmd": "docker run -d --name listmonk -p 9000:9000 -e LISTMONK_db__host=localhost -e LISTMONK_db__user=listmonk -e LISTMONK_db__password=listmonk -e LISTMONK_db__database=listmonk -v listmonk_uploads:/listmonk/uploads listmonk/listmonk:latest",
+      "desc": "Run the listmonk container on port 9000",
+      "tooltip": "Starts the listmonk/listmonk:latest image detached with the admin UI exposed on port 9000. The LISTMONK_db__* variables point at an existing Postgres, and the named volume keeps uploaded media across container replacements. A bare container cannot reach a database on the host's localhost unless run with --network host; the official compose stack wires app and database together instead."
+    },
+    {
+      "cmd": "docker run --rm -it -e LISTMONK_db__host=db -e LISTMONK_db__user=listmonk -e LISTMONK_db__password=listmonk -e LISTMONK_db__database=listmonk listmonk/listmonk:latest --install --idempotent --yes --config ''",
+      "desc": "Install the schema from inside a fresh container",
+      "tooltip": "Runs the listmonk image once to create the database schema, using environment variables for the connection and --config '' to skip file config. --idempotent and --yes make the run non-interactive and safe to repeat. The official compose file performs this automatically on first start."
+    },
+    {
+      "cmd": "docker compose exec app ./listmonk --version",
+      "desc": "Show the listmonk version inside the container",
+      "tooltip": "Executes the binary inside the running app service of the official compose stack and prints its version. Handy for confirming the deployed image matches a release. The service is named app in docker-compose.yml while its container is listmonk_app."
+    },
+    {
+      "cmd": "docker compose exec db psql -U listmonk -d listmonk -c 'SELECT count(*) FROM subscribers;'",
+      "desc": "Count subscribers through the database container",
+      "tooltip": "Runs psql inside the Postgres service of the compose stack against the listmonk database. A quick way to verify data made it in after an import. Use `docker compose exec db pg_dump` for backups from inside the stack."
+    },
+    {
+      "cmd": "docker compose exec db pg_dump -U listmonk -Fc listmonk > listmonk-backup.dump",
+      "desc": "Back up the listmonk database from the container",
+      "tooltip": "Runs pg_dump inside the db service and writes a compressed custom-format dump to the host shell, keeping the backup off the container filesystem. The -Fc custom format compresses well and restores with pg_restore. Replay it with `docker compose exec db pg_restore -U listmonk -d listmonk < listmonk-backup.dump`."
+    },
+    {
+      "cmd": "sudo docker compose stop ; sudo docker compose up",
+      "desc": "Restart the compose stack after config changes",
+      "tooltip": "The docs-recommended way to apply time zone, volume, or media-upload changes to the compose stack: stop the services, then bring them up again with the new settings. Note the semicolon runs the second command regardless of the first one's result. sudo is only needed when Docker requires root on your host."
+    },
+    {
+      "cmd": "docker volume ls | grep listmonk",
+      "desc": "List the Docker volumes created for listmonk",
+      "tooltip": "Filters docker volume ls for listmonk volumes such as listmonk_listmonk-data, which holds the Postgres data directory. Compose prefixes declared volume names with the project directory name. Find the host path of one with `docker volume inspect <name>`."
+    },
+    {
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c '\\dt'",
+      "desc": "List all tables in the listmonk database",
+      "tooltip": "Shows the tables listmonk manages: subscribers, lists, subscriber_lists, campaigns, campaign_views, link_clicks, bounces, templates, and settings. Use \\d <table> for column details. You need the postgres client installed and the listmonk role credentials."
+    },
+    {
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c 'SELECT count(*) FROM subscribers;'",
+      "desc": "Count total subscribers in the database",
+      "tooltip": "Returns the number of rows in the subscribers table, the ground truth for audience size regardless of dashboard caching. Filter by status by adding WHERE status = 'enabled' to exclude blocklisted or disabled addresses."
+    },
+    {
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c \"SELECT count(*) FROM campaigns WHERE status = 'running';\"",
+      "desc": "Count campaigns currently in the running state",
+      "tooltip": "Queries the campaigns table for rows whose status is 'running'; the full status enum is draft, scheduled, running, paused, cancelled, finished. Useful to confirm a stuck campaign before restarting the app. The outer double quotes keep the single quotes for SQL intact."
+    },
+    {
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c \"SELECT l.name, count(sl.subscriber_id) FROM lists l LEFT JOIN subscriber_lists sl ON sl.list_id = l.id GROUP BY l.name;\"",
+      "desc": "Show subscriber counts for every list",
+      "tooltip": "Joins the lists and subscriber_lists tables to report how many subscribers each list holds, including lists with zero members via the LEFT JOIN. A subscriber counts once per list they are attached to. Confirm the numbers against the dashboard list stats when in doubt."
+    },
+    {
+      "cmd": "pg_dump -h localhost -U listmonk listmonk > listmonk-backup.sql",
+      "desc": "Dump the listmonk database to a plain SQL file",
+      "tooltip": "Exports the whole schema and data as SQL statements that psql can replay, taking a consistent snapshot automatically. Plain format is easy to inspect and grep but larger and slower than custom format. Keep the dump off the same disk as the database when possible."
+    },
+    {
+      "cmd": "pg_dump -h localhost -U listmonk -Fc listmonk > listmonk-backup.dump",
+      "desc": "Back up listmonk in compressed custom format",
+      "tooltip": "The -Fc custom format compresses the dump, preserves object metadata, and supports selective restore with pg_restore. Restore with `pg_restore -h localhost -U listmonk -d listmonk listmonk-backup.dump`. Pair it with a rotation scheme since nightly backups accumulate."
+    },
+    {
+      "cmd": "psql -h localhost -U listmonk -d listmonk < listmonk-backup.sql",
+      "desc": "Restore a listmonk backup from a SQL dump",
+      "tooltip": "Feeds the plain-format dump produced by pg_dump back into the database, recreating schema and data. The database must exist and the target should be empty, otherwise you will hit duplicate-key errors. Stop the listmonk app during the restore so it does not write concurrently."
+    },
+    {
+      "cmd": "pg_restore -h localhost -U listmonk -d listmonk listmonk-backup.dump",
+      "desc": "Restore a custom-format listmonk backup",
+      "tooltip": "Replays a -Fc dump into the database, re-creating tables and rows in dependency order. Add --clean --if-exists to drop existing objects first for a full overwrite. Requires the target database to exist; create it with `createdb -h localhost -U listmonk listmonk` if needed."
+    },
+    {
+      "cmd": "curl http://localhost:9000/api/health",
+      "desc": "Check the listmonk API health endpoint",
+      "tooltip": "Returns a JSON payload whenever the API server is up, and needs no credentials, so it is ideal for uptime monitors. The admin frontend pings this route on load. A 200 response with a data key means the app is serving requests."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/dashboard/counts",
+      "desc": "Fetch the dashboard summary statistics",
+      "tooltip": "Returns subscriber, list, and campaign counts served from materialized views like mat_dashboard_counts, which refresh periodically so the numbers lag slightly. The companion endpoint /api/dashboard/charts provides the click and view series. Credentials are the API user token created under Admin -> Users, or the legacy admin_username and admin_password from config.toml."
+    },
+    {
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/subscribers?page=1&per_page=100'",
+      "desc": "List subscribers with pagination via the API",
+      "tooltip": "Queries the first 100 subscribers with their status, attributes, and list memberships. page and per_page control paging, set per_page=all for everything, and repeat list_id parameters to filter by list. Quote the URL so the shell does not treat & as a background operator."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/lists?status=active",
+      "desc": "List all active subscriber lists",
+      "tooltip": "Returns lists whose status is active, the ones usable in campaigns and subscription forms. Add minimal=true to skip subscriber counts for faster responses, or status=archived to include hidden lists. Each list carries its optin mode, either single or double."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/lists -H 'Content-Type: application/json' -d '{\"name\":\"Product Updates\",\"type\":\"public\",\"optin\":\"double\"}'",
+      "desc": "Create a new subscriber list via the API",
+      "tooltip": "Creates a list; name, type, and optin are required fields. type public makes it appear on subscription forms while private hides it, and optin double sends a confirmation email that new subscribers must click before they receive campaigns. The response contains the new list id for later calls."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/subscribers -H 'Content-Type: application/json' -d '{\"email\":\"john@example.com\",\"name\":\"John Doe\",\"status\":\"enabled\"}'",
+      "desc": "Create a new subscriber via the API",
+      "tooltip": "Adds a subscriber with the given email and name; email and name are required, status defaults to enabled. Pass lists as an array of list ids to subscribe them immediately. Duplicate emails are rejected, so check for an existing record first or expect a 422 response."
+    },
+    {
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/subscribers/42 -H 'Content-Type: application/json' -d '{\"name\":\"Jane Doe\"}'",
+      "desc": "Update a subscriber's profile via the API",
+      "tooltip": "Updates the subscriber record; the numeric id comes from the database. PATCH on the same endpoint updates only the fields you send, while PUT is the heavier form. Custom profile data lives in the attribs JSON object, for example a city value that campaign templates can reference."
+    },
+    {
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/subscribers/42/blocklist",
+      "desc": "Blocklist a subscriber so they receive no mail",
+      "tooltip": "Flags the subscriber with status blocklisted, and campaigns skip blocklisted addresses entirely. This is the API form of the same action in the admin UI. There is a bulk variant PUT /api/subscribers/blocklist for banning many ids at once."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/subscribers/42/optin",
+      "desc": "Re-send the opt-in confirmation email",
+      "tooltip": "Triggers a fresh optin confirmation message to an unconfirmed subscriber, for example after they ask for a new link or the first one expired. Only meaningful for subscribers on double opt-in lists. The email uses the system optin template."
+    },
+    {
+      "cmd": "curl -u admin:admin -X DELETE 'http://localhost:9000/api/subscribers?id=10&id=11'",
+      "desc": "Delete multiple subscribers by id",
+      "tooltip": "Deletes the named subscriber rows plus their list memberships, bounce records, and tracking data via cascade. Repeat the id parameter for each target and quote the URL. There is no undo, so dump the affected rows first or use blocklist when you only want to stop mailings."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/subscribers/1/export",
+      "desc": "Export one subscriber's full data profile",
+      "tooltip": "Returns the profile, list subscriptions, campaign views, and link clicks for a single subscriber, which is the data needed to answer GDPR access requests. Private list names are masked as 'Private list' in the export. Combine with the delete endpoint to complete an erasure request."
+    },
+    {
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/campaigns?status=running'",
+      "desc": "List campaigns currently running",
+      "tooltip": "Filters campaigns by status; repeat the parameter for multiple statuses, for example ?status=running&status=paused. Each campaign object includes sent counts, target lists, and its send_at schedule. Add no_body=true to skip message bodies and slim the response."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/campaigns/1/preview",
+      "desc": "Preview a campaign's rendered message",
+      "tooltip": "Renders the campaign body with template placeholders like {{ .Subscriber.FirstName }} filled with sample subscriber data. Use it to check layout and personalization before sending. The response is rendered HTML or plain text depending on the campaign content type."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/campaigns/1/test -H 'Content-Type: application/json' -d '{\"subscribers\":[\"test@example.com\"]}'",
+      "desc": "Send a campaign test to specific email addresses",
+      "tooltip": "Queues a test delivery of campaign 1 to arbitrary recipients, bypassing the campaign's actual list. Include the campaign's full fields when it is still a draft without saved content. Confirm the message renders in a real client before scheduling the real send."
+    },
+    {
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/campaigns/1/status -H 'Content-Type: application/json' -d '{\"status\":\"scheduled\"}'",
+      "desc": "Change a campaign's status via the API",
+      "tooltip": "Moves a campaign between draft, scheduled, running, paused, cancelled, and finished. Set status scheduled together with a send_at timestamp to queue it, or running to start immediately. Pausing a running campaign stops new sends but keeps progress."
+    },
+    {
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/campaigns/analytics/views?id=1&from=2024-08-04&to=2024-08-12'",
+      "desc": "Fetch campaign view counts over a date range",
+      "tooltip": "Returns daily tracking-pixel view counts for campaign 1 between the from and to dates. Swap views for clicks, links, or bounces for the other analytics series. Counts stay empty unless the tracking features are enabled in the privacy settings."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/import/subscribers -F 'params={\"mode\":\"subscribe\",\"delim\":\",\",\"lists\":[1]}' -F 'file=@subs.csv'",
+      "desc": "Bulk import subscribers from a CSV file",
+      "tooltip": "Uploads subs.csv as a multipart form with a params JSON string controlling the import: mode subscribe or blocklist, the CSV delimiter, and the target list ids. The CSV needs email and name columns. Poll GET /api/import/subscribers/logs to watch progress."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/import/subscribers/logs",
+      "desc": "Watch an in-progress subscriber import",
+      "tooltip": "Returns the import log lines, showing each processed file and the final tally once the import finishes. Combine with the status endpoint GET /api/import/subscribers, which reports total, imported, and current status. Poll it after a bulk upload to know when the import completed."
+    },
+    {
+      "cmd": "curl -u admin:admin http://localhost:9000/api/templates",
+      "desc": "List campaign and transactional templates",
+      "tooltip": "Returns all templates with their subject and body source, plus the is_default flag that marks the fallback template. Templates are shared across campaigns, so editing one changes every campaign that references it. The default template is used when a campaign omits template_id."
+    },
+    {
+      "cmd": "curl http://localhost:9000/api/public/lists",
+      "desc": "List public lists without authentication",
+      "tooltip": "Returns name and uuid for every active public list, with no credentials required, so external forms and scripts can build subscription pages. Only lists with type public and status active appear. Post the chosen uuid to POST /api/public/subscription to subscribe someone."
+    },
+    {
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/campaigns -H 'Content-Type: application/json' -d '{\"name\":\"June Newsletter\",\"subject\":\"Hello, world\",\"lists\":[1],\"content_type\":\"richtext\",\"type\":\"regular\"}'",
+      "desc": "Create a campaign draft via the API",
+      "tooltip": "Creates a campaign in draft status; name, subject, lists, content_type, and type are required. A campaign is one newsletter send to the target lists. Add body with template markup and template_id to use a custom template, then test and schedule it before it goes out."
+    }
+  ]
+}

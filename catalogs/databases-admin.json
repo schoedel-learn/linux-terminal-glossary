@@ -1,0 +1,935 @@
+{
+ "category": "Databases & SQL",
+ "commands": [
+  {
+   "cmd": "sudo apt install postgresql postgresql-contrib",
+   "desc": "Install PostgreSQL server with contrib extensions",
+   "tooltip": "Installs the current PostgreSQL major version plus contrib, the package of optional extensions such as pg_stat_statements and uuid-ossp. On Debian and Ubuntu the postgresql metapackage also creates a default cluster named main on port 5432. Pin a version with sudo apt install postgresql-16 instead."
+  },
+  {
+   "cmd": "sudo apt install postgresql-16 postgresql-client-16",
+   "desc": "Pin a specific PostgreSQL major version",
+   "tooltip": "apt treats each PostgreSQL major version as a separate package, so postgresql-16 installs exactly that release and leaves other versions untouched. The matching postgresql-client-16 keeps psql and pg_dump aligned with the server. Check sudo apt-cache policy postgresql-16 to see which releases the distro offers."
+  },
+  {
+   "cmd": "sudo apt install postgresql-client",
+   "desc": "Install only the PostgreSQL client tools",
+   "tooltip": "Pulls psql, pg_dump, pg_restore and the other client utilities without starting a local server, ideal for admin workstations that only connect to remote databases. The client major version may differ from the server; psql warns but generally works. Pin with postgresql-client-16 if you need a specific release."
+  },
+  {
+   "cmd": "sudo pg_ctlcluster 16 main stop",
+   "desc": "Stop the main PostgreSQL 16 cluster",
+   "tooltip": "pg_ctlcluster controls a cluster, Debian's term for the set of databases served by one postmaster; 16 is the major version and main the cluster name. Stopping is graceful: new connections are refused and in-flight transactions finish before the postmaster exits. Run it as root or the cluster owner."
+  },
+  {
+   "cmd": "sudo pg_ctlcluster 16 main restart",
+   "desc": "Restart the main PostgreSQL 16 cluster",
+   "tooltip": "Stops and starts the postmaster, which drops every client connection and replays the write-ahead log (WAL) on startup. Needed for parameters that cannot be applied by reload, such as shared_buffers. Prefer sudo systemctl reload postgresql for configuration-only changes."
+  },
+  {
+   "cmd": "sudo pg_ctlcluster 16 main status",
+   "desc": "Show status of the main PostgreSQL 16 cluster",
+   "tooltip": "Prints whether the cluster is online or down plus its data directory and log file. A quick health check before debugging connection failures. Use pg_lsclusters to see every cluster on the host at once."
+  },
+  {
+   "cmd": "sudo pg_ctlcluster 16 main reload",
+   "desc": "Reload PostgreSQL config without restart",
+   "tooltip": "Sends SIGHUP so the postmaster rereads postgresql.conf and pg_hba.conf without dropping connections. Most parameter changes take effect this way; a few still demand a restart. Equivalent to SELECT pg_reload_conf()."
+  },
+  {
+   "cmd": "sudo pg_ctlcluster 16 main promote",
+   "desc": "Promote a standby cluster to primary",
+   "tooltip": "Switches a standby cluster into the primary role so it accepts writes, the manual failover step in a streaming-replication setup. Only promote a standby that has caught up, and do not let the old primary reconnect afterwards or the two servers will diverge. Confirm role with SELECT pg_is_in_recovery()."
+  },
+  {
+   "cmd": "sudo pg_createcluster 16 mycluster --start",
+   "desc": "Create a new PostgreSQL cluster and start it",
+   "tooltip": "Creates a fresh cluster, meaning its own postmaster, data directory under /var/lib/postgresql/16, and set of databases, then boots it with --start. It takes the next free port, normally 5433, because main owns 5432. Handy for an isolated test instance; pg_dropcluster removes it."
+  },
+  {
+   "cmd": "sudo pg_dropcluster 16 mycluster",
+   "desc": "Delete a PostgreSQL cluster and its data",
+   "tooltip": "Removes the cluster's data directory and every database inside it with no confirmation and no trash bin. Stop the cluster first or pass --stop to drop a running one. Back up with pg_dumpall before dropping anything that might matter."
+  },
+  {
+   "cmd": "sudo pg_upgradecluster 15 main",
+   "desc": "Upgrade a cluster to the newest installed major version",
+   "tooltip": "Migrates the 15 main cluster to the newest major version package present, say 16, copying configuration and moving the new cluster onto the original port while the old one steps aside. Run it after installing the newer postgresql-NN package. The old cluster remains until you drop it, which gives a rollback path."
+  },
+  {
+   "cmd": "sudo systemctl enable --now postgresql",
+   "desc": "Start PostgreSQL now and at every boot",
+   "tooltip": "enable --now does two things at once: enable registers the unit to start at boot and start launches it immediately. The postgresql unit starts every configured cluster. Related: sudo systemctl disable --now postgresql stops it and removes it from boot."
+  },
+  {
+   "cmd": "sudo systemctl status postgresql",
+   "desc": "Show PostgreSQL service status",
+   "tooltip": "Reports whether the postgresql unit is active, the postmaster process IDs, and the newest log lines. The exit code is nonzero when the service is down, which makes it usable in scripts. Add --no-pager for cron and CI output."
+  },
+  {
+   "cmd": "sudo systemctl restart postgresql",
+   "desc": "Restart PostgreSQL after config changes",
+   "tooltip": "Cycles the whole service, stopping and starting every cluster and dropping all client connections. Use it after editing postgresql.conf parameters flagged as requiring a restart. For pg_hba.conf or reloadable tuning, sudo systemctl reload postgresql is less disruptive."
+  },
+  {
+   "cmd": "sudo systemctl reload postgresql",
+   "desc": "Reload PostgreSQL config via systemd",
+   "tooltip": "Sends SIGHUP so the postmaster rereads postgresql.conf and pg_hba.conf without interrupting clients. The standard step after changing authentication rules or reloadable parameters. Confirm the reload in the PostgreSQL log."
+  },
+  {
+   "cmd": "sudo -u postgres psql -d postgres -c 'SELECT version();'",
+   "desc": "Query as the postgres superuser",
+   "tooltip": "sudo -u postgres switches to the OS user that owns the cluster, so peer authentication admits you as the postgres superuser without a password. -d postgres targets the maintenance database and -c runs a single statement. The standard entry point before application roles exist."
+  },
+  {
+   "cmd": "sudo -u postgres createuser -P app",
+   "desc": "Create a PostgreSQL role with password prompt",
+   "tooltip": "createuser wraps CREATE ROLE; -P prompts for the new role's password. Roles are cluster-wide, not per-database. Add --superuser, --createdb, or --login to grant extra attributes. Related: sudo -u postgres dropuser app."
+  },
+  {
+   "cmd": "sudo -u postgres createdb -O app appdb",
+   "desc": "Create a database owned by an app role",
+   "tooltip": "-O app makes that role the owner, so it can create objects in the database without further grants. Without -O the owner is the user running createdb, usually postgres. Equivalent to psql -c \"CREATE DATABASE appdb OWNER app;\""
+  },
+  {
+   "cmd": "sudo -u postgres dropdb appdb",
+   "desc": "Delete a PostgreSQL database",
+   "tooltip": "Drops the database and all of its tables and data, with no confirmation prompt. Active connections to it must be closed first or the drop fails; DROP DATABASE ... WITH (FORCE) via psql terminates them automatically. Double-check the name before running."
+  },
+  {
+   "cmd": "sudo -u postgres dropuser app",
+   "desc": "Delete a PostgreSQL role",
+   "tooltip": "Removes the role from the cluster, failing first if it still owns objects or holds grants. Clean those up with DROP OWNED BY app beforehand. Applications logging in as that role lose access immediately."
+  },
+  {
+   "cmd": "psql -U app -h 127.0.0.1 -d appdb",
+   "desc": "Connect to PostgreSQL via TCP as a user",
+   "tooltip": "-U names the role, -d the database, and -h 127.0.0.1 forces a TCP connection rather than the Unix socket, exercising pg_hba.conf host rules and password authentication. psql prompts for the password. Add -p 5433 for a non-default port."
+  },
+  {
+   "cmd": "PGPASSWORD=secret psql -U app -h localhost appdb",
+   "desc": "Connect to PostgreSQL with an inline password",
+   "tooltip": "PGPASSWORD supplies the password inline so scripts run non-interactively, but the value leaks through ps output and shell history. Prefer a ~/.pgpass file or PGPASSFILE for anything important. psql then connects as app to appdb over localhost."
+  },
+  {
+   "cmd": "psql 'postgresql://app:secret@localhost:5432/appdb'",
+   "desc": "Connect to PostgreSQL with a connection URI",
+   "tooltip": "The postgresql:// URI packs user, password, host, port, and database into one argument that libpq parses, so pg_dump and other tools accept the same string. The password is visible in process listings; fine for local development, avoid in production scripts."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\dt'",
+   "desc": "List tables in the current schema",
+   "tooltip": "\\dt is a psql meta-command, not SQL: it queries the catalog and lists user tables in the current schema. Add a pattern like \\dt orders* to filter. Related: \\d+ users for full structure, \\di for indexes."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\d+ users'",
+   "desc": "Show detailed structure of one table",
+   "tooltip": "The plus sign asks psql for the verbose form: column names, types, defaults, constraints, indexes, and the table's physical size. The best first stop when you need the exact schema before writing queries or migrations."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\l'",
+   "desc": "List all PostgreSQL databases",
+   "tooltip": "Lists every database with its owner, encoding, and access privileges by querying pg_database. Add + for sizes. Same output as \\list. Related: \\du for roles."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\du'",
+   "desc": "List PostgreSQL roles and attributes",
+   "tooltip": "Shows each role from pg_roles with its superuser, createdb, and login flags. Use \\du+ for more detail. A quick audit of who can do what before handing out grants."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\conninfo'",
+   "desc": "Show current connection details",
+   "tooltip": "Prints user, database, host, port, and whether the session uses a Unix socket or TCP. The fastest way to confirm which server you actually reached when proxies or multiple clusters are involved."
+  },
+  {
+   "cmd": "psql -d appdb -c '\\dn'",
+   "desc": "List schemas in the current database",
+   "tooltip": "Lists schemas from pg_namespace, usually public plus system schemas like pg_catalog and information_schema. Schema access requires USAGE privilege, so inspect \\dn when grants seem to have no effect."
+  },
+  {
+   "cmd": "psql -d appdb -x -c 'SELECT * FROM users;'",
+   "desc": "Query with one column per line",
+   "tooltip": "-x enables expanded output so wide rows print one column per line instead of wrapping. Much easier to read for tables with many columns or long text values. The \\x meta-command toggles the same behavior interactively."
+  },
+  {
+   "cmd": "psql -d postgres -c \"CREATE USER app WITH PASSWORD 'secret';\"",
+   "desc": "Create a login role with a password",
+   "tooltip": "Creates a login-capable role, the PostgreSQL term for a user, with the given password, stored hashed in pg_authid. Prefer a long random secret over demo values. sudo -u postgres createuser -P app does the same from the shell."
+  },
+  {
+   "cmd": "psql -d postgres -c \"CREATE DATABASE appdb OWNER app;\"",
+   "desc": "Create a database owned by an app role",
+   "tooltip": "Creates a new database and makes app its owner so that role can create objects without extra privileges. A cluster can hold many databases, each isolated from the others. Related: sudo -u postgres createdb -O app appdb."
+  },
+  {
+   "cmd": "psql -d postgres -c \"GRANT ALL PRIVILEGES ON DATABASE appdb TO app;\"",
+   "desc": "Grant all privileges on a database",
+   "tooltip": "Grants every database-level privilege: connect, create, and temporary. It does not cover tables inside the database, which need separate GRANTs on the schema and tables. Audit with psql -c '\\l' or pg_database queries."
+  },
+  {
+   "cmd": "psql -d appdb -c \"GRANT USAGE ON SCHEMA public TO app;\"",
+   "desc": "Let a role use the public schema",
+   "tooltip": "USAGE lets the role see and enter the schema, the prerequisite for touching anything in it. On modern PostgreSQL the public schema is no longer open to everyone by default. Usually paired with a table-level GRANT."
+  },
+  {
+   "cmd": "psql -d appdb -c \"GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app;\"",
+   "desc": "Grant DML on all current tables",
+   "tooltip": "Grants the four DML privileges on every table that exists right now in public. It does not cover tables created later; pair with ALTER DEFAULT PRIVILEGES for those. REVOKE ALL ... ON ALL TABLES undoes it."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO app;\"",
+   "desc": "Grant privileges on future tables",
+   "tooltip": "Sets privileges that apply automatically to tables created later, solving the classic new-tables-are-invisible problem. The default applies to objects created by the current role, so run it as the schema owner."
+  },
+  {
+   "cmd": "psql -d postgres -c \"ALTER USER app WITH SUPERUSER;\"",
+   "desc": "Make a role a superuser",
+   "tooltip": "Promotes the role to superuser, which bypasses every privilege check in the cluster: it can read all data and drop anything. Grant it only to roles you trust completely. Prefer targeted grants for application roles."
+  },
+  {
+   "cmd": "psql -d postgres -c \"ALTER USER app PASSWORD 'newpass';\"",
+   "desc": "Change a role's password",
+   "tooltip": "Changes the role's password, taking effect immediately for new logins; existing sessions keep running. Wrap the new value in single quotes inside the SQL string, or use \\password interactively to avoid typing it in plain sight."
+  },
+  {
+   "cmd": "psql -d postgres -c \"DROP DATABASE appdb WITH (FORCE);\"",
+   "desc": "Drop a database and its connections",
+   "tooltip": "Drops the database and every object and row in it, terminating any remaining connections first thanks to WITH (FORCE), new in PostgreSQL 13. There is no undo, so back up with pg_dump before running it on anything real."
+  },
+  {
+   "cmd": "psql -d postgres -c \"DROP USER app;\"",
+   "desc": "Drop a role",
+   "tooltip": "Removes the role; it fails while the role owns objects or holds privileges, so clean those up first with DROP OWNED BY app. Applications using the role lose access instantly. Memberships granted to the role also block the drop."
+  },
+  {
+   "cmd": "psql -d postgres -c \"REASSIGN OWNED BY app TO postgres;\"",
+   "desc": "Transfer object ownership before a role drop",
+   "tooltip": "Moves ownership of every object the role owns to postgres, the usual prelude to dropping a role without losing its databases and tables. Follow with DROP OWNED BY to clear the remaining privileges."
+  },
+  {
+   "cmd": "psql -d postgres -c \"DROP OWNED BY app;\"",
+   "desc": "Drop everything a role owns",
+   "tooltip": "Deletes every object owned by the role in the current database and revokes its privileges, preparing a clean DROP USER. Irreversible: tables, views, and sequences owned by the role are removed. Run it in each database where the role owns things."
+  },
+  {
+   "cmd": "psql -d postgres -c \"SELECT pg_size_pretty(pg_database_size('appdb'));\"",
+   "desc": "Show the size of one database",
+   "tooltip": "pg_database_size returns the bytes a database occupies on disk; pg_size_pretty formats it as 123 MB. The database must exist or the query errors. Compare databases by joining pg_database."
+  },
+  {
+   "cmd": "psql -d postgres -c \"SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database ORDER BY pg_database_size(datname) DESC;\"",
+   "desc": "Rank databases by size",
+   "tooltip": "Ranks every database by size, largest first, in one pass over pg_database. template0 always appears; it is the pristine template and should stay untouched. A good first query when disk usage surprises you."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pg_size_pretty(pg_total_relation_size('users'));\"",
+   "desc": "Show table size including indexes",
+   "tooltip": "pg_total_relation_size adds the table's heap, its TOAST table, and all indexes, giving the true footprint. Use pg_relation_size for the heap alone or pg_indexes_size for indexes alone. Names are case-sensitive if quoted at creation."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pg_size_pretty(pg_indexes_size('users'));\"",
+   "desc": "Show total index size of a table",
+   "tooltip": "Sums the bytes used by every index on the table, excluding the table data itself. Compare it with the table size to judge whether indexes are bloated; REINDEX shrinks them. Per-index sizes come from pg_indexes."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT * FROM pg_stat_activity WHERE state = 'active';\"",
+   "desc": "Show running queries",
+   "tooltip": "pg_stat_activity is the live view of every backend; filtering on state = 'active' isolates queries currently executing. Columns include pid, usename, query, and how long the query has run. The starting point for almost any stuck-database investigation."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pid, query FROM pg_stat_activity WHERE state = 'active';\"",
+   "desc": "Show active query process IDs",
+   "tooltip": "Narrows pg_stat_activity to the process ID and SQL text of running queries, compact enough to eyeball during an incident. Combine with SELECT pg_terminate_backend(pid) to kill the offender."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pg_terminate_backend(12345);\"",
+   "desc": "Kill a backend connection",
+   "tooltip": "Forcefully ends the backend with the given pid, rolling back its current transaction and dropping its connection. Take the pid from pg_stat_activity. Prefer pg_cancel_backend when the query might still finish."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pg_cancel_backend(12345);\"",
+   "desc": "Cancel a running query",
+   "tooltip": "Requests cancellation of the query running on backend 12345, leaving the session itself connected; the query aborts with canceling statement due to user request. Softer than pg_terminate_backend, which drops the whole connection."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pid, pg_blocking_pids(pid) FROM pg_stat_activity;\"",
+   "desc": "Find which sessions block others",
+   "tooltip": "For every backend, pg_blocking_pids returns the pids currently blocking it, empty when none. The classic way to find who holds the lock everyone is waiting on. Follow up by inspecting those pids' queries in pg_stat_activity."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT * FROM pg_locks WHERE NOT granted;\"",
+   "desc": "Show locks waiting to be granted",
+   "tooltip": "pg_locks lists every lock in the cluster; rows with NOT granted are requests still waiting for another session to release a lock. Match on the same relation and lock type to find the holder, then decide whether to cancel or terminate it."
+  },
+  {
+   "cmd": "psql -d appdb -c \"VACUUM;\"",
+   "desc": "Reclaim dead rows in all tables",
+   "tooltip": "Removes dead rows and updates the visibility map so space becomes reusable; the manual counterpart of autovacuum, the background process that reclaims bloat automatically. Cheap and safe to run during quiet hours; it does not lock tables."
+  },
+  {
+   "cmd": "psql -d appdb -c \"VACUUM (VERBOSE) users;\"",
+   "desc": "Vacuum one table verbosely",
+   "tooltip": "Vacuuming a single table with VERBOSE prints how many dead tuples were removed, which pages were freed, and the timing. Great for verifying autovacuum keeps up on a hot table. The parenthesized syntax is the modern form of VACUUM VERBOSE."
+  },
+  {
+   "cmd": "psql -d appdb -c \"VACUUM FULL users;\"",
+   "desc": "Rewrite a table to compact it",
+   "tooltip": "Rewrites the table into a compact form and returns space to the operating system, unlike plain VACUUM. It takes an exclusive lock for the whole run, blocking reads and writes on that table, so schedule it in a maintenance window."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ANALYZE;\"",
+   "desc": "Refresh planner statistics for all tables",
+   "tooltip": "Updates the planner statistics for every table, helping the optimizer choose sane plans. Cheap, non-blocking, and safe to run anytime. Autovacuum also runs analyze on its own schedule."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ANALYZE users;\"",
+   "desc": "Refresh statistics for one table",
+   "tooltip": "Updates statistics for one table only, useful right after a bulk load or a large UPDATE before you re-run EXPLAIN. Statistics power row-count estimates; stale ones cause bad index choices."
+  },
+  {
+   "cmd": "psql -d appdb -c \"REINDEX TABLE users;\"",
+   "desc": "Rebuild all indexes of a table",
+   "tooltip": "Rebuilds every index on the table from scratch, removing bloat and updating statistics. Plain REINDEX takes a lock that blocks writes; CONCURRENTLY avoids that but runs slower. Consider it after heavy deletes or a failed index build."
+  },
+  {
+   "cmd": "psql -d appdb -c \"REINDEX DATABASE appdb;\"",
+   "desc": "Rebuild every index in a database",
+   "tooltip": "Rebuilds all indexes in the database, the full sweep after a major version change or serious bloat. It takes locks per relation as it goes; REINDEX DATABASE CONCURRENTLY avoids blocking writes."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables ORDER BY n_dead_tup DESC;\"",
+   "desc": "Rank tables by dead tuples",
+   "tooltip": "Ranks user tables by dead tuples, the rows awaiting cleanup by autovacuum. A table with a huge dead count is a candidate for manual VACUUM and ANALYZE. Statistics are approximate until refreshed."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT indexname, pg_size_pretty(pg_relation_size(indexrelid)) FROM pg_indexes WHERE tablename = 'users';\"",
+   "desc": "Show index sizes for one table",
+   "tooltip": "pg_indexes joins index names to their catalog OIDs, letting pg_relation_size report each index's footprint. Spot oversized or duplicate indexes before deciding what to drop."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SHOW work_mem;\"",
+   "desc": "Show the current work_mem setting",
+   "tooltip": "work_mem is the per-sort and per-hash memory budget; small values force temporary files on disk, and the default is 4 MB. SHOW prints the effective value for your session, considering the whole configuration hierarchy."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SHOW max_connections;\"",
+   "desc": "Show the configured connection limit",
+   "tooltip": "max_connections caps concurrent backends for the whole cluster; exceeding it rejects new logins with sorry, too many clients. Raising it costs shared memory and needs a restart. Compare with connection counts from pg_stat_activity."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT name, setting FROM pg_settings WHERE name LIKE 'autovacuum%';\"",
+   "desc": "Inspect autovacuum settings",
+   "tooltip": "pg_settings holds every run-time parameter; filtering on autovacuum% reveals the tunables (threshold, scale factor, workers) and their current values. Autovacuum is the background process that reclaims dead rows automatically. Override per table with ALTER TABLE SET (autovacuum_vacuum_threshold = ...)."
+  },
+  {
+   "cmd": "psql -d postgres -c \"ALTER SYSTEM SET work_mem = '64MB';\"",
+   "desc": "Set work_mem cluster-wide",
+   "tooltip": "Writes the setting into postgresql.auto.conf, which overrides postgresql.conf, so no file editing is needed. Requires superuser. Most parameters apply after a reload, not instantly. ALTER SYSTEM RESET removes the override."
+  },
+  {
+   "cmd": "psql -d postgres -c \"ALTER SYSTEM SET max_connections = '200';\"",
+   "desc": "Raise the cluster-wide connection limit",
+   "tooltip": "Sets max_connections via postgresql.auto.conf. This parameter needs a full restart to take effect because shared memory is sized at startup. After restarting, confirm with SHOW max_connections."
+  },
+  {
+   "cmd": "psql -d postgres -c \"SELECT pg_reload_conf();\"",
+   "desc": "Reload configuration without restart",
+   "tooltip": "Signals the postmaster to reread configuration files and returns true when the signal was sent. Existing sessions pick up most changes; a few parameters still require a restart. Equivalent to sudo systemctl reload postgresql."
+  },
+  {
+   "cmd": "psql -d appdb -c \"EXPLAIN SELECT * FROM users WHERE email = 'a@b.com';\"",
+   "desc": "Show a query plan without running it",
+   "tooltip": "Prints the plan the optimizer would use: scan type, estimated rows, and cost. Add ANALYZE to execute the query and show actual numbers. Plans are the first tool for index decisions."
+  },
+  {
+   "cmd": "psql -d appdb -c \"EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM orders WHERE user_id = 7;\"",
+   "desc": "Execute a query and show real costs",
+   "tooltip": "Runs the query and reports actual timings plus buffer reads, revealing whether data came from cache or disk; BUFFERS adds the shared-hit and shared-read counts. The standard diagnostic for slow queries."
+  },
+  {
+   "cmd": "psql -d appdb -c \"EXPLAIN ANALYZE SELECT * FROM users WHERE id = 1;\"",
+   "desc": "Plan and execute a query",
+   "tooltip": "EXPLAIN ANALYZE is valid shorthand for EXPLAIN (ANALYZE) and executes the statement to collect real timings and row counts. Use it on SELECTs in production; on write statements it really modifies data."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CREATE INDEX idx_users_email ON users (email);\"",
+   "desc": "Create an index on a column",
+   "tooltip": "Builds a btree index on the email column so equality lookups skip full scans. Indexes speed reads but slow writes and consume disk, so create them for real query patterns. Check usage in pg_stat_user_indexes."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CREATE UNIQUE INDEX idx_users_email_unique ON users (email);\"",
+   "desc": "Create a unique index",
+   "tooltip": "Creates an index that also enforces uniqueness: a second row with the same email is rejected, exactly like a UNIQUE constraint. Duplicates in existing data make the creation fail, so dedupe first."
+  },
+  {
+   "cmd": "psql -d appdb -c \"DROP INDEX idx_users_email;\"",
+   "desc": "Remove an index",
+   "tooltip": "Removes the index and frees its space; queries fall back to other indexes or sequential scans. Dropping a unique index also lifts the uniqueness guarantee. Keep a migration record so it can be recreated."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CREATE INDEX idx_orders_user ON orders (user_id) WHERE status = 'open';\"",
+   "desc": "Create a partial index",
+   "tooltip": "A partial index covers only rows matching the WHERE clause, so it is smaller and cheaper to maintain when most queries target open orders. The planner uses it when the query's conditions imply the predicate."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CREATE TABLE IF NOT EXISTS users (id serial PRIMARY KEY, email text UNIQUE);\"",
+   "desc": "Create a table only if missing",
+   "tooltip": "serial makes an auto-incrementing integer column, PRIMARY KEY adds a unique index, and UNIQUE forbids duplicate emails. IF NOT EXISTS silently skips when the table is already there. Useful in idempotent setup scripts."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ALTER TABLE users ADD COLUMN age int;\"",
+   "desc": "Add a column to a table",
+   "tooltip": "Adds an age column; existing rows get NULL. In modern PostgreSQL, adding a column with a constant default is nearly instant because no rewrite happens. Dropping it later is also cheap."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ALTER TABLE users DROP COLUMN age;\"",
+   "desc": "Remove a column from a table",
+   "tooltip": "Deletes the column and its data; any views or queries referencing it break until updated. The freed space is reclaimed lazily by VACUUM. There is no undo without a prior backup."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ALTER TABLE users RENAME TO members;\"",
+   "desc": "Rename a table",
+   "tooltip": "Renames the table; dependent views and functions are not automatically updated and may need ALTER. Existing indexes keep their names. Run it in a quiet window to avoid breaking running queries."
+  },
+  {
+   "cmd": "psql -d appdb -c \"ALTER TABLE users ALTER COLUMN email SET NOT NULL;\"",
+   "desc": "Enforce NOT NULL on a column",
+   "tooltip": "Forbids NULL values in email from now on. PostgreSQL verifies existing rows and may rewrite the table, so test on large tables. DROP NOT NULL reverses the constraint."
+  },
+  {
+   "cmd": "psql -d appdb -c \"TRUNCATE TABLE users RESTART IDENTITY;\"",
+   "desc": "Empty a table and reset its sequence",
+   "tooltip": "Empties the table instantly and, with RESTART IDENTITY, resets its serial sequence to 1. TRUNCATE is not undoable once committed and fires no per-row triggers. Use DELETE when you need fine-grained control."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CHECKPOINT;\"",
+   "desc": "Force a write-ahead log checkpoint",
+   "tooltip": "Forces the postmaster to flush all dirty buffers to disk and advance the write-ahead log (WAL), normally done on its own schedule. A forced checkpoint shortens recovery time before a planned shutdown."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT pg_is_in_recovery();\"",
+   "desc": "Check if this server is a standby",
+   "tooltip": "Returns true on a standby replaying WAL and false on a primary that accepts writes. The quickest way to confirm a node's role before promoting or failing over."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT * FROM pg_stat_replication;\"",
+   "desc": "Show replication status to standbys",
+   "tooltip": "Lists each standby, its WAL receive position, and lag against the primary. Empty output on a standalone server is normal. Watch the lag columns to confirm standbys are keeping up."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT datname, age(datfrozenxid) FROM pg_database;\"",
+   "desc": "Check transaction ID age per database",
+   "tooltip": "age() reports how many transactions elapsed since the database's frozen XID, the wraparound counter. Values approaching two billion force emergency autovacuum; below about one billion is the alerting zone. The oldest database drives the whole cluster's vacuum load."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT * FROM pg_stat_database WHERE datname = 'appdb';\"",
+   "desc": "Show per-database activity counters",
+   "tooltip": "Reports commits, rollbacks, cache hit ratio, deadlocks, and XID age for one database. A low blks_hit ratio hints at a small shared_buffers. The main dashboard table for capacity work."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT * FROM pg_stat_user_tables WHERE relname = 'users';\"",
+   "desc": "Show per-table scan and tuple stats",
+   "tooltip": "Per-table counters: sequential and index scans, tuples inserted, updated, deleted, and the last vacuum and analyze timestamps. seq_scan far above idx_scan hints at a missing index."
+  },
+  {
+   "cmd": "psql -d appdb -c \"CREATE EXTENSION IF NOT EXISTS pg_stat_statements;\"",
+   "desc": "Enable the statement statistics extension",
+   "tooltip": "Installs pg_stat_statements, which records every executed statement with cumulative timings. To survive restarts it must also be listed in shared_preload_libraries in postgresql.conf. Requires superuser."
+  },
+  {
+   "cmd": "psql -d appdb -c \"SELECT query, total_exec_time FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 10;\"",
+   "desc": "Rank the slowest statements",
+   "tooltip": "Lists the ten statements that consumed the most server time; total_exec_time accumulates since the extension loaded. The standard first step in a query-tuning project. Requires the pg_stat_statements extension."
+  },
+  {
+   "cmd": "psql -d appdb -c \"\\copy users TO '/tmp/users.csv' DELIMITER ',' CSV HEADER\"",
+   "desc": "Export a table to a CSV file",
+   "tooltip": "psql's \\copy runs on the client side and writes the CSV to the local filesystem, unlike COPY, which writes on the server. CSV mode handles quoting and HEADER emits a header row. A quick way to hand data to a spreadsheet."
+  },
+  {
+   "cmd": "psql -d appdb -c \"\\copy users FROM '/tmp/users.csv' DELIMITER ',' CSV HEADER\"",
+   "desc": "Import a CSV file into a table",
+   "tooltip": "Loads the CSV into the users table, matching columns by order, not name; the header row is skipped. An error aborts the whole import. Use COPY ... FROM for files that live on the server."
+  },
+  {
+   "cmd": "vacuumdb -d appdb",
+   "desc": "Vacuum a database from the shell",
+   "tooltip": "vacuumdb is the command-line wrapper for VACUUM, useful in cron jobs. Dead rows are removed so space can be reused, mirroring what autovacuum does in the background. Add --verbose to see per-table results."
+  },
+  {
+   "cmd": "vacuumdb --analyze -d appdb",
+   "desc": "Vacuum and analyze a database",
+   "tooltip": "Combines VACUUM with ANALYZE so dead rows are reclaimed and planner statistics refreshed in one pass. The recommended routine maintenance cycle. Add --all to cover every database."
+  },
+  {
+   "cmd": "vacuumdb --all -v",
+   "desc": "Vacuum every database verbosely",
+   "tooltip": "Processes all databases on the cluster with per-table progress output thanks to -v. Watch for tables that repeatedly report many dead tuples, a sign their autovacuum settings need tuning. Requires a superuser or the maintenance role."
+  },
+  {
+   "cmd": "vacuumdb -d appdb --full",
+   "desc": "Fully vacuum a database",
+   "tooltip": "Runs VACUUM FULL, which rewrites every table to compact it and return space to the OS. It takes exclusive locks on each table, blocking reads and writes, so run it in a maintenance window. Plain vacuumdb is safe anytime."
+  },
+  {
+   "cmd": "reindexdb -d appdb",
+   "desc": "Reindex a database from the shell",
+   "tooltip": "reindexdb wraps REINDEX for scripted maintenance, rebuilding indexes that grew bloated after heavy updates or deletes. Plain mode locks writes; --concurrently avoids that but runs slower and can fail midway."
+  },
+  {
+   "cmd": "reindexdb --all",
+   "desc": "Reindex all databases",
+   "tooltip": "Rebuilds every index in every database on the cluster, the full sweep after a major upgrade or serious bloat. It locks each relation briefly as it works. Prefer --concurrently on a live system."
+  },
+  {
+   "cmd": "pg_dump -U app -d appdb -Fc -f appdb.dump",
+   "desc": "Back up a database in custom format",
+   "tooltip": "-Fc writes the compressed custom format, which supports selective restore and parallel restore, unlike plain SQL dumps. -f names the output file. Restore with pg_restore; the dump is not readable as text."
+  },
+  {
+   "cmd": "pg_restore -U app -d appdb -j 4 appdb.dump",
+   "desc": "Restore a dump with parallel workers",
+   "tooltip": "Restores a custom-format dump using four concurrent jobs with -j, which can speed up large restores substantially. The target database must exist first. Parallel restore cannot reorder dependent objects, so it may fail on some dumps; retry with -j 1."
+  },
+  {
+   "cmd": "pg_restore -U app -d appdb --clean --if-exists appdb.dump",
+   "desc": "Restore after dropping existing objects",
+   "tooltip": "--clean drops each object before recreating it so the restore overwrites the current database; --if-exists suppresses errors for objects that are missing. Destructive to existing data, so point it at the right database. Combine with --no-owner to avoid ownership errors."
+  },
+  {
+   "cmd": "pg_dumpall -U postgres > all.sql",
+   "desc": "Dump all databases and cluster globals",
+   "tooltip": "pg_dumpall produces one SQL script containing every database plus cluster-wide objects: roles, tablespaces, and global settings. Use it for full-cluster backups or before pg_dropcluster. Restore by piping into psql as a superuser."
+  },
+  {
+   "cmd": "pg_dump -U app -d appdb -t users -Fc -f users.dump",
+   "desc": "Back up a single table",
+   "tooltip": "-t users dumps only that table, handy for moving one relation between environments. Repeat -t for several tables. Custom format keeps the restore flexible."
+  },
+  {
+   "cmd": "pg_basebackup -h 127.0.0.1 -U replicator -D /var/lib/postgresql/16/standby -X stream -P",
+   "desc": "Take a base backup for a standby",
+   "tooltip": "Copies the whole data directory from the primary with -X stream fetching WAL as it goes, the foundation of a streaming-replica setup. -P shows progress. The replicator role needs the replication privilege in pg_hba.conf."
+  },
+  {
+   "cmd": "pg_isready -h 127.0.0.1 -p 5432",
+   "desc": "Test if PostgreSQL accepts connections",
+   "tooltip": "Exits 0 when the server accepts connections and nonzero otherwise, so it fits monitoring scripts and load balancer checks. Use -U to also verify a specific role, or -d to check database reachability."
+  },
+  {
+   "cmd": "sudo apt install mysql-client",
+   "desc": "Install only the MySQL client tools",
+   "tooltip": "Installs mysql, mysqldump, mysqladmin, and mysqlcheck without the server, right for admin machines that manage remote databases. Debian and Ubuntu name the metapackage mysql-client. The client works against MariaDB servers too."
+  },
+  {
+   "cmd": "sudo systemctl enable --now mysql",
+   "desc": "Start MySQL now and at every boot",
+   "tooltip": "enable --now starts the MySQL service immediately and registers it to start at boot. The unit is named mysql on Debian and Ubuntu, mysqld on some other distributions. Confirm with sudo systemctl status mysql."
+  },
+  {
+   "cmd": "sudo systemctl status mysql",
+   "desc": "Show MySQL service status",
+   "tooltip": "Reports whether the mysql unit is active, the mysqld process IDs, and recent log lines. A nonzero exit code when the service is down makes it script-friendly. Use --no-pager for cron and CI."
+  },
+  {
+   "cmd": "sudo mysql -u root",
+   "desc": "Connect to MySQL as root via auth socket",
+   "tooltip": "On Debian and Ubuntu the root account authenticates through the unix_socket plugin, so sudo mysql -u root logs in without a password. Use this to bootstrap a password for root. On other systems root may need -p."
+  },
+  {
+   "cmd": "mysql -u app -p appdb",
+   "desc": "Connect to a MySQL database interactively",
+   "tooltip": "Connects as app to the appdb database; -p prompts for the password. Once inside, run SQL statements or backslash commands like SHOW DATABASES. Add -h for a remote host and -P for a non-default port."
+  },
+  {
+   "cmd": "mysql -u app -p -e 'SHOW DATABASES;'",
+   "desc": "List databases non-interactively",
+   "tooltip": "-e executes the statement and returns to the shell, ideal for scripts. SHOW DATABASES lists every database the account can see. Wrap SQL in single quotes so the shell does not interpret it."
+  },
+  {
+   "cmd": "mysql -u app -p appdb -e 'SHOW TABLES;'",
+   "desc": "List tables in a database",
+   "tooltip": "Shows the tables in appdb without entering the interactive shell. Related: -e 'DESCRIBE users;' for columns. The database name comes before -e."
+  },
+  {
+   "cmd": "mysqladmin -u root -p status",
+   "desc": "Show MySQL uptime and load",
+   "tooltip": "mysqladmin status prints uptime, thread count, queries per second, and open-table numbers in one line. A quick health snapshot for scripts. Related: mysqladmin ping for a pure alive check."
+  },
+  {
+   "cmd": "mysqladmin -u root -p ping",
+   "desc": "Check whether MySQL responds",
+   "tooltip": "Prints mysqld is alive and exits 0 when the server answers, making it the standard health probe for monitoring and failover scripts. Add -h to target a remote host."
+  },
+  {
+   "cmd": "mysqladmin -u root -p processlist",
+   "desc": "Show active MySQL threads",
+   "tooltip": "Lists running client connections with their current statement, useful for spotting long queries and lock holders. The SQL equivalent is SHOW PROCESSLIST. Add --verbose for more detail."
+  },
+  {
+   "cmd": "mysqladmin -u root -p shutdown",
+   "desc": "Stop the MySQL server",
+   "tooltip": "Shuts down mysqld gracefully, flushing tables and closing connections. Destructive to availability, so announce it before running. The service can be restarted with sudo systemctl start mysql."
+  },
+  {
+   "cmd": "sudo mysql -e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'secret';\"",
+   "desc": "Set a password for the root account",
+   "tooltip": "Switches root to password authentication with the modern caching_sha2_password plugin, the recommended step right after a fresh install. Run it via sudo mysql while socket auth still works. Use a strong password, not the demo value."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"CREATE DATABASE appdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\"",
+   "desc": "Create a database with explicit charset",
+   "tooltip": "utf8mb4 is the full Unicode character set, and utf8mb4_unicode_ci is its accent-insensitive collation; setting both explicitly avoids legacy latin1 defaults. Newer MySQL defaults already use utf8mb4, but being explicit protects MariaDB and older servers."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"CREATE USER 'app'@'localhost' IDENTIFIED BY 'secret';\"",
+   "desc": "Create a MySQL user",
+   "tooltip": "Creates the app account limited to localhost; @'%' would allow any host. The password is hashed automatically. Grants are separate and must be issued afterwards."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"GRANT ALL PRIVILEGES ON appdb.* TO 'app'@'localhost';\"",
+   "desc": "Grant all privileges on one database",
+   "tooltip": "Gives the app user every privilege on appdb's tables and routines but nothing outside that database, a sensible least-privilege shape. Use appdb.* rather than *.* unless the account truly needs everything."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"GRANT SELECT, INSERT, UPDATE, DELETE ON appdb.* TO 'app'@'localhost';\"",
+   "desc": "Grant limited DML privileges",
+   "tooltip": "Restricts the account to the four row-level operations, excluding DDL like DROP and ALTER. Tighten further with column-level grants for sensitive data. REVOKE ALL PRIVILEGES ON appdb.* FROM 'app'@'localhost'; undoes it."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"ALTER USER 'app'@'localhost' IDENTIFIED BY 'newpass';\"",
+   "desc": "Change a MySQL user password",
+   "tooltip": "Updates the password for the app account, taking effect immediately for new logins; existing sessions keep running. Use SET PASSWORD for the current user. The host part must match the account exactly."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"DROP USER 'app'@'localhost';\"",
+   "desc": "Delete a MySQL user",
+   "tooltip": "Removes the account and all of its privileges with no confirmation. Applications using it lose access immediately, so check SHOW GRANTS FOR 'app'@'localhost'; first. Related: DROP DATABASE for the data."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"DROP DATABASE appdb;\"",
+   "desc": "Delete a MySQL database",
+   "tooltip": "Drops the database and every table and row in it, irrevocably. Back up with mysqldump first unless you are certain. No confirmation prompt is offered."
+  },
+  {
+   "cmd": "mysql -u root -p -e 'FLUSH PRIVILEGES;'",
+   "desc": "Reload the grant tables",
+   "tooltip": "Forces MySQL to reread the privilege tables, needed after directly editing mysql.user with DML statements. GRANT and REVOKE take effect immediately on their own, so this is only for manual table edits."
+  },
+  {
+   "cmd": "mysqldump -u app -p appdb > appdb.sql",
+   "desc": "Back up one database to a SQL file",
+   "tooltip": "Dumps appdb as CREATE TABLE and INSERT statements the mysql client can replay. The shell redirect writes the file. Add --single-transaction for a consistent snapshot on InnoDB without locking."
+  },
+  {
+   "cmd": "mysql -u app -p appdb < appdb.sql",
+   "desc": "Restore a database from a SQL file",
+   "tooltip": "Feeds the dump file into the mysql client, which replays every statement. The target database must already exist. Check the file's CREATE DATABASE statements if you want a full rebuild."
+  },
+  {
+   "cmd": "mysqldump --single-transaction --routines --triggers --events appdb > appdb.sql",
+   "desc": "Take a consistent dump with routines",
+   "tooltip": "--single-transaction produces a point-in-time snapshot of InnoDB without locking tables, while --routines, --triggers, and --events include stored procedures, triggers, and scheduled events that plain dumps omit. The standard online backup recipe."
+  },
+  {
+   "cmd": "mysqlcheck -u app -p --check appdb",
+   "desc": "Check tables for corruption",
+   "tooltip": "Runs CHECK TABLE on every table in appdb and reports errors and warnings. Run this before attempting a restore or after a crash. Use --all-databases to cover the whole server."
+  },
+  {
+   "cmd": "mysqlcheck -u app -p --optimize appdb",
+   "desc": "Optimize tables",
+   "tooltip": "Runs OPTIMIZE TABLE, which rebuilds InnoDB tables to reclaim fragmented space, the MySQL analogue of VACUUM FULL. It locks each table, so schedule it in a maintenance window."
+  },
+  {
+   "cmd": "mysqlcheck -u app -p --analyze appdb",
+   "desc": "Update table statistics",
+   "tooltip": "Runs ANALYZE TABLE so the optimizer's row estimates stay fresh after heavy changes. Cheap and non-blocking. Equivalent to ANALYZE TABLE appdb.users for one table."
+  },
+  {
+   "cmd": "mysqlcheck -u app -p --repair appdb",
+   "desc": "Repair damaged tables",
+   "tooltip": "Attempts to fix corrupted MyISAM tables with REPAIR TABLE. InnoDB tables report that repair is not needed or use ALTER TABLE ... FORCE instead. Back up before repairing, and investigate why the table broke."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SELECT table_schema, ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb FROM information_schema.tables GROUP BY table_schema;\"",
+   "desc": "Show the size of every database",
+   "tooltip": "Sums data_length plus index_length from information_schema.tables per schema and formats the total in megabytes. Values are approximate until flushed, but ideal for capacity reviews. Filter with WHERE table_schema NOT IN ('mysql', ...) to hide system schemas."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SELECT table_name, ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb FROM information_schema.tables WHERE table_schema = 'appdb' ORDER BY size_mb DESC;\"",
+   "desc": "Rank tables by size",
+   "tooltip": "Lists appdb's tables with their data plus index footprint, largest first. Spot the tables driving disk growth before deciding what to archive or partition."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SHOW VARIABLES LIKE 'max_connections';\"",
+   "desc": "Show the connection limit",
+   "tooltip": "Reads the max_connections system variable, which caps concurrent client connections. Exceeding it produces too many connections errors. Compare with SHOW STATUS LIKE 'Threads_connected'."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SHOW VARIABLES LIKE 'innodb_buffer_pool_size';\"",
+   "desc": "Show the InnoDB buffer pool size",
+   "tooltip": "The buffer pool is InnoDB's main cache; a small value means heavy disk I/O. The classic sizing rule is 70 to 80 percent of available RAM on dedicated servers. Changing it requires a restart unless resized online."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SET GLOBAL max_connections = 200;\"",
+   "desc": "Raise the connection limit at runtime",
+   "tooltip": "Raises max_connections immediately for new connections, but the change is not persisted and reverts on restart. Use SET PERSIST max_connections = 200 to write it to mysqld-auto.cnf as well."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SHOW ENGINE INNODB STATUS\\G\"",
+   "desc": "Show InnoDB internals",
+   "tooltip": "Prints the InnoDB status report: transactions, lock waits, buffer pool, and I/O activity. The \\G terminator switches to vertical output so the long text is readable. The first stop for deadlock and lock-wait investigations."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SELECT user, host, plugin FROM mysql.user;\"",
+   "desc": "List users with auth plugins",
+   "tooltip": "Shows every account with the host it may connect from and the authentication plugin it uses, including the default root entries. A quick security audit of who can log in and how."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"SHOW GRANTS FOR 'app'@'localhost';\"",
+   "desc": "Show the privileges of one user",
+   "tooltip": "Prints every privilege the app account holds, one GRANT statement per line. The definitive answer to what an account can do before you tighten or hand out permissions."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"OPTIMIZE TABLE appdb.users;\"",
+   "desc": "Rebuild and defragment a table",
+   "tooltip": "Rebuilds the users table, reclaiming fragmented space and refreshing statistics. It locks the table during the rebuild, so run it in a maintenance window. InnoDB tables usually need this only after heavy churn."
+  },
+  {
+   "cmd": "mysql -u root -p -e \"PURGE BINARY LOGS BEFORE NOW() - INTERVAL 7 DAY;\"",
+   "desc": "Delete binary logs older than a week",
+   "tooltip": "Removes binlog files older than seven days, freeing disk on servers that keep binary logging for replication or point-in-time recovery. Only the oldest files are purged; active ones stay. Verify the replica has consumed the logs first, or replication breaks."
+  },
+  {
+   "cmd": "redis-cli INFO server",
+   "desc": "Show Redis server details",
+   "tooltip": "The INFO server section reports the Redis version, process ID, uptime, and configured mode. INFO splits the same data into sections; pick server, persistence, clients, or replication as needed. Useful for verifying which node you reached."
+  },
+  {
+   "cmd": "redis-cli INFO persistence",
+   "desc": "Show RDB and AOF persistence status",
+   "tooltip": "Reports last successful RDB snapshot, AOF enablement and rewrite state, and whether a save is in progress. RDB is Redis's periodic snapshot file and AOF is the append-only log; both are persistence mechanisms. Check this after changing save policies."
+  },
+  {
+   "cmd": "redis-cli INFO replication",
+   "desc": "Show replication role and state",
+   "tooltip": "Lists the node's role (master or slave), connected replicas, and replication offset. A growing master_repl_offset confirms replicas are keeping up. The first check during failover debugging."
+  },
+  {
+   "cmd": "redis-cli INFO clients",
+   "desc": "Show connected client counts",
+   "tooltip": "Reports connected_clients, blocked clients, and the client-limit high-water mark. Pair with CLIENT LIST to see who the clients are. Spikes here often point to connection leaks in applications."
+  },
+  {
+   "cmd": "redis-cli INFO stats",
+   "desc": "Show hit rates and command counters",
+   "tooltip": "Contains total_commands_processed, keyspace hits and misses, and expired keys. The ratio of hits to misses hints whether the cache is effective. Also shows rejected connections."
+  },
+  {
+   "cmd": "redis-cli FLUSHALL ASYNC",
+   "desc": "Delete all keys in every database",
+   "tooltip": "Removes every key on the server instantly; ASYNC defers the work to a background thread so the server stays responsive, but the data is still gone. There is no undo, so this is a last resort or a fresh-environment step."
+  },
+  {
+   "cmd": "redis-cli --scan --pattern 'session:*' --count 100",
+   "desc": "Scan keys matching a pattern",
+   "tooltip": "--scan iterates keys without blocking the server, unlike KEYS, and --count tunes the batch size. session:* matches all keys in that namespace. Feed the output to a script for targeted deletion with DEL."
+  },
+  {
+   "cmd": "redis-cli SLOWLOG GET 10",
+   "desc": "Show the ten slowest commands",
+   "tooltip": "Prints the most recent slow entries: timestamp, duration in microseconds, and the command, as logged by Redis's slowlog, which captures commands over the slowlog-log-slower-than threshold. The first stop when latency climbs."
+  },
+  {
+   "cmd": "redis-cli SLOWLOG RESET",
+   "desc": "Clear the slow command log",
+   "tooltip": "Empties the slowlog so future measurements start from a clean slate, useful before reproducing a latency issue. Only affects the in-memory log, not performance."
+  },
+  {
+   "cmd": "redis-cli CLIENT KILL ID 123",
+   "desc": "Disconnect a client by ID",
+   "tooltip": "Terminates the connection whose ID comes from CLIENT LIST. The client's next command fails and the application reconnects, so use it for stuck or abusive connections. CLIENT KILL supports filters like ADDR and TYPE too."
+  },
+  {
+   "cmd": "redis-cli -a secret --no-auth-warning PING",
+   "desc": "Ping with password without warning",
+   "tooltip": "-a passes the password on the command line, which prints a warning because it leaks via process listings; --no-auth-warning silences it. Prefer REDISCLI_AUTH for scripts. PING returns PONG when the server is reachable and authenticated."
+  },
+  {
+   "cmd": "redis-check-rdb /var/lib/redis/dump.rdb",
+   "desc": "Validate a Redis RDB dump file",
+   "tooltip": "Parses the snapshot file and reports whether the checksum and structure are valid, the check to run after copying a dump between machines. A corrupted file fails loudly instead of being loaded silently. Ships with the redis-server package."
+  },
+  {
+   "cmd": "sudo systemctl enable --now redis-server",
+   "desc": "Start Redis now and at every boot",
+   "tooltip": "enable --now starts the redis-server service immediately and registers it for boot. The unit name is redis-server on Debian and Ubuntu. Verify with sudo systemctl status redis-server."
+  },
+  {
+   "cmd": "sudo systemctl status redis-server",
+   "desc": "Show Redis service status",
+   "tooltip": "Reports whether redis-server is active, its process ID, and recent log lines. Use --no-pager in scripts. The exit code is nonzero when the service is down."
+  },
+  {
+   "cmd": "redis-cli CONFIG GET save",
+   "desc": "Show the RDB snapshot schedule",
+   "tooltip": "Returns the save points that trigger background snapshots, pairs of seconds and change counts. Empty output means snapshots are disabled. CONFIG GET accepts glob patterns, so CONFIG GET max* covers several settings at once."
+  },
+  {
+   "cmd": "redis-cli CONFIG SET maxmemory-policy allkeys-lru",
+   "desc": "Change the eviction policy at runtime",
+   "tooltip": "Sets which keys Redis evicts when maxmemory is reached; allkeys-lru evicts least-recently-used keys from any database. The change is runtime-only until CONFIG REWRITE persists it. Wrong policies can evict important keys, so test first."
+  },
+  {
+   "cmd": "redis-cli CONFIG REWRITE",
+   "desc": "Persist runtime config to redis.conf",
+   "tooltip": "Writes the current effective configuration back to the config file, locking in CONFIG SET changes across restarts. Only parameters that differ from defaults are saved. Requires a writable config file."
+  },
+  {
+   "cmd": "redis-cli SHUTDOWN NOSAVE",
+   "desc": "Stop Redis without saving data",
+   "tooltip": "Shuts the server down immediately and skips the RDB snapshot, discarding any changes since the last save. Destructive to unsaved data, so only for emergency stops. Plain SHUTDOWN or SHUTDOWN SAVE flushes first."
+  },
+  {
+   "cmd": "redis-cli MEMORY USAGE user:1",
+   "desc": "Show memory used by one key",
+   "tooltip": "Returns the bytes a single key occupies, including its value and overhead. Great for finding oversized keys that blow up the memory budget. Add SAMPLES for more precise estimates on big collections."
+  },
+  {
+   "cmd": "redis-cli --rdb /tmp/backup.rdb",
+   "desc": "Download the RDB snapshot to a file",
+   "tooltip": "Triggers a background save and streams the resulting dump.rdb to the local file, giving you a consistent snapshot without touching the server's filesystem. Restore by placing the file in the configured dir and restarting."
+  },
+  {
+   "cmd": "redis-cli MIGRATE 10.0.0.5 6379 user:1 0 5000",
+   "desc": "Move a key to another Redis server",
+   "tooltip": "Transfers the key atomically to the host and port given, database 0, with 5000 milliseconds as the connection timeout. The key is deleted from the source on success. The destination must be reachable and must not already hold the key."
+  },
+  {
+   "cmd": "redis-cli ACL LIST",
+   "desc": "Show all ACL users and rules",
+   "tooltip": "Prints every ACL user with its permission rules, the default user included. ACLs (access control lists) govern which commands and key patterns each user may use. Audit this before opening Redis to the network."
+  },
+  {
+   "cmd": "redis-cli ACL SETUSER app on '>secret' '~app:*' +get +set",
+   "desc": "Create an ACL user with scoped access",
+   "tooltip": "Creates user app, enabled (on), with password secret (>secret), access limited to keys matching app:* (~app:*), and only the GET and SET commands allowed. The quotes stop the shell from interpreting > and *. Revoke with ACL DELUSER."
+  },
+  {
+   "cmd": "redis-cli ACL DELUSER app",
+   "desc": "Delete an ACL user",
+   "tooltip": "Removes the ACL user and its rules; clients authenticated as that user are disconnected on their next command. Keep at least one admin user outside the deletion, or you can lock yourself out."
+  },
+  {
+   "cmd": "sudo systemctl enable --now mongod",
+   "desc": "Start MongoDB now and at every boot",
+   "tooltip": "enable --now starts the mongod service immediately and registers it for boot. The unit name is mongod for MongoDB Community installed from the official repo. Confirm with sudo systemctl status mongod."
+  },
+  {
+   "cmd": "sudo systemctl status mongod",
+   "desc": "Show MongoDB service status",
+   "tooltip": "Reports whether mongod is active, its process ID, and recent log lines. Logs also live in /var/log/mongodb/mongod.log. Use --no-pager in scripts; the exit code is nonzero when the service is down."
+  },
+  {
+   "cmd": "mongosh --eval 'db.runCommand({ping: 1})'",
+   "desc": "Ping MongoDB to test connectivity",
+   "tooltip": "The ping command returns { ok: 1 } when the server is reachable, the standard health probe for mongosh and drivers alike. --eval runs the script and exits. Add --quiet to suppress banner noise in scripts."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.users.find().limit(5)'",
+   "desc": "Query documents from a collection",
+   "tooltip": "Connects to appdb and prints the first five documents of users; .limit(5) caps the output. find() returns a cursor, and mongosh prints up to 20 documents interactively. Add .pretty() for formatted output."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.users.createIndex({email: 1}, {unique: true})'",
+   "desc": "Create a unique index",
+   "tooltip": "Builds an ascending index on email that rejects duplicate values, enforcing uniqueness at the database level. Indexes are created asynchronously; the command returns when the build finishes. Duplicate documents make the build fail."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.stats()'",
+   "desc": "Show database statistics",
+   "tooltip": "Reports data size, index size, document counts, and storage engine for the current database. The admin equivalent is db.adminCommand({dbStats: 1}). A first look at whether a database is growing as expected."
+  },
+  {
+   "cmd": "mongosh --eval 'db.adminCommand({serverStatus: 1})'",
+   "desc": "Show server status and metrics",
+   "tooltip": "Returns uptime, version, connections, memory, and operation counters for the whole server. The main dashboard for capacity and health checks. Requires a user with the hostInfo or serverStatus privilege."
+  },
+  {
+   "cmd": "mongodump --db appdb --out /backups/mongo",
+   "desc": "Back up one database to a directory",
+   "tooltip": "Writes appdb's collections as BSON files under /backups/mongo, the standard logical backup for MongoDB. The dump is consistent per collection; for a fully consistent snapshot use --oplog or a filesystem snapshot. Restore with mongorestore."
+  },
+  {
+   "cmd": "mongodump --db appdb --gzip --archive=/backups/appdb.archive",
+   "desc": "Back up a database to a gzip archive",
+   "tooltip": "--archive writes a single file instead of a directory tree, and --gzip compresses it, cutting backup size dramatically. Restore the archive with mongorestore --gzip --archive=/backups/appdb.archive."
+  },
+  {
+   "cmd": "mongorestore --drop --db appdb /backups/mongo/appdb",
+   "desc": "Restore and replace existing collections",
+   "tooltip": "Loads the BSON files back into appdb; --drop removes each collection before restoring it, so the target mirrors the backup exactly. Destructive to current data, so verify the target database first. Omit --drop to merge."
+  },
+  {
+   "cmd": "mongoexport --db appdb --collection users --out users.json",
+   "desc": "Export a collection to JSON",
+   "tooltip": "Writes the users collection as newline-delimited JSON, ideal for moving data into other systems or archives. mongoexport is part of the database-tools package, separate from mongosh. Import the file back with mongoimport."
+  },
+  {
+   "cmd": "mongoexport --db appdb --collection users --type=csv --fields=email,name --out users.csv",
+   "desc": "Export a collection to CSV",
+   "tooltip": "Exports only the email and name fields as CSV; --fields names the columns and must be supplied for CSV output. Rows with missing fields get empty values. Handy for spreadsheet workflows."
+  },
+  {
+   "cmd": "mongoimport --db appdb --collection users --file users.json",
+   "desc": "Import JSON documents into a collection",
+   "tooltip": "Loads the JSON file into the users collection, creating the collection if needed and inserting documents alongside existing ones. Use --drop to replace the collection first. The file format must match what mongoexport writes."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.users.getIndexes()'",
+   "desc": "List indexes on a collection",
+   "tooltip": "Prints every index on users, including the automatic _id index, with its keys and options. Review this before creating new indexes to avoid duplicates. Related: db.users.dropIndex()."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.users.dropIndex({email: 1})'",
+   "desc": "Drop an index from a collection",
+   "tooltip": "Removes the index on email, freeing space and write overhead. Queries that relied on it fall back to collection scans until a replacement exists. Dropping the _id index is not allowed."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.runCommand({collStats: \"users\"})'",
+   "desc": "Show collection storage statistics",
+   "tooltip": "Reports the collection's size, document count, index sizes, and average object size. Compare with db.stats() for database-level totals. Useful before deciding whether a collection needs compaction."
+  },
+  {
+   "cmd": "mongosh admin --eval 'db.currentOp()'",
+   "desc": "Show operations currently running",
+   "tooltip": "Lists in-progress operations with their IDs, durations, and query shapes, the equivalent of SHOW PROCESSLIST. Filter with db.currentOp({active: true}) to skip idle sessions. Copy an opid to pass to db.killOp()."
+  },
+  {
+   "cmd": "mongosh admin --eval 'db.killOp(12345)'",
+   "desc": "Terminate a running operation",
+   "tooltip": "Kills the operation with the given opid, rolling back its work. Only terminate operations initiated by clients; killing internal operations can destabilize the server. Confirm the opid with db.currentOp() first."
+  },
+  {
+   "cmd": "mongosh appdb --eval 'db.users.explain(\"executionStats\").find({email: \"a@b.com\"})'",
+   "desc": "Explain a query with execution stats",
+   "tooltip": "Runs the query in explain mode and reports the winning plan, documents examined, and execution time. Documents examined far above documents returned usually means a missing index. The core tool for query tuning."
+  },
+  {
+   "cmd": "mongosh --username app --password secret --authenticationDatabase admin appdb",
+   "desc": "Connect with explicit credentials",
+   "tooltip": "Authenticates as app against the admin database, where MongoDB stores user definitions, then connects to appdb. The same flags work for mongodump and mongoexport. Prefer environment variables or a config file over visible passwords."
+  },
+  {
+   "cmd": "mongosh admin --eval 'db.createUser({user: \"app\", pwd: \"secret\", roles: [{role: \"readWrite\", db: \"appdb\"}]})'",
+   "desc": "Create a database user",
+   "tooltip": "Creates user app with the readWrite role scoped to appdb, so it can read and write that database only. Roles are the MongoDB privilege model; add more roles for broader access. The user record lives in admin."
+  },
+  {
+   "cmd": "mongosh admin --eval 'db.dropUser(\"app\")'",
+   "desc": "Delete a database user",
+   "tooltip": "Removes the app user and all of its roles; clients authenticated as it lose access on their next operation. There is no undo, so confirm with db.getUsers() first."
+  }
+ ]
+}

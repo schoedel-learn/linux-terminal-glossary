@@ -1,0 +1,995 @@
+{
+ "category": "Node.js & npm/yarn",
+ "commands": [
+  {
+   "cmd": "npm install --package-lock-only",
+   "desc": "Generate the lockfile without installing packages",
+   "tooltip": "Writes package-lock.json, the file that records the exact resolved version of every dependency, without touching node_modules. Use it to update the lockfile after editing package.json, then commit it so teammates and CI install identical trees. Pair with npm ci to install from that lockfile."
+  },
+  {
+   "cmd": "npm install --no-audit",
+   "desc": "Install dependencies while skipping the audit",
+   "tooltip": "Disables the security vulnerability check npm runs after every install, which speeds up large installs. The audit finds packages with known vulnerabilities, so only skip it when you run npm audit separately or in CI. Combine with --no-fund to silence funding prompts too."
+  },
+  {
+   "cmd": "npm install --no-fund",
+   "desc": "Install dependencies without funding messages",
+   "tooltip": "Stops npm from printing the funding notices that some packages attach to their metadata after install. Useful for keeping CI logs clean. Funding info is still visible via npm fund when you want to support a project."
+  },
+  {
+   "cmd": "npm install --omit=optional",
+   "desc": "Install dependencies without optional packages",
+   "tooltip": "Skips optionalDependencies, the packages that may fail to install on some platforms without breaking the build (platform-specific binaries like esbuild are typical examples). Speeds up installs and avoids errors on unsupported systems. npm install --omit=dev is the sibling form used for production."
+  },
+  {
+   "cmd": "npm install --dry-run",
+   "desc": "Preview an install without changing anything",
+   "tooltip": "Reports what npm would download, add, or remove without writing to node_modules or package.json. The fastest way to check how a dependency change would affect the tree. Pair with --json for machine-readable output."
+  },
+  {
+   "cmd": "npm install --offline",
+   "desc": "Install dependencies from the local cache only",
+   "tooltip": "Forces npm to resolve everything from its cache and fail if any package is missing, instead of hitting the registry. Ideal for air-gapped machines or when the network is flaky. Prime the cache beforehand with npm install --prefer-offline."
+  },
+  {
+   "cmd": "npm install --save-optional esbuild",
+   "desc": "Install a package as an optional dependency",
+   "tooltip": "Adds the package to optionalDependencies in package.json, meaning installs proceed even if it fails to build or download. Optional packages typically supply platform-specific binaries, and the main package falls back to another build. Remove with npm uninstall as usual."
+  },
+  {
+   "cmd": "npm install --save-peer react",
+   "desc": "Install a package as a peer dependency",
+   "tooltip": "Writes the package into peerDependencies, the section that tells consumers which versions of another library your package expects to share. Peer deps are not installed automatically for the package author, only for its users. Common for plugins that must match a host library version."
+  },
+  {
+   "cmd": "npm install -w apps/web",
+   "desc": "Install dependencies for a single workspace",
+   "tooltip": "Runs install scoped to the apps/web workspace only (workspace = one of several packages developed together in a monorepo). The -w flag takes the workspace folder path or package name and must run from the repository root. Omit -w to install every workspace at once."
+  },
+  {
+   "cmd": "npm install --workspaces --include-workspace-root",
+   "desc": "Install all workspaces plus the root package",
+   "tooltip": "Installs dependencies for every workspace in the monorepo and also for the root package, which normally is skipped. The --include-workspace-root flag matters when the root has its own scripts and dev tooling. The reverse, skipping dev dependencies, is npm install --omit=dev."
+  },
+  {
+   "cmd": "npm ci --ignore-scripts",
+   "desc": "Clean install without running lifecycle scripts",
+   "tooltip": "Deletes node_modules and reinstalls from package-lock.json while skipping the postinstall and prepare scripts that packages declare. Lifecycle scripts can compile native code or download binaries, so skipping them yields a faster, safer CI build. npm ci requires a lockfile to exist."
+  },
+  {
+   "cmd": "npm ci --dry-run",
+   "desc": "Preview a clean CI install without changes",
+   "tooltip": "Reports exactly what a clean install would do, including the full dependency tree, without deleting node_modules or downloading anything. Useful to sanity-check a lockfile before committing to a slow CI run. Add --no-audit to silence the vulnerability check."
+  },
+  {
+   "cmd": "npm ls --json",
+   "desc": "List installed packages as JSON",
+   "tooltip": "Prints the dependency tree of the project as machine-readable JSON, including extraneous or missing packages flagged as errors. Handy for scripting or feeding into jq. The tree can be huge, so filter with npm ls --depth=0 or npm ls <package>."
+  },
+  {
+   "cmd": "npm outdated --json",
+   "desc": "Show outdated packages in JSON format",
+   "tooltip": "Reports every dependency whose installed version is behind the latest release, as JSON for scripting. Each entry lists current, wanted, and latest versions, where wanted respects the semver range in package.json. Combine with npm update to apply the changes."
+  },
+  {
+   "cmd": "npm outdated -g",
+   "desc": "Show outdated globally installed packages",
+   "tooltip": "Checks the packages you installed with npm install -g against the registry and lists those with newer releases. Global tools often lag behind because updates are manual. Apply updates with npm update -g."
+  },
+  {
+   "cmd": "npm update -g",
+   "desc": "Update all globally installed packages",
+   "tooltip": "Bumps every globally installed package to the newest version that satisfies its saved range, so command-line tools you installed with npm install -g stay current. Runs the same update logic as the project-level npm update. Review changes with npm outdated -g first."
+  },
+  {
+   "cmd": "npm explain lodash",
+   "desc": "Show why a package is installed",
+   "tooltip": "Traces every dependency path that pulls lodash into the project, from direct dependencies down to transitive ones. Indispensable for deciding whether a package is safe to remove with npm uninstall. npm why is the older alias for the same command."
+  },
+  {
+   "cmd": "npm view lodash version",
+   "desc": "Show the latest version of a package",
+   "tooltip": "Queries the registry for the newest published version of lodash without installing anything. npm view is the same command as npm info and accepts dotted field names to drill into metadata. Append @4.17.21 to inspect a specific version instead."
+  },
+  {
+   "cmd": "npm view lodash dist-tags",
+   "desc": "Show the distribution tags of a package",
+   "tooltip": "Lists the tags the publisher attached to published versions, like latest and next. Tags are how npm knows which version to install for a bare package name or @latest. Read them to see what the next release line looks like before it goes stable."
+  },
+  {
+   "cmd": "npm view lodash engines",
+   "desc": "Show the Node version requirements of a package",
+   "tooltip": "Prints the engines field, which declares which Node and npm versions the package supports. Comparing this to your node --version output tells you whether an install or upgrade will work. npm also enforces engines when the engine-strict config is enabled."
+  },
+  {
+   "cmd": "npm view react@18.2.0 peerDependencies",
+   "desc": "Show the peer dependencies of a package version",
+   "tooltip": "Inspects the peerDependencies of one published version of react, the libraries its consumers must provide themselves. Pin a version after the @ to compare how requirements changed between releases. Useful before upgrading a framework."
+  },
+  {
+   "cmd": "npm view @types/node version",
+   "desc": "Show the latest version of a scoped package",
+   "tooltip": "Fetches the newest release of the scoped @types/node package, which ships TypeScript type definitions for the Node runtime. Scoped package names always start with @ and are how npm namespaces packages to an owner. Works for any registry metadata field."
+  },
+  {
+   "cmd": "npm search express",
+   "desc": "Search the npm registry for a package",
+   "tooltip": "Looks up package names and descriptions that match express, returning name, version, and description lines. Useful when you only half-remember a package name. Add --json or --parseable for script-friendly output."
+  },
+  {
+   "cmd": "npm cache ls lodash",
+   "desc": "List cached files for a package",
+   "tooltip": "Shows every cache entry npm holds for lodash, including tarballs and metadata, by matching the package name against the cache index. The cache lives under the directory reported by npm config get cache. Clean it with npm cache clean --force only if it is corrupted."
+  },
+  {
+   "cmd": "npm rebuild",
+   "desc": "Rebuild all native modules in the project",
+   "tooltip": "Recompiles every package with native code against the current Node version and toolchain. Run it after switching Node versions with nvm or after system libraries change, when modules fail with ABI errors. To rebuild a single package, name it, for example npm rebuild bcrypt."
+  },
+  {
+   "cmd": "npm rebuild bcrypt",
+   "desc": "Rebuild one native module from source",
+   "tooltip": "Recompiles just the bcrypt package, whose C++ bindings must match the running Node version. Fixes errors like NODE_MODULE_VERSION mismatches that appear after upgrading Node. The bare npm rebuild recompiles all native modules in the project."
+  },
+  {
+   "cmd": "npm shrinkwrap",
+   "desc": "Lock dependency versions for publication",
+   "tooltip": "Creates npm-shrinkwrap.json, a lockfile that pins the exact versions of every dependency and is respected by consumers who install your published package. Unlike package-lock.json, it ships inside the tarball. Regenerate it whenever dependencies change."
+  },
+  {
+   "cmd": "npm run --if-present lint",
+   "desc": "Run a script only if it exists",
+   "tooltip": "Executes the lint script when package.json defines one and exits silently when it does not. Useful for shared commands across projects that may lack a script. npm run without arguments lists every available script."
+  },
+  {
+   "cmd": "npm run env",
+   "desc": "Print the environment variables of npm scripts",
+   "tooltip": "Shows the environment that npm injects into lifecycle scripts, including npm_package_name, npm_lifecycle_event, and PATH entries for local binaries. Great for debugging why a script behaves differently from your shell. Run it inside the project directory."
+  },
+  {
+   "cmd": "npm run-script build",
+   "desc": "Run a package script by its long name",
+   "tooltip": "Executes the build script exactly like npm run build, using the canonical run-script command name. Useful in documentation and scripts where the explicit form is clearer. npm run remains the everyday shorthand."
+  },
+  {
+   "cmd": "npm pkg set scripts.start='node index.js'",
+   "desc": "Add a start script to package.json",
+   "tooltip": "Writes or replaces the scripts.start field in package.json without opening an editor, then npm start runs the new script. npm pkg set accepts any dotted key, so it can also set version, private, or engines. Quote values that contain spaces."
+  },
+  {
+   "cmd": "npm pkg set engines.node='>=20'",
+   "desc": "Set the minimum Node version for a project",
+   "tooltip": "Adds an engines.node field that declares the project needs Node 20 or newer, which helps teammates and CI pick a compatible runtime. The engine-strict config turns this declaration into a hard install failure. Check what is already declared with npm pkg get engines."
+  },
+  {
+   "cmd": "npm pkg set private=true",
+   "desc": "Mark the package as private",
+   "tooltip": "Sets the private field so npm publish refuses to upload the package accidentally, which is essential for app repositories that are not meant to be libraries. Internal-only packages should always carry this flag. npm pkg get private shows the current value."
+  },
+  {
+   "cmd": "npm pkg fix",
+   "desc": "Auto-fix common package.json problems",
+   "tooltip": "Repairs malformed fields, normalizes values, and resolves inconsistencies npm detects in package.json, writing corrections back to the file. Run it after hand-editing the manifest or when npm warns about the file. Review the diff in git before committing."
+  },
+  {
+   "cmd": "npm version 1.2.3",
+   "desc": "Set an explicit package version",
+   "tooltip": "Writes version 1.2.3 into package.json and creates a matching git tag named v1.2.3, instead of computing a bump from the current version. Use it to align the package with an external release plan. Add --no-git-tag-version to skip the tag."
+  },
+  {
+   "cmd": "npm version from-git",
+   "desc": "Bump the version from the latest git tag",
+   "tooltip": "Reads the most recent git tag, treats it as the package version, and writes it into package.json. Keeps the manifest in sync when tags are the source of truth for releases. Requires the tag to look like a version, such as v2.1.0."
+  },
+  {
+   "cmd": "npm version minor --workspaces",
+   "desc": "Bump the minor version in every workspace",
+   "tooltip": "Increments the minor version of all workspaces in a monorepo at once and tags the release, keeping sibling packages in lockstep. The --workspaces flag applies the bump project-wide instead of to one package. Use --workspace=packages/ui to target a single one."
+  },
+  {
+   "cmd": "npm publish ./dist",
+   "desc": "Publish a built folder as a package",
+   "tooltip": "Uploads the contents of the dist folder to the registry as the current package version. Publishing is permanent: fixing a mistake means publishing a new version, so run npm publish --dry-run first. Folders named in .npmignore are excluded from the tarball."
+  },
+  {
+   "cmd": "npm publish --ignore-scripts",
+   "desc": "Publish without running lifecycle scripts",
+   "tooltip": "Uploads the package while skipping the prepublishOnly, prepack, and postpack scripts that normally run before publish. Useful when build steps already ran or when scripts fail in an unusual environment. Publishing is irreversible, so prefer npm publish --dry-run to rehearse."
+  },
+  {
+   "cmd": "npm publish --otp=123456",
+   "desc": "Publish using a one-time password",
+   "tooltip": "Sends the six-digit code from your authenticator app along with the publish request, which accounts with two-factor authentication require. The OTP value changes every 30 seconds, so generate it right before publishing. Interactive prompts ask for it anyway when omitted."
+  },
+  {
+   "cmd": "npm unpublish lodash --force",
+   "desc": "Remove an entire package from the registry",
+   "tooltip": "Deletes every version of a package from the npm registry, which is permanent and can break every project that depends on it. The --force flag is mandatory because removing a whole package is destructive; unpublishing a single version within 72 hours does not need it. Prefer npm deprecate to warn users instead."
+  },
+  {
+   "cmd": "npm pack --dry-run",
+   "desc": "Preview the tarball contents before packing",
+   "tooltip": "Builds the publish tarball in memory and lists every file that would be included, without writing the .tgz file. The quickest way to check that .npmignore and the files field are right. The real artifact is produced by npm pack."
+  },
+  {
+   "cmd": "npm pack --pack-destination ./tarballs",
+   "desc": "Pack a tarball into a specific folder",
+   "tooltip": "Creates the package tarball, typically name-version.tgz, inside the tarballs directory instead of the project root. Tarballs are the exact artifact npm publish uploads, so inspect one before releasing. The --dry-run flag previews the contents first."
+  },
+  {
+   "cmd": "npm star lodash",
+   "desc": "Mark a package as a favorite",
+   "tooltip": "Adds lodash to the starred packages on your npm account, which is a public signal that you find the library useful. Starred packages appear in the npm website profile of the account you are logged in as. Show all of yours with npm stars."
+  },
+  {
+   "cmd": "npm unstar lodash",
+   "desc": "Remove a package from your favorites",
+   "tooltip": "Removes lodash from the starred list on your npm account, the reverse of npm star. Useful for cleaning up packages you no longer use or recommend. Requires being logged in with npm whoami."
+  },
+  {
+   "cmd": "npm stars",
+   "desc": "List the packages you have starred",
+   "tooltip": "Prints every package you marked as a favorite on the npm registry, which can double as a personal reading list. Pass a username, like npm stars someone, to view another account's picks. Star packages with npm star <package>."
+  },
+  {
+   "cmd": "npm ping",
+   "desc": "Check connectivity to the npm registry",
+   "tooltip": "Sends a ping request to the configured registry and reports the round-trip time, confirming that your network, proxy, and credentials path work. Fails with a clear error when the registry is unreachable or the token is rejected. A fast first step when installs hang."
+  },
+  {
+   "cmd": "npm doctor",
+   "desc": "Run health checks on the npm environment",
+   "tooltip": "Audits the npm setup: registry reachability, Node and npm versions, cache integrity, permissions on global directories, and git availability. Reports each check as OK or a fixable warning. Run it when installs behave oddly or after a fresh setup."
+  },
+  {
+   "cmd": "npm prefix",
+   "desc": "Print the local project prefix directory",
+   "tooltip": "Shows the nearest directory containing a package.json or node_modules, which is where npm considers the current project to live. Useful in scripts that need the project root. The -g flag reports the global installation prefix instead."
+  },
+  {
+   "cmd": "npm prefix -g",
+   "desc": "Print the global npm prefix directory",
+   "tooltip": "Shows where globally installed packages live, the directory whose bin folder npm adds to your PATH. On this machine it is the nvm-managed Node directory. Install tools there with npm install -g and inspect them with npm ls -g --depth=0."
+  },
+  {
+   "cmd": "npm root",
+   "desc": "Print the local node_modules directory",
+   "tooltip": "Prints the absolute path of the project's node_modules folder, handy for scripts that must locate installed binaries or modules. Runs from anywhere inside the project tree. The -g flag reports the global node_modules instead."
+  },
+  {
+   "cmd": "npm root -g",
+   "desc": "Print the global node_modules directory",
+   "tooltip": "Shows the folder that holds globally installed packages, normally a sibling of the npm binary itself. Binaries from those packages are linked into the global bin directory. Useful when debugging why a global tool cannot be found."
+  },
+  {
+   "cmd": "npm config get registry",
+   "desc": "Show the configured registry URL",
+   "tooltip": "Prints which package registry npm currently uses, useful to confirm a corporate mirror or a scope-specific registry is active. The default is https://registry.npmjs.org/. Point it elsewhere with npm config set registry <url>."
+  },
+  {
+   "cmd": "npm config get cache",
+   "desc": "Show the npm cache directory",
+   "tooltip": "Prints the folder where npm stores downloaded tarballs and metadata, which speeds up repeated installs. The cache can grow large, and npm cache verify reports its health. Move it with npm config set cache <path>."
+  },
+  {
+   "cmd": "npm config set package-lock false",
+   "desc": "Disable lockfile generation",
+   "tooltip": "Stops npm from creating package-lock.json on install, which trades reproducibility for simpler diffs. Lockfiles pin exact dependency versions so CI and teammates install identical trees, so disable only deliberately. Re-enable with npm config set package-lock true."
+  },
+  {
+   "cmd": "npm config set engine-strict true",
+   "desc": "Fail installs on mismatched Node engines",
+   "tooltip": "Makes npm abort with an error when a dependency declares an engines.node range that the running Node does not satisfy, instead of warning. Enforces the requirements that packages like npm view lodash engines report. Set it per project in .npmrc."
+  },
+  {
+   "cmd": "npm config set @myorg:registry https://npm.pkg.github.com/",
+   "desc": "Set a registry for one npm scope",
+   "tooltip": "Routes every @myorg scoped package to the GitHub Packages registry while everything else keeps using the default registry. The scope key syntax, @scope:registry, is how npm selects registries per namespace. Useful for private packages published to GitHub."
+  },
+  {
+   "cmd": "npm set save-prefix='~'",
+   "desc": "Save new dependencies with tilde ranges",
+   "tooltip": "Configures npm to write ~4.17.21 style ranges instead of ^4.17.21 when adding dependencies, meaning only patch updates are allowed. The tilde range is the conservative choice for libraries that must avoid breaking minors. npm set is the shorthand for npm config set."
+  },
+  {
+   "cmd": "npm token create --read-only",
+   "desc": "Create a read-only registry token",
+   "tooltip": "Generates a token that can only read packages, not publish, which is the safest credential for CI pipelines that just install. Tokens replace passwords for npm registry auth. List and revoke them with npm token list and npm token revoke."
+  },
+  {
+   "cmd": "npm token create --cidr=192.168.1.0/24",
+   "desc": "Create a token limited to an IP range",
+   "tooltip": "Issues a registry token that only works from the 192.168.1.0/24 network, limiting damage if the token leaks. The --cidr flag accepts one or several CIDR blocks. Combine it with --read-only for a hardened CI credential."
+  },
+  {
+   "cmd": "npm token revoke 4f2a9c1e8b3d7f5a",
+   "desc": "Revoke an npm access token",
+   "tooltip": "Immediately invalidates the token with the given id, cutting off every system that used it. Rotate tokens when they leak or when a developer leaves the team. Find the id with npm token list before revoking."
+  },
+  {
+   "cmd": "npm profile get",
+   "desc": "Show npm account profile settings",
+   "tooltip": "Prints the public fields of the npm account you are logged in as, including name, email, and two-factor authentication status. Useful to verify which account a token or login belongs to. Settings are edited with npm profile set."
+  },
+  {
+   "cmd": "npm profile enable-2fa auth-and-writes",
+   "desc": "Enable two-factor authentication on npm",
+   "tooltip": "Turns on 2FA for your account and requires a one-time password for every login and publish, protecting packages you own. The auth-and-writes mode is the strongest option; auth-only still allows publishes with a saved token. You will be prompted for the authenticator code to finish."
+  },
+  {
+   "cmd": "npm org set myorg barry developer",
+   "desc": "Add a member to an npm organization",
+   "tooltip": "Adds the user barry to the myorg organization with the developer role, which grants write access to the org's packages. Roles range from developer through admin to owner. List members with npm org ls myorg."
+  },
+  {
+   "cmd": "npm org ls myorg",
+   "desc": "List members of an npm organization",
+   "tooltip": "Shows every user in the myorg organization together with their role, which is how you audit who can publish to org packages. Append a username to check one person's membership. Membership is changed with npm org set and npm org rm."
+  },
+  {
+   "cmd": "npm org rm myorg barry",
+   "desc": "Remove a member from an npm organization",
+   "tooltip": "Revokes barry's access to every package owned by myorg, cutting off their ability to publish or manage the org's packages. Removing a member is immediate and affects all teams they belong to. Restore access only by adding them back."
+  },
+  {
+   "cmd": "npm team create myorg:developers",
+   "desc": "Create a team in an npm organization",
+   "tooltip": "Creates a team named developers inside the myorg organization, which groups members so permissions can be granted once. Teams are referenced with the org:team syntax, for example myorg:developers. Grant a team package access with npm access grant."
+  },
+  {
+   "cmd": "npm team ls myorg",
+   "desc": "List teams in an npm organization",
+   "tooltip": "Prints every team defined in the myorg organization. Add a team name, like myorg:developers, to list that team's members instead. Useful before assigning access so permissions land on the right group."
+  },
+  {
+   "cmd": "npm team add myorg:developers barry",
+   "desc": "Add a user to an npm team",
+   "tooltip": "Adds barry to the myorg:developers team, instantly granting whatever package access that team holds. Members can belong to several teams at once. Remove them with npm team rm myorg:developers barry."
+  },
+  {
+   "cmd": "npm team rm myorg:developers barry",
+   "desc": "Remove a user from an npm team",
+   "tooltip": "Takes barry out of the myorg:developers team, revoking the package permissions that team provides. It does not remove their organization membership, only the team grants. Check the result with npm team ls myorg:developers."
+  },
+  {
+   "cmd": "npm team destroy myorg:developers",
+   "desc": "Delete an npm team",
+   "tooltip": "Permanently removes the myorg:developers team and every access grant that referenced it, so all members lose those permissions. There is no undo, so first move members to another team if needed. List teams with npm team ls myorg."
+  },
+  {
+   "cmd": "npm access grant read-only myorg:developers @myorg/mylib",
+   "desc": "Grant a team read access to a package",
+   "tooltip": "Gives the myorg:developers team read-only access to the scoped @myorg/mylib package, so its members can install it even when it is restricted. The read-write variant also allows publishing. Review current grants with npm access list collaborators."
+  },
+  {
+   "cmd": "npm access revoke myorg:developers @myorg/mylib",
+   "desc": "Revoke team access to a package",
+   "tooltip": "Removes the myorg:developers team's access to @myorg/mylib, so its members can no longer install or publish it, depending on what was granted. Immediate for all team members. Verify remaining access with npm access list collaborators."
+  },
+  {
+   "cmd": "npm access list collaborators @myorg/mylib",
+   "desc": "List collaborators on a package",
+   "tooltip": "Shows every user and team with access to @myorg/mylib and their permission level, the audit view for package security. Covers owners, maintainers, and teams granted access. Change grants with npm access grant and npm access revoke."
+  },
+  {
+   "cmd": "npm exec --package=typescript -- tsc --version",
+   "desc": "Run a tool from a temporary package",
+   "tooltip": "Downloads typescript into a temporary location and runs its tsc binary, without adding it to package.json. The --package flag names the package to fetch and the double dash separates npm exec flags from the command. npx is the shorthand for the same behavior."
+  },
+  {
+   "cmd": "npx --no-install prettier --check src/",
+   "desc": "Run a local binary without installing anything",
+   "tooltip": "Runs the prettier binary from the project's own node_modules and fails instead of downloading it when missing. The --no-install flag makes npx strictly local, ideal for CI that should never fetch packages on the fly. Drop the flag to auto-install like plain npx."
+  },
+  {
+   "cmd": "npx -y @biomejs/biome check .",
+   "desc": "Run a package without a confirm prompt",
+   "tooltip": "Downloads and runs Biome's linter and formatter over the current directory, skipping the interactive install confirmation with -y. Biome is the fast Rust-based tool that replaces eslint and prettier. Run its formatter with @biomejs/biome format instead."
+  },
+  {
+   "cmd": "npx tsx script.ts",
+   "desc": "Run a TypeScript file directly with tsx",
+   "tooltip": "Executes a .ts file using tsx, the esbuild-powered runner that needs no tsconfig or compile step. Great for quick scripts and migrations without setting up a build. For type-checking only, use tsc --noEmit."
+  },
+  {
+   "cmd": "npx vitest run",
+   "desc": "Run the Vitest test suite once",
+   "tooltip": "Executes all tests with Vitest, the Vite-native test runner, in single-run mode that exits when done instead of watching. Add --coverage for a coverage report. Watch mode is the default, so the run subcommand is the CI-friendly form."
+  },
+  {
+   "cmd": "npx turbo run build",
+   "desc": "Run a task across a Turborepo",
+   "tooltip": "Executes the build script in every package of a Turborepo monorepo, caching outputs and skipping packages whose inputs did not change. Turborepo is the build orchestrator popular in large monorepos. Target one package with --filter=web."
+  },
+  {
+   "cmd": "npx knip",
+   "desc": "Find unused dependencies and files",
+   "tooltip": "Scans the project and reports dependencies, exports, and files that nothing imports, shrinking install size and bundle output. Knip understands most bundler and framework conventions out of the box. Pair it with npx depcheck for a second opinion."
+  },
+  {
+   "cmd": "npx syncpack list-mismatches",
+   "desc": "Find version mismatches across a monorepo",
+   "tooltip": "Compares dependency version ranges across all workspace package.json files and prints any package pinned differently in different places. Version drift causes confusing installs in monorepos. Fix ranges with npx syncpack fix-mismatches."
+  },
+  {
+   "cmd": "node --check script.js",
+   "desc": "Syntax-check a script without running it",
+   "tooltip": "Parses script.js and reports syntax errors without executing any code, which is perfect for validating files before deploy or in CI. The -c flag is the short form. Combine with shell loops to lint-check every file in a project."
+  },
+  {
+   "cmd": "node --test",
+   "desc": "Run tests with the built-in test runner",
+   "tooltip": "Discovers and runs test files using Node's native test runner, which needs no extra package. It finds files matching test patterns like *.test.js and reports pass or fail per test. Use --test-reporter=spec for detailed output."
+  },
+  {
+   "cmd": "node --test --test-reporter=spec test/",
+   "desc": "Run tests with detailed reporting",
+   "tooltip": "Executes every test under the test/ directory and formats results with the spec reporter, which prints each test name and status. Node's built-in runner needs no framework install. Add --test-name-pattern to run a subset of tests."
+  },
+  {
+   "cmd": "node --trace-warnings server.js",
+   "desc": "Show stack traces for Node warnings",
+   "tooltip": "Runs the server while printing full stack traces for every process warning, revealing which code path triggered deprecations or performance warnings. Normally warnings show only a message without location. Useful before upgrading a major Node version."
+  },
+  {
+   "cmd": "node --trace-deprecation server.js",
+   "desc": "Show stack traces for deprecation warnings",
+   "tooltip": "Prints the call stack behind each deprecation warning, showing exactly which module and line uses the outdated API. Essential for finding third-party packages that break on the next Node major. Pair with --throw-deprecation to fail fast instead."
+  },
+  {
+   "cmd": "node --inspect=0.0.0.0:9229 server.js",
+   "desc": "Debug a server from another machine",
+   "tooltip": "Starts the inspector on all interfaces at port 9229, letting Chrome DevTools or VS Code attach remotely over the network. The default --inspect binds to localhost only, so the explicit address is required for containers or remote hosts. Firewall rules must allow the port."
+  },
+  {
+   "cmd": "node --heap-prof --heap-prof-dir=prof server.js",
+   "desc": "Profile JavaScript heap usage to a file",
+   "tooltip": "Samples the V8 heap during the run and writes a .heapprofile file into the prof directory, loadable in Chrome DevTools to find memory leaks. The heap profiler adds modest overhead, so profile in staging first. Analyze with the Memory panel of DevTools."
+  },
+  {
+   "cmd": "node --cpu-prof --cpu-prof-dir=prof server.js",
+   "desc": "Profile CPU usage of a Node process",
+   "tooltip": "Samples where the process spends CPU time and writes a .cpuprofile into the prof directory for DevTools or speedscope. Shows hot functions, helping optimize slow request paths. Keep runs short since profiling slows execution."
+  },
+  {
+   "cmd": "node --prof server.js",
+   "desc": "Write a V8 profiler log while running",
+   "tooltip": "Records low-level V8 sampling data into v8.log, the raw input for node --prof-process to turn into a readable profile. It captures engine internals, garbage collection, and compiled code ticks. Prefer --cpu-prof for application-level hotspots."
+  },
+  {
+   "cmd": "node --experimental-strip-types script.ts",
+   "desc": "Run TypeScript files with type stripping",
+   "tooltip": "Runs a .ts file directly by erasing type annotations at load time, no tsconfig or compile step needed. Only erasable syntax works, so enums and namespaces need --experimental-transform-types. Newer Node releases enable this behavior by default."
+  },
+  {
+   "cmd": "node --run dev",
+   "desc": "Run a package.json script via Node",
+   "tooltip": "Executes the dev script exactly like npm run dev but without invoking npm, shaving startup time in tight loops. Scripts run with node_modules/.bin on the PATH so local tools resolve. Requires the script to exist, unlike npm run --if-present."
+  },
+  {
+   "cmd": "node --no-warnings server.js",
+   "desc": "Suppress all process warnings",
+   "tooltip": "Hides deprecation and experimental warnings that Node would otherwise print to stderr, keeping logs clean in production. Use sparingly since warnings flag real problems. --trace-warnings is the opposite, adding stack traces."
+  },
+  {
+   "cmd": "node --expose-gc script.js",
+   "desc": "Expose the global garbage collector",
+   "tooltip": "Adds the global gc() function so scripts can force garbage collection, mainly for memory tests and benchmarking. Without the flag gc is undefined and throws. Combine with --max-old-space-size to control heap size during tests."
+  },
+  {
+   "cmd": "node --v8-options",
+   "desc": "List all V8 engine options",
+   "tooltip": "Prints every flag the V8 JavaScript engine accepts, from stack sizes to GC tuning knobs, many of which are experimental. Use it to discover knobs like --max-semi-space-size. Most applications never need to touch these."
+  },
+  {
+   "cmd": "node --import tsx script.ts",
+   "desc": "Preload a module before running a script",
+   "tooltip": "Loads the tsx package before script.ts executes, registering its TypeScript loader so imports resolve without a build step. --import is the ESM-aware successor of -r for preloads. Useful for running TS entry points in production."
+  },
+  {
+   "cmd": "node --env-file-if-exists=.env server.js",
+   "desc": "Load env vars only when the file exists",
+   "tooltip": "Reads variables from .env into the process when the file is present, and silently continues when it is missing, unlike --env-file which errors. Handy for shared scripts that run locally and in CI with different configuration files. Values never override variables already in the environment."
+  },
+  {
+   "cmd": "nvm install node",
+   "desc": "Install the latest Node release",
+   "tooltip": "Downloads the newest non-LTS Node version, since node is nvm's built-in alias for latest. Use it to try bleeding-edge features ahead of the LTS line. Switch to it with nvm use node."
+  },
+  {
+   "cmd": "nvm install --lts=iron",
+   "desc": "Install a specific LTS line by codename",
+   "tooltip": "Installs the newest release of the iron LTS line, one of the codenames Node assigns to long-term support versions. Pinning a codename keeps teams on the same major while still getting patch updates. List available lines with nvm ls-remote --lts."
+  },
+  {
+   "cmd": "nvm install --reinstall-packages-from=default",
+   "desc": "Reinstall global packages into a new Node",
+   "tooltip": "Installs the requested Node version and copies every globally installed package from the default version into it, preserving your toolchain across upgrades. The flag follows nvm install, before the version argument. Avoids re-installing eslint, prettier, and friends by hand."
+  },
+  {
+   "cmd": "nvm alias",
+   "desc": "List all nvm version aliases",
+   "tooltip": "Prints every alias nvm knows, including built-ins like node, stable, and lts/*, plus your custom ones. Aliases let you refer to versions by name, for example nvm use default. Create one with nvm alias myalias 20."
+  },
+  {
+   "cmd": "nvm unalias myalias",
+   "desc": "Delete a custom nvm alias",
+   "tooltip": "Removes the myalias alias so nvm no longer resolves it to a version. Built-in aliases cannot be deleted, only custom ones. Useful for cleaning up stale names after upgrades."
+  },
+  {
+   "cmd": "nvm install-latest-npm",
+   "desc": "Upgrade npm to the newest version",
+   "tooltip": "Installs the latest npm release into the currently active Node version, fixing cases where the bundled npm is older than expected. Useful right after installing a new Node. Run nvm --version to confirm the change."
+  },
+  {
+   "cmd": "nvm reinstall-packages 20",
+   "desc": "Copy global packages into the active Node",
+   "tooltip": "Installs every global package from Node 20 into whichever version nvm currently has active, duplicating the toolchain without touching the source. Handy after switching to a new major. The install-time variant is nvm install --reinstall-packages-from."
+  },
+  {
+   "cmd": "nvm cache dir",
+   "desc": "Show the nvm download cache directory",
+   "tooltip": "Prints where nvm stores downloaded Node tarballs so it can skip re-downloading versions. The cache grows with each installed version. Clear it with nvm cache clear."
+  },
+  {
+   "cmd": "fnm install --lts",
+   "desc": "Install the latest LTS Node via fnm",
+   "tooltip": "Downloads the current long-term support Node release into fnm's managed versions. fnm is the fast Rust-based alternative to nvm, reading .nvmrc and .node-version files too. Make it active with fnm use --lts."
+  },
+  {
+   "cmd": "fnm install 22",
+   "desc": "Install a specific Node version via fnm",
+   "tooltip": "Installs the newest 22.x release from nodejs.org into the fnm version directory. Partial versions resolve to the latest matching release. Switch to it with fnm use 22."
+  },
+  {
+   "cmd": "fnm use 22",
+   "desc": "Switch the active Node version",
+   "tooltip": "Points the node command at the installed 22.x release for the current shell session. fnm resolves partial versions, so 22 matches the newest 22.x. Add fnm env --use-on-cd to your shell to switch automatically per directory."
+  },
+  {
+   "cmd": "fnm ls",
+   "desc": "List locally installed Node versions",
+   "tooltip": "Shows every Node version fnm has installed, marking the one currently in use. The ls-remote variant lists what is available to install. Uninstall a version with fnm uninstall."
+  },
+  {
+   "cmd": "fnm current",
+   "desc": "Show the active Node version",
+   "tooltip": "Prints the version string of the Node fnm has selected, for example v22.14.0. Quick way to confirm which runtime a shell will use. nvm users know the same command as nvm current."
+  },
+  {
+   "cmd": "fnm default 22",
+   "desc": "Set the default Node version",
+   "tooltip": "Makes the 22.x release the version fnm selects when no .node-version file is present, so new shells start on it. Run bare fnm default to print the current default. Override per project with a .node-version file."
+  },
+  {
+   "cmd": "fnm uninstall 22",
+   "desc": "Remove an installed Node version",
+   "tooltip": "Deletes the 22.x installation from fnm's version directory, freeing disk space and removing the binaries. The active version cannot be uninstalled. List what remains with fnm ls."
+  },
+  {
+   "cmd": "fnm env --use-on-cd --shell bash",
+   "desc": "Set up fnm shell integration",
+   "tooltip": "Emits the shell code that configures PATH for fnm, with --use-on-cd switching Node automatically when you enter a directory that declares a version. Wrap it in eval in .bashrc, for example eval \"$(fnm env --use-on-cd --shell bash)\". The --shell flag avoids detection issues."
+  },
+  {
+   "cmd": "fnm exec --using=22 node --version",
+   "desc": "Run a command with a specific Node",
+   "tooltip": "Executes node --version with the 22.x runtime without changing the shell's active version, ideal for one-off checks in scripts. The --using flag selects the version, and any command can follow. Handy for testing against several majors."
+  },
+  {
+   "cmd": "fnm ls-remote --lts",
+   "desc": "List remote LTS Node versions",
+   "tooltip": "Queries nodejs.org for all available long-term support releases, the versions safe for production use. Add --latest to print only the newest match. Install one with fnm install --lts."
+  },
+  {
+   "cmd": "corepack enable",
+   "desc": "Activate corepack package manager shims",
+   "tooltip": "Creates the yarn and pnpm shim executables so running yarn or pnpm in any project uses the version the project pins, without a manual install. Corepack ships with Node and manages package managers the way nvm manages Node versions. Disable it again with corepack disable."
+  },
+  {
+   "cmd": "corepack disable",
+   "desc": "Remove the corepack shims",
+   "tooltip": "Deletes the yarn and pnpm shims corepack installed, restoring the plain binaries if you had them. Useful when a project requires a manager version outside the pinned flow. Re-enable with corepack enable."
+  },
+  {
+   "cmd": "corepack prepare yarn@4.1.1 --activate",
+   "desc": "Install a package manager via corepack",
+   "tooltip": "Downloads the yarn 4.1.1 release into the corepack cache and, with --activate, makes it the default when the yarn shim runs. Pre-warming the cache is how CI installs managers without network access. Check the result with yarn --version."
+  },
+  {
+   "cmd": "corepack use pnpm@9.12.0",
+   "desc": "Pin a package manager for a project",
+   "tooltip": "Writes the packageManager field into package.json declaring pnpm 9.12.0, so corepack shims in that folder run that exact version. Teammates and CI pick it up automatically on checkout. Update the pin by rerunning corepack use with a new version."
+  },
+  {
+   "cmd": "corepack install",
+   "desc": "Install the manager pinned in package.json",
+   "tooltip": "Reads the packageManager field and installs that package manager into the corepack cache without activating it project-wide. CI pipelines run this after checkout so builds use the exact manager version. The -g flag installs managers globally instead."
+  },
+  {
+   "cmd": "pnpm add --save-optional concurrently",
+   "desc": "Add an optional dependency with pnpm",
+   "tooltip": "Writes the package into optionalDependencies, meaning installs continue if it fails to resolve or build on some platforms. Optional packages usually supply platform-specific binaries, with the main package falling back gracefully. The short flag is -o."
+  },
+  {
+   "cmd": "pnpm add --save-exact lodash",
+   "desc": "Add a dependency at an exact version",
+   "tooltip": "Saves lodash with its exact version, like 4.17.21, instead of a caret range, so installs never drift within a major. pnpm's default is the same range style as npm. The -e flag is the shorthand."
+  },
+  {
+   "cmd": "pnpm add --save-peer react",
+   "desc": "Add a peer dependency with pnpm",
+   "tooltip": "Records react in peerDependencies, declaring that consumers must provide it rather than pnpm installing a copy. Peer deps are how plugins share a single copy of a host library. pnpm resolves peers at install time and fails loudly on conflicts."
+  },
+  {
+   "cmd": "pnpm add -w lodash",
+   "desc": "Add a dependency to the workspace root",
+   "tooltip": "Installs lodash into the root package of a pnpm workspace, shared by all packages instead of duplicated per package. The -w flag targets the root manifest. Without it, pnpm adds to the package in the current directory."
+  },
+  {
+   "cmd": "pnpm install --offline",
+   "desc": "Install using only the pnpm store",
+   "tooltip": "Resolves every dependency from the local content-addressable store and fails if anything is missing, with no network access. Great for CI caches and air-gapped environments. Prime the store with pnpm store add."
+  },
+  {
+   "cmd": "pnpm install --prod",
+   "desc": "Install production dependencies only",
+   "tooltip": "Skips devDependencies so the node_modules contains just what the deployed app runs, shrinking installs in production containers. Equivalent to pnpm install --production. Reinstall without the flag to bring dev tooling back."
+  },
+  {
+   "cmd": "pnpm install --ignore-scripts",
+   "desc": "Install without running lifecycle scripts",
+   "tooltip": "Prevents postinstall and prepare scripts from executing during install, which both speeds up installs and avoids running arbitrary package code. Some native modules need their scripts, so reinstall without the flag if a build breaks. pnpm 10 blocks unknown scripts by default anyway."
+  },
+  {
+   "cmd": "pnpm install --fix-lockfile",
+   "desc": "Repair a broken pnpm lockfile",
+   "tooltip": "Recomputes entries in pnpm-lock.yaml that no longer match package.json, fixing install errors caused by manual manifest edits or merge conflicts. It only touches what is inconsistent instead of rewriting everything. Run it before filing a bug against pnpm itself."
+  },
+  {
+   "cmd": "pnpm install --shamefully-hoist",
+   "desc": "Install with a flat node_modules layout",
+   "tooltip": "Hoists all transitive dependencies into the top-level node_modules, mimicking npm's classic layout where every package can reach everything. The name warns that this defeats pnpm's isolation model, which normally prevents phantom dependencies. Only reach for it when a legacy tool demands flat resolution."
+  },
+  {
+   "cmd": "pnpm store add lodash",
+   "desc": "Download a package into the pnpm store",
+   "tooltip": "Fetches lodash into the global content-addressable store without adding it to any project, pre-warming future installs. The store is where pnpm keeps every version once, hard-linked into projects. Prune unreferenced packages with pnpm store prune."
+  },
+  {
+   "cmd": "pnpm fetch",
+   "desc": "Fetch lockfile packages into the store",
+   "tooltip": "Downloads every package listed in pnpm-lock.yaml into the store without installing node_modules, based only on the lockfile. CI builds use it to warm the cache from a clean checkout. Run pnpm install afterward to link the project."
+  },
+  {
+   "cmd": "pnpm --filter=web deploy --prod ./dist-web",
+   "desc": "Deploy a workspace package to a folder",
+   "tooltip": "Copies the web workspace and its production dependencies into dist-web as a self-contained deployable directory, pruning dev dependencies and workspace links. The --filter selects the workspace and --prod keeps the output lean. Deployment servers can then install and start from that folder."
+  },
+  {
+   "cmd": "pnpm patch lodash@4.17.21",
+   "desc": "Extract a package for editing",
+   "tooltip": "Unpacks lodash 4.17.21 into a temporary directory where you can edit its source, preparing a custom patch. Edit the files, then run pnpm patch-commit with that directory to record the changes. Patches survive reinstalls and are shared with the team."
+  },
+  {
+   "cmd": "pnpm patch-commit /tmp/lodash-edit",
+   "desc": "Save an edited package as a patch",
+   "tooltip": "Turns the changes made in the /tmp/lodash-edit directory, extracted by pnpm patch, into a patch file recorded in package.json. The patched package is then applied on every install, including in CI. Remove patches with pnpm patch-remove."
+  },
+  {
+   "cmd": "pnpm approve-builds",
+   "desc": "Approve packages to run install scripts",
+   "tooltip": "Lists dependencies whose lifecycle scripts pnpm blocked and lets you approve them interactively, since pnpm 10 refuses unknown postinstall scripts by default. Approving runs the script on future installs, so only trust well-known packages. The --all flag approves everything pending."
+  },
+  {
+   "cmd": "pnpm config get registry",
+   "desc": "Show the pnpm registry URL",
+   "tooltip": "Prints the registry pnpm resolves packages from, which may differ from npm's if a mirror is configured. Set a different one with pnpm config set registry <url>. Scope-level registries are supported too."
+  },
+  {
+   "cmd": "pnpm config list",
+   "desc": "Show all pnpm configuration",
+   "tooltip": "Prints every pnpm setting from all sources, including the global pnpm-workspace.yaml and per-project .npmrc, with the effective values. Useful to spot a stray registry or proxy setting. Change values with pnpm config set."
+  },
+  {
+   "cmd": "pnpm dlx tsx script.ts",
+   "desc": "Run a package without adding it",
+   "tooltip": "Downloads tsx on the fly and runs script.ts, leaving package.json untouched. pnpm dlx is the pnpm equivalent of npx for one-off tools. For commands from the project's own dependencies, use pnpm exec instead."
+  },
+  {
+   "cmd": "pnpm exec eslint --fix src/",
+   "desc": "Run a local binary inside the project",
+   "tooltip": "Executes the eslint binary from the project's node_modules with the project's PATH, so scripts resolve the right tools. Unlike pnpm dlx, it never downloads anything. Equivalent to npm exec."
+  },
+  {
+   "cmd": "pnpm pack",
+   "desc": "Create a tarball from a package",
+   "tooltip": "Builds the publish tarball, name-version.tgz, exactly as pnpm publish would upload it, so you can inspect the contents before releasing. Check the files list to catch accidentally included secrets. pnpm publish consumes the same packing logic."
+  },
+  {
+   "cmd": "pnpm publish",
+   "desc": "Publish a package to the registry",
+   "tooltip": "Uploads the current package to the npm registry, making it installable by anyone with access. Publishing is permanent and every version is immutable, so verify with pnpm publish --dry-run and bump versions deliberately. Requires npm login credentials."
+  },
+  {
+   "cmd": "pnpm publish --no-git-checks",
+   "desc": "Publish without git checks",
+   "tooltip": "Uploads the package while skipping pnpm's checks that the branch is clean and has a version tag, which normally prevent accidental publishes from dirty working trees. Only use it in automated release pipelines where the checks are handled elsewhere. Publishing remains permanent."
+  },
+  {
+   "cmd": "pnpm rebuild",
+   "desc": "Rebuild native dependencies",
+   "tooltip": "Recompiles every package with native bindings against the current Node version, fixing ABI mismatch errors after upgrading Node. Name specific packages, like pnpm rebuild bcrypt, to rebuild only those. Run pnpm install to restore state afterwards."
+  },
+  {
+   "cmd": "pnpm licenses list",
+   "desc": "List licenses of installed packages",
+   "tooltip": "Prints every installed package together with its license, the raw material for compliance reviews and legal checklists. Run it before releasing a product to spot copyleft or missing licenses. Output can be filtered with grep for specific license types."
+  },
+  {
+   "cmd": "pnpm import",
+   "desc": "Convert package-lock.json into pnpm-lock.yaml",
+   "tooltip": "Reads an npm package-lock.json or npm-shrinkwrap.json and generates the equivalent pnpm-lock.yaml, smoothing the migration from npm. The converted lockfile is a starting point, so run pnpm install to reconcile it. Deleting the old lockfile afterwards prevents confusion."
+  },
+  {
+   "cmd": "pnpm link ../shared-lib",
+   "desc": "Link a local package into the project",
+   "tooltip": "Symlinks the ../shared-lib directory into node_modules so the project imports your in-development library directly, without publishing it. Edits to the library appear immediately, ideal for monorepo-adjacent development. The global twin is pnpm link --global."
+  },
+  {
+   "cmd": "pnpm create vite myapp",
+   "desc": "Scaffold a project from a starter kit",
+   "tooltip": "Runs the create-vite starter to generate a new Vite app in the myapp directory, prompting for framework and variant choices. pnpm create is the pnpm equivalent of npm init <initializer>. Follow up with pnpm install inside the new folder."
+  },
+  {
+   "cmd": "yarn install --offline",
+   "desc": "Install yarn dependencies from the cache",
+   "tooltip": "Installs only from the local yarn cache and fails if any dependency is missing, guaranteeing no network traffic during the install. Ideal for CI after warming the cache. Add --frozen-lockfile to also refuse lockfile changes."
+  },
+  {
+   "cmd": "yarn add --exact lodash",
+   "desc": "Add a dependency at an exact version",
+   "tooltip": "Saves lodash with a pinned version like 4.17.21 instead of a caret range, so installs never drift within a major. The -E flag is the shorthand, matching npm's --save-exact. Good for applications that want reproducible installs."
+  },
+  {
+   "cmd": "yarn global list",
+   "desc": "List globally installed yarn packages",
+   "tooltip": "Shows every package installed with yarn global add, including the command-line tools available system-wide. Global installs live outside any project. Remove tools with yarn global remove."
+  },
+  {
+   "cmd": "yarn global remove nodemon",
+   "desc": "Remove a globally installed yarn package",
+   "tooltip": "Uninstalls nodemon from the global yarn prefix, removing its binary from the system PATH. Global tools accumulate, so prune them periodically. Check what is installed first with yarn global list."
+  },
+  {
+   "cmd": "yarn workspaces info",
+   "desc": "Show workspace dependency information",
+   "tooltip": "Prints a JSON map of every workspace package with its location and dependencies, the classic yarn view of a monorepo layout. Useful for understanding cross-workspace links before running builds. The Berry-era replacement is yarn workspaces list."
+  },
+  {
+   "cmd": "yarn workspaces list",
+   "desc": "List all workspaces in the project",
+   "tooltip": "Prints every workspace package in the monorepo, optionally limited with --since to recently changed ones. Workspaces are packages declared in the root workspaces field. Add --json for machine-readable output."
+  },
+  {
+   "cmd": "yarn workspaces foreach --parallel --all run test",
+   "desc": "Run a script across workspaces in parallel",
+   "tooltip": "Executes the test script in every workspace simultaneously, cutting monorepo test time dramatically. --parallel runs tasks concurrently and --all includes every workspace rather than just descendants. Add -t for topological ordering that builds dependencies first."
+  },
+  {
+   "cmd": "yarn dlx prettier --write .",
+   "desc": "Run a tool without installing it",
+   "tooltip": "Downloads prettier into a temporary environment and formats the current directory, leaving package.json untouched. yarn dlx is the Berry equivalent of npx for one-off tools. Use -p to run a binary from a differently named package."
+  },
+  {
+   "cmd": "yarn plugin import workspace-tools",
+   "desc": "Enable the workspace-tools plugin",
+   "tooltip": "Downloads and activates the workspace-tools plugin, which adds the workspaces foreach, list, and focus commands to yarn Berry. Plugins extend the CLI with curated feature sets. List available plugins on the yarnpkg.com website."
+  },
+  {
+   "cmd": "yarn cache clean --all",
+   "desc": "Clear global and local yarn caches",
+   "tooltip": "Deletes both the project's local cache and the shared global cache under ~/.yarn, freeing disk space. Yarn 2+ mirrors every dependency there, so caches grow large. The next install simply re-downloads what it needs."
+  },
+  {
+   "cmd": "yarn config list",
+   "desc": "Print the active yarn configuration",
+   "tooltip": "Shows every effective yarn setting, merging defaults, .yarnrc.yml, and environment variables, so you can see why installs behave a certain way. The --json flag formats it for scripts. Change values with yarn config set."
+  },
+  {
+   "cmd": "yarn config set nodeLinker node-modules",
+   "desc": "Switch yarn to node_modules linking",
+   "tooltip": "Tells yarn Berry to install into a plain node_modules folder instead of its default Plug'n'Play zip layout. Tools that do not understand PnP often require this. The alternative value is pnp, and the PnP variant is the default."
+  },
+  {
+   "cmd": "yarn node script.js",
+   "desc": "Run Node with the project environment",
+   "tooltip": "Starts the Node runtime with yarn's hooks injected, so imports resolve correctly under Plug'n'Play and other non-standard layouts. Use it instead of bare node when a script fails to find modules. It uses the same Node version running yarn itself."
+  },
+  {
+   "cmd": "yarn npm whoami",
+   "desc": "Show the logged-in npm user",
+   "tooltip": "Prints the username associated with the registry credentials yarn will use for npm operations, confirming which account publishes and installs. The --publish flag checks the publishing registry instead. Log in with yarn npm login."
+  },
+  {
+   "cmd": "yarn npm publish --access public",
+   "desc": "Publish a package with yarn",
+   "tooltip": "Uploads the current workspace to the npm registry with public access, which scoped packages need to avoid the restricted default that requires a paid plan. Publishing is permanent, so run the --dry-run variant first. The --tag flag attaches a dist-tag like next."
+  },
+  {
+   "cmd": "yarn npm info lodash",
+   "desc": "Show registry information for a package",
+   "tooltip": "Fetches the npm metadata for lodash and prints the manifest fields, without installing anything. The --fields flag narrows output to specific keys, for example --fields versions. Works for unpublished package ranges too."
+  },
+  {
+   "cmd": "yarn version patch",
+   "desc": "Bump the package patch version",
+   "tooltip": "Increments the patch digit of the current workspace, writing the new version to package.json and creating a release commit. Strategies mirror semver: major, minor, and patch. Add --deferred to record the bump without applying it."
+  },
+  {
+   "cmd": "yarn up lodash",
+   "desc": "Upgrade a package to its latest version",
+   "tooltip": "Moves lodash to the newest release across all workspaces at once, ignoring the range written in package.json. It is the Berry successor to yarn upgrade --latest. The -i flag asks before each upgrade."
+  },
+  {
+   "cmd": "yarn audit",
+   "desc": "Check dependencies for known vulnerabilities",
+   "tooltip": "Scans the installed dependency tree against the npm advisory database and lists vulnerabilities with severity and fix versions. Run it in CI to fail on high-severity issues. Yarn classic checks the lockfile, so keep it committed."
+  },
+  {
+   "cmd": "bun install",
+   "desc": "Install all dependencies with bun",
+   "tooltip": "Installs every dependency from package.json at high speed using bun's native package manager, writing the bun.lock lockfile. It works in any Node project, so teams switch from npm install for faster CI. By default bun does not run dependency lifecycle scripts."
+  },
+  {
+   "cmd": "bun install --frozen-lockfile",
+   "desc": "Install exact lockfile versions with bun",
+   "tooltip": "Installs exactly what bun.lock records and errors if package.json disagrees, giving CI builds deterministic trees. The lockfile, bun's equivalent of package-lock.json, is never modified. Remove the flag to update it."
+  },
+  {
+   "cmd": "bun install --production",
+   "desc": "Install without dev dependencies",
+   "tooltip": "Skips devDependencies so production deployments install only what the app runs, mirroring npm install --omit=dev. Speeds up container builds and shrinks node_modules. Reinstall without the flag in development."
+  },
+  {
+   "cmd": "bun install --no-save",
+   "desc": "Install without updating package.json",
+   "tooltip": "Installs the declared dependencies without writing a lockfile or touching package.json, a throwaway install for experiments. The lockfile is skipped entirely, so the tree is not reproducible later. Add --save to restore default behavior."
+  },
+  {
+   "cmd": "bun add lodash",
+   "desc": "Add a dependency with bun",
+   "tooltip": "Installs lodash and records it in dependencies, bun's fast replacement for npm install <pkg>. Ranges default to caret, like other package managers. Pin exact versions with the -E flag."
+  },
+  {
+   "cmd": "bun add -d typescript",
+   "desc": "Add a dev dependency with bun",
+   "tooltip": "Installs typescript into devDependencies, the section for build and test tooling that production installs skip. The -d flag matches npm's -D shorthand. Useful for type-checking without shipping the compiler."
+  },
+  {
+   "cmd": "bun add -g typescript",
+   "desc": "Install a package globally with bun",
+   "tooltip": "Installs typescript into bun's global bin directory, making its tsc binary available system-wide, like npm install -g. Global tools update through the same command. Uninstall with bun remove -g."
+  },
+  {
+   "cmd": "bun add -E zod",
+   "desc": "Add a dependency at an exact version",
+   "tooltip": "Saves zod with its exact version, like 3.21.4, instead of a caret range so installs never drift. The -E flag is bun's --exact shorthand, matching npm's --save-exact. Ideal for applications that want reproducible installs."
+  },
+  {
+   "cmd": "bun remove lodash",
+   "desc": "Remove a dependency with bun",
+   "tooltip": "Uninstalls lodash and deletes it from package.json and the lockfile in one step. The inverse of bun add. Works across workspace roots when run at the top level."
+  },
+  {
+   "cmd": "bun update --latest",
+   "desc": "Update all dependencies to their latest versions",
+   "tooltip": "Bumps every dependency to the newest release regardless of the ranges in package.json, the aggressive upgrade path. Without --latest, bun updates within declared ranges. Review breaking changes before running it on shared projects."
+  },
+  {
+   "cmd": "bun run dev",
+   "desc": "Run a package.json script with bun",
+   "tooltip": "Executes the dev script using bun, which starts faster than npm run and transparently handles TypeScript and JSX files. Scripts get node_modules/.bin on the PATH, so local tools resolve. Use bun run - to pipe code from stdin."
+  },
+  {
+   "cmd": "bun test",
+   "desc": "Run tests with the bun test runner",
+   "tooltip": "Discovers and runs test files with bun's built-in Jest-compatible runner, covering .test.js and .spec.ts patterns with no framework install. It supports mocks, snapshots, and lifecycle hooks out of the box. Add --watch to rerun on changes."
+  },
+  {
+   "cmd": "bun test --watch",
+   "desc": "Run bun tests and rerun on changes",
+   "tooltip": "Runs the test suite once, then watches the files and reruns the affected tests on every save. The watch loop keeps results current while you edit, replacing the test-watch dance of other runners. Stop it with Ctrl+C."
+  },
+  {
+   "cmd": "bun test --coverage",
+   "desc": "Run bun tests with coverage reporting",
+   "tooltip": "Executes the test suite and measures how much of the code the tests exercise, printing line and branch coverage percentages. Coverage thresholds can gate CI builds. The text report is the default format."
+  },
+  {
+   "cmd": "bunx cowsay hi",
+   "desc": "Run an npm package without installing it",
+   "tooltip": "Downloads and runs the cowsay binary on the fly, caching it for next time, exactly like npx but faster. bunx checks local node_modules first, then the global cache. The -p flag runs a binary from a differently named package."
+  },
+  {
+   "cmd": "bun create vite myapp",
+   "desc": "Scaffold a project from a template",
+   "tooltip": "Runs the create-vite starter to generate a Vite app in the myapp directory, prompting for framework choices. bun create maps to the matching create-* npm package, like bunx create-vite. Follow with bun install in the new folder."
+  },
+  {
+   "cmd": "bun init my-app",
+   "desc": "Scaffold a new bun project",
+   "tooltip": "Creates the my-app directory with a package.json, entry file, and TypeScript configuration, prompting for a template such as Blank or React. It is bun's quickstart for new projects. Run bun run index.ts to start the generated app."
+  },
+  {
+   "cmd": "bun pm ls",
+   "desc": "List installed packages with bun",
+   "tooltip": "Prints the top-level packages in node_modules with their versions, bun's version of npm ls --depth=0. The --all flag expands to the full transitive tree. Alias bun list does the same thing."
+  },
+  {
+   "cmd": "bun pm cache",
+   "desc": "Show the bun package cache directory",
+   "tooltip": "Prints where bun stores downloaded packages for reuse across projects, the shared cache that makes installs fast. The directory grows over time as versions accumulate. Clear it with bun pm cache rm."
+  },
+  {
+   "cmd": "bun pm cache rm",
+   "desc": "Clear the bun package cache",
+   "tooltip": "Deletes every downloaded package from bun's global cache, freeing disk space at the cost of slower future installs. Only the cache is affected, never node_modules. Re-downloads happen on the next bun install."
+  },
+  {
+   "cmd": "bun pm pack",
+   "desc": "Create a tarball of the package",
+   "tooltip": "Packs the current project into a name-version.tgz publish artifact, the same file bun publish would upload. Use --destination to choose the output folder and --dry-run to preview. Inspect the tarball before releasing."
+  },
+  {
+   "cmd": "bun pm version patch",
+   "desc": "Bump the package version with bun",
+   "tooltip": "Increments the patch digit in package.json, mirroring npm version patch with the same major, minor, and prerelease strategies. The --no-git-tag-version flag skips git operations. Shows the resulting version on success."
+  },
+  {
+   "cmd": "bun pm whoami",
+   "desc": "Show the logged-in npm user for bun",
+   "tooltip": "Prints the username stored in bun's npm credentials, confirming which account will publish and install scoped packages. Credentials come from bunx npm login or .npmrc tokens. Check before bun publish."
+  },
+  {
+   "cmd": "bun link",
+   "desc": "Register the current package for linking",
+   "tooltip": "Makes the current package linkable globally so other projects can depend on it while you develop, without publishing. The name comes from package.json, and consumers run bun link <name> to connect. Unregister with bun unlink."
+  },
+  {
+   "cmd": "bun unlink",
+   "desc": "Unregister a linked package",
+   "tooltip": "Removes the current package from bun's global link registry, so projects depending on it revert to registry versions. The inverse of bun link. Run it in the package directory that was registered."
+  },
+  {
+   "cmd": "bun build ./src/index.ts --outdir ./dist",
+   "desc": "Bundle an app with the bun bundler",
+   "tooltip": "Compiles src/index.ts and its imports into a single JavaScript file in the dist folder, bundling TypeScript and JSX natively. Bundling resolves node_modules and outputs deployable files. Add --watch to rebuild on change."
+  },
+  {
+   "cmd": "bun build ./app.tsx --outdir ./out --target browser --minify",
+   "desc": "Bundle for the browser with minification",
+   "tooltip": "Builds the React app in app.tsx into minified JavaScript aimed at browsers, tree-shaking unused code. The --target browser flag avoids Node-specific globals, and --minify shrinks output size. Output lands in the out folder."
+  },
+  {
+   "cmd": "bun repl",
+   "desc": "Start an interactive bun REPL",
+   "tooltip": "Opens a read-eval-print loop where you can try JavaScript and TypeScript expressions interactively, with bun's runtime globals available. Useful for poking at APIs before writing files. Exit with Ctrl+D."
+  },
+  {
+   "cmd": "bun --version",
+   "desc": "Print the bun version",
+   "tooltip": "Reports the installed bun release, useful for verifying installs and matching docs to behavior. The install script and package managers keep it current. Upgrade in place with bun upgrade."
+  },
+  {
+   "cmd": "bun upgrade",
+   "desc": "Self-update the bun binary",
+   "tooltip": "Replaces the current bun executable with the latest stable release, downloading from the official source. The one-command update keeps the runtime current without touching projects. Canary builds are available via bun upgrade --canary."
+  },
+  {
+   "cmd": "bun publish",
+   "desc": "Publish a package to the npm registry",
+   "tooltip": "Uploads the current package to the npm registry, making it installable by anyone. Publishing is permanent and versions are immutable, so run bun publish --dry-run first and use --otp for accounts with 2FA. Requires npm credentials."
+  }
+ ]
+}

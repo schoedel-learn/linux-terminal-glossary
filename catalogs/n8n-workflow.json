@@ -1,0 +1,390 @@
+{
+  "category": "n8n & Workflow Automation",
+  "commands": [
+    {
+      "cmd": "n8n start",
+      "desc": "Start the n8n server",
+      "tooltip": "Boots the n8n instance, serving the editor UI at http://localhost:5678 and activating the triggers of published workflows. The process stays in the foreground, so run it in a terminal, a systemd unit, or a process manager. Running bare n8n with no arguments behaves the same as n8n start. Stop with Ctrl+C for a graceful shutdown."
+    },
+    {
+      "cmd": "n8n start -o",
+      "desc": "Start n8n and open the editor in a browser",
+      "tooltip": "Starts the server and attempts to open the editor URL in your default browser. The -o flag is the only flag n8n start accepts; ports and hostnames are configured through environment variables like N8N_PORT and N8N_HOST. Press o in the running terminal to reopen the browser at any time."
+    },
+    {
+      "cmd": "n8n --version",
+      "desc": "Show the installed n8n version",
+      "tooltip": "Prints the version number of the n8n package, handy before reading release notes or filing a bug report. The aliases -v and -V are accepted too. Compare the output against the stable version listed in the n8n docs to see how outdated your install is."
+    },
+    {
+      "cmd": "n8n --help",
+      "desc": "List every available n8n CLI command",
+      "tooltip": "Prints the full command list with a one-line description of each entry, plus a pointer to the CLI reference documentation. Run n8n <command> --help to get that command's own flags and examples. The list includes export, import, execute, and maintenance helpers, though not every command appears on the docs page."
+    },
+    {
+      "cmd": "n8n list:workflow",
+      "desc": "List workflows with IDs and names",
+      "tooltip": "Prints every workflow as id|name, one pair per line, using the internal IDs that export, execute, and publish commands expect. This is the fastest way to find a workflow ID when you only know its display name. Combine with --onlyId or --active to shape the output."
+    },
+    {
+      "cmd": "n8n list:workflow --onlyId",
+      "desc": "List only workflow IDs",
+      "tooltip": "Prints just the numeric workflow IDs, one per line, dropping the names for easy scripting. Feed the output into a loop that backs up or executes every workflow. Use --active=true or --active=false to restrict the list to published or unpublished workflows."
+    },
+    {
+      "cmd": "n8n list:workflow --active=true",
+      "desc": "List only published workflows",
+      "tooltip": "Filters the listing to workflows whose active flag is true, meaning their triggers run automatically. In n8n 2.0 the active flag corresponds to the published state. The --active flag accepts only true or false and rejects any other value."
+    },
+    {
+      "cmd": "n8n execute --id=123",
+      "desc": "Run a saved workflow once",
+      "tooltip": "Executes workflow 123 the same way a manual run would, starting from the first trigger node, and prints the full execution result as JSON. The workflow must already exist in the n8n database, so import it first when it came from a file. The --id flag is required; the old --file flag no longer works."
+    },
+    {
+      "cmd": "n8n execute --id=123 --rawOutput",
+      "desc": "Run a workflow and print only JSON",
+      "tooltip": "Executes workflow 123 and prints only the JSON execution data, with no surrounding status text, so piping into jq or another parser stays clean. Use the flag exactly as written, --rawOutput. Failed runs still exit with a non-zero code and log the error."
+    },
+    {
+      "cmd": "n8n execute-batch --ids=10,13,15 --concurrency=10",
+      "desc": "Run multiple workflows in parallel",
+      "tooltip": "Executes workflows 10, 13, and 15 once each, up to 10 at a time, and prints a JSON summary with the status of every run. The --ids flag also accepts a file path whose contents are comma-separated IDs. Omitting --ids runs every workflow in the instance, which can take a while."
+    },
+    {
+      "cmd": "n8n execute-batch --snapshot=/data/snapshots --shallow",
+      "desc": "Save execution snapshots for regression tests",
+      "tooltip": "Runs all workflows and writes one snapshot JSON file per workflow into the given directory, comparing only top-level output attributes when --shallow is set. Point --compare at the snapshot directory on a later run to diff current output against it. Deleted output fields are flagged as errors, new ones as warnings."
+    },
+    {
+      "cmd": "n8n execute-batch --compare=/data/snapshots --retries=2",
+      "desc": "Compare executions against saved snapshots",
+      "tooltip": "Runs every workflow and diffs each execution against the matching snapshot file in the directory, retrying failed or warning runs up to 2 extra times. Structural removals in the output are reported as errors and additions as warnings. Add --shortOutput to print only the summary instead of full execution data."
+    },
+    {
+      "cmd": "n8n publish:workflow --id=123",
+      "desc": "Publish the draft of a workflow",
+      "tooltip": "Makes the current draft of workflow 123 the published version, so its scheduled triggers fire and its webhooks become live. Publishing replaced the old active toggle in n8n 2.0, and there is deliberately no --all flag to prevent accidental bulk publishes. The change takes effect after an n8n restart."
+    },
+    {
+      "cmd": "n8n unpublish:workflow --id=123",
+      "desc": "Unpublish a workflow",
+      "tooltip": "Removes workflow 123 from the published state, stopping its scheduled triggers and webhook endpoints. Third-party services may still hit a webhook URL briefly while it deregisters. Restart n8n to be certain every trigger is fully stopped."
+    },
+    {
+      "cmd": "n8n unpublish:workflow --all",
+      "desc": "Unpublish every workflow",
+      "tooltip": "Takes all workflows offline at once, which is handy before a maintenance window or a full instance migration. This is a bulk action: every schedule and webhook stops firing. Prefer targeting individual IDs unless you genuinely mean everything."
+    },
+    {
+      "cmd": "n8n export:workflow --all",
+      "desc": "Export all workflows to stdout",
+      "tooltip": "Prints every workflow as a JSON array to the terminal, ready to redirect into a file with > or pipe into jq. Exactly one of --all, --id, or --projectId is required. The export is a bare array, so jq filters such as .[].name address workflows directly."
+    },
+    {
+      "cmd": "n8n export:workflow --all | jq '.[].name'",
+      "desc": "List workflow names from an export",
+      "tooltip": "Pipes the exported workflow array into jq and prints only the name field of each workflow. The export format is a plain JSON array, not an object with a workflows key, so the filter is .[] rather than .workflows[]. Add -r to strip the surrounding quotes."
+    },
+    {
+      "cmd": "n8n export:workflow --id=123 --output=workflow.json",
+      "desc": "Export one workflow to a file",
+      "tooltip": "Writes workflow 123 as JSON to workflow.json, with --output (short form -o) naming the file. The file holds a single workflow object with nodes, connections, and metadata, ready to import on another instance. The export keeps the workflow ID, so importing into an instance that already has ID 123 overwrites it."
+    },
+    {
+      "cmd": "n8n export:workflow --all --output=workflows.json",
+      "desc": "Export all workflows to one file",
+      "tooltip": "Dumps every workflow into a single JSON array at workflows.json, ideal for a quick full backup or a migration between instances. Import the same file back with n8n import:workflow --input=workflows.json. For per-file, versioned backups, prefer --separate or --backup."
+    },
+    {
+      "cmd": "n8n export:workflow --all --separate --output=backups/latest/",
+      "desc": "Export one JSON file per workflow",
+      "tooltip": "Writes each workflow to its own file named by ID inside backups/latest/, a layout that plays well with version control and single-workflow restores. The --output directory is created automatically if missing. Restore the whole set with n8n import:workflow --separate --input=backups/latest/."
+    },
+    {
+      "cmd": "n8n export:workflow --backup --output=backups/latest/",
+      "desc": "Export workflows in backup mode",
+      "tooltip": "Runs the backup convenience flag, shorthand for --all --pretty --separate: pretty-printed JSON, one file per workflow, into the given directory. This is the documented one-shot backup command for workflows. Restore with n8n import:workflow --separate --input=backups/latest/."
+    },
+    {
+      "cmd": "n8n export:workflow --id=123 --output=workflow-v1.json",
+      "desc": "Export a historical workflow version",
+      "tooltip": "Writes the historical version whose version ID is the version id, not the current draft, to workflow-v1.json. Version IDs come from the workflow history and are listed in the editor's version panel. The --version flag cannot be combined with --all or --published."
+    },
+    {
+      "cmd": "n8n export:workflow --id=123 --published --output=published.json",
+      "desc": "Export the published version of a workflow",
+      "tooltip": "Writes the currently published version of workflow 123 to published.json instead of the draft. Exporting the published version captures exactly what production is running, including its version metadata. The --published and --version flags are mutually exclusive."
+    },
+    {
+      "cmd": "n8n export:workflow --projectId=Ox8O54VQrmBrb4qL --output=project-workflows.json",
+      "desc": "Export all workflows of one project",
+      "tooltip": "Exports every workflow belonging to project Ox8O54VQrmBrb4qL into a single file, handy for team-level backups. Exactly one of --all, --id, or --projectId must be given, making this the project-scoped selector. The same selector pattern exists on export:credentials."
+    },
+    {
+      "cmd": "n8n export:credentials --all",
+      "desc": "Export all credentials to stdout",
+      "tooltip": "Prints every credential as a JSON array with its metadata, keeping data fields encrypted so secrets stay unreadable. Use --decrypted only when you truly need the plain values. Note the plural command name, export:credentials."
+    },
+    {
+      "cmd": "n8n export:credentials --id=5 --output=credential.json",
+      "desc": "Export one credential to a file",
+      "tooltip": "Writes credential 5 to credential.json using its ID, which you can find in the credentials list in the editor. The data is still encrypted, so the file is only useful on an instance that can decrypt it. Restore with n8n import:credentials --input=credential.json."
+    },
+    {
+      "cmd": "n8n export:credentials --all --output=credentials.json",
+      "desc": "Export all credentials to one file",
+      "tooltip": "Saves every credential into a single JSON array at credentials.json, still encrypted. This pairs with n8n import:credentials for moving credentials between instances that share the same encryption key. For a plain-text migration, add --decrypted."
+    },
+    {
+      "cmd": "n8n export:credentials --all --decrypted --output=backups/decrypted.json",
+      "desc": "Export credentials in plain text",
+      "tooltip": "Writes every credential with its secrets in plain text, required when migrating to an instance with a different encryption key. Treat this file like a password vault, since anyone who reads it can use every stored API key and password. Delete it as soon as the migration finishes."
+    },
+    {
+      "cmd": "n8n export:credentials --backup --output=backups/latest/",
+      "desc": "Export credentials in backup mode",
+      "tooltip": "Combines --all --pretty --separate to write one pretty-printed, still-encrypted JSON file per credential into backups/latest/. This is the credentials counterpart of the workflow backup command. Restore with n8n import:credentials --separate --input=backups/latest/."
+    },
+    {
+      "cmd": "n8n export:credentials --projectId=Ox8O54VQrmBrb4qL --output=project-creds.json",
+      "desc": "Export all credentials of one project",
+      "tooltip": "Writes the credentials owned by project Ox8O54VQrmBrb4qL to project-creds.json, still encrypted. Useful before deleting a project or auditing what a team can access. Combine with the workflow project export for a complete team snapshot."
+    },
+    {
+      "cmd": "n8n import:workflow --input=workflows.json",
+      "desc": "Import workflows from a file",
+      "tooltip": "Loads workflows.json, accepting either a single workflow object or an array, and creates the workflows in the database. Imported workflows are deactivated by default so their triggers do not fire until you publish them. Workflows whose IDs already exist in the target instance are overwritten."
+    },
+    {
+      "cmd": "n8n import:workflow --separate --input=backups/latest/",
+      "desc": "Import workflows from a directory",
+      "tooltip": "Reads every .json file in backups/latest/ as one workflow each, matching the layout produced by --separate and --backup exports. Files without valid nodes and connections are skipped with a warning. Assign ownership with --userId or --projectId, but never both."
+    },
+    {
+      "cmd": "n8n import:workflow --separate --input=backups/latest/ --activeState=fromJson",
+      "desc": "Import workflows keeping their active state",
+      "tooltip": "Imports each workflow and honours the active field from its JSON instead of deactivating everything. The fromJson value only works in queue or multi-main mode, and a regular instance rejects the flag outright. On single-instance setups, import with the default and publish afterwards."
+    },
+    {
+      "cmd": "n8n import:workflow --input=workflows.json --projectId=Ox8O54VQrmBrb4qL",
+      "desc": "Import workflows into a project",
+      "tooltip": "Imports the workflows and assigns them to project Ox8O54VQrmBrb4qL, which is how multi-user instances restore backups into a team space. Combining --projectId with --userId is an error. Omitting both assigns the workflows to the instance owner."
+    },
+    {
+      "cmd": "n8n import:credentials --input=credentials.json",
+      "desc": "Import credentials from a file",
+      "tooltip": "Reads credentials.json, which may hold one credential or an array, and inserts them into the database, encrypting any plain-text data it finds. Credentials with the same ID as existing ones are overwritten, so rename or delete IDs first when merging exports. Ownership goes to the instance owner unless --userId or --projectId is passed."
+    },
+    {
+      "cmd": "n8n import:credentials --separate --input=backups/latest/",
+      "desc": "Import credentials from a directory",
+      "tooltip": "Loads every .json file from backups/latest/, one credential per file, as produced by the --separate or --backup export. The --input value must be a real directory, and the file names do not matter. Use --projectId to assign all imported credentials to one project."
+    },
+    {
+      "cmd": "n8n export:entities --outputDir=./outputs",
+      "desc": "Export all database entities",
+      "tooltip": "Dumps every n8n database entity, including users, projects, settings, and more, into ./outputs so you can migrate between database engines such as SQLite and Postgres. Execution history tables are excluded by default because they can be enormous. This is the CLI-level migration path, separate from the workflow and credential exports."
+    },
+    {
+      "cmd": "n8n export:entities --outputDir=./outputs --includeExecutionHistoryDataTables=true",
+      "desc": "Export entities including execution history",
+      "tooltip": "Adds the execution history data tables to the entity export, which the default omits to keep the dump small. Expect a much larger output directory on instances with heavy automation traffic. Import the result with n8n import:entities."
+    },
+    {
+      "cmd": "n8n import:entities --inputDir ./outputs --truncateTables true",
+      "desc": "Import database entities",
+      "tooltip": "Loads an entity export back into n8n, targeting a possibly different database engine than the export source. The target database should be empty, or pass --truncateTables true to wipe the tables first. Back up the destination instance before running this."
+    },
+    {
+      "cmd": "n8n user-management:reset",
+      "desc": "Reset user management to its initial state",
+      "tooltip": "Removes every user account and returns user management to the pre-setup state, the recovery path when you lose the owner password and have no SMTP for password resets. This deletes all accounts, so only run it when you have another way in. You will create the owner account again at the next login."
+    },
+    {
+      "cmd": "n8n mfa:disable --email=johndoe@example.com",
+      "desc": "Disable two-factor authentication for a user",
+      "tooltip": "Turns off MFA for the account with the given email, the escape hatch when a user lost their recovery codes and cannot log in. Only the named user is affected, and they can re-enable MFA from their profile afterwards. Works without the server running."
+    },
+    {
+      "cmd": "n8n ldap:reset",
+      "desc": "Clear LDAP configuration",
+      "tooltip": "Resets the LDAP settings so the instance falls back to its default authentication method, useful when a misconfigured LDAP server locks everyone out. User accounts are not deleted, but LDAP-managed users may need password resets. Reconfigure LDAP from the settings UI afterwards."
+    },
+    {
+      "cmd": "n8n license:info",
+      "desc": "Show license details",
+      "tooltip": "Prints the current license information, including plan and expiry date, the first thing to check when enterprise features stop working. It runs from the CLI without the server. Paid features such as projects and SSO unlock only with a valid license."
+    },
+    {
+      "cmd": "n8n license:clear",
+      "desc": "Remove the license from the database",
+      "tooltip": "Deletes the stored license and resets n8n to default community features, releasing any floating entitlements back to the pool. Enterprise-only features become unavailable immediately. Reinstall the license to restore them."
+    },
+    {
+      "cmd": "n8n audit",
+      "desc": "Run the security audit",
+      "tooltip": "Scans the instance for common security issues such as missing security settings, risky node configurations, and exposed files, then prints a report. The same audit is available in the settings UI. Fix the flagged items and re-run to confirm."
+    },
+    {
+      "cmd": "n8n community-node --uninstall --package n8n-nodes-evolution-api",
+      "desc": "Uninstall a community node",
+      "tooltip": "Removes the n8n-nodes-evolution-api package from the instance, the standard fix when a community node causes crashes or instability. The package name must match the npm package exactly. Workflows using its nodes will show errors until the nodes are removed or replaced."
+    },
+    {
+      "cmd": "n8n community-node --uninstall --credential evolutionApi --userId 1234",
+      "desc": "Remove a community node credential",
+      "tooltip": "Deletes the evolutionApi credential owned by user 1234, cleaning up leftovers when uninstalling a community node. The credential name comes from the node's credentials definition file, not the display name. Use this when the normal uninstall leaves orphaned credentials behind."
+    },
+    {
+      "cmd": "N8N_PORT=5679 n8n start",
+      "desc": "Run n8n on a custom port",
+      "tooltip": "Sets the HTTP port the editor and API listen on, overriding the default 5678. Useful when 5678 is taken or when running several instances side by side. The port and host are environment variables, not n8n start flags."
+    },
+    {
+      "cmd": "N8N_HOST=n8n.example.com n8n start",
+      "desc": "Set the hostname n8n binds to",
+      "tooltip": "Tells n8n which hostname it is reachable at, which feeds into generated URLs and links. The default is localhost. Behind a reverse proxy, pair it with N8N_PROTOCOL and N8N_PROXY_HOPS so callback and webhook URLs come out right."
+    },
+    {
+      "cmd": "N8N_PROTOCOL=https n8n start",
+      "desc": "Serve n8n over HTTPS",
+      "tooltip": "Declares that clients reach n8n over https, which matters for OAuth callbacks and webhook URLs even when a reverse proxy terminates TLS. Provide N8N_SSL_KEY and N8N_SSL_CERT if n8n itself terminates TLS. Set N8N_SECURE_COOKIE=false if a local HTTP setup breaks logins."
+    },
+    {
+      "cmd": "N8N_WEBHOOK_URL=https://n8n.example.com/ n8n start",
+      "desc": "Set the public webhook base URL",
+      "tooltip": "Overrides the base URL used to build test and production webhook URLs, and is the successor to the deprecated WEBHOOK_URL variable. External services need this when n8n sits behind a reverse proxy or on a custom domain. Wrong values make webhook trigger links unreachable from the internet."
+    },
+    {
+      "cmd": "N8N_EDITOR_BASE_URL=https://n8n.example.com n8n start",
+      "desc": "Set the public editor URL",
+      "tooltip": "Provides the public URL where users reach the editor, also used in emails n8n sends and as the SAML redirect URL. Set this when the editor is served through a proxy or on a different domain. It removes the guesswork from generated links."
+    },
+    {
+      "cmd": "N8N_ENCRYPTION_KEY=0f3a9c2b8e4d6f1a7c5b3e9d2f8a1c4b n8n start",
+      "desc": "Pin the credential encryption key",
+      "tooltip": "Sets the key n8n uses to encrypt credentials in the database, instead of generating a random one on first launch. It must stay identical across restarts and replicas, or stored credentials become undecryptable. Changing it later requires the decrypted export and re-import migration path."
+    },
+    {
+      "cmd": "GENERIC_TIMEZONE=Europe/Madrid n8n start",
+      "desc": "Set the default timezone for schedules",
+      "tooltip": "Configures the timezone used by schedule-based trigger nodes such as the Schedule Trigger, with the default being America/New_York. Individual workflows can override it, but this instance default covers everything else. Combine with the TZ variable in Docker to align the system clock too."
+    },
+    {
+      "cmd": "N8N_LISTEN_ADDRESS=0.0.0.0 n8n start",
+      "desc": "Listen on all network interfaces",
+      "tooltip": "Binds the server to every interface instead of the default loopback, which Docker containers need to expose n8n outside the host. Only do this when the network is trusted, since the editor becomes reachable from any host that can route to it. Local development usually keeps the default."
+    },
+    {
+      "cmd": "N8N_PROXY_HOPS=1 n8n start",
+      "desc": "Adjust for one reverse proxy in front",
+      "tooltip": "Tells n8n how many reverse proxies sit between it and clients so it can trust forwarded headers and build correct URLs. Set the number of proxy hops, not just 1, whenever more than one proxy is involved. Wrong values cause redirects and webhooks to use internal addresses."
+    },
+    {
+      "cmd": "N8N_SSL_KEY=/etc/ssl/n8n.key N8N_SSL_CERT=/etc/ssl/n8n.crt N8N_PROTOCOL=https n8n start",
+      "desc": "Terminate TLS directly in n8n",
+      "tooltip": "Points n8n at an SSL key and certificate pair and enables the https protocol, so n8n itself terminates TLS without a reverse proxy. The certificate must cover the hostname users connect to. Many deployments prefer terminating TLS at the proxy and keeping n8n on plain http."
+    },
+    {
+      "cmd": "EXECUTIONS_DATA_PRUNE=true EXECUTIONS_DATA_MAX_AGE=168 n8n start",
+      "desc": "Prune executions older than a week",
+      "tooltip": "Enables rolling deletion of finished executions, keeping only those younger than 168 hours (7 days). Pruning is on by default with a 336-hour age limit and a 10000 execution count cap, both overridable per workflow. Pruned data is soft-deleted first, then hard-deleted on a schedule."
+    },
+    {
+      "cmd": "EXECUTIONS_DATA_SAVE_ON_ERROR=all EXECUTIONS_DATA_SAVE_ON_SUCCESS=none n8n start",
+      "desc": "Save only failed executions",
+      "tooltip": "Stores execution data for every failed run while discarding successful ones, the classic disk-saving setup for busy instances. The values are all or none, applied at instance level and overridable per workflow. Combined with pruning, this keeps the database lean."
+    },
+    {
+      "cmd": "EXECUTIONS_MODE=queue n8n start",
+      "desc": "Run n8n in queue mode",
+      "tooltip": "Switches execution processing to queue mode, where a Redis-backed queue hands work to worker instances and enables horizontal scaling. Requires a Redis instance configured through the queue settings and at least one n8n worker process. Regular mode, the default, runs everything in one process."
+    },
+    {
+      "cmd": "EXECUTIONS_TIMEOUT=300 n8n start",
+      "desc": "Cap how long executions may run",
+      "tooltip": "Forces any workflow execution to stop after 300 seconds, preventing runaway runs from consuming resources forever. The default is -1, meaning unlimited. Timed-out runs are marked as failed in the execution list."
+    },
+    {
+      "cmd": "N8N_CONCURRENCY_PRODUCTION_LIMIT=10 n8n start",
+      "desc": "Limit concurrent production executions",
+      "tooltip": "Caps the number of production executions that run at the same time to 10, protecting downstream services from bursts of scheduled runs. The default -1 means unlimited. Manual test runs do not count against the limit."
+    },
+    {
+      "cmd": "N8N_DIAGNOSTICS_ENABLED=false n8n start",
+      "desc": "Disable anonymous telemetry",
+      "tooltip": "Turns off the anonymous diagnostics data n8n shares with the vendor, which is enabled by default. Note that the Ask AI features in the Code node require diagnostics to stay on. Logs and error reporting are unaffected."
+    },
+    {
+      "cmd": "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true n8n start",
+      "desc": "Lock down settings file permissions",
+      "tooltip": "Makes n8n check and enforce 0600 permissions on its settings file so only the owner can read it, protecting stored configuration secrets. This is the default behaviour in current versions and is also set in the official Docker instructions. Keep the file owned by the user n8n runs as."
+    },
+    {
+      "cmd": "N8N_BLOCK_ENV_ACCESS_IN_NODE=true n8n start",
+      "desc": "Block nodes from reading environment variables",
+      "tooltip": "Prevents workflow expressions and the Code node from reading the host's environment variables, a hardening step for multi-user instances. The default false lets workflows see env vars, including secrets you may have exported. Enable it when untrusted users build workflows."
+    },
+    {
+      "cmd": "N8N_TUNNEL_SUBDOMAIN=myinstance n8n start",
+      "desc": "Use a fixed tunnel subdomain",
+      "tooltip": "Requests a stable subdomain for n8n's built-in tunnel, which exposes a local instance to the internet via cloudflared for development. Without it, n8n generates a random subdomain on each run. The tunnel is development tooling only, not safe for production, and its implementation may change between versions."
+    },
+    {
+      "cmd": "DB_TYPE=postgresdb DB_POSTGRESDB_DATABASE=n8n DB_POSTGRESDB_HOST=localhost DB_POSTGRESDB_USER=n8n DB_POSTGRESDB_PASSWORD=secret n8n start",
+      "desc": "Use PostgreSQL as the database",
+      "tooltip": "Switches n8n from its default SQLite file to a PostgreSQL database on localhost, with the database, user, and password given. Every DB_POSTGRESDB_* variable must match a real Postgres setup, and the database must exist before startup. Postgres is the recommended database for production and queue mode."
+    },
+    {
+      "cmd": "N8N_PATH=/n8n n8n start",
+      "desc": "Serve n8n under a URL path",
+      "tooltip": "Deploys the editor and API under the /n8n path prefix instead of the root, which some corporate proxies require. Combining N8N_PATH with a reverse proxy can break folder navigation, so prefer a subdomain such as n8n.example.com when possible."
+    },
+    {
+      "cmd": "docker volume create n8n_data",
+      "desc": "Create the n8n data volume",
+      "tooltip": "Creates the named Docker volume that persists n8n's .n8n folder, which holds the SQLite database, encryption key, and settings. The official install flow creates this volume first, then mounts it into the container. Without it, every container recreation wipes your workflows and credentials."
+    },
+    {
+      "cmd": "docker run -d --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Start the n8n Docker container",
+      "tooltip": "Launches the official n8n image detached, mapping host port 5678 to the container and mounting the n8n_data volume over /home/node/.n8n so data survives restarts. The image comes from docker.n8n.io/n8nio/n8n, the registry the docs use. Open http://localhost:5678 afterwards to reach the editor."
+    },
+    {
+      "cmd": "docker pull docker.n8n.io/n8nio/n8n",
+      "desc": "Pull the latest stable n8n image",
+      "tooltip": "Downloads the newest stable n8n image from the official registry, the first step of upgrading a containerized instance. Pin a version such as docker.n8n.io/n8nio/n8n:1.81.0 for reproducible deploys, or use the :next tag for unstable builds. Restart the container after pulling to apply the update."
+    },
+    {
+      "cmd": "docker stop n8n && docker rm n8n",
+      "desc": "Stop and remove the n8n container",
+      "tooltip": "Stops the running n8n container and deletes it, which is the documented upgrade flow before starting a fresh one from a new image. The named volume is untouched, so workflows and credentials survive. Start the replacement with the same docker run command afterwards."
+    },
+    {
+      "cmd": "docker run -d --name n8n -p 5678:5678 -e GENERIC_TIMEZONE=Europe/Madrid -e TZ=Europe/Madrid -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Run n8n with timezone settings",
+      "tooltip": "Starts n8n with GENERIC_TIMEZONE for schedule nodes and TZ for the container system clock, both set to Europe/Madrid. The official Docker instructions recommend setting both, alongside N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true. Scheduled workflows then fire at the right local time."
+    },
+    {
+      "cmd": "docker run -d --name n8n -p 5678:5678 -e DB_TYPE=postgresdb -e DB_POSTGRESDB_DATABASE=n8n -e DB_POSTGRESDB_HOST=postgres -e DB_POSTGRESDB_USER=n8n -e DB_POSTGRESDB_PASSWORD=secret -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Run n8n against a Postgres database",
+      "tooltip": "Connects the container to a PostgreSQL database named n8n on host postgres, how production deployments separate the database from the app container. The database, user, and password must already exist in Postgres. Keep the volume mounted anyway for encryption keys and logs."
+    },
+    {
+      "cmd": "docker exec -u node -it n8n n8n export:workflow --all",
+      "desc": "Run n8n CLI inside the container",
+      "tooltip": "Executes an n8n CLI command inside the running container as the node user, the documented way to use server CLI commands with a Docker install. The -u node flag makes files get created with the container's owning user. Swap export:workflow --all for any other CLI command."
+    },
+    {
+      "cmd": "docker compose exec n8n n8n list:workflow",
+      "desc": "List workflows in a Compose deployment",
+      "tooltip": "Runs the n8n CLI inside the n8n service of a Docker Compose stack, assuming the service is named n8n. This inspects a compose-based install without opening a shell first. Combine with export and import commands for in-place backups."
+    },
+    {
+      "cmd": "docker compose logs -f n8n",
+      "desc": "Follow n8n service logs in Compose",
+      "tooltip": "Streams the logs of the n8n service, filtering out other services such as Postgres and Redis in a compose stack. Great for watching startup errors or webhook traffic live. Press Ctrl+C to stop following without stopping the services."
+    }
+  ]
+}

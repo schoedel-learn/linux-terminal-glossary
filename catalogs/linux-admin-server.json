@@ -1,0 +1,900 @@
+{
+ "category": "Administration",
+ "commands": [
+  {
+   "cmd": "lsmod",
+   "desc": "List loaded kernel modules",
+   "tooltip": "Shows every kernel module currently loaded, one line each, with its size and how many other modules depend on it. A module is a driver or feature compiled separately from the kernel and loadable on demand. The first column is the name you pass to modprobe. Combine with grep to find a specific driver, for example lsmod | grep nvme."
+  },
+  {
+   "cmd": "modinfo i915",
+   "desc": "Show details about the i915 kernel module",
+   "tooltip": "Prints metadata for the i915 Intel graphics driver module: description, license, version, and the file it loads from. Useful to confirm a driver is present before loading it or to identify the correct module name for modprobe. The -p flag lists the module parameters instead."
+  },
+  {
+   "cmd": "modinfo -p i915",
+   "desc": "List tunable parameters of the i915 module",
+   "tooltip": "Shows the parameters the i915 driver accepts at load time, such as enable_guc for the graphics execution unit. Parameters listed here can be set through modprobe options or files under /etc/modprobe.d. Pair with modinfo i915 for the module metadata."
+  },
+  {
+   "cmd": "modprobe nf_tables",
+   "desc": "Load the nf_tables kernel module",
+   "tooltip": "Loads nf_tables, the module behind the nftables firewall framework. modprobe also resolves and loads every module nf_tables depends on, so you rarely load dependencies by hand. Modules are looked up under /lib/modules. Verify the load with lsmod or dmesg."
+  },
+  {
+   "cmd": "modprobe -r nf_tables",
+   "desc": "Unload the nf_tables kernel module",
+   "tooltip": "Removes nf_tables and its now-unused dependencies from the running kernel. Removal fails if another module still depends on it or a process holds a reference, which is normal safety behavior. Only unload modules you are certain are unused, since active firewall rules may vanish with it."
+  },
+  {
+   "cmd": "modprobe -a drm",
+   "desc": "Load the drm module and its dependencies",
+   "tooltip": "Loads drm plus every module it requires, which for display servers includes the graphics driver stack. The -a flag stands for --all and accepts several module names at once. A module is a loadable kernel component, so this enables optional hardware support without rebooting."
+  },
+  {
+   "cmd": "modprobe --show-depends nf_tables",
+   "desc": "Show module dependencies without loading",
+   "tooltip": "Prints exactly which modules and options modprobe would load for nf_tables, without loading anything. This dry-run inspection explains why a module pulls in others or helps debug load failures. The output lists insmod commands with full paths under /lib/modules."
+  },
+  {
+   "cmd": "depmod -a",
+   "desc": "Rebuild the kernel module dependency database",
+   "tooltip": "Scans all modules under /lib/modules and regenerates modules.dep, the index modprobe uses to resolve dependencies. Run it after installing new kernel modules or a new kernel so modprobe can find them. Without a current index, modprobe reports modules missing even when the files exist."
+  },
+  {
+   "cmd": "grub-mkconfig -o /boot/grub/grub.cfg",
+   "desc": "Regenerate the GRUB boot menu configuration",
+   "tooltip": "Rebuilds /boot/grub/grub.cfg from the scripts in /etc/grub.d and the settings in /etc/default/grub. Run it after editing those files or installing a kernel so the boot menu reflects the change. GRUB is the bootloader that presents the menu and loads the kernel. On Debian systems the wrapper update-grub does the same job."
+  },
+  {
+   "cmd": "update-grub",
+   "desc": "Regenerate the GRUB menu on Debian systems",
+   "tooltip": "Debian and Ubuntu wrapper around grub-mkconfig that writes a fresh /boot/grub/grub.cfg using the current kernel and /etc/default/grub settings. Run it after kernel updates, fstab changes, or editing GRUB options. It must run as root and prints the kernels and initrd images it detects."
+  },
+  {
+   "cmd": "grub-install /dev/sda",
+   "desc": "Install the GRUB bootloader to a disk",
+   "tooltip": "Writes the GRUB boot code to the master boot record of /dev/sda so the firmware can start it. This is destructive and low-level: a wrong target disk can leave a system unbootable. Normally you only re-run it after replacing a disk or installing a new bootloader. Use the --efi-directory form on UEFI machines."
+  },
+  {
+   "cmd": "grub-mkpasswd-pbkdf2",
+   "desc": "Generate a PBKDF2 hash for GRUB authentication",
+   "tooltip": "Prompts for a password and prints a PBKDF2 hash you can paste into /etc/grub.d/00_header to protect GRUB menu editing. PBKDF2 is a deliberately slow key-derivation algorithm that makes the stored hash resistant to brute force. Regenerate the menu with update-grub afterwards and test the lockout on reboot."
+  },
+  {
+   "cmd": "grub-editenv list",
+   "desc": "Show the GRUB environment block variables",
+   "tooltip": "Prints variables stored in the GRUB environment block, such as saved_entry which records the last chosen menu entry. The environment block is a small file that survives reboots and lets GRUB scripts persist state. Use it with grub-reboot or grub-set-default to control which entry boots."
+  },
+  {
+   "cmd": "grub-reboot 2",
+   "desc": "Boot a specific GRUB entry once",
+   "tooltip": "Sets saved_entry so the next reboot uses menu entry 2, then reverts to the default after that single boot. Useful to test an older kernel or a rescue entry without permanently changing the default. Confirm entry numbers against the menuentry lines in /boot/grub/grub.cfg."
+  },
+  {
+   "cmd": "update-initramfs -u",
+   "desc": "Rebuild the current initramfs image",
+   "tooltip": "Recreates the initramfs for the running kernel, packing the drivers and scripts needed in early boot into /boot/initrd.img. The initramfs is the early userspace the kernel loads before the real root filesystem is mounted. Run it after changing filesystem, LVM, or encryption settings so the boot image matches. Requires root."
+  },
+  {
+   "cmd": "update-initramfs -c -k 6.8.0-45-generic",
+   "desc": "Create an initramfs for a specific kernel",
+   "tooltip": "Builds a fresh initramfs image for kernel 6.8.0-45-generic even if one exists, overwriting it. The -k flag selects the kernel version and -c forces creation. Use this after upgrading a kernel manually or restoring a damaged initrd.img. An initramfs is the early userspace used to find and mount the real root filesystem."
+  },
+  {
+   "cmd": "update-initramfs -d -k 6.8.0-45-generic",
+   "desc": "Delete the initramfs for a kernel version",
+   "tooltip": "Removes the initramfs image belonging to kernel 6.8.0-45-generic. Only do this when that kernel is no longer needed, because the system cannot boot it without its initramfs. Keep the image for the running kernel at all times. The initramfs holds the drivers needed before the root filesystem is available."
+  },
+  {
+   "cmd": "mkinitramfs -o /boot/initrd.img-6.8.0-45-generic 6.8.0-45-generic",
+   "desc": "Build a custom initramfs image by hand",
+   "tooltip": "Creates an initramfs for kernel 6.8.0-45-generic and writes it to the path after -o, bypassing the normal update-initramfs flow. This is the underlying Debian tool for packing early-boot drivers and scripts into initrd.img. Useful for testing custom configurations or repairing a broken image. Run as root."
+  },
+  {
+   "cmd": "dracut --force",
+   "desc": "Rebuild the initramfs on RHEL-family systems",
+   "tooltip": "Regenerates the initramfs images managed by dracut, the initramfs generator used on Fedora, RHEL, and derivatives. The --force flag overwrites existing images even when dracut thinks nothing changed. Run it after changing storage or encryption configuration so early boot matches the new setup. Equivalent in purpose to update-initramfs -u on Debian."
+  },
+  {
+   "cmd": "efibootmgr -v",
+   "desc": "List UEFI boot entries with details",
+   "tooltip": "Shows every entry in the UEFI boot manager, including the boot number, active flag, and the EFI file each entry loads. The -v flag adds verbose detail such as the full device path. Use the boot numbers shown here with efibootmgr -b to modify or delete entries. Requires access to EFI variables, so run as root."
+  },
+  {
+   "cmd": "efibootmgr -b 0001 -B",
+   "desc": "Delete a UEFI boot entry",
+   "tooltip": "Removes boot entry 0001 from the UEFI boot manager permanently. Deleting the wrong entry can make the system fail to boot, so list entries with efibootmgr -v first and double-check the number. There is no undo, and a deleted entry must be recreated by hand with efibootmgr -c."
+  },
+  {
+   "cmd": "efibootmgr -c -d /dev/sda -p 1 -L 'Ubuntu' -l '\\EFI\\ubuntu\\shimx64.efi'",
+   "desc": "Create a UEFI boot entry for Ubuntu",
+   "tooltip": "Adds a new boot entry labeled Ubuntu that loads \\EFI\\ubuntu\\shimx64.efi from partition 1 of /dev/sda. The shim is the signed first-stage loader that chains into GRUB, so this is how you re-register a distro after its entry disappears. UEFI paths use backslashes. Run as root and verify with efibootmgr -v."
+  },
+  {
+   "cmd": "efibootmgr -o 0001,0002",
+   "desc": "Set the UEFI boot order",
+   "tooltip": "Reorders boot entries so 0001 is tried first and 0002 second, controlling which OS or loader the firmware starts. The comma-separated list can include any subset of existing boot numbers. Use efibootmgr -v to see the current numbers. This only changes firmware boot order, not the GRUB menu."
+  },
+  {
+   "cmd": "systemctl daemon-reexec",
+   "desc": "Restart the systemd manager process",
+   "tooltip": "Re-executes systemd itself, reloading the manager binary and its configuration while keeping all units and their state intact. A unit is systemd's definition of a service, socket, timer, or other managed object. Use this after upgrading systemd or editing manager-level settings in daemon.conf. Your services are not restarted."
+  },
+  {
+   "cmd": "systemctl reset-failed nginx",
+   "desc": "Clear the failed state of a unit",
+   "tooltip": "Forgets that the nginx service previously failed, removing it from the failed list and resetting its failure counters. A unit stays in failed state until reset, which matters for automation that watches systemctl is-failed. The bare form systemctl reset-failed clears every failed unit at once."
+  },
+  {
+   "cmd": "systemctl show nginx -p ExecStart",
+   "desc": "Display one property of a unit",
+   "tooltip": "Prints a single property, ExecStart, of the nginx unit, showing the exact command line systemd uses to start it. The -p flag selects one property instead of the full dump plain systemctl show returns. Useful to confirm which binary and arguments a unit really runs."
+  },
+  {
+   "cmd": "systemctl list-dependencies --after sshd.service",
+   "desc": "Show units ordered before sshd",
+   "tooltip": "Lists the units systemd starts before sshd.service because of ordering dependencies, giving a view of that service's boot chain. The --after flag shows what must be up first, while --before shows what comes later. This helps debug services that fail because a dependency is missing."
+  },
+  {
+   "cmd": "systemctl set-property nginx.service CPUQuota=50%",
+   "desc": "Change a unit property at runtime",
+   "tooltip": "Applies a runtime property, here a 50 percent CPU quota, to the nginx service without editing its unit file. The change persists under /etc/systemd/system.control and can be read back with systemctl show. Not all properties support runtime assignment."
+  },
+  {
+   "cmd": "systemctl edit --full nginx",
+   "desc": "Edit a unit file with a full override copy",
+   "tooltip": "Opens the complete unit file of nginx in your editor so you can rewrite it wholesale, saving the copy as an override under /etc/systemd/system. Plain systemctl edit only opens a small drop-in snippet. Use the full form when you want to restructure the whole unit rather than patch it."
+  },
+  {
+   "cmd": "systemctl revert nginx",
+   "desc": "Remove all overrides for a unit",
+   "tooltip": "Deletes every drop-in override and symlink that customizes the nginx unit, returning it to the version shipped by the package. Use this to undo systemctl edit changes or accidental masking. The shipped unit file itself is not touched, only local modifications."
+  },
+  {
+   "cmd": "systemctl list-unit-files --state=enabled",
+   "desc": "List units enabled at boot",
+   "tooltip": "Shows every unit file whose state is enabled, meaning systemd will start it during boot. The --state filter narrows the full list-unit-files output to one status. Combined with --type=service you get only the enabled services, a quick audit of what runs at startup."
+  },
+  {
+   "cmd": "systemctl list-units --type=target",
+   "desc": "List active systemd targets",
+   "tooltip": "Shows the currently active targets, which are named groups of units representing boot levels such as multi-user.target or graphical.target. A target is systemd's replacement for the old runlevel concept. Use this to see which groups are up and which target systemctl isolate would switch to."
+  },
+  {
+   "cmd": "systemctl list-timers --all",
+   "desc": "List all systemd timers including inactive",
+   "tooltip": "Shows every timer unit with its next and last trigger times, including timers that are not currently running thanks to --all. Timers are systemd's replacement for cron, scheduling services by calendar or monotonic time. The output also names the service each timer activates."
+  },
+  {
+   "cmd": "systemd-analyze verify /etc/systemd/system/nginx.service",
+   "desc": "Check a unit file for errors",
+   "tooltip": "Parses the nginx unit file and its dependencies, reporting syntax errors, unknown settings, and missing binaries without starting anything. It follows included files and drop-ins, so it validates the real effective configuration. A clean run prints nothing, while warnings and errors name the offending lines."
+  },
+  {
+   "cmd": "systemd-analyze security nginx.service",
+   "desc": "Audit a unit's security exposure",
+   "tooltip": "Scores the nginx service against hardening properties such as PrivateTmp, NoNewPrivileges, and capability restrictions, printing a risk level from 0.0 to 9.9. Use the printed suggestions to add hardening directives to the unit. The form without a unit name analyzes the whole system."
+  },
+  {
+   "cmd": "systemd-analyze boot",
+   "desc": "Show boot time breakdown by unit",
+   "tooltip": "Prints how long each unit took to start during the last boot, sorted by time, with a total at the end. This is the fastest way to find what slows boot. Add --boot-id or use systemd-analyze blame for a flatter list."
+  },
+  {
+   "cmd": "systemd-analyze calendar 'Mon 02:00'",
+   "desc": "Validate a calendar timer expression",
+   "tooltip": "Parses a calendar specification like 'Mon 02:00' and prints the next few times it will fire, confirming the syntax before you put it in a timer unit. This catches mistakes such as wrong weekday names or impossible times. The same expression syntax is used by the OnCalendar setting in timer units."
+  },
+  {
+   "cmd": "systemd-run --unit=myjob --on-calendar 'Mon 02:00' /usr/local/bin/backup.sh",
+   "desc": "Run a command on a schedule as a timer",
+   "tooltip": "Creates a transient timer named myjob that triggers /usr/local/bin/backup.sh every Monday at 02:00, plus the matching service unit. Transient units live only until reboot unless created with --system. This is a quick way to schedule jobs without writing timer files by hand."
+  },
+  {
+   "cmd": "systemd-cat -t myapp echo hello",
+   "desc": "Send command output to the journal",
+   "tooltip": "Runs echo hello with its output captured and written into the systemd journal tagged with the identifier myapp. The -t flag sets the tag shown in the journal. Use this to funnel scripts that normally log to stdout into journalctl, keeping all logs in one place."
+  },
+  {
+   "cmd": "systemd-tmpfiles --create",
+   "desc": "Create missing tmpfiles entries",
+   "tooltip": "Processes the tmpfiles.d configuration files, creating directories, symlinks, and files that should exist on the system. Directories such as /run are defined this way. Run it manually after adding a new tmpfiles.d snippet, though systemd also runs it at boot."
+  },
+  {
+   "cmd": "systemd-tmpfiles --clean",
+   "desc": "Remove stale files per tmpfiles rules",
+   "tooltip": "Deletes files and directories marked with the age-based cleanup directives in tmpfiles.d configuration, such as old files under /tmp or /var/tmp. The rules specify how long entries may survive. Run with --dry-run first to preview what would be removed."
+  },
+  {
+   "cmd": "systemd-escape 'nginx service'",
+   "desc": "Escape a string for use in unit names",
+   "tooltip": "Converts a human-readable name like 'nginx service' into the escaped form nginx\\x20service that systemd unit names require. Spaces and special characters must be escaped because unit names become file names. Use it in the other direction to decode unit names back to readable text."
+  },
+  {
+   "cmd": "journalctl -k",
+   "desc": "Show kernel messages from the journal",
+   "tooltip": "Prints the kernel ring buffer messages captured by the journal, equivalent to what dmesg shows. Driver errors, hardware issues, and OOM killer events appear here. Add -b to restrict to the current boot or --since with a time to narrow the window."
+  },
+  {
+   "cmd": "journalctl -o json-pretty",
+   "desc": "Dump journal entries as formatted JSON",
+   "tooltip": "Outputs each journal entry as indented JSON with fields such as MESSAGE, _PID, and _SYSTEMD_UNIT. Machine-readable output like this is made for log pipelines and parsers. Other formats include json, short, and cat. Pipe into jq for filtering and aggregation."
+  },
+  {
+   "cmd": "journalctl _SYSTEMD_UNIT=nginx.service",
+   "desc": "Filter journal by systemd unit field",
+   "tooltip": "Shows entries whose _SYSTEMD_UNIT field exactly matches nginx.service, a lower-level filter than the -u shortcut. Field filters work on any journal field, such as _PID or _COMM. The journal is systemd's structured binary log store that journalctl reads."
+  },
+  {
+   "cmd": "journalctl --list-boots",
+   "desc": "List recorded boot sessions",
+   "tooltip": "Prints each boot the journal knows about with a boot ID, an offset number, and the time range. Use the negative offset with journalctl -b, for example -b -2 for two boots ago. The journal keeps this history until log rotation removes it."
+  },
+  {
+   "cmd": "pvdisplay",
+   "desc": "Show details of all physical volumes",
+   "tooltip": "Prints verbose information for every physical volume, including its size, the volume group it belongs to, and the free space remaining. A physical volume is a disk or partition marked for LVM use with pvcreate. Use pvs for a compact one-line summary instead."
+  },
+  {
+   "cmd": "pvscan",
+   "desc": "List all LVM physical volumes",
+   "tooltip": "Scans all disks for LVM physical volumes and prints a one-line summary per device, including which volume group each belongs to. Useful after adding new disks to see whether the system finds them. pvs gives the same information in a cleaner table."
+  },
+  {
+   "cmd": "vgdisplay",
+   "desc": "Show details of all volume groups",
+   "tooltip": "Displays full information for every volume group: total physical extents, free space, and the number of logical volumes it contains. A volume group pools several physical volumes into one storage reservoir. Use vgs for a compact listing."
+  },
+  {
+   "cmd": "vgreduce vgdata /dev/sdc",
+   "desc": "Remove a physical volume from a group",
+   "tooltip": "Detaches /dev/sdc from the volume group vgdata, shrinking the pool of available space. Move or remove the data first, because extents still on that disk become lost. Use pvmove to relocate data before removing the disk from the group."
+  },
+  {
+   "cmd": "vgchange -ay",
+   "desc": "Activate all volume groups",
+   "tooltip": "Makes every volume group available so its logical volumes appear as block devices under /dev. Groups are normally activated at boot, but after a rescue boot or a disk change they may need manual activation. The -a flag takes y for activate or n for deactivate."
+  },
+  {
+   "cmd": "vgchange -an",
+   "desc": "Deactivate all volume groups",
+   "tooltip": "Takes every volume group offline, hiding its logical volumes from the system. All logical volumes must be unmounted first or the command fails. Use this before moving disks or resizing groups at the block level."
+  },
+  {
+   "cmd": "lvcreate -l 100%FREE -n lvbackup vgdata",
+   "desc": "Create a logical volume using all free space",
+   "tooltip": "Creates a logical volume named lvbackup in group vgdata, consuming every remaining free extent. A logical volume is the LVM equivalent of a partition, usable directly or as a filesystem target. The -l flag counts extents, while -L takes a size such as 10G."
+  },
+  {
+   "cmd": "lvextend -r -L +10G /dev/vgdata/lvdata",
+   "desc": "Grow a logical volume and its filesystem",
+   "tooltip": "Adds 10 gigabytes to logical volume lvdata and, thanks to -r, resizes the filesystem inside it to match. Without -r you would have to run resize2fs or xfs_growfs afterwards. The plus sign means add rather than set an absolute size."
+  },
+  {
+   "cmd": "lvresize -L 10G /dev/vgdata/lvdata",
+   "desc": "Resize a logical volume to an absolute size",
+   "tooltip": "Sets logical volume lvdata to exactly 10 gigabytes, growing or shrinking as needed. This is the general resize command that lvextend and lvreduce wrap. Shrinking requires the filesystem to be shrunk first and the volume unmounted, so prefer growing."
+  },
+  {
+   "cmd": "lvrename vgdata lvdata lvdata2",
+   "desc": "Rename a logical volume",
+   "tooltip": "Changes the name of logical volume lvdata to lvdata2 inside group vgdata. The device path changes from /dev/vgdata/lvdata to /dev/vgdata/lvdata2, so update fstab and any mounts that reference the old name. Renaming is safe while the volume is unmounted."
+  },
+  {
+   "cmd": "lvdisplay /dev/vgdata/lvdata",
+   "desc": "Show details of one logical volume",
+   "tooltip": "Prints full metadata for the lvdata logical volume: size, stripes, and the underlying physical volumes. Specify the device path to limit output to one volume. Use lvs for a compact table of all logical volumes."
+  },
+  {
+   "cmd": "pvremove /dev/sdb",
+   "desc": "Remove the LVM label from a disk",
+   "tooltip": "Erases the physical volume label on /dev/sdb, returning the disk to a plain block device usable for anything else. This destroys the LVM metadata on that disk, so move or back up all data first. After removal the disk can be repartitioned freely."
+  },
+  {
+   "cmd": "lvconvert --type raid1 -m 1 vgdata/lvdata",
+   "desc": "Convert a logical volume to RAID 1 mirroring",
+   "tooltip": "Converts lvdata into a RAID 1 mirrored volume with one mirror copy, given enough free extents in the group. LVM RAID uses the kernel md driver, so the mirror survives individual disk failures. The -m 1 flag requests one additional copy of the data."
+  },
+  {
+   "cmd": "vgcfgbackup vgdata",
+   "desc": "Back up a volume group's metadata",
+   "tooltip": "Saves the configuration metadata of volume group vgdata to /etc/lvm/backup. That file contains the exact layout needed to restore the group if metadata is lost. Regular backups let you recover a broken volume group with vgcfgrestore."
+  },
+  {
+   "cmd": "mdadm --detail --scan",
+   "desc": "Show all active RAID arrays",
+   "tooltip": "Lists every running RAID array in a format suitable for the mdadm.conf configuration file. The output names the array device, level, and member disks. This is the first step when documenting arrays, since the lines can be appended to /etc/mdadm/mdadm.conf."
+  },
+  {
+   "cmd": "mdadm --stop /dev/md0",
+   "desc": "Stop a RAID array",
+   "tooltip": "Takes the md0 RAID array offline, releasing its member disks. All filesystems on the array must be unmounted first. Stopping is safe as long as the member disks keep their superblocks, so the array can be reassembled later with mdadm --assemble."
+  },
+  {
+   "cmd": "mdadm --add /dev/md0 /dev/sdd1",
+   "desc": "Add a spare disk to a RAID array",
+   "tooltip": "Adds /dev/sdd1 to array md0 as a spare or, if the array is degraded, immediately starts rebuilding data onto it. This is how you replace a failed disk: fail the bad one, remove it, then add the new one. Watch the rebuild progress in /proc/mdstat."
+  },
+  {
+   "cmd": "mdadm --remove /dev/md0 /dev/sdb1",
+   "desc": "Remove a disk from a RAID array",
+   "tooltip": "Detaches /dev/sdb1 from array md0, normally after marking it failed with mdadm --fail. A disk that still holds active data cannot be removed directly. Removing a healthy disk while the array runs is possible but degrades the array."
+  },
+  {
+   "cmd": "mdadm --fail /dev/md0 /dev/sdb1",
+   "desc": "Mark a RAID disk as failed",
+   "tooltip": "Flags /dev/sdb1 as failed in array md0, simulating a hardware failure and letting the array switch to the remaining disks or a spare. Use this to test redundancy or before physically removing a dying disk. The array keeps running in degraded mode until the rebuild completes."
+  },
+  {
+   "cmd": "mdadm --zero-superblock /dev/sdb1",
+   "desc": "Erase RAID metadata from a disk",
+   "tooltip": "Wipes the RAID superblock on /dev/sdb1 so the disk no longer looks like an array member. This is destructive: do it only after the array is stopped and the data is no longer needed. Without this step, leftover superblocks can confuse future mdadm --create or --assemble runs."
+  },
+  {
+   "cmd": "mdadm --assemble /dev/md0",
+   "desc": "Reassemble a RAID array from its disks",
+   "tooltip": "Puts array md0 back together from the member disks after a reboot or a stop, reading the superblocks to rebuild the layout. Use --scan to assemble every array found automatically. This is the recovery counterpart to mdadm --create."
+  },
+  {
+   "cmd": "mdadm --detail --scan >> /etc/mdadm/mdadm.conf",
+   "desc": "Persist RAID configuration to mdadm.conf",
+   "tooltip": "Appends the current array definitions to /etc/mdadm/mdadm.conf so the system assembles them automatically at boot. Without this file, arrays may come up under different names or not at all. Run it once after creating or changing an array, as root."
+  },
+  {
+   "cmd": "quotaon /dev/mapper/vgdata-lvdata",
+   "desc": "Enable quotas on a filesystem",
+   "tooltip": "Switches on quota accounting for the filesystem on /dev/mapper/vgdata-lvdata, using the quota files found there. Quotas limit how much space or how many inodes a user or group can consume. Enable them in fstab with the usrquota or grpquota mount option so they activate at boot."
+  },
+  {
+   "cmd": "quotaon -a",
+   "desc": "Enable quotas on all mounted filesystems",
+   "tooltip": "Turns on quota accounting for every filesystem whose fstab entry carries the usrquota or grpquota option. This is the boot-time equivalent of running quotaon per filesystem. Quotas stay active until quotaoff or a remount without the quota options."
+  },
+  {
+   "cmd": "quotaoff -a",
+   "desc": "Disable quotas on all filesystems",
+   "tooltip": "Stops quota enforcement and accounting on every filesystem that has quotas enabled. Users can then exceed their limits without warnings or refusal. Run quotaon -a to re-enable, or give quotaoff a device path to target one filesystem."
+  },
+  {
+   "cmd": "quotacheck -cum /dev/mapper/vgdata-lvdata",
+   "desc": "Scan a filesystem and build quota files",
+   "tooltip": "Scans the filesystem to create or update the quota database, with -c to create new files, -u for user quotas, and -m to avoid forcing a read-only remount. Modern kernels maintain accounting on the fly, so this is mainly for repairing quota files or migrating systems."
+  },
+  {
+   "cmd": "edquota -u alice",
+   "desc": "Edit a user's quota limits interactively",
+   "tooltip": "Opens the quota limits for user alice in your editor, letting you set soft and hard limits for blocks and inodes. The soft limit triggers warnings, while the hard limit is absolute and refuses further writes. Hard limits must be greater than soft limits."
+  },
+  {
+   "cmd": "edquota -g developers",
+   "desc": "Edit a group's quota limits",
+   "tooltip": "Opens the quota settings for the developers group in an editor, applying the same soft and hard limits to every member through the group. Group quotas count the combined usage of all members. Use edquota -t to adjust the grace period for exceeding soft limits."
+  },
+  {
+   "cmd": "edquota -t",
+   "desc": "Edit quota grace periods",
+   "tooltip": "Sets the grace period, the time a user may stay over the soft limit before it is treated as a hard limit. Defaults are often seven days for both blocks and inodes. The editor shows the current grace values, which you change in days, hours, or minutes."
+  },
+  {
+   "cmd": "repquota -a",
+   "desc": "Report quota usage for all filesystems",
+   "tooltip": "Prints a table of every user and group on quota-enabled filesystems, showing blocks used, soft and hard limits, and files or inodes. The -a flag covers all quota filesystems in fstab. Use repquota /home to restrict the report to one filesystem."
+  },
+  {
+   "cmd": "repquota -uvs /home",
+   "desc": "Report user quotas with human-readable sizes",
+   "tooltip": "Shows per-user quota usage on /home with -u for users, -v for verbose detail, and -s to print sizes in human units such as megabytes instead of raw blocks. A plus sign marks users currently over their soft limit. This is the standard way to review who consumes space."
+  },
+  {
+   "cmd": "setquota -u alice 100M 120M 0 0 /home",
+   "desc": "Set quota limits from the command line",
+   "tooltip": "Assigns user alice a 100 megabyte soft limit and 120 megabyte hard limit on /home without opening an editor; the zero inode limits mean unlimited files. The K, M, G, and T size suffixes are accepted. Ideal for scripting user onboarding."
+  },
+  {
+   "cmd": "quota -u alice",
+   "desc": "Show a user's quota usage and limits",
+   "tooltip": "Reports how much space and how many inodes user alice has used on quota filesystems, alongside the soft and hard limits and grace status. Run plain quota as that user to check your own limits. A plus sign indicates the soft limit has been exceeded."
+  },
+  {
+   "cmd": "xfs_quota -x -c 'report -h' /mnt/data",
+   "desc": "Report XFS quotas in human units",
+   "tooltip": "Prints XFS quota usage for the /mnt/data filesystem, with -x for expert mode and -c running the report command with -h for human-readable sizes. XFS manages quotas differently from ext4, storing them in the filesystem itself. The same tool enables and disables XFS quotas."
+  },
+  {
+   "cmd": "mount --bind /var/www /mnt/site",
+   "desc": "Mount a directory at another location",
+   "tooltip": "Makes the directory /var/www also appear at /mnt/site without copying anything, so both paths reference the same files. Bind mounts are handy for chroots, containers, and rearranging layouts. Use umount /mnt/site to remove the extra view, and --rbind to include sub-mounts."
+  },
+  {
+   "cmd": "mount -o loop disk.img /mnt/img",
+   "desc": "Mount a disk image file",
+   "tooltip": "Attaches the file disk.img as a block device through the loop driver and mounts it at /mnt/img, letting you browse or modify an image without burning it to media. The loop option is inferred automatically on modern systems. Unmount with umount /mnt/img when finished."
+  },
+  {
+   "cmd": "mount -o remount,ro /",
+   "desc": "Remount the root filesystem read-only",
+   "tooltip": "Changes the mount options of the root filesystem to read-only without unmounting it. This is a common safety step before filesystem checks or when taking a system down for maintenance. Use remount,rw to switch back to read-write."
+  },
+  {
+   "cmd": "mount -t tmpfs tmpfs /mnt/ram",
+   "desc": "Create a RAM-backed filesystem",
+   "tooltip": "Mounts a tmpfs, a filesystem stored entirely in RAM, at /mnt/ram. Everything written there vanishes on reboot and counts against available memory. Useful for scratch space, caches, and fast temporary files, but never for persistent data."
+  },
+  {
+   "cmd": "umount -f /mnt/stuck",
+   "desc": "Force-unmount a busy filesystem",
+   "tooltip": "Forcefully detaches the filesystem at /mnt/stuck even when processes hold files open on it. The -f flag bypasses the normal busy check, which risks losing writes still in flight. Prefer finding the offender with lsof or fuser, or use umount -l for a lazy detach."
+  },
+  {
+   "cmd": "mount -o vers=4.2 server:/srv/nfs /mnt/nfs",
+   "desc": "Mount an NFS export with a specific version",
+   "tooltip": "Mounts the NFS export /srv/nfs from server at /mnt/nfs, explicitly requesting protocol version 4.2. Pinning the version avoids negotiation surprises and enables features such as server-side copy. Other versions include vers=3 and vers=4.1. The export must be listed in the server's /etc/exports."
+  },
+  {
+   "cmd": "mount -t cifs //server/share /mnt/windows -o username=alice",
+   "desc": "Mount a Windows SMB share",
+   "tooltip": "Attaches the SMB share //server/share to /mnt/windows using CIFS, authenticating as user alice. You are prompted for the password unless a credentials file is given. This is the Linux client side of Samba and Windows file servers."
+  },
+  {
+   "cmd": "findmnt -t ext4",
+   "desc": "List filesystems by type",
+   "tooltip": "Shows every mounted filesystem of type ext4 with its source, target, and options. The -t filter accepts comma-separated types. findmnt reads the kernel mount table, so it reflects reality rather than fstab."
+  },
+  {
+   "cmd": "findmnt /home",
+   "desc": "Show how a mount point is mounted",
+   "tooltip": "Displays the filesystem mounted at /home with its source device, type, and options. Pass any path to find out which filesystem backs it. Adding -o SOURCE,FSTYPE limits the columns shown, handy for scripts."
+  },
+  {
+   "cmd": "findmnt --fstab",
+   "desc": "List filesystems from fstab",
+   "tooltip": "Shows what /etc/fstab declares, including entries that are not currently mounted. fstab is the static table of filesystems mounted at boot. Compare with plain findmnt to spot entries that failed to mount or were added manually."
+  },
+  {
+   "cmd": "swapon -a",
+   "desc": "Activate all swap devices in fstab",
+   "tooltip": "Enables every swap area listed in /etc/fstab, which is what the system does at boot. Swap is disk space the kernel uses when RAM runs low. Verify the result with swapon --show."
+  },
+  {
+   "cmd": "tune2fs -c 30 /dev/sdb1",
+   "desc": "Set the maximum mount count for a filesystem",
+   "tooltip": "Configures ext4 on /dev/sdb1 to force a filesystem check after 30 mounts. The counter resets each time a check runs. Setting the count to -1 disables count-based checks entirely."
+  },
+  {
+   "cmd": "tune2fs -m 5 /dev/sdb1",
+   "desc": "Reserve five percent of a filesystem for root",
+   "tooltip": "Sets the reserved-blocks percentage of /dev/sdb1 to 5, space only root can use. Reserved blocks keep a full disk from locking out root and reduce fragmentation. Lower it toward 0 on large data volumes to reclaim space."
+  },
+  {
+   "cmd": "e2fsck -p /dev/sdb1",
+   "desc": "Automatically repair filesystem errors",
+   "tooltip": "Runs a filesystem check on /dev/sdb1 in preen mode, fixing problems that are safe to repair automatically and stopping on anything serious. The filesystem must be unmounted for a reliable check. Preen mode is what runs at boot when the mount count or error flag demands a check."
+  },
+  {
+   "cmd": "blkid -o export /dev/sdb1",
+   "desc": "Print filesystem metadata as key-value pairs",
+   "tooltip": "Outputs the UUID, type, and label of /dev/sdb1 in VAR=value format, easy to source in shell scripts. The UUID identifies the filesystem regardless of device name, which is why fstab entries often use UUID= rather than /dev paths."
+  },
+  {
+   "cmd": "mkfs.ext4 -L data -m 0 /dev/sdb1",
+   "desc": "Create an ext4 filesystem with a label",
+   "tooltip": "Formats /dev/sdb1 as ext4 with the label data and no reserved blocks, since -m 0 sets the reserved percentage to zero. Formatting destroys everything on the device, so double-check the target before running. Use the label with mount -L or in fstab by LABEL=data."
+  },
+  {
+   "cmd": "udevadm info -q path -n /dev/sda",
+   "desc": "Query the udev database for a device",
+   "tooltip": "Looks up /dev/sda in the udev database and prints its device path under /sys, with -q path selecting just that field. udev is the device manager that names devices and runs rules when hardware appears. The /sys path is the key for writing udev rules."
+  },
+  {
+   "cmd": "udevadm info -e",
+   "desc": "Export all device properties from udev",
+   "tooltip": "Dumps the full udev database, one block per device, with every property and value udev knows about. Useful for discovering which identifiers a device exposes before writing a rule. Pipe through less or grep to find a specific device."
+  },
+  {
+   "cmd": "udevadm info -a -n /dev/sda",
+   "desc": "Walk sysfs attributes for rule writing",
+   "tooltip": "Prints the sysfs attribute chain for /dev/sda, showing parent devices and their properties, which udev rules match against. Each block is prefixed with the lookup keywords such as ATTRS or KERNELS. This output is the raw material for a custom udev rule."
+  },
+  {
+   "cmd": "udevadm monitor",
+   "desc": "Watch kernel and udev events live",
+   "tooltip": "Prints device events as they happen, prefixed with KERNEL for the raw kernel event and UDEV for the processed event after rules run. Plug in a device or run udevadm trigger in another terminal to see activity. Useful for debugging why a rule did or did not fire."
+  },
+  {
+   "cmd": "udevadm trigger",
+   "desc": "Replay device events through the rules",
+   "tooltip": "Synthesizes add events for existing devices so udev runs its rules on them again. Use it after adding or editing rules to apply them without rebooting or replugging hardware. With --action=remove or a device path you can target specific devices."
+  },
+  {
+   "cmd": "udevadm settle",
+   "desc": "Wait until udev finishes processing events",
+   "tooltip": "Blocks until the udev event queue is empty, ensuring all devices are named and rules have run. Scripts that mount or probe devices right after boot use this to avoid racing udev. Add a timeout for safety in automation."
+  },
+  {
+   "cmd": "udevadm control --reload",
+   "desc": "Reload udev rules without rebooting",
+   "tooltip": "Signals systemd-udevd to reload the rules files and the module index. New or edited rules under /etc/udev/rules.d take effect without restarting the daemon or replugging devices. Follow with udevadm trigger to replay events through the fresh rules."
+  },
+  {
+   "cmd": "udevadm test /sys/class/net/eth0",
+   "desc": "Dry-run udev rules for one device",
+   "tooltip": "Simulates a udev event for the eth0 network device, printing every rule that matches and the resulting actions and properties. Nothing is changed on the system, making this the safe way to debug a rule. Pass --action=add or --action=remove to test a specific event type."
+  },
+  {
+   "cmd": "sensors",
+   "desc": "Show temperature and voltage readings",
+   "tooltip": "Prints readings from hardware sensors: CPU and motherboard temperatures, fan speeds, and voltages. The lm-sensors package must be configured, usually after running sensors-detect. High temperatures here point to cooling problems worth investigating."
+  },
+  {
+   "cmd": "sensors -f",
+   "desc": "Show sensor readings in Fahrenheit",
+   "tooltip": "Same readings as plain sensors but converts temperatures to degrees Fahrenheit with the -f flag. Useful on systems where staff think in Fahrenheit. Celsius remains the default everywhere else."
+  },
+  {
+   "cmd": "sensors -j",
+   "desc": "Print sensor readings as JSON",
+   "tooltip": "Outputs all sensor data as structured JSON, easy to feed into monitoring scripts and dashboards. Fields are grouped by chip and include label, value, and unit. The -u raw format is the alternative for low-level debugging."
+  },
+  {
+   "cmd": "dmidecode -s system-serial-number",
+   "desc": "Read a single DMI string from firmware",
+   "tooltip": "Prints one DMI value, here the system serial number, straight from the firmware tables. DMI data describes the hardware as the BIOS reports it. The -s flag accepts other keywords such as system-product-name or bios-version."
+  },
+  {
+   "cmd": "lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE",
+   "desc": "List block devices with filesystem types",
+   "tooltip": "Shows every block device with the NAME, SIZE, TYPE, MOUNTPOINT, and FSTYPE columns, adding the filesystem type to the basic view. The TYPE column distinguishes disks, partitions, and LVM or RAID members. This is the fastest full picture of storage layout."
+  },
+  {
+   "cmd": "systemctl rescue",
+   "desc": "Switch to single-user rescue mode",
+   "tooltip": "Isolates rescue.target, bringing the system to a minimal single-user state with only essential services. This is the modern replacement for the old single-user runlevel, used for maintenance and repairs. You are asked for the root password unless already root."
+  },
+  {
+   "cmd": "systemctl emergency",
+   "desc": "Enter emergency shell mode",
+   "tooltip": "Isolates emergency.target, an even more minimal state than rescue that mounts only the root filesystem, typically read-only. Use it when the system cannot boot normally or other targets fail. You get a shell on the console for manual repair."
+  },
+  {
+   "cmd": "systemctl default",
+   "desc": "Return to the default boot target",
+   "tooltip": "Isolates the default target, normally multi-user.target or graphical.target, taking the system back to its normal running state. This reverses a rescue or emergency switch when maintenance is done. The default target is set with systemctl set-default."
+  },
+  {
+   "cmd": "systemctl kexec",
+   "desc": "Reboot directly into the loaded kernel",
+   "tooltip": "Reboots using the kernel already loaded into memory via kexec, skipping the firmware and bootloader entirely. This makes reboots much faster but requires the kexec-tools package and a pre-loaded kernel image. Fall back to systemctl reboot if anything seems off."
+  },
+  {
+   "cmd": "systemctl switch-root /mnt/rootfs",
+   "desc": "Switch to a different root filesystem",
+   "tooltip": "Changes the root filesystem to /mnt/rootfs, typically used when moving from an initramfs to the real root during boot or for testing. The new root must contain a working init system, usually systemd itself. This is a low-level operation with few everyday uses."
+  },
+  {
+   "cmd": "systemctl soft-reboot",
+   "desc": "Reboot userspace without rebooting the kernel",
+   "tooltip": "Restarts userspace by re-executing the init system and reloading all units, while the kernel and hardware stay up. This is much faster than a full reboot and useful for applying userspace changes. Hardware state, including running devices, is preserved."
+  },
+  {
+   "cmd": "telinit 3",
+   "desc": "Switch to runlevel 3, the multi-user state",
+   "tooltip": "Tells init to enter runlevel 3, which systemd maps to multi-user.target, the text-mode multi-user state without a graphical desktop. telinit is the classic SysV way to change runlevels and still works as a compatibility shim. Use telinit 5 for the graphical runlevel."
+  },
+  {
+   "cmd": "telinit 5",
+   "desc": "Switch to runlevel 5, the graphical state",
+   "tooltip": "Enters runlevel 5, mapped to graphical.target on systemd systems, which starts the display manager and desktop. This is the runlevel change that brings a text-only system to a full graphical login. Equivalent to systemctl isolate graphical.target."
+  },
+  {
+   "cmd": "runlevel",
+   "desc": "Print the current and previous runlevel",
+   "tooltip": "Shows the previous and current runlevel, for example N 5, where N means the system booted directly into 5. On systemd systems the command maps the active target to its traditional runlevel number. Mostly useful for scripts that must behave like SysV init."
+  },
+  {
+   "cmd": "shutdown -r +5 'rebooting for maintenance'",
+   "desc": "Reboot in five minutes with a message",
+   "tooltip": "Schedules a reboot five minutes from now and broadcasts the message to all logged-in users. The delay gives users time to save work, and the message explains why. Use shutdown -c to cancel, or schedule a different delay with another shutdown command."
+  },
+  {
+   "cmd": "shutdown -c",
+   "desc": "Cancel a scheduled shutdown",
+   "tooltip": "Cancels a pending shutdown or reboot that was scheduled with a time or delay. There is nothing to cancel if no shutdown is pending, which is harmless. Users are notified that the shutdown was canceled."
+  },
+  {
+   "cmd": "shutdown -h now",
+   "desc": "Power off the system immediately",
+   "tooltip": "Halts the system right away, powering off the machine. The -h flag requests a halt and now skips the delay. Running processes are terminated and filesystems are unmounted cleanly. This is equivalent to systemctl poweroff on modern systems."
+  },
+  {
+   "cmd": "wall 'System going down in 5 minutes'",
+   "desc": "Broadcast a message to all logged-in users",
+   "tooltip": "Writes the message to the terminal of every logged-in user, preceded by the sender name. Use it before shutdown or maintenance so nobody loses work. wall requires root or membership in the tty group on many systems."
+  },
+  {
+   "cmd": "chroot /mnt/rootfs /bin/bash",
+   "desc": "Start a shell inside a different root",
+   "tooltip": "Runs /bin/bash with /mnt/rootfs as its root directory, so the shell sees that directory tree as the root filesystem. This is the standard way to repair a system from a live environment, since you can run its tools and edit its files. The chroot needs its libraries and binaries present inside the target root."
+  },
+  {
+   "cmd": "chroot /mnt/rootfs passwd root",
+   "desc": "Reset the root password from a chroot",
+   "tooltip": "Runs passwd inside /mnt/rootfs, letting you set a new root password for a system you cannot log into. This is a classic rescue procedure after a forgotten password. The password database and libraries must exist inside the chroot for it to work."
+  },
+  {
+   "cmd": "chroot /mnt/rootfs grub-install /dev/sda",
+   "desc": "Reinstall GRUB from inside a chroot",
+   "tooltip": "Runs grub-install with /mnt/rootfs as root, reinstalling the bootloader on /dev/sda for the system mounted there. Essential after replacing a disk or when a system refuses to boot. The chroot must contain the grub packages and have the target system's /dev and /proc mounted."
+  },
+  {
+   "cmd": "systemd-nspawn -D /mnt/rootfs",
+   "desc": "Boot a directory tree as a lightweight container",
+   "tooltip": "Starts a container using /mnt/rootfs as its root, running its init or a shell without full virtualization. This is a quick way to test a root filesystem, effectively chroot with process and PID isolation. Exit the container shell to stop it."
+  },
+  {
+   "cmd": "systemd-nspawn -D /mnt/rootfs --bind-ro /etc/resolv.conf",
+   "desc": "Run a container with read-only bind mounts",
+   "tooltip": "Boots /mnt/rootfs as a container while mounting /etc/resolv.conf from the host into it read-only, giving the container working DNS without letting it modify the file. --bind-ro makes the bind mount read-only, while plain --bind allows writes. Useful for networking in test containers."
+  },
+  {
+   "cmd": "pam-auth-update",
+   "desc": "Manage PAM profiles interactively",
+   "tooltip": "Opens a checklist of PAM modules, letting you enable or disable profiles such as fingerprint, LDAP, or the password strength module. PAM is the pluggable authentication module system that decides how logins are authenticated. Changes are written to the /etc/pam.d/common files and apply immediately."
+  },
+  {
+   "cmd": "pam-auth-update --package",
+   "desc": "Refresh PAM profiles after a package install",
+   "tooltip": "Runs pam-auth-update in non-interactive package-maintainer mode, re-enabling profiles that a package install or removal may have changed. Distro packages call this automatically during upgrades. Use it manually after editing PAM files if a package wants them restored."
+  },
+  {
+   "cmd": "authselect select sssd",
+   "desc": "Select the SSSD authentication profile",
+   "tooltip": "Activates the sssd profile on RHEL-family systems, wiring PAM and NSS to authenticate through the System Security Services Daemon for LDAP or Active Directory. authselect manages the whole /etc/pam.d and nsswitch.conf setup from profiles. Changes apply immediately and can be reversed with authselect select minimal."
+  },
+  {
+   "cmd": "authselect current",
+   "desc": "Show the active authselect profile",
+   "tooltip": "Prints the currently selected profile ID and the enabled features, such as with-mkhomedir or with-sudo. Check this before changing profiles so you can restore the previous state. The output also warns when system files were manually modified."
+  },
+  {
+   "cmd": "authselect list",
+   "desc": "List available authselect profiles",
+   "tooltip": "Shows every installed profile, typically sssd, winbind, nis, and minimal, each targeting a different authentication backend. Profiles bundle the PAM and NSS configuration for their backend. Pick one with authselect select and extend it with features."
+  },
+  {
+   "cmd": "authselect enable-feature with-mkhomedir",
+   "desc": "Enable a feature on the current profile",
+   "tooltip": "Adds the with-mkhomedir feature to the active authselect profile, making PAM create home directories automatically on first login. Other features include with-faillock for lockout and with-smartcard. Feature changes rewrite the PAM files immediately."
+  },
+  {
+   "cmd": "chage -E 2026-12-31 alice",
+   "desc": "Set an account expiry date",
+   "tooltip": "Makes user alice's account expire on 2026-12-31, after which the account cannot log in even with the correct password. The -E flag takes a YYYY-MM-DD date, or -1 to remove expiry. Useful for temporary accounts and contractors."
+  },
+  {
+   "cmd": "usermod -g developers alice",
+   "desc": "Change a user's primary group",
+   "tooltip": "Sets the primary group of user alice to developers, changing which group name appears in listings and owns new files. The -g flag takes a group name or ID, while -G manages supplementary groups. Existing files keep their old ownership until changed."
+  },
+  {
+   "cmd": "usermod -e 2026-12-31 alice",
+   "desc": "Set a user account expiration date",
+   "tooltip": "Marks user alice's account to expire on 2026-12-31, blocking logins after that date. The -e flag accepts a YYYY-MM-DD date, and an empty value clears the expiry. This is the usermod equivalent of chage -E."
+  },
+  {
+   "cmd": "groupadd docker",
+   "desc": "Create a new system group",
+   "tooltip": "Adds a group named docker to the system, used to grant non-root users access to the Docker daemon socket. Adding a user to it with gpasswd -a alice docker lets them run docker without sudo. Group changes apply to new login sessions."
+  },
+  {
+   "cmd": "gpasswd -a alice docker",
+   "desc": "Add a user to a supplementary group",
+   "tooltip": "Adds user alice to the docker group, giving her the group's permissions on the next login. This is the standard way to grant docker access without root. Remove her again with gpasswd -d alice docker."
+  },
+  {
+   "cmd": "gpasswd -d alice docker",
+   "desc": "Remove a user from a group",
+   "tooltip": "Takes user alice out of the docker group, revoking its privileges. The change applies to new login sessions, not to already-running shells. Use gpasswd -a to add a user back."
+  },
+  {
+   "cmd": "exportfs -v",
+   "desc": "Show the current NFS exports",
+   "tooltip": "Prints all directories exported via NFS with their options and the clients allowed to mount them. The -v flag gives verbose detail including sync and root-squash settings. Exports are defined in /etc/exports and applied with exportfs -ra or at boot."
+  },
+  {
+   "cmd": "exportfs -u /srv/nfs",
+   "desc": "Remove an NFS export from the table",
+   "tooltip": "Unexports /srv/nfs, immediately stopping new mounts of that directory by NFS clients. Existing mounts stay alive until unmounted or the server restarts. Re-add the export with exportfs -ra after editing /etc/exports."
+  },
+  {
+   "cmd": "showmount -d server",
+   "desc": "List NFS directories exported by a server",
+   "tooltip": "Queries the NFS server named server for the list of exported directories, with -d showing only directories. This is a quick check that the server answers NFS requests. The -a variant lists client mounts as well."
+  },
+  {
+   "cmd": "showmount -a nfs-server",
+   "desc": "Show NFS clients and their mounts",
+   "tooltip": "Lists every client that has mounted exports from the server nfs-server, in host:directory pairs. Useful to see who depends on the NFS server before maintenance. Requires the rpcbind service on both ends."
+  },
+  {
+   "cmd": "nfsstat -m /mnt/nfs",
+   "desc": "Show mounted NFS filesystems and options",
+   "tooltip": "Prints each NFS filesystem mounted on this client with the server, export path, mount options, and protocol version in use. The -m flag is the client-side view of your NFS mounts. Check here when mounts behave unexpectedly, for example falling back to NFSv3."
+  },
+  {
+   "cmd": "systemctl restart nfs-kernel-server",
+   "desc": "Restart the NFS server service",
+   "tooltip": "Restarts the NFS kernel server daemon on Debian-family systems, applying changes to /etc/exports and re-reading its configuration. Existing client mounts may briefly stall during the restart. Use exportfs -ra instead when only export changes are needed."
+  },
+  {
+   "cmd": "smbclient -L localhost -U alice",
+   "desc": "List SMB shares on a Samba server",
+   "tooltip": "Connects to the local Samba server as user alice and lists the shares it offers, along with the server and workgroup. The -L flag requests a listing and -U supplies the username. This is the SMB equivalent of checking what a file server exports."
+  },
+  {
+   "cmd": "smbclient //server/share -U alice",
+   "desc": "Open an interactive SMB session",
+   "tooltip": "Starts an interactive session with the share named share on server, authenticating as alice, with an ftp-like prompt for transferring files. Commands include get, put, and ls. Exit with the quit command."
+  },
+  {
+   "cmd": "smbpasswd -x alice",
+   "desc": "Delete a Samba user account",
+   "tooltip": "Removes user alice from the Samba password database, so she can no longer authenticate to SMB services even if her system account remains. This only affects Samba, not the local Unix account. The -a flag adds a user instead."
+  },
+  {
+   "cmd": "smbpasswd -d alice",
+   "desc": "Disable a Samba user account",
+   "tooltip": "Disables Samba authentication for alice without deleting her entry from the database, so the account can be re-enabled later with smbpasswd -e alice. Existing sessions may stay until they disconnect. This is the SMB-side counterpart to locking a system account."
+  },
+  {
+   "cmd": "pdbedit -a -u alice",
+   "desc": "Add a user to the Samba database",
+   "tooltip": "Creates a Samba account entry for the existing Unix user alice, with -a for add and -u naming the user. Samba keeps its own password database separate from /etc/passwd. List entries with pdbedit -L and remove with pdbedit -x."
+  },
+  {
+   "cmd": "testparm -s",
+   "desc": "Validate the Samba configuration silently",
+   "tooltip": "Checks /etc/samba/smb.conf for syntax errors and prints the effective configuration, with -s suppressing the interactive prompts. A configuration with errors shows them with line numbers. This is the first command to run after editing smb.conf."
+  },
+  {
+   "cmd": "systemctl restart smbd",
+   "desc": "Restart the Samba file server service",
+   "tooltip": "Restarts the smbd daemon, which serves SMB file and print shares on Debian-family systems. Run it after changing smb.conf, though testparm first is wise. Client connections may briefly drop during the restart."
+  },
+  {
+   "cmd": "apt-mark showhold",
+   "desc": "List packages held against updates",
+   "tooltip": "Shows every package with a hold, meaning apt will not upgrade or remove it automatically. Holds are set with apt-mark hold and are a way to pin versions known to work. The output is one package name per line."
+  },
+  {
+   "cmd": "dpkg -P nginx",
+   "desc": "Purge a package including its config",
+   "tooltip": "Removes the nginx package and deletes its configuration files, unlike dpkg -r which keeps them. Purged packages leave nothing behind except files they created at runtime. This is the standard way to remove a package completely."
+  },
+  {
+   "cmd": "dpkg --configure -a",
+   "desc": "Finish interrupted package configurations",
+   "tooltip": "Re-runs the configuration step for every package that is unpacked but not configured, repairing a half-finished install or upgrade. This is the standard fix after an interrupted dpkg run. It may prompt for debconf questions that were skipped."
+  },
+  {
+   "cmd": "dpkg --audit",
+   "desc": "Find packages in a broken state",
+   "tooltip": "Scans the dpkg database for packages that are half-installed, half-removed, or otherwise inconsistent, and lists them. A broken package blocks most apt operations. Fix what it reports with dpkg --configure -a or apt install -f."
+  },
+  {
+   "cmd": "dpkg -c package.deb",
+   "desc": "List the contents of a .deb package",
+   "tooltip": "Shows the files that package.deb would install, without installing anything, one path per line. Use this to preview a package or find where its binaries and config land. The package file must be downloaded first, for example with apt download."
+  },
+  {
+   "cmd": "dpkg -s nginx",
+   "desc": "Show the status of an installed package",
+   "tooltip": "Prints the dpkg status record for nginx: version, architecture, install state, and dependencies. The state field tells whether it is installed, removed, or in a broken half state. Combine with dpkg -L to see the installed files."
+  },
+  {
+   "cmd": "dpkg-reconfigure nginx",
+   "desc": "Re-run a package's configuration prompts",
+   "tooltip": "Asks the debconf questions for nginx again, regenerating its configuration files from your answers. Useful to change options that only appear during install. The debconf database stores the previous answers."
+  },
+  {
+   "cmd": "add-apt-repository ppa:ondrej/php",
+   "desc": "Add a PPA to the apt sources",
+   "tooltip": "Registers the ondrej/php personal package archive, the well-known source of newer PHP versions, and refreshes the package index. PPAs are third-party repositories, so only add ones you trust. The --remove flag deletes a repository again."
+  },
+  {
+   "cmd": "apt download nginx",
+   "desc": "Download a package without installing",
+   "tooltip": "Fetches the nginx .deb file into the current directory, leaving the system untouched. Useful to grab a package for another machine or inspect it with dpkg -c. Only the exact version from the current repositories is downloaded."
+  },
+  {
+   "cmd": "snap install chromium",
+   "desc": "Install the Chromium browser as a snap",
+   "tooltip": "Installs Chromium from the Snap Store, the Canonical package format with automatic updates and confined apps. Snaps bundle their dependencies, so they work on any distro with snapd. Find packages with snap find or snap info."
+  },
+  {
+   "cmd": "snap info chromium",
+   "desc": "Show details about a snap package",
+   "tooltip": "Displays the snap's publisher, channels, versions, and store ratings, plus whether it is confined or classic. Check this before installing to see which channel tracks which release. The same command works for installed and store packages."
+  },
+  {
+   "cmd": "snap connections",
+   "desc": "Show interface connections of snaps",
+   "tooltip": "Lists the interface connections between snaps and system resources, such as network access or home directory permissions. Interfaces are the sandbox mechanism that grants or denies access. Add a snap name to limit the output to that snap."
+  },
+  {
+   "cmd": "snap revert chromium",
+   "desc": "Roll back a snap to the previous revision",
+   "tooltip": "Switches chromium back to its previous revision, undoing a bad update. Snap data and settings are preserved across the revert. This is the snap equivalent of downgrading a package, possible because revisions are kept on disk."
+  },
+  {
+   "cmd": "snap refresh --list",
+   "desc": "List snaps with updates available",
+   "tooltip": "Shows which installed snaps have newer revisions in the store without actually updating them. The output includes the current and new versions. Run snap refresh with no arguments to apply all updates."
+  },
+  {
+   "cmd": "flatpak run org.gimp.GIMP",
+   "desc": "Run an installed Flatpak application",
+   "tooltip": "Starts the GIMP application from its Flatpak install, identified by the full application ID. Flatpak runs sandboxed apps that carry their own runtimes, independent of distro libraries. Launching is the same for every installed Flatpak app."
+  },
+  {
+   "cmd": "flatpak search gimp",
+   "desc": "Search the Flatpak repositories",
+   "tooltip": "Queries the configured Flatpak remotes for applications matching gimp, printing name, description, and application ID. The application ID is what you install with flatpak install. Add --user to search only user remotes."
+  },
+  {
+   "cmd": "flatpak remotes",
+   "desc": "List configured Flatpak repositories",
+   "tooltip": "Shows the remotes Flatpak knows, such as flathub, with their URL and priority. Remotes are the sources Flatpak installs and updates from. Add one with flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo."
+  },
+  {
+   "cmd": "flatpak override --filesystem=home org.gimp.GIMP",
+   "desc": "Grant a Flatpak app extra filesystem access",
+   "tooltip": "Adds a per-app override letting GIMP reach your home directory beyond the default sandbox, using --filesystem=home. Overrides are stored per user and app. Reset them with flatpak override --reset org.gimp.GIMP."
+  },
+  {
+   "cmd": "dnf install nginx",
+   "desc": "Install a package with dnf",
+   "tooltip": "Installs nginx and its dependencies from the enabled repositories on RHEL-family systems. dnf resolves dependency chains and reports what will change before downloading. Answer y to confirm, or add -y to skip the prompt."
+  },
+  {
+   "cmd": "dnf remove nginx",
+   "desc": "Remove a package with dnf",
+   "tooltip": "Uninstalls nginx and the packages that depend on it, after showing what would be removed. Configuration files are kept unless you use the purge style options. Run dnf history to undo a removal."
+  },
+  {
+   "cmd": "dnf update",
+   "desc": "Update all installed packages",
+   "tooltip": "Upgrades every installed package to the newest version available in the configured repositories, printing the list first. Run dnf check-update to preview without changing anything. Updates apply to the live system immediately after download."
+  },
+  {
+   "cmd": "dnf list --installed",
+   "desc": "List installed packages with dnf",
+   "tooltip": "Shows every installed package with its version and repository, or just the ones matching a name pattern if given. The --installed filter restricts the listing to what is on the system. Use dnf list --available for packages you could install."
+  },
+  {
+   "cmd": "dnf provides /usr/bin/nginx",
+   "desc": "Find which package owns a file",
+   "tooltip": "Searches the repositories for packages that provide /usr/bin/nginx, whether installed or not. This is the dnf way to answer where a command comes from. It also matches file patterns and virtual provides."
+  },
+  {
+   "cmd": "rpm -qa",
+   "desc": "List all installed RPM packages",
+   "tooltip": "Prints every installed RPM package, one per line, in name-version-release format. The -q flag queries and -a selects all packages. Pipe through grep to filter, for example rpm -qa | grep nginx."
+  },
+  {
+   "cmd": "rpm -ivh package.rpm",
+   "desc": "Install an RPM package file",
+   "tooltip": "Installs package.rpm with -i for install, -v for verbose progress, and -h for the hash progress bar. RPM does not resolve remote dependencies like dnf does, so unmet dependencies fail the install. Prefer dnf install on systems that have it."
+  },
+  {
+   "cmd": "rpm -e nginx",
+   "desc": "Remove an installed RPM package",
+   "tooltip": "Erases the nginx package, removing its files but keeping configuration in many cases. Dependencies that require nginx block the removal. Use rpm -qa to confirm the exact name before erasing."
+  },
+  {
+   "cmd": "rpm -qf /etc/nginx/nginx.conf",
+   "desc": "Find which RPM owns a file",
+   "tooltip": "Reports the package that installed /etc/nginx/nginx.conf, answering where a config file came from. The -q flag with -f queries file ownership. Useful when auditing or reverting changes to system files."
+  }
+ ]
+}

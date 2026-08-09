@@ -1,0 +1,845 @@
+{
+  "category": "GitLab",
+  "commands": [
+    {
+      "cmd": "glab auth login",
+      "desc": "Sign in to GitLab from the terminal",
+      "tooltip": "Walks you through connecting glab to gitlab.com or a self-hosted instance and stores your credentials locally. You can paste a personal access token or complete a browser-based flow, depending on your setup. Confirm the active account with glab auth status afterward."
+    },
+    {
+      "cmd": "glab auth login --web",
+      "desc": "Sign in with a browser authorization flow",
+      "tooltip": "Opens your default browser so you can authorize glab through the web UI instead of pasting a token manually. The CLI waits while you finish the flow and then saves the credentials. On headless servers, use the --device flag to complete the same flow with a device code."
+    },
+    {
+      "cmd": "glab auth login --hostname gitlab.example.com -t $GITLAB_TOKEN",
+      "desc": "Sign in to a self-hosted GitLab with a token",
+      "tooltip": "Logs into a specific instance using a personal access token from the GITLAB_TOKEN shell variable, which keeps the secret out of your shell history. The --hostname flag targets self-hosted GitLab instead of gitlab.com. Create the token in GitLab under Preferences and Access Tokens with the api scope."
+    },
+    {
+      "cmd": "glab auth logout",
+      "desc": "Remove stored GitLab credentials",
+      "tooltip": "Deletes the saved authentication for the active host from your glab config. Commands that need the API will ask you to log in again. Run glab auth status first to see which host is currently active."
+    },
+    {
+      "cmd": "glab auth status",
+      "desc": "Show the authenticated GitLab account",
+      "tooltip": "Prints which GitLab host and username glab is currently authenticated as, plus the token expiry when known. Run this first when API calls fail with authentication errors. Add -a to see every host stored in the config."
+    },
+    {
+      "cmd": "glab auth status -a",
+      "desc": "List all authenticated GitLab hosts",
+      "tooltip": "Shows every hostname glab has credentials for, not just the active one, which helps on machines that use gitlab.com and a self-hosted instance together. Add -t to print the token value itself, which is sensitive output. The active host is marked in the listing."
+    },
+    {
+      "cmd": "glab config edit",
+      "desc": "Open the glab config file in your editor",
+      "tooltip": "Launches your default editor on the YAML file where glab stores hosts, tokens, and preferences such as the git protocol. Changes apply immediately on save. Prefer glab config set for single keys so the file stays valid."
+    },
+    {
+      "cmd": "glab config get git_protocol",
+      "desc": "Read one glab configuration value",
+      "tooltip": "Prints the current value of a single config key, such as git_protocol or editor, using its dotted name. Values can come from a per-host section, so check the --host flag if the result looks wrong. Pair with glab config set to change a value."
+    },
+    {
+      "cmd": "glab config set git_protocol ssh -g",
+      "desc": "Set the git protocol for clones and pushes",
+      "tooltip": "Configures whether glab clones and pushes over ssh or https. The -g flag applies the choice globally instead of only to the active host. SSH avoids password prompts on most setups and is the usual default."
+    },
+    {
+      "cmd": "glab config set editor code --host gitlab.example.com",
+      "desc": "Assign an editor for one GitLab host",
+      "tooltip": "Sets which editor glab opens for merge request and issue descriptions, scoped to the gitlab.example.com host with --host. The value code launches VS Code; other hosts keep their own settings. Without --host the change applies to the active host."
+    },
+    {
+      "cmd": "glab repo create",
+      "desc": "Create a new repository on GitLab",
+      "tooltip": "Walks you through creating a project on your GitLab instance, prompting for name, visibility, and group. Use -P for public or -p for private to skip the visibility prompt. Add --readme to initialize the project with a README file."
+    },
+    {
+      "cmd": "glab repo create -g acme-platform --public -d \"Shared service templates\"",
+      "desc": "Create a public repo inside a group",
+      "tooltip": "Creates a project under the acme-platform group with public visibility and the given description. The -g flag targets a group instead of your personal namespace. Add --defaultBranch main to name the initial branch explicitly."
+    },
+    {
+      "cmd": "glab repo clone git@gitlab.com:acme-platform/api-gateway.git",
+      "desc": "Clone a repository over SSH",
+      "tooltip": "Clones the project using the SSH URL shown and sets up glab remote helpers for later commands. You can also pass a bare path such as acme-platform/api-gateway and glab resolves the host from your config. HTTPS URLs work the same way."
+    },
+    {
+      "cmd": "glab repo clone -g acme-platform",
+      "desc": "Clone every project in a group",
+      "tooltip": "Fetches all repositories under the acme-platform group into the current directory, one folder per project. Add --preserve-namespace to keep subgroup paths in the folder layout. Useful when onboarding onto a team you just joined."
+    },
+    {
+      "cmd": "glab repo view",
+      "desc": "Show metadata for the current repository",
+      "tooltip": "Prints project details for the repo in the current directory, including description, star count, and default branch. Add -w to open the project page in your browser instead. The -F json flag switches the output to machine-readable JSON."
+    },
+    {
+      "cmd": "glab repo view -w",
+      "desc": "Open the current repository in the browser",
+      "tooltip": "Launches your default browser at the project page for the repository in the current directory. Add -b main to jump straight to a branch view. The plain glab repo view prints the same metadata as text."
+    },
+    {
+      "cmd": "glab repo search -s \"terraform modules\"",
+      "desc": "Search GitLab projects by name or description",
+      "tooltip": "Searches your GitLab instance for projects matching the term terraform modules and prints name, namespace, and description for each hit. The -s flag takes the search string. Combine with glab repo clone to fetch a matching project directly."
+    },
+    {
+      "cmd": "glab repo fork acme-platform/api-gateway",
+      "desc": "Fork a repository into your namespace",
+      "tooltip": "Creates a personal copy of the named project under your own account, the standard way to contribute without write access. glab registers the fork as a remote so you can push branches. Add --clone to fetch the fork locally right away."
+    },
+    {
+      "cmd": "glab repo archive acme-platform/legacy-app",
+      "desc": "Archive a repository so it becomes read-only",
+      "tooltip": "Marks the project as archived, hiding it from searches and blocking new changes while keeping all history intact. Members can still clone and browse archived projects. Use glab repo update with the --archive flag set to false to unarchive later."
+    },
+    {
+      "cmd": "glab repo transfer acme-platform/legacy-app",
+      "desc": "Move a repository to another group",
+      "tooltip": "Relocates the project to a different group or user namespace and prompts for the target. The move changes the project path, so all remote URLs must be updated. Only group owners and instance admins can transfer projects."
+    },
+    {
+      "cmd": "glab repo delete acme-platform/legacy-app",
+      "desc": "Delete a repository and all of its data",
+      "tooltip": "Permanently removes the project, including its git repository, issues, merge requests, and CI artifacts. This cannot be undone, so double-check the namespace and name before confirming the prompt. Prefer archiving when you only want to stop active work."
+    },
+    {
+      "cmd": "glab repo list",
+      "desc": "List repositories you can access",
+      "tooltip": "Prints the projects available to your account, most recently updated first. By default only projects you own appear; add --all to include every project you can access. Filter with -g for a specific group."
+    },
+    {
+      "cmd": "glab repo mirror acme-platform/api-gateway",
+      "desc": "Configure repository mirroring for a project",
+      "tooltip": "Sets up pull or push mirroring on the named GitLab project so it stays in sync with an external repository. A pull mirror makes the external repo the source of truth, while a push mirror makes your GitLab project the source. You supply the remote URL and direction during the prompts."
+    },
+    {
+      "cmd": "glab repo prune",
+      "desc": "Delete local branches whose MRs were merged",
+      "tooltip": "Removes local git branches that have at least one merged merge request and no open ones, skipping protected, default, and checked-out branches. Only your local repository changes; remote branches are untouched. Add --merged to skip the per-branch lookup and rely on git branch --merged instead."
+    },
+    {
+      "cmd": "glab repo update api-gateway --defaultBranch main",
+      "desc": "Change the default branch of a repository",
+      "tooltip": "Updates project settings such as the default branch for the api-gateway project. The same command changes the description with --description and archives or unarchives with the --archive flag. Run it from inside the repo to target the current project without naming it."
+    },
+    {
+      "cmd": "glab mr create -t \"Add rate limiting\" -d \"Limits API calls per user\" -b main -l backend -a @me",
+      "desc": "Create a merge request with title and labels",
+      "tooltip": "Files a merge request for the current branch targeting main, with the given title and description. The -l flag adds the backend label and -a @me assigns the request to you. A merge request is GitLab's code-review unit, the equivalent of a pull request."
+    },
+    {
+      "cmd": "glab mr create -f",
+      "desc": "Create a merge request from commit messages",
+      "tooltip": "Fills the title and description automatically from the branch's commit history so you can skip writing one. The first commit message becomes the title when -f is used. Add --draft to mark the request as work in progress."
+    },
+    {
+      "cmd": "glab mr create --draft --remove-source-branch --squash-before-merge -y",
+      "desc": "Create a draft MR with branch cleanup flags",
+      "tooltip": "Files a draft merge request, which signals work in progress and blocks the merge button. The --remove-source-branch flag deletes the feature branch after merging and --squash-before-merge folds every commit into one. The -y flag skips the final confirmation prompt."
+    },
+    {
+      "cmd": "glab mr list",
+      "desc": "List open merge requests in a project",
+      "tooltip": "Shows open merge requests for the current project with their IDs, titles, and authors. The numeric ID printed is what you pass to glab mr view. Add -a @me to see only yours, or -M to list merged requests instead."
+    },
+    {
+      "cmd": "glab mr list -a @me -l backend -M",
+      "desc": "List merged MRs assigned to you with a label",
+      "tooltip": "Filters merge requests to those you are assigned to, carrying the backend label, that are already merged. The -M flag switches the default listing from open to merged requests. Add -A to include requests from every project in the group."
+    },
+    {
+      "cmd": "glab mr view 42",
+      "desc": "Show details of one merge request",
+      "tooltip": "Prints the title, description, status, and diff statistics for merge request 42. Add -c to include the discussion comments inline. This is the fastest way to review an MR without opening a browser."
+    },
+    {
+      "cmd": "glab mr view 42 -w",
+      "desc": "Open a merge request in the browser",
+      "tooltip": "Opens merge request 42 in your default browser at the GitLab web interface. Handy when you need the full discussion sidebar or want to leave inline comments. The -w flag works on other glab commands too, such as glab repo view."
+    },
+    {
+      "cmd": "glab mr checkout 42",
+      "desc": "Check out a merge request locally",
+      "tooltip": "Creates a local branch from merge request 42 and switches to it so you can test the changes. Add -b to name the branch yourself or -u to set upstream tracking. This is the standard way to review someone else's code on your machine."
+    },
+    {
+      "cmd": "glab mr merge 42 -s --remove-source-branch -y",
+      "desc": "Merge an MR with squash and cleanup",
+      "tooltip": "Merges merge request 42 into its target branch, squashing all commits into one with -s and deleting the source branch afterward. The -y flag skips the final confirmation. A red pipeline blocks the merge unless the project allows bypassing it."
+    },
+    {
+      "cmd": "glab mr merge 42 --auto-merge",
+      "desc": "Merge an MR when pipelines pass",
+      "tooltip": "Queues merge request 42 to merge automatically once its required pipelines succeed. The request stays open and merges the moment checks are green, which helps when you are away. Cancel it before then if you change your mind."
+    },
+    {
+      "cmd": "glab mr close 42",
+      "desc": "Close a merge request without merging",
+      "tooltip": "Marks merge request 42 as closed, keeping the discussion and commits while declining the changes. Reopen it later with glab mr reopen. Closing is the polite way to abandon a review instead of deleting it."
+    },
+    {
+      "cmd": "glab mr update 42 --draft",
+      "desc": "Mark a merge request as draft",
+      "tooltip": "Flips merge request 42 into draft state, which blocks merging and signals work in progress. Use -r or --ready to mark it ready again. The same command updates the title with -t and removes labels with -u."
+    },
+    {
+      "cmd": "glab mr rebase 42",
+      "desc": "Rebase an MR onto its target branch",
+      "tooltip": "Rewinds merge request 42's commits and replays them on top of the latest target branch, clearing drift so the diff stays clean. Pipelines rerun after a rebase. Useful when the target branch moved ahead of the request."
+    },
+    {
+      "cmd": "glab mr approve 42",
+      "desc": "Approve a merge request",
+      "tooltip": "Records your approval on merge request 42, which counts toward the project's required approvals. Approving signals the code is good to merge from your perspective. Withdraw it later using glab mr revoke."
+    },
+    {
+      "cmd": "glab mr revoke 42",
+      "desc": "Withdraw approval from a merge request",
+      "tooltip": "Removes your approval from merge request 42, for example after new commits change the code. Useful when a review is no longer valid. The command defaults to the current branch when no ID is given."
+    },
+    {
+      "cmd": "glab mr note create 42 -m \"LGTM, ship it\"",
+      "desc": "Comment on a merge request",
+      "tooltip": "Posts the message LGTM, ship it as a comment on merge request 42, starting a new discussion thread. A note is GitLab's word for a comment. Read existing threads with glab mr view -c or reply to one with the --reply flag."
+    },
+    {
+      "cmd": "glab mr diff 42",
+      "desc": "Show the diff of a merge request",
+      "tooltip": "Prints the file-by-file changes introduced by merge request 42 as a unified diff in the terminal. Great for a quick review without leaving the shell. Pair with glab mr view for the full context around the changes."
+    },
+    {
+      "cmd": "glab mr delete 123",
+      "desc": "Delete a merge request permanently",
+      "tooltip": "Removes merge request 123 and its discussion entirely. Only draft and closed requests can be deleted, and the action cannot be undone, so prefer closing when the history matters. Multiple IDs and branch names can be passed in one call."
+    },
+    {
+      "cmd": "glab mr reopen 42",
+      "desc": "Reopen a closed merge request",
+      "tooltip": "Restores merge request 42 to open state after it was closed without merging. The discussion history survives the round trip. Multiple IDs can be passed in a single call."
+    },
+    {
+      "cmd": "glab mr todo 42",
+      "desc": "Add a merge request to your to-do list",
+      "tooltip": "Flags merge request 42 for follow-up in your personal to-do list, which also lives in the GitLab web UI. Clear it with glab todo done after you act on it. The command defaults to the current branch's request when no ID is given."
+    },
+    {
+      "cmd": "glab issue create -t \"Fix login timeout\" -d \"Session expires too fast\" -l bug -a @me",
+      "desc": "Create an issue with title and labels",
+      "tooltip": "Opens an editor pre-filled with the given title and description for a new issue. The -l flag adds the bug label and -a @me assigns the issue to you. Issues track bugs and tasks, while merge requests carry code changes."
+    },
+    {
+      "cmd": "glab issue create -t \"Audit trail\" --confidential --weight 3",
+      "desc": "Create a confidential weighted issue",
+      "tooltip": "Files an issue visible only to project members with the confidential flag and a weight of 3 for estimation. Confidential issues hide from public views and searches. Weight is an optional effort estimate used in planning."
+    },
+    {
+      "cmd": "glab issue list",
+      "desc": "List issues in the current project",
+      "tooltip": "Shows open issues with their IDs, titles, and labels. The numeric ID is what you pass to glab issue view. Filter with -l for a label or -a @me for your own assignments."
+    },
+    {
+      "cmd": "glab issue list -l bug -a @me",
+      "desc": "List issues by label and assignee",
+      "tooltip": "Filters issues to those carrying the bug label and assigned to you. Combine as many filters as you like, such as label, assignee, and milestone. Use -A to list issues across every project in the group."
+    },
+    {
+      "cmd": "glab issue view 42",
+      "desc": "Show details of one issue",
+      "tooltip": "Prints the title, description, labels, and current state of issue 42. Add -c to include the comments in the output. This beats opening a browser tab for a quick status check."
+    },
+    {
+      "cmd": "glab issue close 42",
+      "desc": "Close an issue",
+      "tooltip": "Marks issue 42 as closed, which usually means the work is done or no longer planned. The issue stays visible with its history intact. Reopen it with glab issue reopen if needed."
+    },
+    {
+      "cmd": "glab issue board view",
+      "desc": "View the issue board interactively",
+      "tooltip": "Opens the project's issue board in the terminal, showing issues grouped into lists much like a kanban board. Boards track work as it moves between stages such as To Do and Done. Create a board first with glab issue board create if the project has none."
+    },
+    {
+      "cmd": "glab issue update 42",
+      "desc": "Edit an issue's labels and assignees",
+      "tooltip": "Opens interactive prompts to change issue 42's title, description, labels, assignees, or milestone. Every flag is optional, and changes apply immediately in the web UI."
+    },
+    {
+      "cmd": "glab issue note 42 -m \"Looking into this now\"",
+      "desc": "Comment on an issue",
+      "tooltip": "Posts the message Looking into this now as a comment on issue 42. Without the -m flag, glab opens your editor for a longer comment. Comments keep the discussion attached to the issue for later reference."
+    },
+    {
+      "cmd": "glab issue reopen 42",
+      "desc": "Reopen a closed issue",
+      "tooltip": "Restores issue 42 to open state after it was closed, keeping all comments and history. Common when a bug comes back after being marked done. The command also accepts a full GitLab URL in place of the ID."
+    },
+    {
+      "cmd": "glab issue delete 42",
+      "desc": "Delete an issue permanently",
+      "tooltip": "Removes issue 42 and its comments from the project entirely. Deletion cannot be undone, so prefer closing when the discussion has value. Only users with sufficient project permissions can delete issues."
+    },
+    {
+      "cmd": "glab ci status",
+      "desc": "Show the pipeline status of a branch",
+      "tooltip": "Prints the CI/CD pipeline state for the current branch, such as running, passed, or failed. CI/CD is GitLab's built-in automation that builds, tests, and deploys your code from the CI config file (gitlab-ci.yml). Add -b to check another branch."
+    },
+    {
+      "cmd": "glab ci status -b main --live",
+      "desc": "Watch pipeline status update in real time",
+      "tooltip": "Follows the pipeline for the main branch and refreshes its status live until it finishes. Use --compact for a condensed view or -w to wait for completion without extra output. The -b flag selects the branch."
+    },
+    {
+      "cmd": "glab ci retry 123456",
+      "desc": "Retry a failed CI job",
+      "tooltip": "Reruns CI job 123456 after a failure, passing the job name or ID. Only jobs that failed or were canceled can be retried. Add -p to target a job in a specific pipeline instead of the latest one."
+    },
+    {
+      "cmd": "glab ci cancel pipeline 123456",
+      "desc": "Cancel a running CI pipeline",
+      "tooltip": "Stops pipeline 123456 and its running jobs, which saves runner time when a pipeline is wrong or obsolete. Canceling is not reversible, so retry jobs afterward with glab ci retry. The job subcommand cancels individual jobs instead."
+    },
+    {
+      "cmd": "glab ci trace 123456",
+      "desc": "Show a CI job log in real time",
+      "tooltip": "Streams the live log of job 123456 while it runs, then prints the full trace once it finishes. A trace is the complete output a job produced on the runner. Press q or Ctrl-C to stop following without canceling the job."
+    },
+    {
+      "cmd": "glab ci lint .gitlab-ci.yml",
+      "desc": "Validate a CI configuration file",
+      "tooltip": "Checks the CI config file (gitlab-ci.yml) for syntax and logic errors before you push, showing warnings and the resolved job list. Add --dry-run to simulate what the pipeline would look like. The command accepts a path or a URL to a remote file."
+    },
+    {
+      "cmd": "glab ci list --status success",
+      "desc": "List pipelines filtered by status",
+      "tooltip": "Prints recent pipelines for the current project, filtered to those that finished successfully. Other status values include running, failed, and canceled. The listing shows the pipeline ID and branch for each entry."
+    },
+    {
+      "cmd": "glab ci get",
+      "desc": "Show the latest pipeline for a branch",
+      "tooltip": "Prints details of the most recent pipeline for the current branch, including its ID, status, and the commit it ran on. Pass --pipeline-id to fetch a specific pipeline instead. Pair with glab ci status for a compact summary."
+    },
+    {
+      "cmd": "glab ci run --branch main",
+      "desc": "Trigger a new pipeline manually",
+      "tooltip": "Starts a fresh pipeline for the main branch using the project's CI config, without pushing a commit. Pass pipeline variables with the --variables flag and typed inputs with -i. Useful for testing the config on demand."
+    },
+    {
+      "cmd": "glab ci trigger lint",
+      "desc": "Run a manual CI job",
+      "tooltip": "Starts the manual job named lint, which only runs when someone triggers it by design. Without a job argument you pick one interactively from the list of manual jobs. Add -p to target a specific pipeline."
+    },
+    {
+      "cmd": "glab ci delete 123456",
+      "desc": "Delete a pipeline and its traces",
+      "tooltip": "Removes pipeline 123456 and its job logs from the project, which frees storage and cleans up mistakes. Deleting does not stop a running pipeline, so cancel it first with glab ci cancel pipeline. Only users with sufficient permissions can delete pipelines."
+    },
+    {
+      "cmd": "glab job artifact main build",
+      "desc": "Download artifacts from the latest pipeline",
+      "tooltip": "Downloads the artifacts produced by the build job on the main branch from the most recent successful pipeline. Artifacts are files a job saves for later jobs or for humans, such as test reports and binaries. The command replaces the deprecated glab ci artifact form."
+    },
+    {
+      "cmd": "glab release create v1.2.0",
+      "desc": "Create a release tag with notes",
+      "tooltip": "Tags the current commit as v1.2.0 and creates a GitLab release, prompting for release notes in your editor. A release bundles a git tag with notes and downloadable assets. Point at another commit or branch with the --ref flag."
+    },
+    {
+      "cmd": "glab release create v1.2.0 -n \"v1.2.0\" -N \"Adds rate limiting\" --ref main",
+      "desc": "Create a release with notes and target ref",
+      "tooltip": "Creates release v1.2.0 from the main branch with the name and notes given, skipping the editor. The -N flag sets the notes and --ref picks the tag target. Attach files afterward with glab release upload."
+    },
+    {
+      "cmd": "glab release list",
+      "desc": "List releases for the current project",
+      "tooltip": "Prints the project's releases, most recent first, with their tags and titles. Each release corresponds to a git tag. Use glab release view for the full notes of one release."
+    },
+    {
+      "cmd": "glab release download v1.2.0 -D dist/",
+      "desc": "Download release assets to a directory",
+      "tooltip": "Fetches the assets attached to release v1.2.0 into the dist directory, which is created if missing. Use -n to grab a single asset by name. Assets are the files attached to a release, such as binaries and archives."
+    },
+    {
+      "cmd": "glab release upload v1.2.0 ./dist/app.tar.gz",
+      "desc": "Attach files to an existing release",
+      "tooltip": "Uploads the app archive as an asset of release v1.2.0. Append a display name after a hash sign to rename it, for example app.tar.gz#App package. Wildcards such as ./dist/* upload every matching file."
+    },
+    {
+      "cmd": "glab release delete v1.2.0",
+      "desc": "Delete a release and its assets",
+      "tooltip": "Removes release v1.2.0 and the assets attached to it, which cannot be undone. The git tag itself is left in place unless you delete it separately. Requires the Maintainer role or higher on the project."
+    },
+    {
+      "cmd": "glab variable list",
+      "desc": "List CI/CD variables for a project",
+      "tooltip": "Shows the CI/CD variables defined for the current project, with their scopes and masked or protected flags. CI/CD variables are key-value pairs injected into pipelines as environment variables. Add -g for a group's variables or -i for instance-wide ones."
+    },
+    {
+      "cmd": "glab variable list -g acme-platform",
+      "desc": "List variables for a group",
+      "tooltip": "Lists the CI/CD variables defined at the acme-platform group level, which every project under the group inherits. Use -i for instance-wide variables instead. Project variables override group ones with the same key."
+    },
+    {
+      "cmd": "glab variable set API_KEY -v \"s3cr3t\" --masked --protected",
+      "desc": "Create a masked protected CI/CD variable",
+      "tooltip": "Stores the value s3cr3t as the API_KEY variable, visible only in masked form in job logs. Masked values hide in pipeline output, and protected values only reach protected branches and tags. Update an existing key by setting it again."
+    },
+    {
+      "cmd": "glab variable set DEPLOY_CONFIG -t file -v ./config.env",
+      "desc": "Create a file-type CI/CD variable",
+      "tooltip": "Stores the contents of ./config.env as a file variable named DEPLOY_CONFIG. File variables appear as files in the job workspace instead of environment strings, handy for certificates and config bundles. The -t flag chooses the variable type."
+    },
+    {
+      "cmd": "glab variable get API_KEY",
+      "desc": "Print the value of one CI/CD variable",
+      "tooltip": "Reads the API_KEY variable and prints its value, honoring the same scoping rules as pipelines. Use --scope to inspect a specific environment scope. Values for masked variables print normally here, so treat the output as sensitive."
+    },
+    {
+      "cmd": "glab variable export",
+      "desc": "Export all project CI/CD variables",
+      "tooltip": "Writes every CI/CD variable for the current project as a JSON array, ready to move between projects or back up. Redirect the output to a file, for example with a shell redirect. Import the file elsewhere with glab variable import."
+    },
+    {
+      "cmd": "glab variable import",
+      "desc": "Import CI/CD variables from JSON",
+      "tooltip": "Reads a JSON array of variables, typically produced by glab variable export, and creates them in the current project. Existing keys are overwritten. Review the JSON before importing so secrets land in the right project."
+    },
+    {
+      "cmd": "glab variable delete API_KEY",
+      "desc": "Delete a CI/CD variable",
+      "tooltip": "Removes the API_KEY variable from the project so pipelines can no longer read it. Pipelines already running keep their injected values until they finish. Deleting is permanent, so confirm the key name first."
+    },
+    {
+      "cmd": "glab label create -n \"bug\" -c \"#FF0000\" -d \"Something is broken\"",
+      "desc": "Create a label with a color",
+      "tooltip": "Adds a bug label colored red to the project, with the description shown. Labels group issues and merge requests by topic or priority. Reference the label by name with the -l flag on issue and MR commands."
+    },
+    {
+      "cmd": "glab label list",
+      "desc": "List labels in the current project",
+      "tooltip": "Prints every label with its color and description, which helps you reuse existing names. Add -g to list a group's labels instead. Labels apply to both issues and merge requests."
+    },
+    {
+      "cmd": "glab label get 42",
+      "desc": "Show one label by its ID",
+      "tooltip": "Prints the name, color, and description of the label with ID 42. Label IDs come from glab label list output. Useful for scripting label lookups."
+    },
+    {
+      "cmd": "glab label delete bug",
+      "desc": "Delete a label by name",
+      "tooltip": "Removes the bug label from the project and detaches it from every issue and merge request that carried it. Deleting is permanent, and the name can then be reused."
+    },
+    {
+      "cmd": "glab alias set co \"mr checkout\"",
+      "desc": "Create a shortcut for a glab command",
+      "tooltip": "Defines co as a shorthand that expands to glab mr checkout, so you can type glab co instead. The alias value is any glab command string, including flags. List existing aliases with glab alias list and remove one with glab alias delete."
+    },
+    {
+      "cmd": "glab alias list",
+      "desc": "List configured glab aliases",
+      "tooltip": "Shows every alias you defined with glab alias set, with its expansion. Aliases are stored in your glab config and apply across projects. The output is sorted alphabetically."
+    },
+    {
+      "cmd": "glab alias delete co",
+      "desc": "Remove a glab alias",
+      "tooltip": "Deletes the co alias so glab co stops working. The removal is permanent, so redefine it with glab alias set if you change your mind. Other aliases are unaffected."
+    },
+    {
+      "cmd": "glab api \"projects?search=gitlab\"",
+      "desc": "Call the GitLab REST API from the terminal",
+      "tooltip": "Sends an authenticated request to the GitLab API v4 endpoint given, using your glab login, and prints the JSON response. Endpoints can use placeholders such as :id that resolve from the current repository. Append graphql as the endpoint to query the GraphQL API instead."
+    },
+    {
+      "cmd": "glab ssh-key add ~/.ssh/id_ed25519.pub -t \"laptop\"",
+      "desc": "Register an SSH key with your account",
+      "tooltip": "Uploads the public key from the file shown to your GitLab account under the title laptop. GitLab then accepts SSH pushes signed by the matching private key. Add -e with a date to expire the key automatically."
+    },
+    {
+      "cmd": "glab ssh-key list",
+      "desc": "List SSH keys on your account",
+      "tooltip": "Shows every SSH public key registered to your GitLab account with its title and creation date. Use this to spot stale keys you no longer use. Remove unused keys with glab ssh-key delete."
+    },
+    {
+      "cmd": "glab ssh-key delete 42",
+      "desc": "Remove an SSH key from your account",
+      "tooltip": "Deletes SSH key 42 from your account, after which pushes using that key are rejected. Machines relying on the key must switch to another registered key. The key ID comes from glab ssh-key list."
+    },
+    {
+      "cmd": "glab completion -s bash",
+      "desc": "Generate shell completion for glab",
+      "tooltip": "Prints a completion script for bash that makes the shell suggest glab commands and flags. Save the output into your shell config, for example by sourcing it from bashrc. Supported shells include zsh, fish, and powershell via the -s flag."
+    },
+    {
+      "cmd": "glab search semantic -q \"authentication middleware\"",
+      "desc": "Search project code by meaning",
+      "tooltip": "Searches the current project's code using natural language and semantic similarity instead of exact keywords. The -q flag takes the query, and -d narrows the search to a directory. This beta feature requires semantic code search enabled via GitLab Duo."
+    },
+    {
+      "cmd": "glab todo list",
+      "desc": "List items in your to-do list",
+      "tooltip": "Shows every pending to-do item, such as issues and merge requests where you were mentioned or asked to review. The list mirrors the To-Do List in the GitLab web UI. Mark items done with glab todo done."
+    },
+    {
+      "cmd": "glab todo done 123",
+      "desc": "Mark a to-do item as done",
+      "tooltip": "Clears to-do item 123 from your list after you have acted on it. Pass multiple IDs to clear several at once. Your remaining items still show in glab todo list."
+    },
+    {
+      "cmd": "glab version",
+      "desc": "Print the installed glab version",
+      "tooltip": "Shows the glab release and the commit it was built from, which helps when reporting bugs or checking for updates. Compare it with glab check-update to see whether a newer release exists. Works without authentication."
+    },
+    {
+      "cmd": "sudo gitlab-ctl status",
+      "desc": "Show the state of every GitLab service",
+      "tooltip": "Prints each service on the GitLab Omnibus server with its process ID and uptime, such as nginx, puma, and sidekiq. Omnibus is the all-in-one Linux package that bundles GitLab with its dependencies and runs services under runit. A stopped service shows as down so you know what to restart."
+    },
+    {
+      "cmd": "sudo gitlab-ctl reconfigure",
+      "desc": "Apply gitlab.rb changes to the server",
+      "tooltip": "Regenerates the server configuration from /etc/gitlab/gitlab.rb (the settings file) and restarts the services that changed. Run this after every edit to gitlab.rb, including upgrades. Expect a short downtime while services restart, sometimes a 502 until puma is back up."
+    },
+    {
+      "cmd": "sudo gitlab-ctl show-config",
+      "desc": "Preview the config reconfigure would generate",
+      "tooltip": "Prints the JSON configuration that a reconfigure would apply, without changing anything on disk. Use it to preview how gitlab.rb settings translate into service configs. Safe to run any time."
+    },
+    {
+      "cmd": "sudo gitlab-ctl diff-config",
+      "desc": "Diff generated config against the applied config",
+      "tooltip": "Compares the configuration reconfigure would generate with what the services currently run. Differences appear when gitlab.rb changed but reconfigure has not run yet. Run reconfigure to close the gap."
+    },
+    {
+      "cmd": "sudo gitlab-ctl check-config",
+      "desc": "Check gitlab.rb for deprecated options",
+      "tooltip": "Scans /etc/gitlab/gitlab.rb for settings that are deprecated or slated for removal in future releases. The warnings tell you which keys to replace and with what. Run it after every major upgrade."
+    },
+    {
+      "cmd": "sudo gitlab-ctl start",
+      "desc": "Start all GitLab services",
+      "tooltip": "Brings up every service that is currently stopped, using the runit supervision system. Services already running are left alone. Check the result with gitlab-ctl status."
+    },
+    {
+      "cmd": "sudo gitlab-ctl stop",
+      "desc": "Stop all GitLab services",
+      "tooltip": "Shuts down every GitLab service, which makes the web interface unreachable until you start them again. Use it before maintenance on the underlying system. Restart with gitlab-ctl start when finished."
+    },
+    {
+      "cmd": "sudo gitlab-ctl restart",
+      "desc": "Restart all GitLab services",
+      "tooltip": "Stops and starts every service, which briefly interrupts the web interface. Prefer targeted restarts such as gitlab-ctl restart puma when only one service needs it. Check health afterward with gitlab-ctl status."
+    },
+    {
+      "cmd": "sudo gitlab-ctl restart puma",
+      "desc": "Restart only the puma web server",
+      "tooltip": "Restarts the puma process that serves the GitLab web interface, which is the usual fix after changing settings that only affect the web app. Other services keep running, so the interruption is short. For zero-downtime reloads, use gitlab-ctl hup puma instead."
+    },
+    {
+      "cmd": "sudo gitlab-ctl restart-except gitaly redis",
+      "desc": "Restart all services except the named ones",
+      "tooltip": "Restarts every service while leaving gitaly and redis untouched, which saves time when those two are known to be healthy. The listed services keep running through the restart. Useful during maintenance that only touches the app layer."
+    },
+    {
+      "cmd": "sudo gitlab-ctl hup puma",
+      "desc": "Reload puma without dropping connections",
+      "tooltip": "Sends puma a hangup signal so workers restart gracefully, keeping existing connections alive. This applies most code and config changes with no downtime, unlike a full restart. Changes to the Ruby runtime itself still need gitlab-ctl restart puma."
+    },
+    {
+      "cmd": "sudo gitlab-ctl tail",
+      "desc": "Follow logs from all GitLab services",
+      "tooltip": "Streams the tail of the logs from every service, which is the first stop when debugging a GitLab problem. Press Ctrl-C to stop following. Narrow it down with a service name, such as gitlab-ctl tail nginx."
+    },
+    {
+      "cmd": "sudo gitlab-ctl tail nginx",
+      "desc": "Follow the nginx access and error logs",
+      "tooltip": "Tails the log files of the nginx service, which fronts all web traffic to GitLab. You can name any service from gitlab-ctl service-list. Add a filename to follow one specific log, such as error.log."
+    },
+    {
+      "cmd": "sudo gitlab-ctl backup-etc",
+      "desc": "Back up the GitLab configuration files",
+      "tooltip": "Archives /etc/gitlab, the directory holding gitlab.rb, secrets, and TLS material, into a timestamped tarball. Restoring a server needs both this config backup and the data backup from gitlab-backup. Store the tarball somewhere off the server."
+    },
+    {
+      "cmd": "sudo gitlab-ctl deploy-page up",
+      "desc": "Show the deploy in progress page",
+      "tooltip": "Switches the web interface to a maintenance page that says a deploy is in progress, so users see a clear message instead of errors. Pair it with gitlab-ctl deploy-page down when the maintenance ends. Check the current state with the status subcommand."
+    },
+    {
+      "cmd": "sudo gitlab-ctl deploy-page status",
+      "desc": "Check whether the deploy page is active",
+      "tooltip": "Reports whether the maintenance page from gitlab-ctl deploy-page up is currently shown. Useful in scripts that must wait for maintenance to end. The page is a static notice served instead of the GitLab UI."
+    },
+    {
+      "cmd": "sudo gitlab-ctl service-list",
+      "desc": "List every runit-managed service",
+      "tooltip": "Prints all services the GitLab Omnibus package supervises, including nginx, puma, sidekiq, gitaly, and redis. Use the names with commands such as gitlab-ctl restart and gitlab-ctl tail. runit is the process supervisor that keeps services alive."
+    },
+    {
+      "cmd": "sudo gitlab-ctl pg-upgrade",
+      "desc": "Upgrade the bundled PostgreSQL major version",
+      "tooltip": "Upgrades the embedded PostgreSQL database to the next major version, which is required when a GitLab upgrade targets a newer Postgres. It stops services, migrates data, and restarts everything, so plan for downtime. Back up first with gitlab-backup create."
+    },
+    {
+      "cmd": "sudo gitlab-ctl cleanse",
+      "desc": "Remove all GitLab data from the server",
+      "tooltip": "Deletes the entire GitLab installation state, including databases, repositories, and configuration, leaving the package installed. This is irreversible and wipes every project on the server. Use it only when decommissioning a node after confirming backups."
+    },
+    {
+      "cmd": "sudo gitlab-ctl uninstall",
+      "desc": "Remove the GitLab installation",
+      "tooltip": "Stops the services and removes the GitLab Omnibus package from the system. Data under /var/opt/gitlab and configuration under /etc/gitlab are preserved unless you remove them separately. Back up before uninstalling anything you might need again."
+    },
+    {
+      "cmd": "sudo gitlab-ctl promote-to-primary-node",
+      "desc": "Promote a secondary Geo node to primary",
+      "tooltip": "Turns the current Geo secondary site into the primary during a failover, making it the writable source of truth. Geo is the GitLab EE feature that replicates a primary site to read-only secondaries for disaster recovery. Run it on the secondary after it has caught up with the primary."
+    },
+    {
+      "cmd": "sudo gitlab-rails runner \"user = User.first; puts user.username\"",
+      "desc": "Run a Ruby one-liner inside GitLab",
+      "tooltip": "Executes the Ruby snippet in the context of the GitLab Rails application, with access to models such as User. This is the supported way to query or fix data that has no admin UI. Wrap multi-line scripts in a file and pass the path instead."
+    },
+    {
+      "cmd": "sudo gitlab-rails runner /tmp/script.rb",
+      "desc": "Run a Ruby script inside GitLab",
+      "tooltip": "Executes the script file in the GitLab Rails environment, letting you loop over records and call application code. Scripts run as the git user with full database access, so test them on a copy first. One-liners work too by passing the code as a string."
+    },
+    {
+      "cmd": "sudo gitlab-rails console",
+      "desc": "Open an interactive GitLab console",
+      "tooltip": "Starts an interactive Ruby session inside the GitLab application where you can inspect models, users, and settings directly. Type quit to exit. This is powerful and unsafe for casual use, so prefer the runner for scripted changes."
+    },
+    {
+      "cmd": "sudo gitlab-rails console --sandbox",
+      "desc": "Open a console where changes roll back",
+      "tooltip": "Starts the Rails console in sandbox mode, where every database write is rolled back when you exit. Great for testing destructive operations safely. Reads behave normally, so queries and lookups are unaffected."
+    },
+    {
+      "cmd": "sudo gitlab-psql -d gitlabhq_production",
+      "desc": "Open a psql session on the GitLab database",
+      "tooltip": "Connects to the gitlabhq_production database, where GitLab stores its application data, using the bundled PostgreSQL client. Standard psql features work, including SQL queries and meta-commands. Read-only queries are safe, but direct writes bypass GitLab's own checks."
+    },
+    {
+      "cmd": "sudo gitlab-psql -d gitlabhq_production -c \"SELECT count(*) FROM users;\"",
+      "desc": "Run one SQL query against GitLab's database",
+      "tooltip": "Executes the count query against the production database and exits, which is handy for quick checks without an interactive session. The -c flag takes a single SQL statement. Wrap complex queries in a heredoc or file instead."
+    },
+    {
+      "cmd": "sudo gitlab-rake db:migrate",
+      "desc": "Run pending database migrations",
+      "tooltip": "Applies database migrations that the last upgrade queued but has not run yet. Migrations change the schema, so the app may need a restart afterward. Rake tasks are GitLab's built-in maintenance scripts, run through the gitlab-rake wrapper."
+    },
+    {
+      "cmd": "sudo gitlab-rake db:migrate:status",
+      "desc": "Show which migrations have run",
+      "tooltip": "Lists every migration with its version and whether it is up or down. Down entries are pending and will run on the next db:migrate. Use this to confirm an upgrade finished cleanly."
+    },
+    {
+      "cmd": "sudo gitlab-rake db:schema:dump",
+      "desc": "Dump the current database schema",
+      "tooltip": "Writes the database structure to a schema file that GitLab uses to rebuild the database. Run it after manual schema changes so the file matches reality. The output is meant for the repository, not for humans."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:check",
+      "desc": "Run the GitLab environment checks",
+      "tooltip": "Runs the full suite of environment checks, covering database connectivity, git configuration, uploads, and permissions. Failures print with hints about how to fix them. Add SANITIZE=true to hide sensitive values from the output."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:check SANITIZE=true",
+      "desc": "Run environment checks without secrets in output",
+      "tooltip": "Runs the same checks as gitlab:check but replaces sensitive values with placeholders in the report. Use this variant when sharing check output in support tickets. The checks themselves are identical."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:env:info",
+      "desc": "Show the GitLab environment summary",
+      "tooltip": "Prints a summary of the installation, including version, package type, and database adapter. Attach this output to bug reports so support sees the exact environment. Quick and safe to run."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:db:reindex",
+      "desc": "Reindex the GitLab database tables",
+      "tooltip": "Rebuilds indexes on the GitLab database to restore performance after heavy churn. Indexes speed up lookups but fragment over time. Run during a maintenance window because the work loads the database."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:db:repair_index",
+      "desc": "Fix broken database indexes",
+      "tooltip": "Rebuilds indexes that GitLab detected as invalid or corrupted, for example after an aborted migration. Run it when the db:migrate output mentions index problems. Safe to run repeatedly if unsure."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:db:collation_checker",
+      "desc": "Check database collation consistency",
+      "tooltip": "Compares collation settings across GitLab database tables and reports mismatches. Collation defines how text is sorted and compared, and inconsistent collation can break lookups. Fix issues found before the next major upgrade."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:db:sos",
+      "desc": "Collect database diagnostics for support",
+      "tooltip": "Gathers database metadata, settings, and sample data into a bundle for GitLab support to analyze. Run it when reporting database performance problems. The output lands in a timestamped directory on the server."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:exclusive_lease:clear",
+      "desc": "Clear stuck exclusive leases",
+      "tooltip": "Removes exclusive lease entries left behind by crashed jobs, which can block background work such as repository maintenance. Exclusive leases prevent two jobs from running the same task at once. Clear them only when a job is truly stuck."
+    },
+    {
+      "cmd": "sudo gitlab-rake cache:clear",
+      "desc": "Clear the Rails cache",
+      "tooltip": "Empties the Rails cache store, which holds frequently used data such as fragments and counters. Run it after migrations or manual data changes when stale cache entries cause odd behavior. Services rebuild the cache on demand."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:license:info",
+      "desc": "Show the license details and limits",
+      "tooltip": "Prints the current license type, expiration date, and the user limits it allows. Useful to confirm a renewal applied or to check how close you are to the seat limit. Works on CE too, reporting the free tier."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:shell:setup",
+      "desc": "Reconfigure the GitLab Shell",
+      "tooltip": "Re-establishes the GitLab Shell setup, which handles git operations over SSH. Run it when SSH pushes fail after a key or secret change. It writes the authorized keys configuration from the current settings."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:uploads:check VERBOSE=1",
+      "desc": "Check upload integrity across projects",
+      "tooltip": "Verifies that every referenced upload file exists on disk, reporting missing ones. The VERBOSE=1 setting lists each checked file instead of summarizing. Run it after a restore to catch files that did not come back."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:lfs:check VERBOSE=1",
+      "desc": "Check LFS object integrity",
+      "tooltip": "Verifies that large file storage objects referenced by the database exist on disk. LFS, or large file storage, keeps big files out of the git repository itself. The VERBOSE=1 flag prints every object checked."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:artifacts:check BATCH=100 ID_FROM=50 ID_TO=250",
+      "desc": "Check CI artifact files in a project range",
+      "tooltip": "Verifies that CI artifact files for projects with IDs between 50 and 250 exist, processing 100 projects per batch. The BATCH and ID range flags keep memory use bounded on large servers. Missing artifacts are reported for re-download or cleanup."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:git:fsck",
+      "desc": "Check repository integrity with fsck",
+      "tooltip": "Runs the git fsck integrity check over repositories, finding corrupt objects and dangling commits. Corrupt repositories can break clones and pushes. Fix issues found before they spread through replication."
+    },
+    {
+      "cmd": "sudo gitlab-rake gitlab:doctor:secrets",
+      "desc": "Check secret files for consistency",
+      "tooltip": "Verifies that the secret files match what the database expects, which matters after restoring from a backup. Mismatched secrets break features such as two-factor auth and CI tokens. Re-encrypt the database when the check reports a problem."
+    },
+    {
+      "cmd": "sudo gitlab-backup create",
+      "desc": "Create a full GitLab backup",
+      "tooltip": "Backs up the database, repositories, uploads, and CI artifacts into a timestamped tarball under /var/opt/gitlab/backups. Run it regularly and copy the tarballs off the server, since a disk failure takes the backups with it. Restore with gitlab-backup restore."
+    },
+    {
+      "cmd": "sudo gitlab-backup create SKIP=db,uploads",
+      "desc": "Back up everything except database and uploads",
+      "tooltip": "Creates a backup while skipping the database and uploads components, which is useful for quick repository-only snapshots. The SKIP flag takes a comma-separated list of component names. A backup without the database cannot restore the app fully."
+    },
+    {
+      "cmd": "sudo gitlab-backup create SKIP=tar",
+      "desc": "Back up without creating the tar archive",
+      "tooltip": "Runs the backup steps but skips the final step that bundles everything into a tarball. Pair this with a custom COMPRESS_CMD when you handle archiving yourself. The raw component directories stay in the backups folder."
+    },
+    {
+      "cmd": "sudo gitlab-backup create SKIP=remote",
+      "desc": "Back up without uploading to remote storage",
+      "tooltip": "Prevents the backup from being uploaded to the configured object storage or remote directory. Use it when you want the tarball only on the local disk. The remote destination is set in gitlab.rb."
+    },
+    {
+      "cmd": "sudo gitlab-backup create SKIP=repositories",
+      "desc": "Back up everything except git repositories",
+      "tooltip": "Skips the git repository data while keeping the database, uploads, and other components. Restoring this backup alone does not bring back project code. Pair it with a separate repository backup strategy such as Gitaly snapshots."
+    },
+    {
+      "cmd": "sudo gitlab-backup create INCREMENTAL=yes PREVIOUS_BACKUP=1699000000_2023_11_04_16.0.5",
+      "desc": "Create an incremental backup on top of a previous one",
+      "tooltip": "Appends only the changes since the named backup into an incremental tarball, using the backup ID from the previous run. The ID format is a timestamp followed by the date and GitLab version. Incremental backups restore faster but need the full chain."
+    },
+    {
+      "cmd": "sudo gitlab-backup create CRON=1",
+      "desc": "Run a backup silently for cron jobs",
+      "tooltip": "Suppresses the progress output so the command is safe to run from a cron schedule without spamming logs. Set CRON=1 inside the cron job's command line. Errors still print and can be captured by the cron mailer."
+    },
+    {
+      "cmd": "sudo gitlab-backup create COMPRESS_CMD=\"gzip -c --best\"",
+      "desc": "Back up with a custom compression command",
+      "tooltip": "Overrides the default compressor with gzip at its best level, trading speed for a smaller tarball. The command must read input on stdin and write compressed output to stdout. Pair with DECOMPRESS_CMD on restore so the formats match."
+    },
+    {
+      "cmd": "sudo gitlab-backup restore BACKUP=11493107454_2018_04_25_10.6.4-ce",
+      "desc": "Restore GitLab from a backup file",
+      "tooltip": "Restores the database, repositories, and other components from the named backup. The value is the backup ID as it appears in the backups directory. This overwrites current data, and a version mismatch between backup and server aborts the restore."
+    },
+    {
+      "cmd": "sudo GITLAB_ASSUME_YES=1 gitlab-backup restore",
+      "desc": "Restore a backup without confirmation prompts",
+      "tooltip": "Runs the restore flow answering yes to every prompt, which is needed for unattended restores in scripts. It restores the latest backup found in the backups directory. Only set the variable when you are certain the current data can be overwritten."
+    },
+    {
+      "cmd": "sudo gitlab-runner register",
+      "desc": "Register a new GitLab runner interactively",
+      "tooltip": "Walks you through registering a runner with a GitLab instance, asking for the GitLab URL, a registration token, and an executor. A runner is a worker machine that picks up CI jobs from GitLab. The answers land in the config file (config.toml)."
+    },
+    {
+      "cmd": "sudo gitlab-runner register --non-interactive --url https://gitlab.com --token $RUNNER_TOKEN --executor docker --docker-image alpine:latest --name runner-1",
+      "desc": "Register a Docker runner without prompts",
+      "tooltip": "Registers a runner non-interactively using the token from the RUNNER_TOKEN shell variable, so it fits in setup scripts. The docker executor runs each job in a fresh alpine container, isolating builds from the host. The --name flag labels this runner in the GitLab UI."
+    },
+    {
+      "cmd": "gitlab-runner list",
+      "desc": "List runners from the local config",
+      "tooltip": "Shows every runner defined in the config file (config.toml) with its URL and executor. This reflects local registration, not what GitLab sees. Check the GitLab admin area when a runner shows as offline."
+    },
+    {
+      "cmd": "gitlab-runner verify",
+      "desc": "Check runner connectivity with GitLab",
+      "tooltip": "Contacts GitLab for each registered runner and reports whether the connection and token still work. Run it after moving servers or rotating tokens. Offline runners appear in the output with their last contact time."
+    },
+    {
+      "cmd": "gitlab-runner lint",
+      "desc": "Validate a CI config against the runner",
+      "tooltip": "Checks a CI config file (gitlab-ci.yml) for errors the way the runner would parse it, before pushing. Pass the file path or a URL to the config. The report lists each job and any problems found."
+    },
+    {
+      "cmd": "gitlab-runner status",
+      "desc": "Show whether the runner service is running",
+      "tooltip": "Reports whether the gitlab-runner service process is active on this machine. It does not check registration or connectivity, which is what gitlab-runner verify does. Useful after install or start to confirm the service came up."
+    },
+    {
+      "cmd": "sudo gitlab-runner unregister --all-runners",
+      "desc": "Unregister every runner on this machine",
+      "tooltip": "Removes all runners registered from this host from the GitLab project or group, useful when decommissioning a machine. Individual runners can be removed with --name or by URL and token. The local config entries are removed too."
+    },
+    {
+      "cmd": "gitlab-runner run",
+      "desc": "Run the runner in the foreground",
+      "tooltip": "Starts the runner process directly in the terminal, which is what the service does in the background when installed. Run it manually to watch logs while debugging. Stop it with Ctrl-C."
+    },
+    {
+      "cmd": "gitlab-runner run-single -u http://gitlab.example.com -t $RUNNER_TOKEN --executor docker --docker-image ruby:3.3",
+      "desc": "Run one temporary runner session",
+      "tooltip": "Starts a single runner session that takes jobs until stopped, without writing a config file entry. The -u flag sets the GitLab URL and -t passes the token from the RUNNER_TOKEN variable. Useful for short-lived test runners."
+    },
+    {
+      "cmd": "sudo gitlab-runner install",
+      "desc": "Install the runner as a system service",
+      "tooltip": "Registers the runner binary with the init system so it starts automatically on boot. The service runs the gitlab-runner run command in the background. Start it with gitlab-runner start."
+    },
+    {
+      "cmd": "sudo gitlab-runner uninstall",
+      "desc": "Remove the runner system service",
+      "tooltip": "Removes the gitlab-runner service from the init system so it no longer starts on boot. Stop the service first to avoid a supervisor respawning the process. Registration entries in the config file remain."
+    },
+    {
+      "cmd": "sudo gitlab-runner start",
+      "desc": "Start the runner service",
+      "tooltip": "Starts the installed gitlab-runner service so it begins picking up jobs. The service runs in the background under the init system. Confirm it is up with gitlab-runner status."
+    },
+    {
+      "cmd": "sudo gitlab-runner stop",
+      "desc": "Stop the runner service",
+      "tooltip": "Stops the gitlab-runner service so it stops accepting new jobs. Jobs already running finish before the process exits. Restart later with gitlab-runner start."
+    },
+    {
+      "cmd": "sudo gitlab-runner reset-token",
+      "desc": "Reset the runner's authentication token",
+      "tooltip": "Rotates the authentication token the runner uses to talk to GitLab and writes the new value into the config file (config.toml). Run it when a token leaks or the runner reports authentication failures. The runner picks up the new token on its next communication with the server."
+    }
+  ]
+}

@@ -1,0 +1,675 @@
+{
+  "category": "VPS Management",
+  "commands": [
+    {
+      "cmd": "ssh root@203.0.113.10",
+      "desc": "Connect to a fresh VPS as root",
+      "tooltip": "First contact with a new server: ssh (Secure Shell) logs in over the encrypted channel using the root account. The first prompt asks you to accept the server's host key (a fingerprint that identifies the machine) — verify it against the one shown in your provider's console. After login, run the update and upgrade steps below before installing anything."
+    },
+    {
+      "cmd": "ssh -o StrictHostKeyChecking=accept-new root@203.0.113.10",
+      "desc": "Trust host key on first connection automatically",
+      "tooltip": "StrictHostKeyChecking=accept-new records the server's host key into ~/.ssh/known_hosts the first time you connect without asking, but still refuses to connect if the key later changes. That stops man-in-the-middle attacks from day two onward. Use it in bootstrap scripts where a trust prompt would hang automation."
+    },
+    {
+      "cmd": "sudo apt update && sudo apt upgrade -y",
+      "desc": "Refresh package lists and upgrade all packages",
+      "tooltip": "The standard first step on any fresh VPS: apt update downloads the latest package lists, then apt upgrade -y installs every available update without prompting (the -y answers yes automatically). Run this before installing anything so security fixes and matching library versions are in place. Expect a reboot afterward if the kernel was updated."
+    },
+    {
+      "cmd": "sudo apt upgrade -y -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\"",
+      "desc": "Upgrade keeping existing config file versions",
+      "tooltip": "Forces apt to keep your current config files when a package upgrade wants to overwrite them: confdef keeps the default only if no local edit exists, confold always keeps your version. The -o flag injects dpkg options, so headless upgrades on production boxes never hang on interactive prompts. This is the safe variant when you have tuned configs you do not want clobbered."
+    },
+    {
+      "cmd": "sudo apt-get update -o Acquire::Retries=3",
+      "desc": "Update package lists retrying flaky mirrors",
+      "tooltip": "Acquire::Retries=3 makes apt retry failed downloads up to three times, which tames the transient network errors common on new VPSes. A single dropped connection aborts the whole update run, so retries matter. Re-run your normal install command afterward if this still fails."
+    },
+    {
+      "cmd": "sudo apt install -y ufw fail2ban unattended-upgrades curl htop",
+      "desc": "Install firewall, intrusion guard, and auto-updates",
+      "tooltip": "One-shot bootstrap install of the core hardening stack: ufw (the uncomplicated firewall), fail2ban (an auto-banning intrusion guard for brute-force attacks), unattended-upgrades (automatic security patches), plus curl and htop for diagnostics. Each ships with sane defaults so you can enable them one by one. This keeps the later setup steps to configuration only."
+    },
+    {
+      "cmd": "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ufw fail2ban unattended-upgrades curl htop",
+      "desc": "Install hardening stack without interactive prompts",
+      "tooltip": "DEBIAN_FRONTEND=noninteractive tells dpkg to skip all questions and use default answers, so the install never stalls waiting for input — the reliable form for bootstrap scripts and cloud-init user data. Add -o Dpkg::Options::=\"--force-confold\" if you also want to protect existing config files. Combine with the retry option for flaky networks."
+    },
+    {
+      "cmd": "sudo apt-get install -y linux-headers-$(uname -r)",
+      "desc": "Install kernel headers for the running kernel",
+      "tooltip": "The $(uname -r) command substitution resolves to your exact kernel version, and linux-headers-<version> provides the build-time interfaces needed to compile DKMS drivers such as wireguard or GPU modules. Headers must match the running kernel exactly, which is why the substitution is used. Re-run after every kernel upgrade that needs modules rebuilt."
+    },
+    {
+      "cmd": "sudo apt install -y btop",
+      "desc": "Install the btop system monitor",
+      "tooltip": "btop is a modern, GPU-accelerated resource monitor (htop's successor) showing CPU, memory, disks, network, and processes in one terminal screen. It is lighter than web dashboards and works over plain SSH. Navigate with the mouse or F-keys, and sort processes with P for CPU or M for memory."
+    },
+    {
+      "cmd": "sudo timedatectl set-timezone UTC",
+      "desc": "Set the server clock to UTC",
+      "tooltip": "UTC (Coordinated Universal Time) is the VPS convention: it keeps log timestamps consistent across servers and regions, which matters when correlating failures. timedatectl is systemd's clock manager, and set-timezone persists across reboots. Confirm the result with timedatectl status."
+    },
+    {
+      "cmd": "sudo dpkg-reconfigure --frontend noninteractive unattended-upgrades",
+      "desc": "Enable automatic security updates non-interactively",
+      "tooltip": "dpkg-reconfigure reruns a package's configuration step; for unattended-upgrades it flips on automatic security patching. The --frontend noninteractive flag answers its yes/no prompt with defaults so the command works in scripts. After this, the apt-daily-upgrade timer applies security updates nightly — check the log under /var/log/unattended-upgrades/."
+    },
+    {
+      "cmd": "sudo ufw allow OpenSSH",
+      "desc": "Allow SSH through the firewall by app profile",
+      "tooltip": "OpenSSH is a ufw application profile (a named rule bundle) covering the port your SSH server listens on, normally 22/tcp. Allowing SSH first is the golden rule of firewall setup, because enabling ufw with no SSH rule locks you out of the box. Verify the profile's ports with ufw app info OpenSSH."
+    },
+    {
+      "cmd": "sudo ufw allow proto tcp to any port 80,443 comment 'web traffic'",
+      "desc": "Allow HTTP and HTTPS on one rule with comment",
+      "tooltip": "One rule opens both web ports: the comma-separated list expands to 80 and 443, and proto tcp restricts it to TCP so UDP traffic stays blocked. The comment flag labels the rule for later audits and shows up in ufw status. Delete the whole list later with ufw delete followed by its number from ufw status numbered."
+    },
+    {
+      "cmd": "sudo ufw limit 22/tcp comment 'SSH rate limit'",
+      "desc": "Rate-limit SSH connections to block brute force",
+      "tooltip": "limit applies ufw's rate limiter: connections are normally allowed, but an IP that opens 6 or more connections within 30 seconds is dropped, blunting brute-force password attacks without a full firewall ban. This is the firewall-level complement to fail2ban. The comment flag names the rule in ufw status output."
+    },
+    {
+      "cmd": "sudo ufw delete 3",
+      "desc": "Delete firewall rule by its number",
+      "tooltip": "Deletes the rule shown as number 3 in ufw status numbered, the fastest way to remove a specific rule when several look identical. Always re-run ufw status numbered first, since numbers shift as rules change. Deleting by number removes only that one rule — the IPv6 twin of a dual-stack rule stays put."
+    },
+    {
+      "cmd": "sudo ufw app info OpenSSH",
+      "desc": "Show ports opened by the OpenSSH app profile",
+      "tooltip": "Prints the definition of the OpenSSH application profile — the port and protocol it maps to — so you know exactly what ufw allow OpenSSH will open. Application profiles are the readable names ufw app list shows, letting you avoid remembering port numbers. Custom profiles live in /etc/ufw/applications.d/."
+    },
+    {
+      "cmd": "sudo ufw insert 1 deny from 203.0.113.99",
+      "desc": "Insert a deny rule at the top of the list",
+      "tooltip": "insert 1 places the rule first, and that ordering matters because ufw evaluates rules in order and the first match wins — a top deny beats a later allow for the same traffic. This is the quick way to block a specific abusive IP without reordering everything. Verify the new order with ufw status numbered."
+    },
+    {
+      "cmd": "sudo ufw --dry-run allow 8080/tcp",
+      "desc": "Preview a firewall rule without applying it",
+      "tooltip": "ufw --dry-run prints exactly what the rule would do — the underlying iptables commands — without changing anything, so you can sanity-check syntax before touching the live firewall. The same flag works with delete, insert, and enable. Run it as a rehearsal, then repeat without the flag."
+    },
+    {
+      "cmd": "sudo ufw allow from 198.51.100.0/24 to any port 22 proto tcp comment 'office ssh'",
+      "desc": "Restrict SSH to an office IP range",
+      "tooltip": "Whitelists only the 198.51.100.0/24 subnet for SSH, so logins from anywhere else are refused at the firewall — stronger than rate limiting alone. The full-rule syntax adds from (source) and to (destination) with an optional comment. Combine with a deny-by-default incoming policy for a locked-down box."
+    },
+    {
+      "cmd": "sudo ufw reject 23/tcp",
+      "desc": "Reject telnet port with a refusal response",
+      "tooltip": "Unlike deny, which silently drops packets, reject answers with a connection-refused response so the client fails fast instead of timing out — useful on ports you want to signal as closed. Port 23 (telnet) is plaintext and should be rejected or denied on any modern server. Note the distinction when diagnosing connectivity."
+    },
+    {
+      "cmd": "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak.$(date +%F)",
+      "desc": "Back up sshd config with today's date suffix",
+      "tooltip": "Snapshots the SSH daemon config before you edit it: $(date +%F) expands to today's date (YYYY-MM-DD), so the backup file keeps a recognizable timestamp. If a hardening edit locks you out, restore by copying the backup back over sshd_config. Keep the backup until the new config has survived a restart."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config",
+      "desc": "Disable root login over SSH",
+      "tooltip": "sed edits the file in place (-i): the pattern ^#PermitRootLogin.* matches the commented-out default line and rewrites it as PermitRootLogin no, which refuses direct root logins. Admins then use a normal user plus sudo instead, so brute-forcing root becomes pointless. Run sudo sshd -t and restart ssh afterward."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config",
+      "desc": "Enable SSH public key authentication",
+      "tooltip": "Uncomments PubkeyAuthentication to yes, allowing login with a key pair — a private key you hold and a public key stored in the account's authorized_keys file. Keys are the recommended SSH credential because they cannot be guessed like passwords. This is the prerequisite before disabling password auth."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "desc": "Disable SSH password authentication (lockout risk)",
+      "tooltip": "WARNING — this command can lock you out: it turns off password logins, so only key-based access works. Apply it only after testing that your key logs in successfully, and never close the current SSH session until you have confirmed reconnection. Also check /etc/ssh/sshd_config.d/*.conf for a PasswordAuthentication line, since those fragments override this file."
+    },
+    {
+      "cmd": "sudo sshd -t -f /etc/ssh/sshd_config",
+      "desc": "Test sshd config syntax before restarting",
+      "tooltip": "sshd -t parses the configuration and reports errors without touching the running daemon — the mandatory safety check after any sshd_config edit. The -f flag names the config file to test explicitly. If it prints nothing, the config is valid and safe to apply with sudo systemctl restart ssh."
+    },
+    {
+      "cmd": "sudo sshd -T | grep -iE 'permitrootlogin|passwordauthentication|pubkeyauthentication'",
+      "desc": "Show effective SSH auth settings after overrides",
+      "tooltip": "sshd -T dumps the effective configuration the daemon would actually use, merging the main file and all drop-in fragments under /etc/ssh/sshd_config.d/. Grepping the three auth directives confirms what the server will really enforce — essential because later files can override earlier ones. Compare this output with your intended settings."
+    },
+    {
+      "cmd": "sudo systemctl restart ssh",
+      "desc": "Restart the SSH daemon to apply config",
+      "tooltip": "Applies sshd_config changes by restarting the ssh service (Ubuntu's unit name is ssh; Debian uses sshd — either works via alias). Only restart after sudo sshd -t passes, because a bad config can kill the daemon and lock you out. Do not close your current session until a fresh login succeeds."
+    },
+    {
+      "cmd": "sudo systemctl status ssh --no-pager",
+      "desc": "Check SSH daemon status and recent log lines",
+      "tooltip": "Shows whether the ssh service is running, enabled at boot, and its most recent log entries; --no-pager prints directly instead of opening a pager, which matters over SSH where pagers can hang. A green 'active (running)' line plus 'Loaded: enabled' is the healthy state. Use is-active for a script-friendly yes/no answer."
+    },
+    {
+      "cmd": "sudo systemctl is-active ssh",
+      "desc": "Report whether SSH service is running",
+      "tooltip": "Prints a single word — active, inactive, or failed — that scripts can parse, unlike the verbose status output. is-active checks only the current state, while is-enabled asks whether the unit starts at boot. Both exit non-zero when the answer is no, which makes them natural if conditions in shell scripts."
+    },
+    {
+      "cmd": "sudo systemctl is-enabled ssh",
+      "desc": "Check whether SSH starts at boot",
+      "tooltip": "Prints enabled, disabled, or static — the boot-time policy for the ssh service rather than its current state. On fresh VPSes ssh should already be enabled, but a minimal image may disable it. Pair with sudo systemctl enable ssh if the answer is disabled."
+    },
+    {
+      "cmd": "ssh -o PasswordAuthentication=no root@203.0.113.10",
+      "desc": "Test that key-only SSH login works",
+      "tooltip": "Forces the client to attempt only key authentication: if your key is set up the login succeeds, and if the server would need a password the attempt fails fast instead of prompting. This is the safe pre-flight test before disabling password auth server-side. A successful exit means the server is ready for hardening."
+    },
+    {
+      "cmd": "ssh -p 22 -i ~/.ssh/id_ed25519 deploy@203.0.113.10",
+      "desc": "Connect with explicit port and identity key",
+      "tooltip": "Logs in as deploy using the private key at ~/.ssh/id_ed25519 (the -i flag selects the identity file) and the explicit -p 22 port. Being explicit sidesteps surprises from ~/.ssh/config aliases or non-standard ports. The matching public key must be listed in the server's ~/.ssh/authorized_keys."
+    },
+    {
+      "cmd": "ssh -o ServerAliveInterval=60 deploy@203.0.113.10",
+      "desc": "Keep idle SSH sessions alive with pings",
+      "tooltip": "ServerAliveInterval=60 makes the client send a keepalive every 60 seconds, so NAT gateways and firewalls that drop idle connections won't silently kill your session — common during long deploys and tail -f monitoring. The server-side counterpart is ClientAliveInterval. Without it, a quiet session can freeze and only respond after a long timeout."
+    },
+    {
+      "cmd": "ssh -A deploy@203.0.113.10",
+      "desc": "Forward SSH agent for key chaining (caution)",
+      "tooltip": "WARNING — agent forwarding (-A) lets the remote host use your local SSH agent to authenticate onward, which is convenient for git pulls from the server but hands your key to anyone who compromises it. Prefer ssh -J (ProxyJump) or a dedicated deploy key instead. Only enable it transiently on trusted hosts."
+    },
+    {
+      "cmd": "ssh -J bastion.example.com deploy@203.0.113.10",
+      "desc": "Jump through a bastion host to reach the server",
+      "tooltip": "ProxyJump (-J) chains connections: it opens an SSH session to bastion.example.com and tunnels through it to the destination, so the target only ever sees the bastion's IP. This is the standard way to reach servers on private networks without agent forwarding. Multiple jumps can be comma-separated."
+    },
+    {
+      "cmd": "ssh -t deploy@203.0.113.10 sudo systemctl status nginx",
+      "desc": "Run sudo remotely with a forced pseudo-terminal",
+      "tooltip": "The -t flag allocates a pseudo-terminal, which sudo requires when prompting for a password — without it you get 'sudo: no tty present'. This runs one command on the server and returns, the building block of remote administration. Add -tt if even the sudo prompt needs a TTY."
+    },
+    {
+      "cmd": "ssh -G deploy@203.0.113.10",
+      "desc": "Dump the effective SSH client configuration",
+      "tooltip": "ssh -G prints the resolved client configuration for the given host — which hostname, port, identity files, and options would actually be used — without connecting. It is the debugger for mysterious ssh behavior caused by ~/.ssh/config rules. Pipe to grep to inspect specific settings."
+    },
+    {
+      "cmd": "ssh-keyscan -t ed25519 203.0.113.10 >> ~/.ssh/known_hosts",
+      "desc": "Pre-record a host key into known_hosts",
+      "tooltip": "ssh-keyscan fetches the server's public host keys and appends them to known_hosts, pre-answering the first-connection trust prompt — handy in provisioning scripts that run non-interactively. The -t ed25519 flag limits the scan to that key type. Since it trusts without verification, compare the key against your provider's console fingerprint."
+    },
+    {
+      "cmd": "scp -P 22 -i ~/.ssh/id_ed25519 deploy.tar.gz deploy@203.0.113.10:/home/deploy/",
+      "desc": "Copy a file to the server over SSH",
+      "tooltip": "scp (secure copy) transfers files inside an SSH connection; note the uppercase -P for the port, unlike ssh's lowercase -p, and -i selects the identity key. The destination is user@host:/path. This is the manual deploy step — a tar of your app or a config file — that scripts later replace with rsync or git."
+    },
+    {
+      "cmd": "sudo adduser --disabled-password --gecos '' deploy",
+      "desc": "Create a deploy user for key-only login",
+      "tooltip": "Adds a deploy account with no password (--disabled-password) and an empty comment field (--gecos ''), so it can only be reached with an SSH key — the safest shape for an app-deploying service account. Add the key with mkdir -p /home/deploy/.ssh and echo into authorized_keys. Grant sudo separately with usermod -aG sudo."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#AllowUsers.*/AllowUsers deploy/' /etc/ssh/sshd_config",
+      "desc": "Restrict SSH logins to named users only",
+      "tooltip": "AllowUsers whitelists which accounts may log in over SSH — here only deploy — so every other user (including root) is refused even with a valid key. It is defense in depth after PermitRootLogin no. Keep the setting commented out on hosts where LDAP or other tools manage access."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 3/' /etc/ssh/sshd_config",
+      "desc": "Limit SSH authentication attempts to three",
+      "tooltip": "MaxAuthTries 3 cuts the number of failed auth attempts before the connection is dropped, slowing brute-force guessing at the daemon level (fail2ban handles repeat offenders at the firewall). Each attempt can also be a key offer, so generous key agents can hit the limit. Re-test after applying."
+    },
+    {
+      "cmd": "sudo sed -i 's/^#ClientAliveInterval.*/ClientAliveInterval 300/' /etc/ssh/sshd_config",
+      "desc": "Drop SSH connections idle for five minutes",
+      "tooltip": "ClientAliveInterval 300 makes the server send keepalives every 300 seconds and disconnect clients that never answer — cleaning up abandoned sessions that otherwise hold connections and processes. This is the server-side counterpart to the client's ServerAliveInterval. Choose a value larger than your slowest legitimate operation."
+    },
+    {
+      "cmd": "ssh -o ExitOnForwardFailure=yes -L 3000:localhost:3000 deploy@203.0.113.10",
+      "desc": "Tunnel a remote port with fail-fast forwarding",
+      "tooltip": "Local forwarding (-L 3000:localhost:3000) exposes the server's port 3000 on your machine's port 3000, as if the app ran locally — the classic way to reach admin UIs bound to localhost. ExitOnForwardFailure=yes aborts the session if the forward cannot be established instead of silently continuing. The left port is local; the right side resolves on the server."
+    },
+    {
+      "cmd": "ssh-add -L",
+      "desc": "List public keys currently loaded in the agent",
+      "tooltip": "Prints the public keys your SSH agent holds, which is what gets offered to servers when authenticating (and forwarded with -A). If a server keeps asking for a passphrase, the key is probably not loaded — add it with ssh-add. The -l variant shows fingerprints instead of full keys."
+    },
+    {
+      "cmd": "nano ~/.ssh/config",
+      "desc": "Edit the SSH client config file",
+      "tooltip": "~/.ssh/config defines per-host shortcuts and options: Host aliases, IdentityFile paths, ProxyJump chains, and default ports, so a plain 'ssh web' expands to a full connection recipe. Settings here are the client-side mirror of the server hardening you just did. Keep permissions at 600 — the file may reference private keys."
+    },
+    {
+      "cmd": "sudo fail2ban-client restart",
+      "desc": "Restart the fail2ban server",
+      "tooltip": "fail2ban-client is the control socket for the fail2ban-server daemon, and restart re-runs it, re-reading all jails (per-service ban configurations) from disk. Use it after editing jail.local when a plain reload is not enough. Bans tracked only in memory are lost; the persistent database survives."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd maxretry 5",
+      "desc": "Change failed-attempt threshold for sshd jail",
+      "tooltip": "set <jail> <variable> <value> tunes a running jail without editing files: maxretry 5 means five matching failures within the findtime window trigger a ban. Changes apply immediately but revert on restart unless mirrored in jail.local. This is the live-tuning counterpart to editing the config."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd findtime 600",
+      "desc": "Set the ban trigger window to ten minutes",
+      "tooltip": "findtime is the sliding window in seconds over which failures are counted — 600 means the maxretry failures must happen within ten minutes to earn a ban. Longer windows catch slow scanners, shorter ones avoid false positives from your own typos. The value applies to the running jail only."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd addignoreip 192.0.2.10",
+      "desc": "Whitelist an IP for the sshd jail",
+      "tooltip": "addignoreip exempts an address from bans for that jail — essential for your own office IP, which might otherwise trip the threshold during maintenance. 192.0.2.10 is the documentation-range stand-in for your real address. Remove the exemption with the matching delignoreip command."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd delignoreip 192.0.2.10",
+      "desc": "Remove an IP from the sshd ignore list",
+      "tooltip": "Undoes a previous addignoreip, so the address becomes eligible for banning again. Useful when an IP that was whitelisted for maintenance should no longer be trusted. Verify the current ignore list via sudo fail2ban-client status sshd."
+    },
+    {
+      "cmd": "sudo fail2ban-client get sshd maxretry",
+      "desc": "Read the current maxretry value for sshd",
+      "tooltip": "get <jail> <variable> queries the running jail's effective settings — useful to confirm a live set command took effect before it is lost on restart. The value shown is what the daemon is enforcing right now, which may differ from jail.local if you tuned it live. Other readable variables include findtime and bantime."
+    },
+    {
+      "cmd": "sudo fail2ban-client status sshd | grep -E 'Currently banned|Banned IP list'",
+      "desc": "Show only the banned IPs for the sshd jail",
+      "tooltip": "Filters the verbose status output down to the two lines that matter: how many IPs are banned right now and which addresses they are. If the list shows your own IP, you tripped the threshold and need unbanip. This is the first command to run when diagnosing an unreachable server."
+    },
+    {
+      "cmd": "sudo fail2ban-client status | grep 'Jail list'",
+      "desc": "List which fail2ban jails are active",
+      "tooltip": "The plain status command prints one summary block per jail plus a 'Jail list:' line naming every enabled jail (sshd, nginx-http-auth, and so on). Grepping for that line gives a compact overview of what fail2ban is actually protecting. A jail missing from the list means its config did not load."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd banip 203.0.113.5",
+      "desc": "Manually ban an IP in the sshd jail",
+      "tooltip": "Instantly bans the address without waiting for it to trip the failure threshold — the right move when you spot an attacker in the logs. The ban is applied through the jail's firewall action, so it behaves like an automatic ban. Lift it with the matching unbanip when the threat is over."
+    },
+    {
+      "cmd": "sudo fail2ban-client set sshd unbanip 203.0.113.5",
+      "desc": "Manually unban an IP in the sshd jail",
+      "tooltip": "Removes an existing ban immediately, whether it was set manually or automatically — the fix when a legitimate user gets locked out by too many failed attempts. Use get sshd banned to confirm the address was banned before issuing this. The ban returns if the offending behavior continues."
+    },
+    {
+      "cmd": "sudo fail2ban-client status sshd short",
+      "desc": "Show a compact banned-IP summary for sshd",
+      "tooltip": "The short flavor (a positional argument, not a flag) condenses the jail status into just the banned count and IP list, made for quick eyeballing and scripts. Newer fail2ban versions also support basic, cymru, and stats flavors. This is the lightest way to poll ban state in a monitoring loop."
+    },
+    {
+      "cmd": "sudo fail2ban-client stats",
+      "desc": "Show fail2ban ban statistics table",
+      "tooltip": "Prints a table of statistics across all jails — matches, bans, and other counters that reveal whether the intrusion guard is actually catching anything. A jail with zero bans after weeks of uptime may have a broken filter or log path. Reset the counters by restarting the fail2ban server."
+    },
+    {
+      "cmd": "sudo tail -f /var/log/fail2ban.log",
+      "desc": "Follow fail2ban log live",
+      "tooltip": "Streams new log lines as they are written, showing bans, unbans, and jail actions in real time — the way to watch an attack unfold or debug a jail that never triggers. tail -f (follow) keeps the file open; Ctrl-C stops it. The log is also the first place to look when fail2ban silently does nothing."
+    },
+    {
+      "cmd": "sudo grep -E '^(bantime|findtime|maxretry)' /etc/fail2ban/jail.local",
+      "desc": "Show ban tuning values from jail.local",
+      "tooltip": "jail.local is the override file where local fail2ban settings belong (jail.conf holds the shipped defaults). This grep pulls the three tuning knobs — bantime (ban duration), findtime (counting window), maxretry (failure threshold) — so you can see the effective policy at a glance. Values here override the defaults in jail.conf."
+    },
+    {
+      "cmd": "sudo systemctl enable --now fail2ban",
+      "desc": "Start fail2ban and enable it at boot",
+      "tooltip": "enable --now combines two steps: it registers the service to start automatically at boot (enable) and starts it immediately (now). Fail2ban only protects what is running, so a server that reboots without this enabled loses its ban behavior entirely. Confirm with sudo fail2ban-client status."
+    },
+    {
+      "cmd": "sudo systemctl reload fail2ban",
+      "desc": "Reload fail2ban config without dropping bans",
+      "tooltip": "Signals the service to re-read its configuration through fail2ban-client reload, applying jail changes while keeping current bans and the daemon running — gentler than restart. Use this after editing jail.local when you don't want to lose in-memory state. Deeper config changes may still need a full restart."
+    },
+    {
+      "cmd": "sudo unattended-upgrade",
+      "desc": "Run automatic security upgrades now",
+      "tooltip": "unattended-upgrade (singular binary) applies the security and allowed-origin updates configured in /etc/apt/apt.conf.d/50unattended-upgrades right now, outside its normal nightly schedule. It resolves dependencies and handles dpkg config-file prompts automatically. Output lands in /var/log/unattended-upgrades/unattended-upgrades.log."
+    },
+    {
+      "cmd": "sudo unattended-upgrade --dry-run",
+      "desc": "Simulate automatic upgrades without applying",
+      "tooltip": "The --dry-run flag simulates the whole upgrade pass and prints what would be installed without changing anything — the safe way to test new Allowed-Origins entries before trusting them to run unattended. Nothing is downloaded and nothing is modified. Run this after editing 50unattended-upgrades."
+    },
+    {
+      "cmd": "sudo unattended-upgrade -d",
+      "desc": "Run automatic upgrades with debug logging",
+      "tooltip": "The -d flag (short for --debug) repeats the upgrade with extra diagnostic detail written to the log — including why specific packages were skipped, which is the first thing to check when updates silently don't happen. It is debugging output, not a dry run: real updates are applied. Use --dry-run when you want a simulation instead."
+    },
+    {
+      "cmd": "sudo grep -n 'Automatic-Reboot' /etc/apt/apt.conf.d/50unattended-upgrades",
+      "desc": "Find the auto-reboot settings in the config",
+      "tooltip": "grep -n prints matching lines with their line numbers so you can jump straight to the Automatic-Reboot options (which control whether the server reboots itself after kernel updates) in the 50unattended-upgrades config file. Most lines there ship commented out — uncomment and set to true only if you accept unattended reboots. The line numbers make the follow-up edit trivial."
+    },
+    {
+      "cmd": "sudo nano /etc/apt/apt.conf.d/50unattended-upgrades",
+      "desc": "Edit the unattended-upgrades policy file",
+      "tooltip": "This is the master config for automatic updates: Allowed-Origins lists which package origins may install themselves (security by default), and Automatic-Reboot governs post-update reboots. Changes apply on the next run, no restart needed. Commented lines are examples — uncomment the section you actually want."
+    },
+    {
+      "cmd": "sudo tail -n 30 /var/log/unattended-upgrades/unattended-upgrades.log",
+      "desc": "Read the tail of the auto-update log",
+      "tooltip": "Shows the last 30 lines of the log where every automatic run records its decisions — packages upgraded, skipped, or held back. The final line usually reports when the next run is scheduled. If your server hasn't updated in weeks, this log shows why."
+    },
+    {
+      "cmd": "sudo systemctl status unattended-upgrades",
+      "desc": "Check the auto-update service status",
+      "tooltip": "unattended-upgrades runs as a one-shot systemd service that applies updates when triggered by the apt-daily-upgrade timer. Status shows whether recent runs succeeded and any error output. A failed unit explains missing security patches; restart it and re-check the log."
+    },
+    {
+      "cmd": "sudo systemctl restart unattended-upgrades",
+      "desc": "Restart the auto-update service",
+      "tooltip": "Re-runs the one-shot service immediately, the nudge to apply pending updates without waiting for the timer — useful after editing 50unattended-upgrades or when a previous run died mid-way. The service exits once the update pass completes. Log output goes to the usual unattended-upgrades log."
+    },
+    {
+      "cmd": "sudo systemctl status apt-daily-upgrade.timer",
+      "desc": "Check when automatic updates are scheduled",
+      "tooltip": "apt-daily-upgrade.timer is the systemd timer that wakes the unattended-upgrades service on a randomized daily schedule — the random offset keeps thousands of servers from hitting mirrors at once. Status shows the next trigger time and the countdown. If the timer is inactive, nothing updates automatically."
+    },
+    {
+      "cmd": "sudo systemctl mask apt-daily-upgrade.timer",
+      "desc": "Pause automatic updates (undo with unmask)",
+      "tooltip": "WARNING — this stops automatic security patching: mask makes the timer unstartable by anything, including other units that try to pull it in, so no updates apply until you unmask. It is the deliberate choice for maintenance windows or fully manual update policies. Re-enable with sudo systemctl unmask apt-daily-upgrade.timer."
+    },
+    {
+      "cmd": "sudo systemctl unmask apt-daily-upgrade.timer",
+      "desc": "Restore the automatic update timer",
+      "tooltip": "Removes the mask so apt-daily-upgrade.timer can run again and automatic security updates resume. The timer still honors its randomized daily schedule — run sudo systemctl start apt-daily-upgrade.timer if you want it immediately. Confirm the change with sudo systemctl list-timers."
+    },
+    {
+      "cmd": "sudo apt list --upgradable | grep -v '^Listing'",
+      "desc": "List upgradable packages without the header",
+      "tooltip": "apt list --upgradable prints every package with a newer version available; the grep -v '^Listing' strips the informational first line, leaving clean package:version output. This is the pre-upgrade reconnaissance step. Pipe to wc -l for a simple count of pending updates."
+    },
+    {
+      "cmd": "sudo apt-get -s upgrade | grep -c '^Inst'",
+      "desc": "Count pending upgrades without applying",
+      "tooltip": "apt-get -s (simulate) computes the upgrade and prints one Inst line per package to be installed; grep -c counts them. The result is the number of pending updates — ideal for monitoring scripts and deciding when to schedule a maintenance reboot. Nothing is downloaded or changed."
+    },
+    {
+      "cmd": "sudo do-release-upgrade",
+      "desc": "Upgrade the server to the next release (caution)",
+      "tooltip": "WARNING — this performs a major OS release upgrade (for example Ubuntu 22.04 to 24.04) with reboots and service interruptions, and it can take a long time over SSH. Always snapshot the VPS or take a full backup first, and keep the session alive — a dropped connection mid-upgrade is painful. Run it from a screen or tmux session."
+    },
+    {
+      "cmd": "sudo apt-get dist-upgrade",
+      "desc": "Upgrade with new dependencies and removals",
+      "tooltip": "dist-upgrade is a smarter upgrade: it installs new dependencies and removes conflicting packages when needed, going beyond plain upgrade's conservative policy. That makes it slightly riskier on production boxes — it can remove packages you use. On Debian-based systems it is how kernel and library transitions get applied."
+    },
+    {
+      "cmd": "sudo shutdown -r now",
+      "desc": "Reboot the server immediately",
+      "tooltip": "shutdown -r now schedules an immediate reboot, gracefully stopping services first — the polite form after kernel or library upgrades. The now argument skips the default one-minute warning; use shutdown -r +5 to delay. Always verify services come back with sudo systemctl status or uptime afterward."
+    },
+    {
+      "cmd": "sudo apt install -y apt-listchanges",
+      "desc": "Install the upgrade changelog viewer",
+      "tooltip": "apt-listchanges intercepts apt operations and shows the changelog of packages being upgraded, so unattended and manual updates stop being a mystery. It runs in non-interactive mode for unattended-upgrades and can display or email summaries. This is the standard companion that makes auto-updates auditable."
+    },
+    {
+      "cmd": "sudo fallocate -l 2G /swapfile",
+      "desc": "Create a 2GB swap file (size first)",
+      "tooltip": "fallocate instantly reserves a 2G file for swap — disk-backed memory overflow — without writing zeros, which makes it faster than dd. The file must then be secured (chmod 600), formatted (mkswap), and activated (swapon). On filesystems without fallocate support, use dd if=/dev/zero of=/swapfile bs=1M count=2048 instead."
+    },
+    {
+      "cmd": "sudo chmod 600 /swapfile",
+      "desc": "Restrict swap file permissions to root",
+      "tooltip": "Swap files contain memory pages, so they must not be world-readable — 600 grants read/write only to root. Both mkswap and swapon warn or refuse on a too-permissive swapfile. Run this immediately after creating the file and before formatting it."
+    },
+    {
+      "cmd": "sudo mkswap /swapfile",
+      "desc": "Format the file as swap space",
+      "tooltip": "mkswap writes a swap filesystem signature into the file — the formatting step that turns a plain file into usable swap. WARNING: the command erases whatever the target previously contained, so point it only at your fresh swapfile. After this, swapon activates it and swapon --show confirms the size."
+    },
+    {
+      "cmd": "sudo swapon /swapfile",
+      "desc": "Activate the swap file now",
+      "tooltip": "swapon enables the swap file for the current session, so the kernel can page memory out to it immediately. This is step four of the swap sequence (fallocate, chmod 600, mkswap, swapon). Activation does not survive reboot until you add a line to /etc/fstab."
+    },
+    {
+      "cmd": "sudo swapoff /swapfile",
+      "desc": "Deactivate swap before resizing or removal",
+      "tooltip": "swapoff moves swapped-out pages back into RAM and disables the swap file — the required prelude to resizing or deleting it. WARNING: if RAM is full, this can stall or OOM-kill processes, so do it when memory is comfortable. Afterward you can safely delete the file and recreate it larger."
+    },
+    {
+      "cmd": "echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf",
+      "desc": "Persist a low swappiness setting",
+      "tooltip": "Appends vm.swappiness=10 to /etc/sysctl.conf so the kernel keeps a calm 10% preference for swap (swappiness is the 0-100 eagerness to swap; servers often prefer 10 over the default 60). tee -a writes the echoed line with root privileges, appending without touching existing content. The value takes effect after sudo sysctl --system or a reboot."
+    },
+    {
+      "cmd": "sudo sysctl -w vm.swappiness=10",
+      "desc": "Set swappiness immediately without reboot",
+      "tooltip": "The -w flag writes a kernel parameter live: vm.swappiness=10 tells the kernel to prefer RAM and swap less aggressively, which helps latency-sensitive services. This change is temporary — it resets on reboot unless persisted in /etc/sysctl.conf. Check the current value with cat /proc/sys/vm/swappiness."
+    },
+    {
+      "cmd": "sudo sysctl --system",
+      "desc": "Reload all sysctl settings from files",
+      "tooltip": "Re-reads every file in the sysctl configuration tree (/etc/sysctl.conf plus /etc/sysctl.d/*.conf) and applies the settings — how you activate persisted tunables without rebooting. Later files override earlier ones in the read order. Run this after appending to sysctl.conf to confirm your values took."
+    },
+    {
+      "cmd": "git clone https://github.com/example/myapp.git /opt/myapp",
+      "desc": "Clone the app repository to the server",
+      "tooltip": "Copies the example/myapp repository from GitHub into /opt/myapp (the conventional location for self-contained server applications) over HTTPS. The clone contains the full history, enabling clean pull-based deploys afterward. For private repos, use an SSH remote or a deploy token instead of interactive credentials."
+    },
+    {
+      "cmd": "sudo mkdir -p /opt/myapp && sudo chown deploy:deploy /opt/myapp",
+      "desc": "Create app directory owned by the deploy user",
+      "tooltip": "mkdir -p creates /opt/myapp (and parents, if missing), then chown hands ownership to the deploy account so that user can write, build, and pull without sudo. Keeping the service user as owner avoids running the app as root. If the directory already existed, only the ownership changes."
+    },
+    {
+      "cmd": "cd /opt/myapp && sudo npm ci --omit=dev",
+      "desc": "Install production npm dependencies cleanly",
+      "tooltip": "npm ci installs dependencies exactly from package-lock.json (the pinned dependency manifest), wiping node_modules first — the reproducible, CI-grade install for deploys. --omit=dev skips development packages, shrinking the footprint and the attack surface. The cd first positions you in the app directory; every later deploy step runs from here."
+    },
+    {
+      "cmd": "sudo -u deploy bash -lc 'cd /opt/myapp && npm ci --omit=dev && npm run build'",
+      "desc": "Install deps and build as the deploy user",
+      "tooltip": "Runs the install-and-build pipeline as the deploy user via sudo -u, with bash -lc giving it a login shell so PATH and nvm settings apply. The single-quoted chain does a clean npm ci, then npm run build for compiled frontends. Building as a non-root user keeps the artifacts owned by deploy, not root."
+    },
+    {
+      "cmd": "sudo systemctl enable --now myapp.service",
+      "desc": "Start the app service and enable it at boot",
+      "tooltip": "enable --now registers myapp.service to start on boot and launches it immediately — the one command that turns a fresh systemd unit (defined in /etc/systemd/system/myapp.service) into a running, reboot-safe service. The .service suffix is optional but explicit. Confirm with sudo systemctl status myapp."
+    },
+    {
+      "cmd": "sudo systemctl restart myapp",
+      "desc": "Restart the app service to apply a deploy",
+      "tooltip": "The core deploy step: restarts the systemd unit so it loads the newly pulled code, rebuilt assets, or edited environment. systemd stops the old process, starts the new one, and reports failure if the unit cannot come up. For zero-downtime patterns prefer an ExecReload or a rolling restart."
+    },
+    {
+      "cmd": "sudo systemctl status myapp --no-pager -l",
+      "desc": "Inspect app service state with full log lines",
+      "tooltip": "Shows the unit's current state, uptime, and recent log output; -l disables line truncation and --no-pager prints directly — both matter when debugging a crash over SSH. 'Active: active (running)' plus a recent Main PID is the healthy signature. This is the first stop after every deploy."
+    },
+    {
+      "cmd": "sudo systemctl reset-failed myapp",
+      "desc": "Clear a crashed service's failed state",
+      "tooltip": "After too many quick restarts, systemd marks a unit as 'failed' and refuses to start it until reset — reset-failed clears that state so you can retry. It does not fix the underlying crash, but it unblocks the restart loop during debugging. The unit reverts to failed again if the next start also dies."
+    },
+    {
+      "cmd": "sudo systemctl cat myapp",
+      "desc": "Print the service unit file in full",
+      "tooltip": "Shows the complete unit definition — ExecStart command, user, environment, restart policy — exactly as systemd loaded it, including any drop-in overrides from systemctl edit. This is the fastest way to answer 'what is this service actually running?'. It only reads, so it is safe to run anytime."
+    },
+    {
+      "cmd": "sudo systemctl show myapp -p MainPID",
+      "desc": "Show the service's main process ID",
+      "tooltip": "systemctl show exposes machine-readable unit properties; -p MainPID filters to just the process ID of the service's main process. That PID is what you target with ps, strace, or kill when investigating a specific worker. A value of 0 means the service is not currently running."
+    },
+    {
+      "cmd": "journalctl -u myapp -f",
+      "desc": "Follow the app's logs live",
+      "tooltip": "journalctl -u filters the systemd journal (the binary log store) to one unit, and -f follows new lines as they appear — the standard 'watch the deploy roll out' command. Every stdout/stderr line the service writes lands here. Ctrl-C stops following; the filter also applies to plain reads, so you can scroll back."
+    },
+    {
+      "cmd": "journalctl -u myapp -n 100 --no-pager",
+      "desc": "Show the last 100 app log lines",
+      "tooltip": "Prints the newest 100 journal entries for the unit (the -n count, short for --lines) without opening a pager, which is the first diagnostic after a crash or failed deploy. Because the journal is ordered newest-last, this is the tail of the app's story. Add --since '30 min ago' to narrow the window."
+    },
+    {
+      "cmd": "sudo journalctl -u myapp --since today -p warning",
+      "desc": "Show today's app warnings and errors",
+      "tooltip": "Combines two filters: --since today limits the window to the current day, and -p warning keeps only entries at warning priority or higher, hiding routine info chatter. The result is a short list of things that actually need attention after a deploy. Raise to -p err for errors only."
+    },
+    {
+      "cmd": "sudo nginx -t && sudo systemctl reload nginx",
+      "desc": "Validate nginx config then reload it",
+      "tooltip": "The safe config-change ritual: nginx -t tests the syntax first, and only if it passes (the && short-circuit) does systemctl reload apply it — reload gracefully restarts workers without dropping connections. If the test fails, nothing changes and your current config stays live. Never reload on a failing test."
+    },
+    {
+      "cmd": "sudo apt install -y nginx",
+      "desc": "Install nginx web server",
+      "tooltip": "Installs the nginx reverse proxy and static file server that fronts your app on ports 80 and 443 in the classic VPS layout. The -y flag answers the install prompt automatically. After install, the service starts and is enabled by default on Ubuntu; your site config goes in /etc/nginx/sites-available/."
+    },
+    {
+      "cmd": "cd /opt/myapp && git pull --ff-only origin main && sudo systemctl restart myapp",
+      "desc": "Pull latest code and restart the service",
+      "tooltip": "The minimal deploy loop: fast-forward pull the main branch (--ff-only refuses merges, so a diverged local tree fails loudly instead of creating a mess), then restart the systemd unit to load the new code. In one line it updates, verifies, and applies. For compiled apps, add the build step between pull and restart."
+    },
+    {
+      "cmd": "sudo -u deploy git -C /opt/myapp pull origin main",
+      "desc": "Pull latest code as the deploy user",
+      "tooltip": "git -C runs the command in the given directory without a cd; sudo -u deploy runs it as the deploy user, who owns the checkout — necessary when the repo was cloned by that account and root would otherwise hit ownership errors. A clean pull here means the working tree matched, keeping deploy state predictable."
+    },
+    {
+      "cmd": "git -C /opt/myapp rev-parse --short HEAD",
+      "desc": "Show the deployed commit hash",
+      "tooltip": "Prints the abbreviated commit SHA currently checked out in /opt/myapp — the exact code version running in production. Compare it with your CI's latest build to prove a deploy actually landed. The full hash (drop --short) is what you would record in a deployment log."
+    },
+    {
+      "cmd": "git -C /opt/myapp log --oneline -5",
+      "desc": "Show the last five commits on the server",
+      "tooltip": "Lists the five most recent commits in the deployed checkout, one per line, giving a quick sense of how far behind (or ahead) production is. Each line is the short hash plus the commit subject. Combined with rev-parse, this turns git into a poor man's deployment history."
+    },
+    {
+      "cmd": "ssh deploy@203.0.113.10 'cd /opt/myapp && git pull && sudo systemctl restart myapp'",
+      "desc": "Deploy remotely in a single SSH command",
+      "tooltip": "Runs the whole update-and-restart sequence on the server without an interactive shell: ssh executes the quoted command list remotely and returns its exit status. Quoting matters — the remote shell must see the && chain intact. This one-liner is the seed of every deploy script that follows."
+    },
+    {
+      "cmd": "sudo systemctl restart myapp && sleep 3 && curl -sf http://localhost:3000/health && echo DEPLOY_OK",
+      "desc": "Restart app and verify health endpoint",
+      "tooltip": "The deploy acceptance test: restart the service, wait 3 seconds for startup, then curl the health endpoint with -sf (silent, fail on error) so a non-200 response aborts the chain — DEPLOY_OK prints only when the app is genuinely up. Extend the sleep for slower boots. This turns 'it restarted' into 'it works'."
+    },
+    {
+      "cmd": "sudo mkdir -p /var/www/example.com/html",
+      "desc": "Create the web root for a site",
+      "tooltip": "mkdir -p creates the document root for example.com, including any missing parent directories — the standard location nginx serves static files from. The -p flag makes the command idempotent: it succeeds even if the directory already exists. Ownership typically moves to www-data next."
+    },
+    {
+      "cmd": "sudo chown -R www-data:www-data /var/www/example.com",
+      "desc": "Give the web server ownership of the site",
+      "tooltip": "chown -R recursively hands /var/www/example.com to www-data, the user nginx workers run as, so the server can read (and if configured, write) the site files. Files owned by root would still be readable if permissions allow, but www-data ownership is the convention. Use -R with care on trees containing secrets."
+    },
+    {
+      "cmd": "curl -I https://example.com | grep -iE '^HTTP'",
+      "desc": "Verify the site answers with HTTP 200",
+      "tooltip": "curl -I sends a HEAD request (headers only), and the grep filters for the HTTP status line — the quick post-deploy proof that nginx, the app, and the certificate all answer. 200 means the site is live; 502 or 503 points at the app behind the proxy. Use -k to test before the certificate is valid."
+    },
+    {
+      "cmd": "sudo nginx -T | grep -E 'server_name|listen'",
+      "desc": "Audit all virtual hosts in one pass",
+      "tooltip": "nginx -T dumps every loaded config file as one merged document, and the grep pulls out the server_name (hostname) and listen (port) lines — a full map of what the server answers for. It reveals overlapping server blocks that can cause traffic to hit the wrong site. This is the config-level site inventory."
+    },
+    {
+      "cmd": "sudo systemctl daemon-reload && sudo systemctl restart myapp",
+      "desc": "Reload unit definitions then restart the app",
+      "tooltip": "After editing a service file, daemon-reload tells systemd to re-read unit definitions — restart alone would use the stale version. Chaining them applies new ExecStart lines, environment variables, or resource limits, then restarts the app under the new unit. Run the reload first or the restart silently keeps old settings."
+    },
+    {
+      "cmd": "sudo certbot renew --cert-name example.com",
+      "desc": "Renew a single named certificate",
+      "tooltip": "certbot renew normally processes every certificate on the box; --cert-name example.com narrows it to one, selected by the name shown in certbot certificates. It still respects the 30-day renewal window — nothing happens if the certificate is not close to expiring. This is the targeted form for per-site renewal scripts."
+    },
+    {
+      "cmd": "sudo certbot renew --quiet --deploy-hook 'systemctl reload nginx'",
+      "desc": "Renew silently and reload nginx on success",
+      "tooltip": "The cron-friendly form: --quiet suppresses all output except errors, and --deploy-hook runs the quoted command only when a certificate was actually renewed — the hook makes nginx pick up the new certificate files. Because it runs only on real renewal, it is safe on a nightly schedule. This mirrors what the packaged certbot timer does."
+    },
+    {
+      "cmd": "sudo certbot renew --standalone --pre-hook 'systemctl stop nginx' --post-hook 'systemctl start nginx'",
+      "desc": "Renew with a standalone server and service hooks",
+      "tooltip": "For renewals when nginx holds port 80: --standalone makes certbot run its own temporary web server on port 80 to answer the challenge, so nginx must be stopped first (--pre-hook) and started again after (--post-hook). The pre/post hooks bracket the whole run. Expect a brief downtime during the swap."
+    },
+    {
+      "cmd": "15 3 * * * /usr/bin/certbot renew --quiet --deploy-hook 'systemctl reload nginx'",
+      "desc": "Schedule nightly certbot renewal via cron",
+      "tooltip": "A crontab line: at 03:15 daily, run certbot renew quietly and reload nginx only when a renewal actually happens (the --quiet and --deploy-hook pattern from the Certbot docs). The five fields are minute, hour, day-of-month, month, day-of-week. Note that the packaged certbot.timer already does this on Ubuntu — add this only if you manage cron yourself."
+    },
+    {
+      "cmd": "sudo certbot certonly --nginx --cert-name example.com -d example.com -d www.example.com",
+      "desc": "Issue a cert for two domains under one name",
+      "tooltip": "certonly obtains certificates without touching nginx site config — the --nginx flag only handles the ACME challenge, while the -d flags list every domain to cover (example.com and www.example.com become SAN, subject-alternative-name entries). --cert-name gives the bundle a stable name for later renew --cert-name calls. Renewal continues automatically via the timer."
+    },
+    {
+      "cmd": "sudo certbot certificates | grep -E 'Certificate Name|Expiry Date'",
+      "desc": "List certificate names and expiry dates",
+      "tooltip": "Filters certbot certificates down to the two lines that matter per certificate: the name and the expiration date. Scanning this output tells you at a glance whether any certificate is creeping toward its 30-day renewal window. Pair with a calendar reminder for manual review."
+    },
+    {
+      "cmd": "sudo certbot reconfigure --cert-name example.com",
+      "desc": "Change a certificate's renewal options",
+      "tooltip": "reconfigure rewrites how one certificate is renewed — webroot path, plugins, hooks — using the options you pass, then validates the change with a test renewal against the staging server before saving. It is the supported way to fix a certificate whose renewal method changed (say, nginx to webroot). See certbot certificates for valid names."
+    },
+    {
+      "cmd": "sudo crontab -e",
+      "desc": "Edit the root user's crontab",
+      "tooltip": "Opens root's cron table (the crontab) in the default editor — the place for system-level jobs like nightly renewals, backups, and cleanup scripts that need privileges. Each line is a schedule plus a command. Jobs here run as root, so review them with the care root deserves."
+    },
+    {
+      "cmd": "sudo crontab -l",
+      "desc": "List the root user's scheduled jobs",
+      "tooltip": "Prints every cron job scheduled for root, one per line, with the five time fields followed by the command. This is the audit command when you inherit a server: you see at a glance what runs automatically. Compare it against your mental model of the server's maintenance."
+    },
+    {
+      "cmd": "crontab -l | grep -v '^#'",
+      "desc": "Show cron jobs excluding comments",
+      "tooltip": "The pipe strips blank and comment lines (those starting with #) from the crontab output, leaving only active job lines — the clean view for auditing. Commented lines are disabled jobs, so the filtered list is what actually executes. Add -w to also skip whitespace-only lines if you prefer."
+    },
+    {
+      "cmd": "systemctl list-timers --all | grep -iE 'apt|unattended|certbot'",
+      "desc": "Show scheduled maintenance timers",
+      "tooltip": "list-timers --all shows every systemd timer with its next run time and the unit it triggers; grepping for apt, unattended, and certbot surfaces exactly the maintenance schedule — automatic updates and certificate renewals. If a timer is missing here, that maintenance silently isn't happening. Timers are systemd's modern replacement for cron."
+    },
+    {
+      "cmd": "sudo tar -czf /root/backups/etc-$(date +%F).tar.gz /etc/ssh /etc/ufw /etc/fail2ban",
+      "desc": "Snapshot server configs before changes",
+      "tooltip": "Bundles the SSH, firewall, and fail2ban config trees into one compressed archive (czf = create, gzip, file) named with today's date via $(date +%F). Restoring is a tar -xzf of the same file. A five-second backup before a hardening session turns a mistake into a one-command rollback."
+    },
+    {
+      "cmd": "sudo journalctl -b -1 -p err",
+      "desc": "Show errors from the previous boot",
+      "tooltip": "journalctl -b -1 addresses the boot before the current one (-b alone is the current boot, -b -1 the previous), and -p err filters to errors and above. This is the first stop when a server came back unhealthy after a reboot: it shows what went wrong during the previous session. Combine with -u myapp to scope it to one service."
+    },
+    {
+      "cmd": "sudo journalctl -u ssh -b | grep -i 'failed password'",
+      "desc": "Show SSH brute-force attempts from the journal",
+      "tooltip": "Filters the SSH service's current-boot journal entries for failed password lines, revealing how much password guessing the box is absorbing — the justification for key-only auth and fail2ban. The journal often holds lines that log rotation has already purged from /var/log/auth.log. Pair with wc -l for a count."
+    },
+    {
+      "cmd": "sudo grep 'Accepted publickey' /var/log/auth.log | tail -10",
+      "desc": "Show the last ten successful key logins",
+      "tooltip": "Every successful key-based SSH login writes an Accepted publickey line to auth.log; this shows the ten most recent, with user, source IP, and key fingerprint. It is the audit trail for 'who actually logged in' — compare it with your expectations after an incident. For password logins, grep Accepted password instead."
+    },
+    {
+      "cmd": "last -x shutdown reboot",
+      "desc": "List server shutdown and reboot history",
+      "tooltip": "The last command reads the wtmp log of login sessions; -x includes system events, and filtering by the shutdown and reboot record types shows the box's restart history with timestamps. An unexpected reboot pattern here hints at crashes, kernel panics, or OOM-triggered resets. Check dmesg for the cause."
+    },
+    {
+      "cmd": "sudo ss -tlnp | grep :22",
+      "desc": "Confirm SSH is listening on port 22",
+      "tooltip": "ss -tlnp lists listening (-l) TCP (-t) sockets with process names (-p, hence sudo); grepping for :22 confirms sshd bound to the port after a restart. The output includes the listening address and the owning process — the same check applies to any port when diagnosing 'can't connect'. Compare with ss -tlnp | grep :443 for the web stack."
+    },
+    {
+      "cmd": "sudo apt-get autoremove --purge -y",
+      "desc": "Remove orphaned packages and their configs",
+      "tooltip": "autoremove deletes packages that became unneeded after upgrades or removals (dangling dependencies), and --purge also deletes their config files — a periodic hygiene step that frees disk and reduces attack surface. The -y flag skips the confirmation. It never touches explicitly installed packages, so it is safe after deploys."
+    },
+    {
+      "cmd": "sudo du -sh /var/log/* | sort -rh | head -10",
+      "desc": "Find the largest log files",
+      "tooltip": "du -sh reports each log's total size in human units; sort -rh orders by size descending; head -10 keeps the top ten. A log that has grown to gigabytes is usually a chatty service or a broken rotation — the fix is usually logrotate config. This is disk-forensics 101 on a full server."
+    },
+    {
+      "cmd": "sudo lsof -iTCP -sTCP:LISTEN -P -n",
+      "desc": "List all listening TCP sockets with processes",
+      "tooltip": "lsof with -iTCP -sTCP:LISTEN shows every open listening socket and the owning process; -P disables port-name lookups and -n disables hostname lookups for speed and accuracy. The output maps each open port to its process — the definitive answer to 'what is running on port X'. Compare with ss -tlnp, which shows the same picture differently."
+    },
+    {
+      "cmd": "sudo visudo -f /etc/sudoers.d/deploy",
+      "desc": "Edit a sudo drop-in file safely",
+      "tooltip": "visudo validates syntax before saving — the -f flag points it at a drop-in file in /etc/sudoers.d/, the clean way to grant the deploy user specific sudo rights (like a no-password restart of myapp) without touching the main sudoers file. A broken sudoers file can lock everyone out of sudo, which is exactly what visudo prevents."
+    }
+  ]
+}
