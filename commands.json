@@ -52467,7 +52467,826 @@
       "cmd": "sudo visudo -f /etc/sudoers.d/deploy",
       "desc": "Edit a sudo drop-in file safely",
       "tooltip": "visudo validates syntax before saving — the -f flag points it at a drop-in file in /etc/sudoers.d/, the clean way to grant the deploy user specific sudo rights (like a no-password restart of myapp) without touching the main sudoers file. A broken sudoers file can lock everyone out of sudo, which is exactly what visudo prevents."
+    },
+    {
+      "id": 7536,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml ps --format json",
+      "desc": "List Mailcow container states as JSON",
+      "tooltip": "ps --format json prints one record per service with state and health, easy to feed into jq or monitoring scripts. Health shows how the Mailcow watchdog sees each container. Use plain ps for the human-readable table."
+    },
+    {
+      "id": 7537,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml top",
+      "desc": "Show running processes inside Mailcow containers",
+      "tooltip": "top prints the live process list for every running container, mirroring the host ps output. Useful to confirm daemons like master (Postfix) or dovecot are actually running inside their containers. Process names here are container-internal, not host PIDs."
+    },
+    {
+      "id": 7538,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml config --quiet",
+      "desc": "Validate the Mailcow compose file",
+      "tooltip": "config resolves and validates docker-compose.yml, failing with an error if it is malformed or references missing values. --quiet suppresses the resolved output and only reports problems. Run it after hand-editing the compose file or environment overrides."
+    },
+    {
+      "id": 7539,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml images",
+      "desc": "List container images used by the Mailcow stack",
+      "tooltip": "images shows the repository, tag, and image ID behind each running service. Handy for checking which Mailcow release tag is deployed and whether services run consistent versions. Contrast with docker compose ps, which reports container state, not images."
+    },
+    {
+      "id": 7540,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml up -d --remove-orphans",
+      "desc": "Start Mailcow and remove orphan containers",
+      "tooltip": "up -d creates or starts every service defined in the compose file. --remove-orphans deletes containers not defined in the current file, cleaning up leftovers from renamed or removed services. Combined with a fresh git pull this is the standard Mailcow update startup step."
+    },
+    {
+      "id": 7541,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml pull postfix-mailcow",
+      "desc": "Pull the Postfix container image",
+      "tooltip": "pull fetches the latest image for a single service without touching running containers, here the mailcow/postfix image that hosts the MTA. Do this before up -d to stage an update. Omit the service name to pull every image."
+    },
+    {
+      "id": 7542,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml down --volumes",
+      "desc": "Stop Mailcow and delete all its volumes",
+      "tooltip": "down --volumes stops every container and then removes the named volumes holding maildirs, the MySQL database, and Redis state. This permanently destroys all mail and configuration and is only appropriate for a full teardown. Use plain down to stop without losing data."
+    },
+    {
+      "id": 7543,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml restart",
+      "desc": "Restart every Mailcow service",
+      "tooltip": "restart stops and starts all services in dependency order in one step. Prefer it over down/up when a config change touched several containers, since it preserves volumes and container identity. Watch the watchdog container logs afterwards if a service fails to come back."
+    },
+    {
+      "id": 7544,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml restart rspamd-mailcow",
+      "desc": "Restart the Rspamd spam filter container",
+      "tooltip": "restarting rspamd-mailcow reloads its scoring engine, fuzzy storage, and settings without touching mail delivery. Do this after pushing custom rspamd config files into data/conf/rspamd. In-flight scanning is brief, but queued mail is not lost."
+    },
+    {
+      "id": 7545,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml restart dovecot-mailcow",
+      "desc": "Restart the Dovecot IMAP and POP3 container",
+      "tooltip": "dovecot-mailcow handles IMAP, POP3, and Sieve filtering for mailboxes. Restarting it drops existing client connections, so schedule it off-peak. Prefer this over killing the process, which can leave mailbox index locks behind."
+    },
+    {
+      "id": 7546,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml restart nginx-mailcow",
+      "desc": "Restart the Mailcow web frontend container",
+      "tooltip": "nginx-mailcow terminates HTTPS for the admin UI, SOGo webmail, and autodiscover endpoints. A restart reloads server blocks and certificates after changes to data/conf/nginx. Existing web sessions are re-established transparently."
+    },
+    {
+      "id": 7547,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml restart watchdog-mailcow",
+      "desc": "Restart the Mailcow watchdog container",
+      "tooltip": "watchdog-mailcow monitors every service health and restarts unhealthy containers automatically. Restarting it resets its own state and can help when it loops restarting a healthy service. Check its logs with docker compose logs watchdog-mailcow first."
+    },
+    {
+      "id": 7548,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 postfix-mailcow",
+      "desc": "Show the last 100 Postfix container log lines",
+      "tooltip": "postfix-mailcow logs contain SMTP transactions, delivery attempts, and deferral reasons. --tail=100 keeps the output to the newest 100 lines so the noise stays manageable. Add -f to follow the log live while reproducing a problem."
+    },
+    {
+      "id": 7549,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs -f --tail=50 dovecot-mailcow",
+      "desc": "Follow Dovecot logs with a 50 line backlog",
+      "tooltip": "This tails Dovecot auth, IMAP, and Sieve log lines in real time. Combined with --tail=50 you see context before the newest entries. Watch for repeated LOGIN failures, which point at brute-force attempts or broken clients."
+    },
+    {
+      "id": 7550,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 rspamd-mailcow",
+      "desc": "Show the last 100 Rspamd log lines",
+      "tooltip": "Rspamd logs each scanned message with its score and matched rules, plus errors from the fuzzy and neural modules. Grep the output for rule names like BAYES_IS_SPAM to trace why a message scored as it did. Verbose per-message detail lives in the history, not here."
+    },
+    {
+      "id": 7551,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 nginx-mailcow",
+      "desc": "Show the last 100 nginx access and error lines",
+      "tooltip": "nginx-mailcow logs cover every HTTP request to the admin UI, SOGo, and autodiscover. Error lines about upstream timeouts point at php-fpm or SOGo being slow. Access lines with many 401s hint at API key or login problems."
+    },
+    {
+      "id": 7552,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=50 acme-mailcow",
+      "desc": "Show the last 50 ACME certificate renewal lines",
+      "tooltip": "acme-mailcow runs acme.sh and handles Let's Encrypt issuance and renewal for your mail domains. Log lines here show when certificates were issued, renewed, or failed with validation errors. Failures usually mean the HTTP-01 or DNS-01 challenge could not be answered."
+    },
+    {
+      "id": 7553,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=50 watchdog-mailcow",
+      "desc": "Show the last 50 watchdog restart events",
+      "tooltip": "The watchdog restarts containers whose health checks fail and logs every action here. Repeated restarts of the same service signal a real fault, not a transient blip. Cross-reference with the target container's own logs to find the root cause."
+    },
+    {
+      "id": 7554,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 sogo-mailcow",
+      "desc": "Show the last 100 SOGo groupware log lines",
+      "tooltip": "SOGo is the webmail, calendar, and contacts suite bundled with Mailcow. Its logs cover ActiveSync syncs, Sieve rule application, and WebDAV traffic. Errors here often explain missing calendar invites or contacts not syncing to phones."
+    },
+    {
+      "id": 7555,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 clamd-mailcow",
+      "desc": "Show the last 100 ClamAV scan log lines",
+      "tooltip": "clamd-mailcow runs the ClamAV daemon that virus-scans attachments in the rspamd pipeline. Log lines record signature database updates and scan errors. A stalled signature update leaves clamd answering with errors, which rspamd logs as a clamav failure."
+    },
+    {
+      "id": 7556,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 mysql-mailcow",
+      "desc": "Show the last 100 MySQL container log lines",
+      "tooltip": "mysql-mailcow holds the mailcow database with mailboxes, aliases, domains, and quarantine state. Log lines cover InnoDB recovery and query errors, and MySQL 8 containers log slow queries when enabled. Disk-full errors here take down the whole UI and mail delivery."
+    },
+    {
+      "id": 7557,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 php-fpm-mailcow",
+      "desc": "Show the last 100 PHP-FPM log lines",
+      "tooltip": "php-fpm-mailcow executes the Mailcow web application and its cron jobs. Log lines surface PHP fatal errors and warnings that the UI silently swallows. Recent entries with stack traces are the first place to look after a UI feature breaks."
+    },
+    {
+      "id": 7558,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 unbound-mailcow",
+      "desc": "Show the last 100 unbound DNS resolver log lines",
+      "tooltip": "unbound-mailcow is the recursive DNS resolver Mailcow uses for DNS lookups, MX checks, and SPF/DKIM validation. Its logs show cache events and upstream failures. If mail is intermittently deferred with DNS errors, check here for timeouts to upstream resolvers."
+    },
+    {
+      "id": 7559,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 ofelia-mailcow",
+      "desc": "Show the last 100 ofelia cron scheduler log lines",
+      "tooltip": "ofelia-mailcow is the container that runs scheduled jobs inside the stack, such as quarantine notification dispatches and SOGo maintenance. Log lines record when each scheduled job fired and whether it completed. Missing job entries mean ofelia itself is unhealthy."
+    },
+    {
+      "id": 7560,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 olefy-mailcow",
+      "desc": "Show the last 100 OLE file scanner log lines",
+      "tooltip": "olefy-mailcow strips and inspects OLE attachments (Office documents) before they reach the mail pipeline. Log lines show extracted objects handed to ClamAV and any scan timeouts. Suspicious Office attachments are quarantined based on what olefy extracts."
+    },
+    {
+      "id": 7561,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 dockerapi-mailcow",
+      "desc": "Show the last 100 Docker API proxy log lines",
+      "tooltip": "dockerapi-mailcow exposes a restricted Docker API used by the watchdog to restart unhealthy containers. Its logs record every restart request the watchdog issues. If containers restart without a visible reason, the requests will be logged here."
+    },
+    {
+      "id": 7562,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 netfilter-mailcow",
+      "desc": "Show the last 100 firewall container log lines",
+      "tooltip": "netfilter-mailcow maintains the iptables rules that protect the mail services, including fail2ban-style ban rules. Its logs show banned IPs and firewall rule reloads. Repeated bans for one IP usually mean brute-force SMTP or IMAP attempts."
+    },
+    {
+      "id": 7563,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 memcached-mailcow",
+      "desc": "Show the last 100 memcached log lines",
+      "tooltip": "memcached-mailcow caches sessions and rate-limit state for the web application. Its logs report evictions and connection limits. Frequent eviction lines suggest the cache is undersized for your session count."
+    },
+    {
+      "id": 7564,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 postfix-tlspol-mailcow",
+      "desc": "Show the last 100 TLS policy daemon log lines",
+      "tooltip": "postfix-tlspol-mailcow is Mailcow's per-recipient TLS policy daemon that enforces TLS for outbound mail to specific domains. Log lines show policy lookups and any lookups that failed. Failures here make Postfix fall back to its default smtp_tls_security_level."
+    },
+    {
+      "id": 7565,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml logs --tail=100 redis-mailcow",
+      "desc": "Show the last 100 Redis log lines",
+      "tooltip": "redis-mailcow stores Rspamd statistics, rate-limit counters, and the quarantine notification timestamp. Its logs record persistence snapshots and key evictions. Losing Redis is safe but resets statistics and rate-limit history."
+    },
+    {
+      "id": 7566,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postfix check",
+      "desc": "Verify Postfix configuration inside the container",
+      "tooltip": "postfix check validates main.cf, master.cf, and queue directory permissions inside the Postfix container. Silent output with exit code zero means the configuration is sane. Run it before restarting postfix-mailcow after any manual map change."
+    },
+    {
+      "id": 7567,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postqueue -j",
+      "desc": "Dump the Mailcow mail queue as JSON",
+      "tooltip": "postqueue -j prints every queued message with its ID, sender, recipients, and reason for deferral in machine-readable JSON. Pipe it through jq to find all messages stuck on one destination. This is the container equivalent of mailq with richer output."
+    },
+    {
+      "id": 7568,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postqueue -s example.com",
+      "desc": "Show queue statistics for one destination",
+      "tooltip": "postqueue -s prints a per-destination summary of queued messages, showing how many are stuck sending to example.com. Useful to confirm a delivery outage against a specific mail host. The destination is matched against the queue's active transport domain."
+    },
+    {
+      "id": 7569,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postsuper -d ALL",
+      "desc": "Delete every message from the Postfix queue",
+      "tooltip": "postsuper -d ALL purges the entire mail queue including messages waiting on retry timers. This permanently drops mail that has not been delivered yet, so export the queue first if any of it matters. Prefer deleting individual IDs with postsuper -d QID."
+    },
+    {
+      "id": 7570,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postsuper -r ALL",
+      "desc": "Requeue every message for immediate retry",
+      "tooltip": "postsuper -r ALL resets the arrival time of all queued messages so Postfix retries them on the next queue run. Useful after fixing an outage that caused mass deferrals. It does not delete anything, unlike postsuper -d ALL."
+    },
+    {
+      "id": 7571,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postcat -q 4A2B3C7D9E",
+      "desc": "Show the raw source of one queued message",
+      "tooltip": "postcat -q prints the envelope and message content of a single queue file identified by its queue ID, exactly as stored. Grep it for headers and Received lines to trace where a stuck message came from. The queue ID comes from postqueue -p or postqueue -j."
+    },
+    {
+      "id": 7572,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postconf transport_maps",
+      "desc": "Show the transport map source Postfix uses",
+      "tooltip": "postconf transport_maps resolves the parameter and prints the actual map definition, which in Mailcow points at the SQL maps under /opt/postfix/conf/sql. Those SQL maps let Postfix query MySQL for transports instead of static files. Same trick works for virtual_alias_maps and virtual_mailbox_maps."
+    },
+    {
+      "id": 7573,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postmap -q user@example.com /opt/postfix/conf/sql/virtual_alias_maps.cf",
+      "desc": "Query a Mailcow SQL alias map directly",
+      "tooltip": "postmap -q looks up one key in a map file, here asking the virtual_alias_maps SQL map where mail to user@example.com is redirected. It runs the same SQL query Postfix would run, so it proves the map and database connection work. Use it before blaming aliases for a delivery problem."
+    },
+    {
+      "id": 7574,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec postfix-mailcow postfix flush",
+      "desc": "Flush all queued mail for immediate delivery",
+      "tooltip": "postfix flush tells the queue manager to attempt delivery of every deferred message right now instead of waiting for the next retry timer. Useful after fixing an outage, but do not run it repeatedly while a destination is still down. See postqueue -f for the unprivileged variant."
+    },
+    {
+      "id": 7575,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm expunge -u user@example.com mailbox Trash ALL",
+      "desc": "Permanently delete all mail in a mailbox folder",
+      "tooltip": "doveadm expunge removes messages matching the given search, here every message in Trash, and deletion is immediate and irreversible. Add a date filter such as BEFORE 01-Jan-2026 to keep recent mail. Test with doveadm search using the same criteria first."
+    },
+    {
+      "id": 7576,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm force-resync -u user@example.com INBOX",
+      "desc": "Rebuild the index for a corrupted mailbox",
+      "tooltip": "force-resync drops Dovecot's index and cache files for the given mailbox and rebuilds them from the maildir on disk. Use it when IMAP shows phantom messages, wrong counts, or messages that cannot be opened. The underlying mail is untouched."
+    },
+    {
+      "id": 7577,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm quota recalc -u user@example.com",
+      "desc": "Recalculate a mailbox quota usage",
+      "tooltip": "quota recalc recounts the bytes and messages a mailbox uses against its quota. Run it after moving or restoring maildirs, when the UI shows a quota that disagrees with reality. The Mailcow docs recommend it after any manual maildir manipulation."
+    },
+    {
+      "id": 7578,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm quota get -u user@example.com",
+      "desc": "Show quota usage and limits for one mailbox",
+      "tooltip": "quota get prints the current usage and configured limit for each quota root of the user. Mailcow enforces the per-mailbox quota set in the admin UI through these roots. Values are shown in bytes and as a percentage."
+    },
+    {
+      "id": 7579,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm who",
+      "desc": "List active IMAP and POP3 sessions",
+      "tooltip": "doveadm who shows currently connected clients with their username, protocol, and source IP. Handy for spotting a mailbox that is open from many IPs, a sign of a leaked password. Pair it with doveadm kick to disconnect suspicious sessions."
+    },
+    {
+      "id": 7580,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm kick '192.0.2.50'",
+      "desc": "Disconnect all sessions from one IP address",
+      "tooltip": "doveadm kick drops every IMAP or POP3 session originating from the given IP, forcing clients to reconnect. Standard move after seeing brute-force attempts or a compromised client on that address. The Mailcow netfilter firewall may ban the IP separately."
+    },
+    {
+      "id": 7581,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm reload",
+      "desc": "Reload Dovecot configuration without dropping sessions",
+      "tooltip": "doveadm reload signals Dovecot to re-read its configuration, applying changes while keeping existing connections alive. Use it after editing conf.d snippets that Dovecot owns. Structural changes still require a full container restart."
+    },
+    {
+      "id": 7582,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm search -u user@example.com mailbox INBOX subject 'invoice'",
+      "desc": "Find messages matching a search in a mailbox",
+      "tooltip": "doveadm search prints the UIDs of messages matching the given search, here unread subject lines in INBOX. It runs the same search engine as IMAP SEARCH. Follow up with doveadm fetch to read the raw message of a found UID."
+    },
+    {
+      "id": 7583,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm fetch -u user@example.com 'uid text' mailbox INBOX",
+      "desc": "Print the raw text of every INBOX message",
+      "tooltip": "doveadm fetch dumps the requested fields, here UID plus the full message text, for messages in the mailbox. Scope it down with a search, for example 'uid text' mailbox INBOX subject 'invoice', before running on a large mailbox. Output is raw RFC822 content."
+    },
+    {
+      "id": 7584,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm mailbox status -u user@example.com 'messages vsize' INBOX",
+      "desc": "Show message count and size for a mailbox",
+      "tooltip": "mailbox status reports the named fields for the given mailbox, here total messages and virtual size in bytes. Useful for a quick sanity check of what the UI should display. Field names come from the doveadm mailbox status documentation."
+    },
+    {
+      "id": 7585,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec dovecot-mailcow doveadm mailbox list -u user@example.com",
+      "desc": "List every mailbox folder of a user",
+      "tooltip": "mailbox list enumerates all folders the user has, including subscribed and hidden ones. Compare it with what the mail client shows to find subscriptions that drifted. Add the -s flag to list only subscribed folders."
+    },
+    {
+      "id": 7586,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec -u sogo sogo-mailcow sogo-tool backup -F ALL /etc/sogo user@example.org",
+      "desc": "Back up a SOGo user's calendar and contacts",
+      "tooltip": "sogo-tool backup exports a user's SOGo data, here everything from the default store into /etc/sogo. SOGo is the webmail and groupware suite behind Mailcow's calendar and contacts. Restore the resulting files with sogo-tool restore."
+    },
+    {
+      "id": 7587,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec -u sogo sogo-mailcow sogo-tool restore -F ALL /etc/sogo user@example.org",
+      "desc": "Restore a SOGo user's calendar and contacts",
+      "tooltip": "sogo-tool restore imports the backup files found in /etc/sogo for the given user, overwriting that user's current SOGo data. SOGo is the groupware suite providing calendars and contacts in Mailcow. Run the matching backup first and confirm the user is the right one, because the restore is destructive."
+    },
+    {
+      "id": 7588,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm dkim_keygen -d example.com -s default",
+      "desc": "Generate a DKIM key pair and print its DNS record",
+      "tooltip": "rspamadm dkim_keygen creates a DKIM signing key for the domain and prints the TXT record to publish in DNS. DKIM is the authentication scheme that lets receivers verify mail really came from your domain. Publish the printed record at default._domainkey.example.com."
+    },
+    {
+      "id": 7589,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm dkim_keygen -d example.com -s mailcow -b 2048 -k /etc/rspamd/dkim/mailcow.key",
+      "desc": "Generate a DKIM key with a custom selector and file",
+      "tooltip": "This variant writes the private key to /etc/rspamd/dkim/mailcow.key and prints only the public DNS record, which Mailcow's docs use for manual setups. The selector mailcow must match the TXT record name mailcow._domainkey.example.com. Keep the private key inside the container and readable by rspamd only."
+    },
+    {
+      "id": 7590,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamc -h rspamd:11333 symbols < /tmp/message.eml",
+      "desc": "Score a message file with the live Rspamd engine",
+      "tooltip": "rspamc sends the message on stdin to the Rspamd worker listening on rspamd:11333 and prints every rule hit with its score. This reproduces exactly how Mailcow would score that mail. Use it to test whether a message would land in quarantine before delivery."
+    },
+    {
+      "id": 7591,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamc -h rspamd:11333 learn_spam /tmp/spam.eml",
+      "desc": "Train Rspamd's Bayesian filter on a spam sample",
+      "tooltip": "learn_spam feeds the message into Rspamd's statistical classifier so future similar mail scores higher. Feed a few dozen clearly labeled samples for the filter to be effective. The learned state lives in Redis, so it survives rspamd restarts."
+    },
+    {
+      "id": 7592,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamc -h rspamd:11333 stat",
+      "desc": "Show Rspamd statistics summary",
+      "tooltip": "stat reports messages scanned, learned, and the current actions distribution from the Rspamd worker. A healthy filter shows a realistic share of reject and add-header actions. Numbers come from the running worker, not from log files."
+    },
+    {
+      "id": 7593,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamc -h rspamd:11333 counters",
+      "desc": "Show per-rule hit counters in Rspamd",
+      "tooltip": "counters prints how often each rule matched over the statistics window, revealing which rules dominate scoring. Rules firing on every message, such as missing headers, may deserve tuning. The counters reset when the statistics period expires."
+    },
+    {
+      "id": 7594,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm control reload",
+      "desc": "Reload Rspamd configuration live",
+      "tooltip": "rspamadm control reload makes Rspamd re-read its configuration files without dropping the worker. Use it after editing custom configs under data/conf/rspamd. Unlike a container restart it keeps statistics and learned data in memory."
+    },
+    {
+      "id": 7595,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm control stat",
+      "desc": "Query Rspamd control socket statistics",
+      "tooltip": "control stat reads the master statistics from the control socket, including scanned and learned message counts. It is the authoritative view of the whole Rspamd process, not one worker. Pair it with rspamc stat to compare worker-level numbers."
+    },
+    {
+      "id": 7596,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm configtest",
+      "desc": "Test Rspamd configuration syntax",
+      "tooltip": "configtest parses every Rspamd config file and reports syntax or logic errors with file and line references. Run it after hand-editing custom maps or modules. Silent success means the config is loadable."
+    },
+    {
+      "id": 7597,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec rspamd-mailcow rspamadm history",
+      "desc": "Browse recent scan results in Rspamd",
+      "tooltip": "rspamadm history opens an interactive browser over the last scanned messages stored in Redis, showing scores, rules, and per-message details. It is the CLI twin of the Mailcow UI history tab. Messages drop out after the configured history retention."
+    },
+    {
+      "id": 7598,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec redis-mailcow redis-cli DEL Q_LAST_NOTIFIED",
+      "desc": "Reset the quarantine notification timestamp in Redis",
+      "tooltip": "DEL Q_LAST_NOTIFIED removes the key that records when the last quarantine notification round was sent. Combined with resetting the notified flag in MySQL, this makes Mailcow resend quarantine digests. Run it only when you deliberately want to re-notify users."
+    },
+    {
+      "id": 7599,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec redis-mailcow redis-cli INFO memory",
+      "desc": "Show Redis memory usage",
+      "tooltip": "INFO memory reports used memory, peak usage, and fragmentation for the Redis instance that backs Rspamd statistics. A value near maxmemory forces evictions of stats and rate-limit state. Check the maxmemory setting if evictions appear."
+    },
+    {
+      "id": 7600,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec redis-mailcow redis-cli DBSIZE",
+      "desc": "Count keys stored in Redis",
+      "tooltip": "DBSIZE returns the number of keys in the default database, a quick health signal for the Redis instance. A sudden drop suggests Redis restarted and statistics were lost. Sudden growth can mean a runaway counter or queue."
+    },
+    {
+      "id": 7601,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec redis-mailcow redis-cli CONFIG GET maxmemory",
+      "desc": "Show the Redis maxmemory limit",
+      "tooltip": "CONFIG GET maxmemory prints the configured memory cap for the Redis instance. Mailcow sets a modest limit because Redis only holds statistics and counters. Raise it only if you see frequent eviction warnings in the redis logs."
+    },
+    {
+      "id": 7602,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec mysql-mailcow mysql -u mailcow -p mailcow -e 'UPDATE quarantine SET notified=0;'",
+      "desc": "Mark all quarantined messages as unnotified",
+      "tooltip": "This resets the notified flag on every quarantine row so the next notification round reports all of them. It is the MySQL half of Mailcow's documented quarantine re-notification procedure. It affects the whole table, so users will receive digests again."
+    },
+    {
+      "id": 7603,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec mysql-mailcow mysql -u mailcow -p mailcow -e 'SELECT COUNT(*) AS q FROM quarantine;'",
+      "desc": "Count quarantined messages in the database",
+      "tooltip": "This runs a direct SQL query against the mailcow database, here counting rows in the quarantine table. Useful to confirm the quarantine really is empty after a purge. The password in -p matches the one stored in mailcow.conf."
+    },
+    {
+      "id": 7604,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec mysql-mailcow mysql -u mailcow -p mailcow -e 'SELECT username, active FROM mailbox LIMIT 20;'",
+      "desc": "List mailboxes and their active flag from MySQL",
+      "tooltip": "This queries the mailbox table directly to see every mailbox and whether it is enabled. Faster than paging through the UI when auditing accounts. The active column controls whether login and delivery are permitted."
+    },
+    {
+      "id": 7605,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec mysql-mailcow mysqldump -u mailcow -p mailcow mailcow | gzip > /backup/mailcow-db.sql.gz",
+      "desc": "Dump the Mailcow database to a compressed file",
+      "tooltip": "mysqldump exports the whole mailcow schema and data, piped through gzip into a dated backup file. The dump contains mailboxes, aliases, domains, and quarantine state but not maildirs. Restore it with mysql < backup.sql if the database is ever lost."
+    },
+    {
+      "id": 7606,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec -T unbound-mailcow drill example.com MX @127.0.0.1",
+      "desc": "Resolve MX records through the Mailcow resolver",
+      "tooltip": "drill queries the unbound resolver listening inside the unbound-mailcow container, bypassing any local DNS config. unbound is the recursive resolver Mailcow uses for MX, SPF, and DKIM lookups. Use it to prove DNS answers are correct from Mailcow's own point of view."
+    },
+    {
+      "id": 7607,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec -T clamd-mailcow clamdscan --ping",
+      "desc": "Check whether the ClamAV daemon is responsive",
+      "tooltip": "clamdscan --ping sends a PING command to the clamd daemon and exits successfully when it answers. clamd is the virus scanner that checks attachments for the mail pipeline. A timeout here explains attachment errors and requires a clamd-mailcow restart."
+    },
+    {
+      "id": 7608,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec nginx-mailcow nginx -t",
+      "desc": "Test the nginx configuration inside the container",
+      "tooltip": "nginx -t parses every server block and reports syntax errors with file and line numbers. Run it before restarting nginx-mailcow after editing files under data/conf/nginx. Exit code zero means the config is valid and safe to reload."
+    },
+    {
+      "id": 7609,
+      "category": "Mail Servers & Postfix",
+      "cmd": "docker compose -f /opt/mailcow-dockerized/docker-compose.yml exec nginx-mailcow nginx -s reload",
+      "desc": "Reload nginx config without dropping connections",
+      "tooltip": "nginx -s reload tells the running master process to re-read its configuration and apply changes gracefully. Existing connections finish, new connections use the new config. Do this after nginx -t passes instead of restarting the container."
+    },
+    {
+      "id": 7610,
+      "category": "Mail Servers & Postfix",
+      "cmd": "cd /opt/mailcow-dockerized && sudo ./update.sh",
+      "desc": "Update Mailcow to the latest release",
+      "tooltip": "update.sh pulls the newest code and images, then brings the stack up with the new version. Run it from the Mailcow directory, usually with sudo, and keep the branch in mailcow.conf on a supported release. Back up first, because updates can change the database schema."
+    },
+    {
+      "id": 7611,
+      "category": "Mail Servers & Postfix",
+      "cmd": "cd /opt/mailcow-dockerized && ./generate_config.sh",
+      "desc": "Generate or repair the Mailcow configuration",
+      "tooltip": "generate_config.sh creates mailcow.conf from your answers, or regenerates missing pieces when the file is corrupt. It walks through hostname, timezone, and mail settings interactively. Existing containers are not touched until you run update.sh or up -d afterwards."
+    },
+    {
+      "id": 7612,
+      "category": "Mail Servers & Postfix",
+      "cmd": "./helper-scripts/backup_and_restore.sh backup vmail --delete-days 7",
+      "desc": "Back up maildirs and prune backups older than a week",
+      "tooltip": "This runs the Mailcow backup script for the vmail target, which snapshots every user's maildir into the backup location configured in mailcow.conf. --delete-days 7 removes backups older than seven days. Schedule it nightly to keep mail recoverable."
+    },
+    {
+      "id": 7613,
+      "category": "Mail Servers & Postfix",
+      "cmd": "./helper-scripts/backup_and_restore.sh backup mysql --delete-days 7",
+      "desc": "Back up the Mailcow database and prune old copies",
+      "tooltip": "The mysql target dumps the mailcow database with mailboxes, aliases, and quarantine state into the configured backup directory. --delete-days 7 prunes backups older than a week. Pair it with the vmail target for a complete recovery set."
+    },
+    {
+      "id": 7614,
+      "category": "Mail Servers & Postfix",
+      "cmd": "./helper-scripts/backup_and_restore.sh backup rspamd --delete-days 7",
+      "desc": "Back up Rspamd statistics and learned data",
+      "tooltip": "The rspamd target snapshots the Redis-backed statistics and Bayesian learning that tune spam filtering. Restoring it after a reinstall keeps your filter calibration intact. Without it, the filter starts untrained and spam accuracy drops."
+    },
+    {
+      "id": 7615,
+      "category": "Mail Servers & Postfix",
+      "cmd": "./helper-scripts/backup_and_restore.sh restore all /backup/mailcow-backup-2026-08-09.tar.gz",
+      "desc": "Restore the Mailcow stack from a full backup",
+      "tooltip": "restore all unpacks the named backup file and writes maildirs, the database, and configuration back into the stack. It overwrites current data, so verify the file and the target host before running. Follow the script's prompts and restart the stack afterwards."
+    },
+    {
+      "id": 7616,
+      "category": "Mail Servers & Postfix",
+      "cmd": "./helper-scripts/mailcow-reset-admin.sh",
+      "desc": "Reset the Mailcow administrator password",
+      "tooltip": "mailcow-reset-admin.sh regenerates the admin password and prints the new one, recovering access when the UI login is lost. It updates the password hash in the database directly. Run it with sudo from the Mailcow directory and change the password again in the UI."
+    },
+    {
+      "id": 7617,
+      "category": "Mail Servers & Postfix",
+      "cmd": "rm -rf /opt/mailcow-dockerized/data/assets/ssl",
+      "desc": "Delete Mailcow TLS certificates so they regenerate",
+      "tooltip": "Removing the ssl directory forces Mailcow to recreate self-signed certificates on the next up, and lets acme-mailcow re-issue Let's Encrypt certificates. Mail and web services fail TLS handshakes until the stack restarts. Export any custom certificates first because they are gone for good."
+    },
+    {
+      "id": 7618,
+      "category": "Mail Servers & Postfix",
+      "cmd": "echo 'MAILDIR_GC_TIME=60' >> /opt/mailcow-dockerized/mailcow.conf",
+      "desc": "Enable garbage collection for deleted maildirs",
+      "tooltip": "MAILDIR_GC_TIME sets how long, in minutes, a deleted mailbox's maildir survives before the garbage collector purges it from disk. Without it, maildirs of deleted mailboxes can linger indefinitely. Restart the stack after appending it so the setting is picked up."
+    },
+    {
+      "id": 7619,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "List all mailboxes via the Mailcow API",
+      "tooltip": "The v1 API authenticates with the X-API-Key header, where the key comes from the admin UI under System, API. This call returns every mailbox with its quota, active flag, and attributes as JSON. Pipe through jq to filter on fields."
+    },
+    {
+      "id": 7620,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailbox/jane@example.com\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Show one mailbox's full details via the API",
+      "tooltip": "The mailbox address in the URL path selects a single mailbox and returns its complete attribute set. Faster than scanning the full mailbox list for one account. The address must be URL-encoded if it contains special characters."
+    },
+    {
+      "id": 7621,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"local_part\":\"jane\",\"domain\":\"example.com\",\"password\":\"S3curePass!2026\",\"quota\":\"10240\",\"active\":\"1\"}'",
+      "desc": "Create a mailbox through the Mailcow API",
+      "tooltip": "This POST creates the mailbox jane@example.com with the given password and 10 GB quota in one call. The response includes the new mailbox's details or an error message. Set the domain's default values first so the mailbox inherits sensible limits."
+    },
+    {
+      "id": 7622,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"]}'",
+      "desc": "Delete a mailbox and its maildir via the API",
+      "tooltip": "The items array names the mailboxes to remove, and deletion also schedules the user's maildir for garbage collection. This is permanent: mail is unrecoverable once the maildir is purged. Export the account with IMAP or backup the vmail target first."
+    },
+    {
+      "id": 7623,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/alias\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"address\":\"info@example.com\",\"goto\":\"jane@example.com\"}'",
+      "desc": "Create an alias that forwards to a mailbox",
+      "tooltip": "This creates info@example.com as an alias whose mail is delivered to jane@example.com. The goto field can hold several comma-separated recipients. Aliases do not consume quota and cannot log in by themselves."
+    },
+    {
+      "id": 7624,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/alias\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"info@example.com\"]}'",
+      "desc": "Delete one or more aliases via the API",
+      "tooltip": "The items array names the alias addresses to remove. Deleting an alias immediately stops delivery to its targets, so mail to that address bounces. Verify nothing important still uses the alias before removing it."
+    },
+    {
+      "id": 7625,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/domain\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"domain\":\"example.com\",\"aliases\":\"10\",\"mailboxes\":\"10\",\"defquota\":\"10240\",\"maxquota\":\"102400\",\"quota\":\"102400\"}'",
+      "desc": "Add a mail domain through the Mailcow API",
+      "tooltip": "This registers example.com with limits for aliases, mailboxes, default per-mailbox quota, and total domain quota. MX and autodiscover DNS records must already point at your server. New mailboxes inherit defquota unless overridden."
+    },
+    {
+      "id": 7626,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/domain/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "List all domains via the Mailcow API",
+      "tooltip": "This returns every domain with its quota usage, alias and mailbox counts, and active state. Useful for audits of how many domains the server hosts. Filter with jq to find domains over their quota."
+    },
+    {
+      "id": 7627,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/quarantine/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "List messages held in quarantine via the API",
+      "tooltip": "This returns messages flagged as spam and held for review, with sender, recipient, subject, and reason. Quarantine is where Rspamd puts mail scored above the reject threshold. Release or delete individual items with edit/qitem and delete/qitem."
+    },
+    {
+      "id": 7628,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"release\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "desc": "Release a quarantined message for delivery",
+      "tooltip": "The action release delivers the listed quarantine IDs to their original recipients, bypassing the spam hold. Useful when a legitimate message was caught. The ID comes from the quarantine listing and is tied to the stored message copy."
+    },
+    {
+      "id": 7629,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"learnham\",\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "desc": "Release a message and train the filter as ham",
+      "tooltip": "The learnham action delivers the quarantined message and feeds it to Rspamd's Bayesian filter as legitimate mail. This both fixes the false positive and makes the filter less likely to catch similar mail. The learned state persists in Redis."
+    },
+    {
+      "id": 7630,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/qitem\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"5f8a1b2c3d4e5f6a7b8c9d0e\"]}'",
+      "desc": "Delete quarantined messages permanently",
+      "tooltip": "The items array names quarantine entries whose stored message copies are deleted without delivery. This is irreversible, so review the sender and subject first. Use it to purge old spam instead of releasing it."
+    },
+    {
+      "id": 7631,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/dkim\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"],\"key_size\":2048}'",
+      "desc": "Generate a DKIM key pair for a domain",
+      "tooltip": "This creates a 2048-bit DKIM signing key for example.com under the selector default. DKIM lets receiving servers verify mail authenticity, so publish the returned TXT record at default._domainkey.example.com. Without the DNS record, signed mail fails verification."
+    },
+    {
+      "id": 7632,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/dkim\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"dkim_selector\":\"default\",\"domains\":[\"example.com\"]}'",
+      "desc": "Delete a DKIM key pair for a domain",
+      "tooltip": "Removing the DKIM key stops Mailcow from signing mail for the domain, and receivers that still verify the old record will fail DKIM checks. That typically worsens spam scores and deliverability. Export the private key first if you may need it again."
+    },
+    {
+      "id": 7633,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/dkim/example.com\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Show the DKIM DNS records for a domain",
+      "tooltip": "This returns the DNS record to publish for the domain's DKIM selector, including the public key. Compare it with what is actually published using dig to debug failing DKIM verification. The selector appears in the returned record name."
+    },
+    {
+      "id": 7634,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/add/bcc\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"local_dest\":\"jane@example.com\",\"bcc_dest\":\"archive@example.com\",\"type\":\"sender\"}'",
+      "desc": "Add a BCC copy rule for a mailbox",
+      "tooltip": "This adds a blind-copy rule where every message sent by jane@example.com is also delivered to archive@example.com. BCC rules are the standard way Mailcow archives sent and received mail. The type field selects sender or recipient direction."
+    },
+    {
+      "id": 7635,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/bcc/1\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Show one BCC rule by its ID",
+      "tooltip": "This fetches a single BCC rule identified by its numeric ID, showing the local address, blind-copy destination, and direction. Use it to confirm a rule before editing or deleting it. The ID appears in the list returned by the BCC endpoints."
+    },
+    {
+      "id": 7636,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/bcc\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[1]}'",
+      "desc": "Delete BCC copy rules by ID",
+      "tooltip": "The items array holds the numeric IDs of BCC rules to remove, which stops the blind copies immediately. Archiving setups lose coverage the moment the rule is gone. Confirm the ID with get/bcc first."
+    },
+    {
+      "id": 7637,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/mailq/all\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "List the Postfix queue via the Mailcow API",
+      "tooltip": "This returns every message currently in the Postfix queue with ID, sender, recipients, and deferral reason. Equivalent to postqueue -p but over HTTP with the same API key. Useful for scripts that alert on queue growth."
+    },
+    {
+      "id": 7638,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/delete/mailq\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"action\":\"super_delete\",\"mailq_ids\":[\"4A2B3C7D9E\"]}'",
+      "desc": "Delete queued messages without bounce notices",
+      "tooltip": "The super_delete action removes the listed queue IDs and suppresses bounce messages to the senders, unlike the plain delete action. Mail that is still undelivered is dropped permanently. Verify the IDs against get/mailq/all before deleting."
+    },
+    {
+      "id": 7639,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/mailbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"attr\":\"active\",\"items\":[\"jane@example.com\"]}'",
+      "desc": "Toggle a mailbox attribute via the API",
+      "tooltip": "The attr field selects which mailbox property to change, here active, applied to every address in items. Setting active disables login and delivery while keeping the maildir intact. Other attrs such as password or quota follow the same pattern."
+    },
+    {
+      "id": 7640,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/rl-mbox\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"rl_value\":\"50\",\"rl_frame\":\"minute\"}'",
+      "desc": "Set a per-mailbox sending rate limit",
+      "tooltip": "This limits jane@example.com to 50 messages per minute, the frame given by rl_frame. Rate limits are enforced by Postfix and Rspamd together to throttle compromised accounts. Use a larger frame such as hour for gentler limits."
+    },
+    {
+      "id": 7641,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/spam-score\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"items\":[\"jane@example.com\"],\"score\":5}'",
+      "desc": "Set a custom spam score threshold for a mailbox",
+      "tooltip": "This overrides the global spam score for the listed mailboxes, here making jane@example.com quarantine anything Rspamd scores above 5. Lower values catch more spam but raise false positives. The global threshold stays in the Rspamd config."
+    },
+    {
+      "id": 7642,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/domain/footer\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"attr\":\"footer\",\"items\":[\"example.com\"],\"footer\":\"Sent from example.com\"}'",
+      "desc": "Set an email footer for a domain",
+      "tooltip": "This appends the given footer text to outgoing mail from the listed domains. Mailcow injects footers during delivery, so stored mail is unchanged. HTML footers are supported with the appropriate markup in the footer field."
+    },
+    {
+      "id": 7643,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X POST \"https://mail.example.com/api/v1/edit/quarantine_notification\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\" -H \"Content-Type: application/json\" -d '{\"active\":true,\"interval\":\"daily\"}'",
+      "desc": "Configure quarantine digest notifications",
+      "tooltip": "This enables the daily quarantine digest that tells users which of their mail is held. The interval accepts values like hourly, daily, or weekly. Users can still manage quarantined mail from the UI regardless of digest settings."
+    },
+    {
+      "id": 7644,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/dovecot\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch recent Dovecot logs via the API",
+      "tooltip": "This returns the tail of the Dovecot log with auth and IMAP events as JSON. Quick way to scan for failed logins without shelling into the container. The same pattern works for other get/logs endpoints."
+    },
+    {
+      "id": 7645,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/postfix\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch recent Postfix logs via the API",
+      "tooltip": "This returns the tail of the Postfix log showing SMTP transactions and delivery results. Useful to confirm a message left the server or find the deferral reason. Combine with get/mailq/all for a full queue picture."
+    },
+    {
+      "id": 7646,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/sasl\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch recent SMTP authentication logs via the API",
+      "tooltip": "This returns the SASL authentication log, listing every successful and failed SMTP login. A burst of failures from one IP signals a brute-force attack on the submission port. Pair it with netfilter logs to confirm bans were applied."
+    },
+    {
+      "id": 7647,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/rspamd-history\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch Rspamd scan history via the API",
+      "tooltip": "This returns the recent scan history with scores, actions, and matched rules for each message. The data mirrors the History tab in the admin UI. Use it to find why a specific message was classified as spam."
+    },
+    {
+      "id": 7648,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/netfilter\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch firewall ban logs via the API",
+      "tooltip": "This returns netfilter events showing which IPs were banned and why. Mailcow's netfilter container maintains the iptables rules that block abusive senders. Persistent bans for one IP usually mean repeated auth failures."
+    },
+    {
+      "id": 7649,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/logs/api\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Fetch API access logs via the API",
+      "tooltip": "This returns the audit trail of API requests, including which key called which endpoint. Review it to spot unexpected API activity that could mean a leaked key. Rotate the key in the admin UI if you see calls you do not recognize."
+    },
+    {
+      "id": 7650,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/containers\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Check health of all Mailcow containers via API",
+      "tooltip": "This returns every container with its state and health as seen by the watchdog. A container stuck unhealthy shows up here before mail delivery breaks. Poll it in monitoring scripts instead of parsing docker ps."
+    },
+    {
+      "id": 7651,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/vmail\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Show vmail storage usage via the API",
+      "tooltip": "This reports the disk usage of the vmail volume that holds all maildirs, plus per-user totals where available. Watch it to plan disk upgrades before the mail store fills up. A full vmail volume stops delivery entirely."
+    },
+    {
+      "id": 7652,
+      "category": "Mail Servers & Postfix",
+      "cmd": "curl -X GET \"https://mail.example.com/api/v1/get/status/version\" -H \"X-API-Key: K2x9f8Tq4Lm7Rw1Zv6YpB3\"",
+      "desc": "Show the installed Mailcow version via the API",
+      "tooltip": "This returns the running Mailcow version, which helps confirm whether an update actually applied. Compare it with the latest release on GitHub before planning an upgrade. The version string matches what the UI shows in the bottom-left corner."
     }
   ],
-  "total": 7488
+  "total": 7605
 }
