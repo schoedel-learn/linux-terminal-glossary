@@ -26,6 +26,7 @@
     "I/O Redirection & Pipes",
     "IaC & Automation",
     "Kubernetes & Containers",
+    "Listmonk & Newsletters",
     "Local Network & Public Hosting",
     "Mail Servers & Postfix",
     "Matrix & Synapse",
@@ -47,6 +48,7 @@
     "Vim/Neovim",
     "Web App Development",
     "Web Servers & Proxies",
+    "n8n & Workflow Automation",
     "tmux"
   ],
   "commands": [
@@ -48496,7 +48498,1995 @@
       "cmd": "socat TCP-LISTEN:8080,reuseaddr,fork TCP:192.168.1.10:80",
       "desc": "Forward a local port to another LAN host",
       "tooltip": "socat is a Swiss-army data relay, and this listens on port 8080 locally and pipes every connection to the web server at 192.168.1.10:80. The fork option handles each client in its own process, and reuseaddr lets the port rebind instantly after a restart. It is a one-line port forwarder without firewall changes."
+    },
+    {
+      "id": 6969,
+      "category": "Administration",
+      "cmd": "chmod u+s helper.sh",
+      "desc": "Set the setuid bit on a file",
+      "tooltip": "Setuid means the file runs with the privileges of its owner, not the user who launches it. The s replaces the owner execute bit and shows as rws in ls -l. The kernel ignores setuid on shell scripts, so this only works on compiled binaries and carries real security risk."
+    },
+    {
+      "id": 6970,
+      "category": "Administration",
+      "cmd": "chmod g+s /srv/shared",
+      "desc": "Set the setgid bit on a directory",
+      "tooltip": "Setgid on a directory makes new files created inside it inherit the directory's group instead of the creator's primary group. This is the classic trick for team-shared folders. It shows as rwxr-sr-x in ls -l and pairs with group ACLs."
+    },
+    {
+      "id": 6971,
+      "category": "Administration",
+      "cmd": "chmod +t /tmp/shared",
+      "desc": "Set the sticky bit on a directory",
+      "tooltip": "The sticky bit means only the file owner, the directory owner, or root can delete files inside the directory, no matter who has write access. /tmp is the classic example and shows a t in the last permission position. Run chmod +t on shared drop folders to stop users deleting each other's files."
+    },
+    {
+      "id": 6972,
+      "category": "Administration",
+      "cmd": "chmod 4755 /usr/local/bin/app",
+      "desc": "Set setuid with numeric permissions",
+      "tooltip": "The leading 4 in the four-digit mode sets the setuid bit while 755 grants the owner rwx and everyone else rx. Numeric chmod 4755 is the exact same as chmod u+s plus chmod 755 in one step. Remove the bit with chmod u-s or chmod 0755, and audit setuid files with find / -perm -4000."
+    },
+    {
+      "id": 6973,
+      "category": "Administration",
+      "cmd": "sudo chattr +a /var/log/app.log",
+      "desc": "Make a log file append-only",
+      "tooltip": "The +a flag makes a file append-only, so processes can add lines but nothing can overwrite or delete existing content, not even root. This is ideal for audit logs that must stay tamper-proof. Reverse it with sudo chattr -a."
+    },
+    {
+      "id": 6974,
+      "category": "Administration",
+      "cmd": "sudo chattr +i /etc/hosts",
+      "desc": "Make a file immutable",
+      "tooltip": "The +i flag makes a file completely immutable, so even root cannot modify, rename, or delete it until the flag is removed. This hardens critical files like /etc/hosts or /etc/passwd against accidental edits and malware. Reverse it with sudo chattr -i and list attributes with lsattr."
+    },
+    {
+      "id": 6975,
+      "category": "Administration",
+      "cmd": "lsattr -d /srv/data",
+      "desc": "List extended attributes of a directory",
+      "tooltip": "lsattr shows the ext filesystem attributes such as i for immutable and a for append-only. The -d flag lists the directory itself rather than descending into its contents, like ls -d does. Use lsattr -R to walk a whole tree."
+    },
+    {
+      "id": 6976,
+      "category": "Administration",
+      "cmd": "getfacl -R /srv/shared",
+      "desc": "Show ACLs recursively",
+      "tooltip": "An ACL (access control list) grants permissions to extra users and groups beyond the classic owner, group, and other bits. getfacl prints the base mode plus every named user and group entry, and -R walks all subdirectories. Look for the mask line, which caps what the named entries can receive."
+    },
+    {
+      "id": 6977,
+      "category": "Administration",
+      "cmd": "sudo setfacl -m g:devs:rx /srv/shared",
+      "desc": "Grant a group read and execute ACL",
+      "tooltip": "setfacl -m modifies an ACL in place, and the g:devs:rx argument gives the group devs read and execute rights without touching the base mode. The colon syntax is scope:name:permissions, so u:alice:rw would target a single user. Existing entries are overwritten, not duplicated."
+    },
+    {
+      "id": 6978,
+      "category": "Administration",
+      "cmd": "sudo setfacl -R -m g:devs:rx /srv/shared",
+      "desc": "Apply a group ACL recursively",
+      "tooltip": "Adding -R makes setfacl walk every file and directory under /srv/shared, applying the g:devs:rx entry everywhere. This is the efficient way to open up a whole project tree to one group. Files created later do not inherit the entry unless the directory also carries a default ACL."
+    },
+    {
+      "id": 6979,
+      "category": "Administration",
+      "cmd": "sudo setfacl -x g:devs /srv/shared",
+      "desc": "Remove a group ACL entry",
+      "tooltip": "The -x flag deletes one named entry from the ACL instead of modifying values. Here it strips the group devs entry from /srv/shared while leaving every other entry untouched. Verify the result with getfacl."
+    },
+    {
+      "id": 6980,
+      "category": "Administration",
+      "cmd": "sudo setfacl -m m::rx /srv/shared",
+      "desc": "Set the ACL mask entry",
+      "tooltip": "The mask entry is the ceiling for what named users and groups can actually use, so m::rx caps every named entry at read and execute even if one was granted write. Tighten the mask to block group access without deleting the entries themselves. The mask only limits named entries, never the file owner."
+    },
+    {
+      "id": 6981,
+      "category": "Administration",
+      "cmd": "sudo setcap -r /usr/local/bin/app",
+      "desc": "Remove all capabilities from a file",
+      "tooltip": "Capabilities are fine-grained privileges like cap_net_bind_service that let a binary bind low ports without full root. The -r flag deletes every capability from the file, restoring normal execution. Audit what is set with getcap -r / 2>/dev/null."
+    },
+    {
+      "id": 6982,
+      "category": "Administration",
+      "cmd": "ls -Z /etc/passwd",
+      "desc": "Show the SELinux context of a file",
+      "tooltip": "The -Z flag prints the SELinux security context column, which labels each file with a type such as etc_t or shadow_t. SELinux is the mandatory access control system used on RHEL and Fedora, and Ubuntu systems show an empty column instead. Pair it with getenforce to see whether SELinux is enforcing."
+    },
+    {
+      "id": 6983,
+      "category": "Administration",
+      "cmd": "chown --reference=template.txt report.pdf",
+      "desc": "Copy ownership from a reference file",
+      "tooltip": "The --reference form copies the user and group of template.txt onto report.pdf instead of typing a user:group pair. This is handy when a file was restored or extracted with the wrong owner. The same reference trick exists in chmod --reference for permissions."
+    },
+    {
+      "id": 6984,
+      "category": "Administration",
+      "cmd": "ln -s /usr/share/zoneinfo/Europe/Madrid /etc/localtime",
+      "desc": "Symlink the system timezone",
+      "tooltip": "This is how a Linux system selects its timezone: /etc/localtime is a symlink into the IANA zoneinfo database, so no file is copied. Read the link with readlink /etc/localtime to see the chosen zone. Prefer timedatectl set-timezone, which manages this link for you."
+    },
+    {
+      "id": 6985,
+      "category": "Administration",
+      "cmd": "readlink /etc/alternatives/python3",
+      "desc": "Print a symlink's target path",
+      "tooltip": "readlink resolves a symlink and prints where it actually points. Without -f it shows only one level, so the /etc/alternatives link reveals the real interpreter binary. Add -f to keep resolving until a final non-link path is reached."
+    },
+    {
+      "id": 6986,
+      "category": "Administration",
+      "cmd": "realpath script.sh",
+      "desc": "Resolve a path to its absolute form",
+      "tooltip": "realpath prints the canonical absolute path, resolving symlinks and collapsing .. segments along the way. It answers questions like where this script really lives when launched through a symlink. Use it in scripts before cd-ing or storing paths."
+    },
+    {
+      "id": 6987,
+      "category": "Administration",
+      "cmd": "realpath -m /etc/../usr/bin/env",
+      "desc": "Resolve a path without requiring existence",
+      "tooltip": "The -m flag canonicalizes a path purely by string logic, so the target does not need to exist on disk. This is useful for building paths that a program will create later. Symlinks are not resolved in this mode."
+    },
+    {
+      "id": 6988,
+      "category": "Administration",
+      "cmd": "stat -c '%F %s %y' report.pdf",
+      "desc": "Print file type, size, and mtime",
+      "tooltip": "stat -c takes a custom format string: %F is the file type, %s the size in bytes, and %y the last modification time with full precision. It is the fastest way to get exactly the fields a script needs. See stat --help for the full format specifier list."
+    },
+    {
+      "id": 6989,
+      "category": "Administration",
+      "cmd": "stat -f /home",
+      "desc": "Show filesystem information",
+      "tooltip": "The -f flag switches stat from file details to the underlying filesystem: type, block size, and free blocks. It is the quick way to check what filesystem a path lives on and how much space remains. Compare with df, which shows the same data in human units."
+    },
+    {
+      "id": 6990,
+      "category": "Administration",
+      "cmd": "file --mime-type report.pdf",
+      "desc": "Print the MIME type of a file",
+      "tooltip": "MIME types are the standard labels such as application/pdf that identify a file's format. The --mime-type flag prints just the type, while plain file adds a human description and -i includes the charset. file inspects magic bytes, not extensions, so it works on renamed files."
+    },
+    {
+      "id": 6991,
+      "category": "Administration",
+      "cmd": "file -z data.tar.gz",
+      "desc": "Identify a compressed file's contents",
+      "tooltip": "The -z flag makes file peek inside compressed archives and report what the decompressed data really is. It detects gzip, bzip2, zip, and other containers automatically. Useful for checking whether a download is a tarball or something else entirely."
+    },
+    {
+      "id": 6992,
+      "category": "Administration",
+      "cmd": "basename /path/to/file.txt",
+      "desc": "Print the last path component",
+      "tooltip": "basename strips the directory part and prints file.txt, the final component of the path. It is the standard tool for pulling a filename out of a full path in scripts. Pair it with dirname to get the directory half."
+    },
+    {
+      "id": 6993,
+      "category": "Administration",
+      "cmd": "basename -s .txt /path/to/file.txt",
+      "desc": "Strip a suffix from the basename",
+      "tooltip": "The -s flag removes a trailing suffix, so this prints just file instead of file.txt. Scripts use it to derive output names from inputs, like turning report.txt into report.pdf. The suffix is matched literally at the end of the name."
+    },
+    {
+      "id": 6994,
+      "category": "Administration",
+      "cmd": "dirname /path/to/file.txt",
+      "desc": "Print the directory portion of a path",
+      "tooltip": "dirname prints everything before the last component, so this yields /path/to. It is the inverse of basename and together they split any path into its two halves. Scripts commonly wrap it around realpath to get an absolute directory."
+    },
+    {
+      "id": 6995,
+      "category": "Administration",
+      "cmd": "which -a python3",
+      "desc": "Show every location of a command",
+      "tooltip": "The -a flag lists every match for python3 across PATH, not just the first one. This reveals shadowed installations where one binary hides another. Plain which stops at the first hit, which is the one the shell would actually run."
+    },
+    {
+      "id": 6996,
+      "category": "Administration",
+      "cmd": "type -a ls",
+      "desc": "Show how the shell resolves a command",
+      "tooltip": "type tells you whether a name is an alias, a function, a builtin, or an external binary. The -a flag prints every definition in lookup order, so you see both the alias and the /usr/bin/ls it expands to. Use it before debugging why a command behaves unexpectedly."
+    },
+    {
+      "id": 6997,
+      "category": "Administration",
+      "cmd": "command -v ls",
+      "desc": "Print the path a command would run",
+      "tooltip": "command -v is the POSIX-standard way to ask which binary the shell would execute, and unlike which it understands aliases and builtins. For a builtin like cd it prints the name itself instead of a path. Scripts use it to locate tools before calling them."
+    },
+    {
+      "id": 6998,
+      "category": "Administration",
+      "cmd": "hash -r",
+      "desc": "Clear the shell's command hash table",
+      "tooltip": "Bash caches the PATH lookup for every command it runs, and hash -r forgets that cache so the next call re-searches PATH. Run it after installing a new binary that shadows an old one, or after moving executables. Plain hash lists the cached entries."
+    },
+    {
+      "id": 6999,
+      "category": "Administration",
+      "cmd": "printf '%05d\\n' 42",
+      "desc": "Format a number with zero padding",
+      "tooltip": "printf is the shell's formatted output builtin, and %05d pads the number 42 to five digits with leading zeros, printing 00042. The same format specifiers as C and Python apply, so %x gives hex and %.2f fixes decimals. It is more predictable than echo for scripted output."
+    },
+    {
+      "id": 7000,
+      "category": "Administration",
+      "cmd": "ulimit -n 4096",
+      "desc": "Raise the soft open-file limit",
+      "tooltip": "The -n limit controls how many file descriptors one shell session may hold, and this raises the soft limit to 4096. The soft limit can be raised only up to the hard limit, which needs root to increase. Set it in ~/.bashrc or a systemd unit for persistence."
+    },
+    {
+      "id": 7001,
+      "category": "Administration",
+      "cmd": "ulimit -u",
+      "desc": "Show the max user processes limit",
+      "tooltip": "The -u limit caps how many processes and threads a single user may run, and this prints the current value. Hitting it produces fork: Cannot allocate memory errors despite plenty of RAM. Raise it with ulimit -u or in /etc/security/limits.conf."
+    },
+    {
+      "id": 7002,
+      "category": "Administration",
+      "cmd": "ulimit -a",
+      "desc": "Show all resource limits",
+      "tooltip": "ulimit -a dumps every soft limit for the current shell: open files, core dumps, stack size, CPU time, and process count. It is the first stop when a program dies with mysterious resource errors. Each line maps to a single-letter flag like -n or -u."
+    },
+    {
+      "id": 7003,
+      "category": "Administration",
+      "cmd": "setsid ./daemon.sh",
+      "desc": "Run a program in a new session",
+      "tooltip": "setsid starts the program in a fresh session with no controlling terminal, so terminal close and SIGHUP do not kill it. Unlike a plain background job, it fully detaches from the login session. Pair it with nohup or systemd-run for long-running tasks."
+    },
+    {
+      "id": 7004,
+      "category": "Administration",
+      "cmd": "disown -a",
+      "desc": "Remove all jobs from the shell's job table",
+      "tooltip": "disown detaches background jobs from the shell so they survive your logout without receiving SIGHUP. The -a form removes every job at once, while plain disown %1 targets one. Use it after starting a long task with the background operator."
+    },
+    {
+      "id": 7005,
+      "category": "Administration",
+      "cmd": "wait -n",
+      "desc": "Wait for the next background job to finish",
+      "tooltip": "wait -n blocks until any one of the shell's background jobs completes and then returns its status, available since Bash 5.1. It lets a script run several jobs in parallel and reap them as they finish. Plain wait with no argument waits for all of them."
+    },
+    {
+      "id": 7006,
+      "category": "Administration",
+      "cmd": "kill -s TERM 1234",
+      "desc": "Send a TERM signal to a process",
+      "tooltip": "The -s flag names the signal explicitly, so this politely asks process 1234 to terminate and gives it a chance to clean up. TERM is the default signal and the first choice; escalate to kill -9 only if the process ignores it. List signal names with kill -l."
+    },
+    {
+      "id": 7007,
+      "category": "Administration",
+      "cmd": "killall -u alice",
+      "desc": "Terminate every process owned by a user",
+      "tooltip": "killall -u alice sends TERM to all of alice's processes at once, effectively logging her out and discarding unsaved work. This is a blunt instrument, so check who is affected with pgrep -u alice first. Add -9 to force-kill anything that ignores TERM."
+    },
+    {
+      "id": 7008,
+      "category": "Administration",
+      "cmd": "pkill -x nginx",
+      "desc": "Kill processes by exact name match",
+      "tooltip": "The -x flag makes pkill match the process name exactly instead of as a substring, so nginx matches only nginx. Plain pkill nginx would also hit processes like nginx-cache. Use pgrep first to preview what will be killed."
+    },
+    {
+      "id": 7009,
+      "category": "Administration",
+      "cmd": "pgrep -c nginx",
+      "desc": "Count processes matching a name",
+      "tooltip": "pgrep -c prints how many running processes match the name nginx instead of their PIDs. A count of zero also means pgrep exits nonzero, which is handy in script conditions. Combine with -f to match against the full command line."
+    },
+    {
+      "id": 7010,
+      "category": "Administration",
+      "cmd": "renice -n -5 -p 1234",
+      "desc": "Raise a process priority",
+      "tooltip": "renice changes the nice value of a running process, and negative values mean higher priority, so -5 boosts process 1234. Raising priority requires root, while lowering it is allowed for your own processes. Revert with renice -n 0 -p 1234 and watch impact with top."
+    },
+    {
+      "id": 7011,
+      "category": "Administration",
+      "cmd": "ionice -c 3 -p 1234",
+      "desc": "Set a process to idle I/O class",
+      "tooltip": "ionice controls disk I/O priority, and class 3 means idle, so process 1234 only touches the disk when nobody else needs it. This is perfect for overnight backups that must not slow down interactive work. Classes are 0 none, 1 realtime, 2 best-effort, and 3 idle."
+    },
+    {
+      "id": 7012,
+      "category": "Administration",
+      "cmd": "ionice -c 2 -n 4 -p 1234",
+      "desc": "Set best-effort I/O priority level",
+      "tooltip": "Best-effort class 2 is the default, and the -n level from 0 to 7 tunes priority within it, where 4 sits in the middle. Lower numbers get the disk first, so a compile job at -n 0 would starve everything else. Combine with nice for CPU plus I/O tuning."
+    },
+    {
+      "id": 7013,
+      "category": "Administration",
+      "cmd": "taskset -c 0,1 ./task",
+      "desc": "Pin a process to specific CPUs",
+      "tooltip": "taskset sets CPU affinity, and -c 0,1 restricts the new process to the first two CPU cores. Pinning improves cache locality for latency-sensitive workloads and contains noisy neighbors on shared boxes. Verify placement with taskset -pc on the PID."
+    },
+    {
+      "id": 7014,
+      "category": "Administration",
+      "cmd": "taskset -pc 2 1234",
+      "desc": "Move a running process to a CPU",
+      "tooltip": "The -pc form operates on an existing process, so this migrates process 1234 onto CPU 2 without restarting it. It prints the old and new affinity lists on success. Use it when a process ends up on a busy core and you cannot stop it."
+    },
+    {
+      "id": 7015,
+      "category": "Administration",
+      "cmd": "sort -V versions.txt",
+      "desc": "Sort version numbers naturally",
+      "tooltip": "The -V flag understands version numbers, so 1.10 sorts after 1.9 instead of before it as plain lexicographic sort would do. It handles dotted numbers and suffixes like rc1 sensibly. Use it to order release tags and package versions."
+    },
+    {
+      "id": 7016,
+      "category": "Administration",
+      "cmd": "sort -t, -k2,2nr scores.csv",
+      "desc": "Sort a CSV by a numeric column",
+      "tooltip": "The -t, flag sets the field delimiter to a comma, and -k2,2nr sorts by field 2 with n for numeric and r for reverse order. The start,end key range form -k2,2 pins the sort to exactly one field. Extend the range like -k2,3 to break ties with a second column."
+    },
+    {
+      "id": 7017,
+      "category": "Administration",
+      "cmd": "cut -d: -f1,3 /etc/passwd",
+      "desc": "Extract specific fields from a file",
+      "tooltip": "cut -d: sets the delimiter to a colon and -f1,3 keeps only the first and third fields, so /etc/passwd yields username and UID pairs. Field lists accept ranges such as 2-5 and commas mixed with ranges. Pair with sort or uniq to analyze columnar data."
+    },
+    {
+      "id": 7018,
+      "category": "Administration",
+      "cmd": "tr -d '\\r' < win.txt",
+      "desc": "Strip carriage returns from a file",
+      "tooltip": "The -d flag deletes characters, so this removes every carriage return from a Windows CRLF file, leaving clean Unix line endings. Feed the result to a new file with a redirect instead of printing it. The same trick fixes files that show ^M in editors."
+    },
+    {
+      "id": 7019,
+      "category": "Administration",
+      "cmd": "tr '[:upper:]' '[:lower:]' < file",
+      "desc": "Lowercase text using character classes",
+      "tooltip": "POSIX character classes in brackets handle locale-aware ranges, so [:upper:] maps cleanly to [:lower:] for any alphabet. This is more reliable than tr A-Z a-z for accented letters. Read from a file with the input redirect and write with an output redirect."
+    },
+    {
+      "id": 7020,
+      "category": "Administration",
+      "cmd": "join -a 1 -t, -1 1 -2 1 <(sort -t, -k1,1 ids.csv) <(sort -t, -k1,1 scores.csv)",
+      "desc": "Join two CSVs keeping unmatched rows",
+      "tooltip": "join merges two sorted files on a key column, here field 1 of both, and -a 1 keeps every row from the first file even without a match in the second. The process substitution runs each sort as a virtual file, satisfying join's sorted-input requirement. Without -a, unmatched rows are dropped silently."
+    },
+    {
+      "id": 7021,
+      "category": "Administration",
+      "cmd": "comm -13 a.txt b.txt",
+      "desc": "Show lines unique to the second file",
+      "tooltip": "comm compares two sorted files and prints three columns: lines only in the first, only in the second, and in both. The -13 flag suppresses the first two columns so only lines unique to b.txt remain. The reverse filter comm -23 shows lines only in a.txt."
+    },
+    {
+      "id": 7022,
+      "category": "Administration",
+      "cmd": "split -b 10m bigfile part_",
+      "desc": "Split a file into fixed-size chunks",
+      "tooltip": "The -b flag splits by size, producing part_aa, part_ab, and so on, each 10 megabytes except the last. Splitting helps upload large files through size-limited channels. Reassemble in order with cat part_* > bigfile."
+    },
+    {
+      "id": 7023,
+      "category": "Administration",
+      "cmd": "csplit -f part_ -b '%02d.txt' report.txt '/^Chapter/' '{*}'",
+      "desc": "Split a file at matching lines",
+      "tooltip": "csplit cuts a file wherever a line matches the pattern, so '/^Chapter/' starts a new part at each chapter heading and '{*}' repeats the split for every match. The -f flag sets the prefix and -b '%02d.txt' formats the numeric suffixes. Unlike split, the parts differ in size."
+    },
+    {
+      "id": 7024,
+      "category": "Administration",
+      "cmd": "wc -L file",
+      "desc": "Print the longest line length",
+      "tooltip": "The -L flag reports the length of the longest line in characters instead of counting lines or words. It is handy for checking whether any line overflows a fixed-width report or terminal column. Combine with sort -n to rank line lengths across many files."
+    },
+    {
+      "id": 7025,
+      "category": "Administration",
+      "cmd": "head -n -5 file",
+      "desc": "Print all but the last five lines",
+      "tooltip": "A negative count flips head around, so -n -5 prints every line except the final five. This is the mirror of tail -n -5 and handy when the end of a file contains a footer you want to exclude. The feature needs the explicit -n form."
+    },
+    {
+      "id": 7026,
+      "category": "Administration",
+      "cmd": "seq -w 1 10",
+      "desc": "Print a sequence with zero padding",
+      "tooltip": "seq prints consecutive numbers, and -w pads them to equal width, giving 01 through 10 instead of 1 through 10. This keeps filenames and columns sorting correctly in scripts. Add a step like seq 1 2 99 to count odd numbers."
+    },
+    {
+      "id": 7027,
+      "category": "Administration",
+      "cmd": "shuf -i 1-100 -n 5",
+      "desc": "Pick random numbers from a range",
+      "tooltip": "The -i flag turns shuf into a random number generator for the inclusive range 1 to 100, and -n 5 prints five distinct picks. Without -n it shuffles the whole range. For random lines from a file, pass the filename instead of -i."
+    },
+    {
+      "id": 7028,
+      "category": "Administration",
+      "cmd": "nl -ba notes.txt",
+      "desc": "Number all lines including blanks",
+      "tooltip": "nl prepends line numbers in the classic cat -n style, and -ba numbers every line, including empty ones, instead of skipping them. The default skips blank lines unless -ba is given. Tune the format with -w for width and -s for the separator."
+    },
+    {
+      "id": 7029,
+      "category": "Administration",
+      "cmd": "od -A x -t x1z firmware.bin",
+      "desc": "Dump binary with hex offsets and ASCII",
+      "tooltip": "od is the octal dump utility, and -A x switches addresses to hex while -t x1z prints each byte in hex followed by printable ASCII in the margin. This is the fastest way to eyeball binary file contents. Plain od -c shows bytes as escaped characters."
+    },
+    {
+      "id": 7030,
+      "category": "Administration",
+      "cmd": "xxd -i logo.png",
+      "desc": "Export a file as a C array",
+      "tooltip": "The -i flag formats the file as an initialized C array named after the input, ready to embed in source code. This is the standard way to bundle small assets like icons into a binary. Add a length variable with -i plus -l to cap the size."
+    },
+    {
+      "id": 7031,
+      "category": "Administration",
+      "cmd": "hexdump -C file",
+      "desc": "Show a canonical hex and ASCII dump",
+      "tooltip": "The -C flag is the canonical hexdump layout, showing offset, sixteen hex bytes, and the printable ASCII column. It is the tool of choice for inspecting binary files and network captures. Compare with od -A x -t x1z, which produces a similar view."
+    },
+    {
+      "id": 7032,
+      "category": "Administration",
+      "cmd": "sha256sum ubuntu-24.04.iso",
+      "desc": "Compute a SHA-256 checksum",
+      "tooltip": "sha256sum prints the 64-character SHA-256 digest of a file, the standard way to verify a download matches the publisher's checksum. Compare the output against the value on the official download page. The same digest confirms two files are identical."
+    },
+    {
+      "id": 7033,
+      "category": "Administration",
+      "cmd": "sha256sum -c SHA256SUMS",
+      "desc": "Verify checksums from a manifest",
+      "tooltip": "The -c flag reads a manifest of hash plus filename lines and verifies each file, printing OK or FAILED per line. A FAILED line means the file was corrupted or tampered with. Generate the manifest itself with sha256sum file > SHA256SUMS."
+    },
+    {
+      "id": 7034,
+      "category": "Administration",
+      "cmd": "md5sum file",
+      "desc": "Compute an MD5 checksum",
+      "tooltip": "md5sum prints the 32-character MD5 digest of a file. MD5 is fast but cryptographically broken, so use it only for quick integrity checks, never for security. Prefer sha256sum whenever authenticity matters."
+    },
+    {
+      "id": 7035,
+      "category": "Administration",
+      "cmd": "base64 file",
+      "desc": "Encode a file as base64",
+      "tooltip": "base64 converts binary data into the printable base64 alphabet so it survives email and JSON transport. It prints the encoded text to stdout, ready to redirect to a file. The encoding inflates size by roughly a third."
+    },
+    {
+      "id": 7036,
+      "category": "Administration",
+      "cmd": "base64 -d file",
+      "desc": "Decode base64 back to binary",
+      "tooltip": "The -d flag reverses the encoding and restores the original bytes, so a file encoded with base64 comes back intact. Add -i to ignore invalid characters in sloppy input. This is how base64-encoded attachments and config blobs are unpacked."
+    },
+    {
+      "id": 7037,
+      "category": "Administration",
+      "cmd": "fold -s -w 40 README.md",
+      "desc": "Wrap long lines at spaces",
+      "tooltip": "fold wraps lines longer than the width, and -s breaks at spaces instead of splitting words in half. The -w flag sets the width, here 40 columns. This formats plain text for narrow terminals or email without a full text formatter."
+    },
+    {
+      "id": 7038,
+      "category": "Administration",
+      "cmd": "rev file",
+      "desc": "Reverse each line character-wise",
+      "tooltip": "rev mirrors every line, so hello becomes olleh, useful for right-aligning text or trick questions. It is often chained with sort to find lines that share reversed endings. Character order reverses but lines stay in place."
+    },
+    {
+      "id": 7039,
+      "category": "Administration",
+      "cmd": "pr -t -2 names.txt",
+      "desc": "Format text into two columns",
+      "tooltip": "pr paginates and columns text for printing, and the -2 flag lays the file out in two side-by-side columns. The -t flag suppresses the page headers and footers, keeping only the data. Column counts like -4 work for wide listings."
+    },
+    {
+      "id": 7040,
+      "category": "Administration",
+      "cmd": "gsettings get org.gnome.desktop.background picture-uri",
+      "desc": "Read a GNOME settings key",
+      "tooltip": "gsettings reads and writes the DConf settings database through the session's DBus, and this fetches the current wallpaper URI. Keys are addressed as schema plus key name, here the background schema's picture-uri. The value prints in GVariant syntax with quotes."
+    },
+    {
+      "id": 7041,
+      "category": "Administration",
+      "cmd": "gsettings set org.gnome.desktop.background picture-uri 'file:///home/alice/wall.jpg'",
+      "desc": "Change the desktop wallpaper",
+      "tooltip": "This sets the wallpaper by writing the picture-uri key, and single quotes protect the file URI from shell expansion. The change applies to the running session immediately with no restart. Use dconf read to confirm the stored value."
+    },
+    {
+      "id": 7042,
+      "category": "Administration",
+      "cmd": "gsettings list-recursively org.gnome.desktop.interface",
+      "desc": "Dump all keys in a schema",
+      "tooltip": "list-recursively prints every key in the interface schema with its current value, one per line. A schema is a named group of related settings, and this is the fastest way to discover what is configurable. Pair it with gsettings range to see a key's allowed values."
+    },
+    {
+      "id": 7043,
+      "category": "Administration",
+      "cmd": "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'",
+      "desc": "Switch the GTK theme",
+      "tooltip": "This sets the GTK theme for GNOME applications, with Adwaita-dark being the built-in dark theme. Installed third-party themes appear as new options in the same key. The change applies live to most running GTK apps."
+    },
+    {
+      "id": 7044,
+      "category": "Administration",
+      "cmd": "gsettings set org.gnome.desktop.interface text-scaling-factor 1.25",
+      "desc": "Scale up interface text",
+      "tooltip": "The text-scaling-factor key multiplies all on-screen text, and 1.25 enlarges it by a quarter for easier reading. The valid range is 0.5 to 3.0, checkable with gsettings range. This is the accessibility-friendly alternative to lowering the whole display resolution."
+    },
+    {
+      "id": 7045,
+      "category": "Administration",
+      "cmd": "gsettings monitor org.gnome.desktop.interface",
+      "desc": "Watch for live settings changes",
+      "tooltip": "monitor subscribes to a schema and prints every key change as it happens, ideal for seeing what an app or setting dialog modifies. It runs until Ctrl+C. The same trick works on a single key path for narrower output."
+    },
+    {
+      "id": 7046,
+      "category": "Administration",
+      "cmd": "dconf dump /org/gnome/ > gnome-backup.conf",
+      "desc": "Back up GNOME settings to a file",
+      "tooltip": "dconf is the low-level settings database behind gsettings, and dump writes an entire subtree as readable keyfile text. The redirect saves it to gnome-backup.conf for later restore. Dump the whole /org/gnome/ tree to capture every GNOME app's settings."
+    },
+    {
+      "id": 7047,
+      "category": "Administration",
+      "cmd": "dconf load /org/gnome/ < gnome-backup.conf",
+      "desc": "Restore GNOME settings from a backup",
+      "tooltip": "load reads a keyfile from stdin and writes every key back into the database, the exact inverse of dconf dump. Keys present in the file are overwritten, so this restores a full backup in one shot. Run it while logged into the same session so apps pick up the changes."
+    },
+    {
+      "id": 7048,
+      "category": "Administration",
+      "cmd": "dconf watch /org/gnome/desktop/",
+      "desc": "Watch a settings path for changes",
+      "tooltip": "watch prints every write to keys under the given path as it happens, showing the key and its new value. It is the raw DConf-level equivalent of gsettings monitor and catches changes from any source. Press Ctrl+C to stop."
+    },
+    {
+      "id": 7049,
+      "category": "Administration",
+      "cmd": "dconf reset -f /org/gnome/desktop/",
+      "desc": "Reset an entire settings subtree",
+      "tooltip": "The -f flag makes reset recurse, returning every key under /org/gnome/desktop/ to its factory default in one command. This is irreversible for custom settings, so dump a backup first. The same flag resets whole apps when pointed at their paths."
+    },
+    {
+      "id": 7050,
+      "category": "Administration",
+      "cmd": "dconf read /org/gnome/desktop/background/picture-uri",
+      "desc": "Read one settings value",
+      "tooltip": "dconf read prints a single key's value using the raw path form, with slash-separated schema and key names. It is the direct database access behind gsettings get. The output uses GVariant syntax, so strings appear quoted."
+    },
+    {
+      "id": 7051,
+      "category": "Administration",
+      "cmd": "gnome-extensions list --enabled",
+      "desc": "List enabled GNOME Shell extensions",
+      "tooltip": "GNOME Shell extensions are JavaScript add-ons that alter the desktop, identified by UUIDs like ubuntu-appindicators@ubuntu.com. The --enabled filter shows only active ones, while plain list shows everything installed. Pipe to grep for a specific extension."
+    },
+    {
+      "id": 7052,
+      "category": "Administration",
+      "cmd": "gnome-extensions disable ubuntu-appindicators@ubuntu.com",
+      "desc": "Disable a Shell extension",
+      "tooltip": "This turns off the Ubuntu AppIndicators extension by its UUID, and the desktop reacts immediately without a shell restart. Disabling keeps the files installed, so the extension can be enabled again later. Use gnome-extensions list --enabled first to confirm the UUID."
+    },
+    {
+      "id": 7053,
+      "category": "Administration",
+      "cmd": "gnome-extensions enable appindicators@ubuntu.com",
+      "desc": "Enable a Shell extension",
+      "tooltip": "This reactivates a disabled or freshly installed extension by UUID. The change applies to the current session at once. If it still does not appear, log out and back in so the shell reloads its extension set."
+    },
+    {
+      "id": 7054,
+      "category": "Administration",
+      "cmd": "gnome-extensions info appindicators@ubuntu.com",
+      "desc": "Show details of a Shell extension",
+      "tooltip": "info prints an extension's name, version, description, and current state such as enabled or error. The state field is the first place to check when an extension misbehaves. A broken extension shows ERROR here and may need a reset."
+    },
+    {
+      "id": 7055,
+      "category": "Administration",
+      "cmd": "gio trash file.txt",
+      "desc": "Move a file to the trash",
+      "tooltip": "gio is the GLib command-line front end to GVfs, and trash moves a file into the desktop trash instead of deleting it. The file can be restored from the file manager's trash view, so this is the safe delete. Trash lives in ~/.local/share/Trash."
+    },
+    {
+      "id": 7056,
+      "category": "Administration",
+      "cmd": "gio trash --empty",
+      "desc": "Empty the trash permanently",
+      "tooltip": "This deletes every file in the trash for good, freeing the disk space they occupied. There is no undo, so check the trash first. The flag is --empty, not --empty-trash."
+    },
+    {
+      "id": 7057,
+      "category": "Administration",
+      "cmd": "gio open file.pdf",
+      "desc": "Open a file with the default application",
+      "tooltip": "gio open launches the default application registered for the file's MIME type, exactly like double-clicking in the file manager. It respects the same associations as xdg-open. From a terminal it works with any MIME-registered file type."
+    },
+    {
+      "id": 7058,
+      "category": "Administration",
+      "cmd": "gio info file.txt",
+      "desc": "Show metadata about a file",
+      "tooltip": "gio info prints attributes such as size, type, permissions, and modification time, plus trash status for trashed files. It reads the same GVfs metadata layer the file manager uses. Add -a with attribute names to filter the output."
+    },
+    {
+      "id": 7059,
+      "category": "Administration",
+      "cmd": "gio list ~/Documents",
+      "desc": "List a directory like ls",
+      "tooltip": "gio list prints the contents of a location through the GVfs layer, which also understands remote schemes like sftp:// and trash://. It is ls for anything the file manager can open. Use -a attributes to request metadata columns."
+    },
+    {
+      "id": 7060,
+      "category": "Administration",
+      "cmd": "xrandr",
+      "desc": "List connected displays and modes",
+      "tooltip": "xrandr is the X11 RandR extension client, and running it bare lists every output with its supported resolutions and refresh rates. Output names like HDMI-1 and eDP-1 come from the left column. It only works on X11 sessions, not Wayland."
+    },
+    {
+      "id": 7061,
+      "category": "Administration",
+      "cmd": "xrandr --output HDMI-1 --mode 1920x1080",
+      "desc": "Set a display resolution",
+      "tooltip": "The --output flag names a display and --mode picks one of its supported resolutions, so this switches HDMI-1 to 1080p. The mode must appear in the plain xrandr listing. Add --rate to also set the refresh rate."
+    },
+    {
+      "id": 7062,
+      "category": "Administration",
+      "cmd": "xrandr --output HDMI-1 --rate 144",
+      "desc": "Set a display refresh rate",
+      "tooltip": "The --rate flag sets the refresh in hertz, and this asks HDMI-1 to run at 144 Hz for smoother motion. The monitor must support the rate at the current resolution, or xrandr refuses. Combine it in the same command as --mode for a precise mode plus rate pair."
+    },
+    {
+      "id": 7063,
+      "category": "Administration",
+      "cmd": "xrandr --output eDP-1 --left-of HDMI-1",
+      "desc": "Position a display left of another",
+      "tooltip": "Relative position flags arrange outputs on the virtual desktop, so eDP-1 sits to the left of HDMI-1 and the mouse moves between them naturally. Siblings include --right-of, --above, and --below. The arrangement persists only for the current X session."
+    },
+    {
+      "id": 7064,
+      "category": "Administration",
+      "cmd": "xrandr --output HDMI-1 --primary",
+      "desc": "Mark a display as primary",
+      "tooltip": "The primary output is where new windows and panels appear by default on X11. This marks HDMI-1 as primary while the others stay secondary. Only one output can be primary at a time."
+    },
+    {
+      "id": 7065,
+      "category": "Administration",
+      "cmd": "xrandr --output HDMI-1 --off",
+      "desc": "Turn off a display output",
+      "tooltip": "This disables the HDMI-1 output, mirroring the settings panel's display off toggle. Turning off the only active monitor blanks the screen, so have a fallback ready. Re-enable it with xrandr --output HDMI-1 --auto."
+    },
+    {
+      "id": 7066,
+      "category": "Administration",
+      "cmd": "xset s off",
+      "desc": "Disable the X11 screensaver",
+      "tooltip": "xset configures the X server directly, and the s command controls the screensaver, so s off disables it entirely. The setting lasts until the X session ends or the server restarts. Pair with xset dpms to also control display power saving."
+    },
+    {
+      "id": 7067,
+      "category": "Administration",
+      "cmd": "xset dpms 600 600 600",
+      "desc": "Set display power-down timers",
+      "tooltip": "The dpms command sets the Display Power Management Signaling delays in seconds for standby, suspend, and off. This sequence powers the monitor down after ten minutes of inactivity. Pass 0 0 0 to disable power saving entirely."
+    },
+    {
+      "id": 7068,
+      "category": "Administration",
+      "cmd": "xset q",
+      "desc": "Show current X server settings",
+      "tooltip": "The q flag queries the X server and prints screensaver, DPMS, keyboard, and pointer settings in one dump. It is the fastest way to see what the server is actually configured to do. Look at the DPMS and screensaver sections to confirm prior xset changes."
+    },
+    {
+      "id": 7069,
+      "category": "Administration",
+      "cmd": "wlr-randr",
+      "desc": "List Wayland outputs and modes",
+      "tooltip": "wlr-randr manages displays on wlroots-based Wayland compositors, the Wayland world's answer to xrandr. Wayland is the modern display protocol replacing X11, and this tool talks to its output-management protocol. Bare wlr-randr lists outputs, resolutions, and refresh rates."
+    },
+    {
+      "id": 7070,
+      "category": "Administration",
+      "cmd": "wlr-randr --output DP-1 --mode 2560x1440@60",
+      "desc": "Set a Wayland output mode",
+      "tooltip": "This configures the DP-1 output on a wlroots compositor, with the mode given as width, height, and refresh rate joined by an at sign. The @60 sets the hertz; omitting it keeps the current rate. Add --scale 1.5 for HiDPI scaling."
+    },
+    {
+      "id": 7071,
+      "category": "Administration",
+      "cmd": "pactl info",
+      "desc": "Show PulseAudio server information",
+      "tooltip": "pactl talks to the PulseAudio sound server, and info prints the server version, default sink, and default source. PulseAudio is the classic Linux sound daemon, now often bridged to PipeWire. The default sink name here is what set-default-sink expects."
+    },
+    {
+      "id": 7072,
+      "category": "Administration",
+      "cmd": "pactl list sinks short",
+      "desc": "List audio output devices",
+      "tooltip": "A sink is an audio output device, and the short form prints a terse table of sinks with names and states, perfect for scripting. The first column contains the full names used by set-default-sink. Drop short for the verbose per-sink detail dump."
+    },
+    {
+      "id": 7073,
+      "category": "Administration",
+      "cmd": "pactl set-sink-volume @DEFAULT_SINK@ 80%",
+      "desc": "Set the default output volume",
+      "tooltip": "The @DEFAULT_SINK@ token stands for whatever sink is currently the default, and 80% sets the volume as a percentage. Volumes also accept linear factors like 0.8 or decibel values. A leading plus or minus adjusts relative to the current level."
+    },
+    {
+      "id": 7074,
+      "category": "Administration",
+      "cmd": "pactl set-default-sink alsa_output.pci-0000_00_1f.3.analog-stereo",
+      "desc": "Change the default audio output",
+      "tooltip": "This makes the named ALSA sink the default, so new playback streams route there. The exact sink name comes from pactl list sinks short. Switching between speakers and headphones is the classic use."
+    },
+    {
+      "id": 7075,
+      "category": "Administration",
+      "cmd": "pactl load-module module-null-sink sink_name=test",
+      "desc": "Create a virtual audio device",
+      "tooltip": "module-null-sink creates a virtual sink that accepts audio but plays nothing, useful for recording application output or routing experiments. The command prints the new module's numeric index, which unload-module expects. Remove it with pactl unload-module followed by that index."
+    },
+    {
+      "id": 7076,
+      "category": "Administration",
+      "cmd": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+      "desc": "Toggle mute on the default output",
+      "tooltip": "This flips the mute state of the default sink between muted and unmuted, the command-line version of the volume menu's mute button. The third argument also accepts 1 for mute and 0 for unmute. The change is immediate for all streams on that sink."
+    },
+    {
+      "id": 7077,
+      "category": "Administration",
+      "cmd": "pw-cli info all",
+      "desc": "Dump all PipeWire objects",
+      "tooltip": "pw-cli is the low-level admin console for PipeWire, the modern audio and video server on most desktops. info all prints every global object with its properties, from devices to link nodes. The output is dense, so grep for a specific interface type."
+    },
+    {
+      "id": 7078,
+      "category": "Administration",
+      "cmd": "pw-cli ls Node",
+      "desc": "List PipeWire nodes",
+      "tooltip": "The ls command lists objects, and filtering by the Node interface shows audio devices, virtual sinks, and streams. Each entry carries an object id used by other pw-cli commands. PipeWire nodes are the building blocks of the audio graph."
+    },
+    {
+      "id": 7079,
+      "category": "Administration",
+      "cmd": "pw-dump | jq -r '.[] | select(.type == \"PipeWire:Interface:Node\") | .info.props[\"node.name\"]'",
+      "desc": "List PipeWire node names as JSON",
+      "tooltip": "pw-dump prints the entire PipeWire state as JSON, and the jq filter extracts just the node.name property of every Node object. This is the script-friendly way to enumerate audio devices. The same dump feeds any jq query for graph inspection."
+    },
+    {
+      "id": 7080,
+      "category": "Administration",
+      "cmd": "wpctl status",
+      "desc": "Show WirePlumber device graph",
+      "tooltip": "wpctl is the control tool for WirePlumber, the session manager that wires PipeWire devices together. status prints the audio graph with sinks, sources, and their default markers. The numbered ids shown here are what set-volume and friends accept."
+    },
+    {
+      "id": 7081,
+      "category": "Administration",
+      "cmd": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.8",
+      "desc": "Set the default sink volume",
+      "tooltip": "This sets the default audio sink's volume to 0.8, meaning 80 percent, and @DEFAULT_AUDIO_SINK@ is the magic name for the current default. The value accepts fractions, percentages like 80%, and relative adjustments with a plus or minus. The same command works with a numeric sink id."
+    },
+    {
+      "id": 7082,
+      "category": "Administration",
+      "cmd": "wpctl get-volume @DEFAULT_AUDIO_SINK@",
+      "desc": "Read the default sink volume",
+      "tooltip": "get-volume prints the current volume of the default sink, such as Volume: 0.80. It is the quick sanity check before scripting volume changes. The id argument can be the magic default name or any sink id from wpctl status."
+    },
+    {
+      "id": 7083,
+      "category": "Administration",
+      "cmd": "systemctl --user status pipewire",
+      "desc": "Check a user service status",
+      "tooltip": "The --user flag targets the per-user systemd instance instead of the system-wide one, so this checks the PipeWire service running under your session. User services live in ~/.config/systemd/user and start at login. Status shows active or failed plus recent log lines."
+    },
+    {
+      "id": 7084,
+      "category": "Administration",
+      "cmd": "systemctl --user restart pipewire",
+      "desc": "Restart a user service",
+      "tooltip": "This restarts the PipeWire service inside your user session, picking up config changes without a reboot. Restarting audio services briefly cuts sound and can reset volume levels. The same pattern manages any user unit, from syncthing to podman socket activation."
+    },
+    {
+      "id": 7085,
+      "category": "Administration",
+      "cmd": "journalctl --user -u pipewire -n 20",
+      "desc": "Show recent logs for a user service",
+      "tooltip": "journalctl --user restricts the log view to your session's services, and -u pipewire filters to that unit while -n 20 keeps the last twenty lines. This is the first stop when a desktop service misbehaves. Add -f to follow new messages live."
+    },
+    {
+      "id": 7086,
+      "category": "Administration",
+      "cmd": "flatpak info org.gimp.GIMP",
+      "desc": "Show details of an installed Flatpak",
+      "tooltip": "Flatpak distributes sandboxed apps identified by reverse-DNS ids like org.gimp.GIMP, and info prints the installed version, origin remote, and runtime. The runtime line shows which shared platform the app depends on. Compare with flatpak list for a summary table."
+    },
+    {
+      "id": 7087,
+      "category": "Administration",
+      "cmd": "flatpak ps",
+      "desc": "List running Flatpak applications",
+      "tooltip": "flatpak ps shows every Flatpak app currently running, with its instance id and application id. The instance id is what flatpak kill expects. If nothing is listed, no sandboxed apps are open."
+    },
+    {
+      "id": 7088,
+      "category": "Administration",
+      "cmd": "flatpak uninstall --unused",
+      "desc": "Remove unused Flatpak runtimes",
+      "tooltip": "Runtimes are the shared dependency platforms that Flatpak apps are built against, and this removes every runtime no installed app needs anymore. It is the single best disk-space reclaim for Flatpak systems. The command lists what it would remove and asks before deleting."
+    },
+    {
+      "id": 7089,
+      "category": "Administration",
+      "cmd": "flatpak kill org.gimp.GIMP",
+      "desc": "Stop a running Flatpak app",
+      "tooltip": "This politely terminates the running GIMP instance managed by Flatpak, equivalent to closing the app normally. Unlike killing the process tree by hand, it goes through the sandbox instance. Use flatpak ps to confirm the app is actually running first."
+    },
+    {
+      "id": 7090,
+      "category": "Administration",
+      "cmd": "snap services",
+      "desc": "List snap service status",
+      "tooltip": "Snaps can bundle background daemons, and snap services prints each one with its startup setting and current state. Service names follow the snap name, like nextcloud.nextcloud-cron. Control them with snap start, stop, and restart."
+    },
+    {
+      "id": 7091,
+      "category": "Administration",
+      "cmd": "snap changes",
+      "desc": "Show snap task history",
+      "tooltip": "snap changes lists every snap operation with an id, status, and timestamp, from installs to refreshes. A long-running change can be followed with snap change followed by its id. Failed changes show a red error status worth investigating."
+    },
+    {
+      "id": 7092,
+      "category": "Administration",
+      "cmd": "snap set system refresh.retain=2",
+      "desc": "Keep only two snap revisions",
+      "tooltip": "This tells snapd to keep just two revisions of each snap, down from the default three, freeing disk space on snap-heavy systems. Older revisions are what snap revert rolls back to, so a smaller retain window means fewer rollback options. Read the current value with snap get system refresh.retain."
+    },
+    {
+      "id": 7093,
+      "category": "Administration",
+      "cmd": "snap get system refresh.retain",
+      "desc": "Read a snap system setting",
+      "tooltip": "snap get reads configuration keys from the snapd store, and this prints the current refresh.retain value. It confirms whether a snap set change actually took effect. Other useful keys live under the refresh and proxy namespaces."
+    },
+    {
+      "id": 7094,
+      "category": "Administration",
+      "cmd": "sudo update-alternatives --set editor /usr/bin/nano",
+      "desc": "Force a default alternative",
+      "tooltip": "update-alternatives manages symlink groups where several programs compete, like the editor group pointing /etc/alternatives/editor at one binary. The --set form pins the choice non-interactively, ideal for scripts and image builds. List the group's candidates with --list first."
+    },
+    {
+      "id": 7095,
+      "category": "Administration",
+      "cmd": "sudo update-alternatives --auto editor",
+      "desc": "Restore automatic alternative selection",
+      "tooltip": "The --auto flag returns the editor group to automatic mode, where the alternative with the highest priority wins. This undoes a manual --set choice and lets package upgrades re-decide the default. Automatic status shows as auto in --display output."
+    },
+    {
+      "id": 7096,
+      "category": "Administration",
+      "cmd": "sudo update-alternatives --config editor",
+      "desc": "Pick an alternative interactively",
+      "tooltip": "--config shows a numbered menu of every candidate in the editor group and applies the one you choose. It is the interactive counterpart to --set. The menu also reveals the current selection and each candidate's priority."
+    },
+    {
+      "id": 7097,
+      "category": "Administration",
+      "cmd": "update-alternatives --list editor",
+      "desc": "List candidates for an alternative",
+      "tooltip": "--list prints every binary registered in the editor group, one path per line, without needing root. It is the read-only way to see what a --config menu would offer. Each entry is a real executable registered via --install."
+    },
+    {
+      "id": 7098,
+      "category": "Administration",
+      "cmd": "sudo adduser alice",
+      "desc": "Create a user interactively",
+      "tooltip": "adduser is the friendly Debian wrapper around useradd, prompting for a password and full name as it creates the account. It also builds the home directory and copies in the default skeleton files. The interactive prompts can be skipped with flags like --disabled-password."
+    },
+    {
+      "id": 7099,
+      "category": "Administration",
+      "cmd": "sudo adduser alice sudo",
+      "desc": "Add an existing user to a group",
+      "tooltip": "The adduser USER GROUP form adds an existing user to an existing group, here granting alice sudo privileges. The user must log out and back in for the new group to take effect. It is the interactive equivalent of usermod -aG."
+    },
+    {
+      "id": 7100,
+      "category": "Administration",
+      "cmd": "sudo adduser --disabled-password --comment '' alice",
+      "desc": "Create a user without a password",
+      "tooltip": "The --disabled-password flag creates the account with no password, so it cannot log in interactively until one is set, and --comment '' skips the full-name prompt. This is the standard recipe for service accounts. Lock it down further with --shell /usr/sbin/nologin."
+    },
+    {
+      "id": 7101,
+      "category": "Administration",
+      "cmd": "sudo deluser alice",
+      "desc": "Delete a user account",
+      "tooltip": "deluser removes alice's account but leaves her home directory and files on disk. Remove those too with deluser --remove-home, or --remove-all-files for files owned elsewhere. Back up anything needed first, since group memberships and ownership records are gone for good."
+    },
+    {
+      "id": 7102,
+      "category": "Administration",
+      "cmd": "sudo deluser --remove-home alice",
+      "desc": "Delete a user and their home directory",
+      "tooltip": "The --remove-home flag deletes the account and its home directory together, freeing the disk space immediately. This is irreversible, so confirm nothing important lives in /home/alice first. For a full sweep add --remove-all-files to catch files owned in other directories."
+    },
+    {
+      "id": 7103,
+      "category": "Administration",
+      "cmd": "sudo groupadd developers",
+      "desc": "Create a new group",
+      "tooltip": "A group is a named set of users that shares permissions, and groupadd creates one, here developers. The system assigns the next free GID automatically. Assign users to it with usermod -aG or adduser USER GROUP."
+    },
+    {
+      "id": 7104,
+      "category": "Administration",
+      "cmd": "sudo groupadd -g 1500 developers",
+      "desc": "Create a group with a fixed GID",
+      "tooltip": "The -g flag pins the group's GID to 1500 instead of letting the system choose, useful when NFS or config files expect a specific number. Check existing GIDs with getent group first to avoid collisions. The same -g flag works for useradd."
+    },
+    {
+      "id": 7105,
+      "category": "Administration",
+      "cmd": "getent group developers",
+      "desc": "Look up a group in NSS",
+      "tooltip": "getent queries the NSS (name service switch) databases that back user and group lookups, so this shows the developers group's GID and members. It sees accounts from /etc/passwd, LDAP, and NIS alike. Use it to verify a groupadd or usermod took effect."
+    },
+    {
+      "id": 7106,
+      "category": "Administration",
+      "cmd": "getent services ssh",
+      "desc": "Look up a service port in NSS",
+      "tooltip": "The services database maps service names to port numbers, so this prints ssh 22/tcp. getent services is the reliable way to look up standard ports without guessing. The same getent command works on passwd, group, and hosts entries."
+    },
+    {
+      "id": 7107,
+      "category": "Administration",
+      "cmd": "sudo chage -d 0 alice",
+      "desc": "Force a password change at next login",
+      "tooltip": "chage manages password aging, and -d 0 sets the last-change date to the epoch, so alice must set a new password on her next login. It is the standard way to expire a password immediately. Peek at the full aging policy with chage -l alice."
+    },
+    {
+      "id": 7108,
+      "category": "Administration",
+      "cmd": "sudo passwd -S alice",
+      "desc": "Show a user's password status",
+      "tooltip": "The -S flag prints the account's password status: L for locked, P for a usable password, and NP for no password at all. The output also shows the last change date and aging policy. Use it before locking or unlocking accounts to see where they stand."
+    },
+    {
+      "id": 7109,
+      "category": "Administration",
+      "cmd": "sudo usermod -aG developers alice",
+      "desc": "Add a user to a group",
+      "tooltip": "usermod -aG appends alice to the developers group, and the -a flag is essential because plain -G replaces her entire group list. New group membership needs a fresh login to apply. Verify with groups alice or getent group developers."
+    },
+    {
+      "id": 7110,
+      "category": "Administration",
+      "cmd": "sudo usermod -s /usr/sbin/nologin alice",
+      "desc": "Disable shell login for a user",
+      "tooltip": "Setting the login shell to nologin means alice cannot open an interactive shell, though her other services and file access keep working. This is the clean way to lock down a service account without deleting it. Reverse it with usermod -s /bin/bash alice."
+    },
+    {
+      "id": 7111,
+      "category": "Administration",
+      "cmd": "sudo usermod -c 'Alice Smith' alice",
+      "desc": "Set a user's GECOS comment",
+      "tooltip": "The GECOS field holds the account's real name and contact info, and -c sets it, here to Alice Smith. This is what finger and some login screens display. Quote the value so spaces survive the shell."
+    },
+    {
+      "id": 7112,
+      "category": "Administration",
+      "cmd": "useradd -D",
+      "desc": "Show default useradd settings",
+      "tooltip": "The -D flag prints the defaults useradd applies to new accounts: base home directory, default shell, skeleton, and expiry policy. These defaults live in /etc/default/useradd. Root can override individual defaults with useradd -D -s /bin/bash."
+    },
+    {
+      "id": 7113,
+      "category": "Administration",
+      "cmd": "sudo useradd -r -s /usr/sbin/nologin svc-backup",
+      "desc": "Create a system service account",
+      "tooltip": "The -r flag creates a system account with a UID below 1000, and -s /usr/sbin/nologin blocks interactive login, the standard recipe for daemons. System accounts skip the normal home directory creation unless -m is added. Use adduser for interactive human accounts instead."
+    },
+    {
+      "id": 7114,
+      "category": "Administration",
+      "cmd": "sudo lastb",
+      "desc": "Show failed login attempts",
+      "tooltip": "lastb reads /var/log/btmp and lists failed login attempts with usernames and source addresses, so it is the first stop when investigating break-in attempts. Reading btmp needs root, hence sudo. The output can be noisy, so pipe it through sort uniq -c to spot brute-force patterns."
+    },
+    {
+      "id": 7115,
+      "category": "Administration",
+      "cmd": "last -x",
+      "desc": "Show shutdown and runlevel records",
+      "tooltip": "The -x flag adds system shutdown, reboot, and runlevel-change entries to last's usual login listing. It reconstructs the machine's boot and power history at a glance. Combine with last reboot to isolate just the reboot events."
+    },
+    {
+      "id": 7116,
+      "category": "Administration",
+      "cmd": "w alice",
+      "desc": "Show one user's sessions and activity",
+      "tooltip": "w with a username limits the report to that user's sessions, showing login time, idle duration, and the command each terminal runs. The WHAT column reveals whether alice is idle or actively working. Bare w covers everyone logged in."
+    },
+    {
+      "id": 7117,
+      "category": "Administration",
+      "cmd": "loginctl show-session 2 -p State",
+      "desc": "Show one property of a session",
+      "tooltip": "loginctl talks to systemd-logind, the session manager, and show-session prints properties of session 2. The -p State filter limits output to that one property, here whether the session is active. Find session numbers with loginctl list-sessions."
+    },
+    {
+      "id": 7118,
+      "category": "Administration",
+      "cmd": "sudo loginctl terminate-user alice",
+      "desc": "End all sessions of a user",
+      "tooltip": "This force-ends every login session alice has, killing her processes and discarding unsaved work. It is the systemd-native way to log a user out, stronger than just closing terminals. Check what she runs with w or ps -u alice first."
+    },
+    {
+      "id": 7119,
+      "category": "Administration",
+      "cmd": "loginctl list-users",
+      "desc": "List logged-in users",
+      "tooltip": "list-users shows every user with an active session, their UID, and whether linger is enabled. Linger lets services keep running after logout. The user list pairs with loginctl list-sessions to map sessions to users."
+    },
+    {
+      "id": 7120,
+      "category": "Administration",
+      "cmd": "loginctl lock-session",
+      "desc": "Lock the current session screen",
+      "tooltip": "This asks systemd-logind to lock the session, triggering the configured screen locker immediately. It is the command-line equivalent of the Super+L shortcut. No argument locks the caller's own session; a session id targets a specific one."
+    },
+    {
+      "id": 7121,
+      "category": "Administration",
+      "cmd": "timedatectl list-timezones | grep -i madrid",
+      "desc": "Search the timezone database",
+      "tooltip": "timedatectl list-timezones dumps every IANA timezone name, and the grep filters it down to matches like Europe/Madrid. Timezone names are region/city pairs that avoid the ambiguities of UTC offsets. Feed the exact result to timedatectl set-timezone."
+    },
+    {
+      "id": 7122,
+      "category": "Administration",
+      "cmd": "sudo localectl set-locale LANG=es_ES.UTF-8",
+      "desc": "Change the system locale",
+      "tooltip": "The locale controls language, date formats, and character encoding for system services, and this sets the primary LANG to Spanish. New sessions inherit the change while running ones keep their old locale. The locale must exist in localectl list-locales or it will be rejected."
+    },
+    {
+      "id": 7123,
+      "category": "Administration",
+      "cmd": "localectl list-locales | grep es_ES",
+      "desc": "List installed locales",
+      "tooltip": "list-locales prints every locale the system can actually use, and the grep filters for the Spanish ones. Only locales shown here can be selected with set-locale. Generate missing ones with locale-gen or dpkg-reconfigure locales."
+    },
+    {
+      "id": 7124,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --version",
+      "desc": "Show the installed listmonk build version",
+      "tooltip": "Prints the version string of the compiled binary, for example 6.2.0. Run it right after downloading a release to confirm the file is intact and to match the version against release notes before upgrading. The same flag works inside a container via `docker compose exec app ./listmonk --version`."
+    },
+    {
+      "id": 7125,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --new-config",
+      "desc": "Generate a sample config.toml for a new install",
+      "tooltip": "Writes a fully commented config.toml sample into the current directory. The file holds the database connection, app address, and SMTP settings, where SMTP is the mail-sending protocol listmonk uses to deliver campaigns. Edit it before the first run, then launch listmonk with the same --config path."
+    },
+    {
+      "id": 7126,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --new-config --config /etc/listmonk/config.toml",
+      "desc": "Generate a sample config file at a custom path",
+      "tooltip": "Combines --new-config with --config so the sample lands at the path you will actually use, which suits packaged installs where /etc/listmonk is the config directory. The directory must already exist and be writable. Run `listmonk --install` afterwards to create the database schema."
+    },
+    {
+      "id": 7127,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --config config.toml",
+      "desc": "Start the listmonk server with an explicit config file",
+      "tooltip": "Launches the web app, API, and campaign scheduler using the given TOML file. The flag is repeatable and multiple files are merged in order, so you can layer a base config with environment-specific overrides. config.toml is already the default, so pass the flag explicitly when running from another directory."
+    },
+    {
+      "id": 7128,
+      "category": "Listmonk & Newsletters",
+      "cmd": "LISTMONK_db__host=localhost LISTMONK_db__user=listmonk LISTMONK_db__password=listmonk LISTMONK_db__database=listmonk listmonk --config ''",
+      "desc": "Start listmonk configured entirely by environment variables",
+      "tooltip": "Every config.toml key maps to an env var with the LISTMONK_ prefix and double underscores for dots, so db.host becomes LISTMONK_db__host. Passing --config '' disables file config and makes environment variables the only source. This is exactly how the official docker-compose.yml configures the container."
+    },
+    {
+      "id": 7129,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --install",
+      "desc": "Create the listmonk database schema on first run",
+      "tooltip": "Connects to Postgres using the current config and creates all tables, indexes, and materialized views; Postgres 12 or newer is required. Run it once against an empty database, since re-running against an existing schema errors out. The Super Admin account is created on the first visit to the admin UI, or in advance via the LISTMONK_ADMIN_USER and LISTMONK_ADMIN_PASSWORD environment variables."
+    },
+    {
+      "id": 7130,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --install --idempotent --yes",
+      "desc": "Install the schema only when the database is not set up",
+      "tooltip": "--idempotent makes the install skip silently when the database already contains the schema, and --yes answers the confirmation prompts automatically. This combination is exactly what the official Docker entrypoint runs so that container restarts never re-create an existing database."
+    },
+    {
+      "id": 7131,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --upgrade --yes --config config.toml",
+      "desc": "Run database migrations after upgrading the binary",
+      "tooltip": "Applies any pending schema migrations to bring an existing database in line with the new binary version. Upgrades are idempotent, so running them repeatedly has no side effects. Always back up the Postgres database before upgrading listmonk itself, as release notes warn."
+    },
+    {
+      "id": 7132,
+      "category": "Listmonk & Newsletters",
+      "cmd": "LISTMONK_ADMIN_USER=admin LISTMONK_ADMIN_PASSWORD=change-me-now ./listmonk --install",
+      "desc": "Create the Super Admin account during install via env vars",
+      "tooltip": "LISTMONK_ADMIN_USER and LISTMONK_ADMIN_PASSWORD seed the Super Admin login while the schema is installed, skipping the interactive setup page. The values are honored only on the very first installation. Swap the example password for a strong one before running."
+    },
+    {
+      "id": 7133,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --passive",
+      "desc": "Run listmonk without processing campaign sends",
+      "tooltip": "Starts the server and admin UI but disables the campaign scheduler, so queued campaigns are not sent and subscribers are not processed. Useful for maintenance windows, upgrades, or when you only need the API. The log line 'running in passive mode' confirms the flag took effect."
+    },
+    {
+      "id": 7134,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk --static-dir /etc/listmonk/static",
+      "desc": "Serve static assets from an external directory",
+      "tooltip": "Points the embedded file system at a directory holding email templates and public assets, overriding the files bundled inside the binary. Needed when the binary is installed somewhere the assets are not, such as /usr/bin. The packaged systemd unit uses this flag."
+    },
+    {
+      "id": 7135,
+      "category": "Listmonk & Newsletters",
+      "cmd": "listmonk > listmonk.log",
+      "desc": "Write listmonk logs to a file instead of stdout",
+      "tooltip": "listmonk logs to standard output only, so redirecting into a file preserves history across restarts; the admin UI Logs page only keeps the last 1000 lines in memory. Append 2>&1 to also capture error output. Rotate the file with logrotate to avoid unbounded growth."
+    },
+    {
+      "id": 7136,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -sSL https://github.com/knadh/listmonk/releases/download/v6.2.0/listmonk_6.2.0_linux_amd64.tar.gz | tar xz",
+      "desc": "Download and extract the listmonk release binary",
+      "tooltip": "Fetches the prebuilt amd64 tarball from GitHub Releases and extracts the listmonk binary into the current directory. Pick the arm64 asset on ARM servers. Compare the sha256 checksums listed on the release page against the downloaded file before running the binary."
+    },
+    {
+      "id": 7137,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -O https://raw.githubusercontent.com/knadh/listmonk/master/docker-compose.yml",
+      "desc": "Fetch the official listmonk docker-compose file",
+      "tooltip": "Downloads the maintained compose file that defines the app service, a Postgres 17 database, and the shared network. Customize the LISTMONK_* environment and port mapping before starting it. The recommended Docker install path is compose rather than a bare docker run."
+    },
+    {
+      "id": 7138,
+      "category": "Listmonk & Newsletters",
+      "cmd": "git clone git@github.com:knadh/listmonk.git",
+      "desc": "Clone the listmonk source repository over SSH",
+      "tooltip": "Fetches the master branch for building from source or contributing. The project is a single Go binary with a Vue frontend. Requires an SSH key registered on GitHub; use the https URL instead if you have no key configured."
+    },
+    {
+      "id": 7139,
+      "category": "Listmonk & Newsletters",
+      "cmd": "make dist",
+      "desc": "Compile the listmonk binary from source",
+      "tooltip": "Runs the Makefile target that builds the production binary into the repo root after compiling the frontend. Requires go, nodejs, and yarn on the PATH. Run it inside the cloned repository; the resulting ./listmonk is self-contained with assets embedded."
+    },
+    {
+      "id": 7140,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker run -d --name listmonk -p 9000:9000 -e LISTMONK_db__host=localhost -e LISTMONK_db__user=listmonk -e LISTMONK_db__password=listmonk -e LISTMONK_db__database=listmonk -v listmonk_uploads:/listmonk/uploads listmonk/listmonk:latest",
+      "desc": "Run the listmonk container on port 9000",
+      "tooltip": "Starts the listmonk/listmonk:latest image detached with the admin UI exposed on port 9000. The LISTMONK_db__* variables point at an existing Postgres, and the named volume keeps uploaded media across container replacements. A bare container cannot reach a database on the host's localhost unless run with --network host; the official compose stack wires app and database together instead."
+    },
+    {
+      "id": 7141,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker run --rm -it -e LISTMONK_db__host=db -e LISTMONK_db__user=listmonk -e LISTMONK_db__password=listmonk -e LISTMONK_db__database=listmonk listmonk/listmonk:latest --install --idempotent --yes --config ''",
+      "desc": "Install the schema from inside a fresh container",
+      "tooltip": "Runs the listmonk image once to create the database schema, using environment variables for the connection and --config '' to skip file config. --idempotent and --yes make the run non-interactive and safe to repeat. The official compose file performs this automatically on first start."
+    },
+    {
+      "id": 7142,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker compose exec app ./listmonk --version",
+      "desc": "Show the listmonk version inside the container",
+      "tooltip": "Executes the binary inside the running app service of the official compose stack and prints its version. Handy for confirming the deployed image matches a release. The service is named app in docker-compose.yml while its container is listmonk_app."
+    },
+    {
+      "id": 7143,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker compose exec db psql -U listmonk -d listmonk -c 'SELECT count(*) FROM subscribers;'",
+      "desc": "Count subscribers through the database container",
+      "tooltip": "Runs psql inside the Postgres service of the compose stack against the listmonk database. A quick way to verify data made it in after an import. Use `docker compose exec db pg_dump` for backups from inside the stack."
+    },
+    {
+      "id": 7144,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker compose exec db pg_dump -U listmonk -Fc listmonk > listmonk-backup.dump",
+      "desc": "Back up the listmonk database from the container",
+      "tooltip": "Runs pg_dump inside the db service and writes a compressed custom-format dump to the host shell, keeping the backup off the container filesystem. The -Fc custom format compresses well and restores with pg_restore. Replay it with `docker compose exec db pg_restore -U listmonk -d listmonk < listmonk-backup.dump`."
+    },
+    {
+      "id": 7145,
+      "category": "Listmonk & Newsletters",
+      "cmd": "sudo docker compose stop ; sudo docker compose up",
+      "desc": "Restart the compose stack after config changes",
+      "tooltip": "The docs-recommended way to apply time zone, volume, or media-upload changes to the compose stack: stop the services, then bring them up again with the new settings. Note the semicolon runs the second command regardless of the first one's result. sudo is only needed when Docker requires root on your host."
+    },
+    {
+      "id": 7146,
+      "category": "Listmonk & Newsletters",
+      "cmd": "docker volume ls | grep listmonk",
+      "desc": "List the Docker volumes created for listmonk",
+      "tooltip": "Filters docker volume ls for listmonk volumes such as listmonk_listmonk-data, which holds the Postgres data directory. Compose prefixes declared volume names with the project directory name. Find the host path of one with `docker volume inspect <name>`."
+    },
+    {
+      "id": 7147,
+      "category": "Listmonk & Newsletters",
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c '\\dt'",
+      "desc": "List all tables in the listmonk database",
+      "tooltip": "Shows the tables listmonk manages: subscribers, lists, subscriber_lists, campaigns, campaign_views, link_clicks, bounces, templates, and settings. Use \\d <table> for column details. You need the postgres client installed and the listmonk role credentials."
+    },
+    {
+      "id": 7148,
+      "category": "Listmonk & Newsletters",
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c 'SELECT count(*) FROM subscribers;'",
+      "desc": "Count total subscribers in the database",
+      "tooltip": "Returns the number of rows in the subscribers table, the ground truth for audience size regardless of dashboard caching. Filter by status by adding WHERE status = 'enabled' to exclude blocklisted or disabled addresses."
+    },
+    {
+      "id": 7149,
+      "category": "Listmonk & Newsletters",
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c \"SELECT count(*) FROM campaigns WHERE status = 'running';\"",
+      "desc": "Count campaigns currently in the running state",
+      "tooltip": "Queries the campaigns table for rows whose status is 'running'; the full status enum is draft, scheduled, running, paused, cancelled, finished. Useful to confirm a stuck campaign before restarting the app. The outer double quotes keep the single quotes for SQL intact."
+    },
+    {
+      "id": 7150,
+      "category": "Listmonk & Newsletters",
+      "cmd": "psql -h localhost -U listmonk -d listmonk -c \"SELECT l.name, count(sl.subscriber_id) FROM lists l LEFT JOIN subscriber_lists sl ON sl.list_id = l.id GROUP BY l.name;\"",
+      "desc": "Show subscriber counts for every list",
+      "tooltip": "Joins the lists and subscriber_lists tables to report how many subscribers each list holds, including lists with zero members via the LEFT JOIN. A subscriber counts once per list they are attached to. Confirm the numbers against the dashboard list stats when in doubt."
+    },
+    {
+      "id": 7151,
+      "category": "Listmonk & Newsletters",
+      "cmd": "pg_dump -h localhost -U listmonk listmonk > listmonk-backup.sql",
+      "desc": "Dump the listmonk database to a plain SQL file",
+      "tooltip": "Exports the whole schema and data as SQL statements that psql can replay, taking a consistent snapshot automatically. Plain format is easy to inspect and grep but larger and slower than custom format. Keep the dump off the same disk as the database when possible."
+    },
+    {
+      "id": 7152,
+      "category": "Listmonk & Newsletters",
+      "cmd": "pg_dump -h localhost -U listmonk -Fc listmonk > listmonk-backup.dump",
+      "desc": "Back up listmonk in compressed custom format",
+      "tooltip": "The -Fc custom format compresses the dump, preserves object metadata, and supports selective restore with pg_restore. Restore with `pg_restore -h localhost -U listmonk -d listmonk listmonk-backup.dump`. Pair it with a rotation scheme since nightly backups accumulate."
+    },
+    {
+      "id": 7153,
+      "category": "Listmonk & Newsletters",
+      "cmd": "psql -h localhost -U listmonk -d listmonk < listmonk-backup.sql",
+      "desc": "Restore a listmonk backup from a SQL dump",
+      "tooltip": "Feeds the plain-format dump produced by pg_dump back into the database, recreating schema and data. The database must exist and the target should be empty, otherwise you will hit duplicate-key errors. Stop the listmonk app during the restore so it does not write concurrently."
+    },
+    {
+      "id": 7154,
+      "category": "Listmonk & Newsletters",
+      "cmd": "pg_restore -h localhost -U listmonk -d listmonk listmonk-backup.dump",
+      "desc": "Restore a custom-format listmonk backup",
+      "tooltip": "Replays a -Fc dump into the database, re-creating tables and rows in dependency order. Add --clean --if-exists to drop existing objects first for a full overwrite. Requires the target database to exist; create it with `createdb -h localhost -U listmonk listmonk` if needed."
+    },
+    {
+      "id": 7155,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl http://localhost:9000/api/health",
+      "desc": "Check the listmonk API health endpoint",
+      "tooltip": "Returns a JSON payload whenever the API server is up, and needs no credentials, so it is ideal for uptime monitors. The admin frontend pings this route on load. A 200 response with a data key means the app is serving requests."
+    },
+    {
+      "id": 7156,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/dashboard/counts",
+      "desc": "Fetch the dashboard summary statistics",
+      "tooltip": "Returns subscriber, list, and campaign counts served from materialized views like mat_dashboard_counts, which refresh periodically so the numbers lag slightly. The companion endpoint /api/dashboard/charts provides the click and view series. Credentials are the API user token created under Admin -> Users, or the legacy admin_username and admin_password from config.toml."
+    },
+    {
+      "id": 7157,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/subscribers?page=1&per_page=100'",
+      "desc": "List subscribers with pagination via the API",
+      "tooltip": "Queries the first 100 subscribers with their status, attributes, and list memberships. page and per_page control paging, set per_page=all for everything, and repeat list_id parameters to filter by list. Quote the URL so the shell does not treat & as a background operator."
+    },
+    {
+      "id": 7158,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/lists?status=active",
+      "desc": "List all active subscriber lists",
+      "tooltip": "Returns lists whose status is active, the ones usable in campaigns and subscription forms. Add minimal=true to skip subscriber counts for faster responses, or status=archived to include hidden lists. Each list carries its optin mode, either single or double."
+    },
+    {
+      "id": 7159,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/lists -H 'Content-Type: application/json' -d '{\"name\":\"Product Updates\",\"type\":\"public\",\"optin\":\"double\"}'",
+      "desc": "Create a new subscriber list via the API",
+      "tooltip": "Creates a list; name, type, and optin are required fields. type public makes it appear on subscription forms while private hides it, and optin double sends a confirmation email that new subscribers must click before they receive campaigns. The response contains the new list id for later calls."
+    },
+    {
+      "id": 7160,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/subscribers -H 'Content-Type: application/json' -d '{\"email\":\"john@example.com\",\"name\":\"John Doe\",\"status\":\"enabled\"}'",
+      "desc": "Create a new subscriber via the API",
+      "tooltip": "Adds a subscriber with the given email and name; email and name are required, status defaults to enabled. Pass lists as an array of list ids to subscribe them immediately. Duplicate emails are rejected, so check for an existing record first or expect a 422 response."
+    },
+    {
+      "id": 7161,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/subscribers/42 -H 'Content-Type: application/json' -d '{\"name\":\"Jane Doe\"}'",
+      "desc": "Update a subscriber's profile via the API",
+      "tooltip": "Updates the subscriber record; the numeric id comes from the database. PATCH on the same endpoint updates only the fields you send, while PUT is the heavier form. Custom profile data lives in the attribs JSON object, for example a city value that campaign templates can reference."
+    },
+    {
+      "id": 7162,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/subscribers/42/blocklist",
+      "desc": "Blocklist a subscriber so they receive no mail",
+      "tooltip": "Flags the subscriber with status blocklisted, and campaigns skip blocklisted addresses entirely. This is the API form of the same action in the admin UI. There is a bulk variant PUT /api/subscribers/blocklist for banning many ids at once."
+    },
+    {
+      "id": 7163,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/subscribers/42/optin",
+      "desc": "Re-send the opt-in confirmation email",
+      "tooltip": "Triggers a fresh optin confirmation message to an unconfirmed subscriber, for example after they ask for a new link or the first one expired. Only meaningful for subscribers on double opt-in lists. The email uses the system optin template."
+    },
+    {
+      "id": 7164,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X DELETE 'http://localhost:9000/api/subscribers?id=10&id=11'",
+      "desc": "Delete multiple subscribers by id",
+      "tooltip": "Deletes the named subscriber rows plus their list memberships, bounce records, and tracking data via cascade. Repeat the id parameter for each target and quote the URL. There is no undo, so dump the affected rows first or use blocklist when you only want to stop mailings."
+    },
+    {
+      "id": 7165,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/subscribers/1/export",
+      "desc": "Export one subscriber's full data profile",
+      "tooltip": "Returns the profile, list subscriptions, campaign views, and link clicks for a single subscriber, which is the data needed to answer GDPR access requests. Private list names are masked as 'Private list' in the export. Combine with the delete endpoint to complete an erasure request."
+    },
+    {
+      "id": 7166,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/campaigns?status=running'",
+      "desc": "List campaigns currently running",
+      "tooltip": "Filters campaigns by status; repeat the parameter for multiple statuses, for example ?status=running&status=paused. Each campaign object includes sent counts, target lists, and its send_at schedule. Add no_body=true to skip message bodies and slim the response."
+    },
+    {
+      "id": 7167,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/campaigns/1/preview",
+      "desc": "Preview a campaign's rendered message",
+      "tooltip": "Renders the campaign body with template placeholders like {{ .Subscriber.FirstName }} filled with sample subscriber data. Use it to check layout and personalization before sending. The response is rendered HTML or plain text depending on the campaign content type."
+    },
+    {
+      "id": 7168,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/campaigns/1/test -H 'Content-Type: application/json' -d '{\"subscribers\":[\"test@example.com\"]}'",
+      "desc": "Send a campaign test to specific email addresses",
+      "tooltip": "Queues a test delivery of campaign 1 to arbitrary recipients, bypassing the campaign's actual list. Include the campaign's full fields when it is still a draft without saved content. Confirm the message renders in a real client before scheduling the real send."
+    },
+    {
+      "id": 7169,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X PUT http://localhost:9000/api/campaigns/1/status -H 'Content-Type: application/json' -d '{\"status\":\"scheduled\"}'",
+      "desc": "Change a campaign's status via the API",
+      "tooltip": "Moves a campaign between draft, scheduled, running, paused, cancelled, and finished. Set status scheduled together with a send_at timestamp to queue it, or running to start immediately. Pausing a running campaign stops new sends but keeps progress."
+    },
+    {
+      "id": 7170,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin 'http://localhost:9000/api/campaigns/analytics/views?id=1&from=2024-08-04&to=2024-08-12'",
+      "desc": "Fetch campaign view counts over a date range",
+      "tooltip": "Returns daily tracking-pixel view counts for campaign 1 between the from and to dates. Swap views for clicks, links, or bounces for the other analytics series. Counts stay empty unless the tracking features are enabled in the privacy settings."
+    },
+    {
+      "id": 7171,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/import/subscribers -F 'params={\"mode\":\"subscribe\",\"delim\":\",\",\"lists\":[1]}' -F 'file=@subs.csv'",
+      "desc": "Bulk import subscribers from a CSV file",
+      "tooltip": "Uploads subs.csv as a multipart form with a params JSON string controlling the import: mode subscribe or blocklist, the CSV delimiter, and the target list ids. The CSV needs email and name columns. Poll GET /api/import/subscribers/logs to watch progress."
+    },
+    {
+      "id": 7172,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/import/subscribers/logs",
+      "desc": "Watch an in-progress subscriber import",
+      "tooltip": "Returns the import log lines, showing each processed file and the final tally once the import finishes. Combine with the status endpoint GET /api/import/subscribers, which reports total, imported, and current status. Poll it after a bulk upload to know when the import completed."
+    },
+    {
+      "id": 7173,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin http://localhost:9000/api/templates",
+      "desc": "List campaign and transactional templates",
+      "tooltip": "Returns all templates with their subject and body source, plus the is_default flag that marks the fallback template. Templates are shared across campaigns, so editing one changes every campaign that references it. The default template is used when a campaign omits template_id."
+    },
+    {
+      "id": 7174,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl http://localhost:9000/api/public/lists",
+      "desc": "List public lists without authentication",
+      "tooltip": "Returns name and uuid for every active public list, with no credentials required, so external forms and scripts can build subscription pages. Only lists with type public and status active appear. Post the chosen uuid to POST /api/public/subscription to subscribe someone."
+    },
+    {
+      "id": 7175,
+      "category": "Listmonk & Newsletters",
+      "cmd": "curl -u admin:admin -X POST http://localhost:9000/api/campaigns -H 'Content-Type: application/json' -d '{\"name\":\"June Newsletter\",\"subject\":\"Hello, world\",\"lists\":[1],\"content_type\":\"richtext\",\"type\":\"regular\"}'",
+      "desc": "Create a campaign draft via the API",
+      "tooltip": "Creates a campaign in draft status; name, subject, lists, content_type, and type are required. A campaign is one newsletter send to the target lists. Add body with template markup and template_id to use a custom template, then test and schedule it before it goes out."
+    },
+    {
+      "id": 7176,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n start",
+      "desc": "Start the n8n server",
+      "tooltip": "Boots the n8n instance, serving the editor UI at http://localhost:5678 and activating the triggers of published workflows. The process stays in the foreground, so run it in a terminal, a systemd unit, or a process manager. Running bare n8n with no arguments behaves the same as n8n start. Stop with Ctrl+C for a graceful shutdown."
+    },
+    {
+      "id": 7177,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n start -o",
+      "desc": "Start n8n and open the editor in a browser",
+      "tooltip": "Starts the server and attempts to open the editor URL in your default browser. The -o flag is the only flag n8n start accepts; ports and hostnames are configured through environment variables like N8N_PORT and N8N_HOST. Press o in the running terminal to reopen the browser at any time."
+    },
+    {
+      "id": 7178,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n --version",
+      "desc": "Show the installed n8n version",
+      "tooltip": "Prints the version number of the n8n package, handy before reading release notes or filing a bug report. The aliases -v and -V are accepted too. Compare the output against the stable version listed in the n8n docs to see how outdated your install is."
+    },
+    {
+      "id": 7179,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n --help",
+      "desc": "List every available n8n CLI command",
+      "tooltip": "Prints the full command list with a one-line description of each entry, plus a pointer to the CLI reference documentation. Run n8n <command> --help to get that command's own flags and examples. The list includes export, import, execute, and maintenance helpers, though not every command appears on the docs page."
+    },
+    {
+      "id": 7180,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n list:workflow",
+      "desc": "List workflows with IDs and names",
+      "tooltip": "Prints every workflow as id|name, one pair per line, using the internal IDs that export, execute, and publish commands expect. This is the fastest way to find a workflow ID when you only know its display name. Combine with --onlyId or --active to shape the output."
+    },
+    {
+      "id": 7181,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n list:workflow --onlyId",
+      "desc": "List only workflow IDs",
+      "tooltip": "Prints just the numeric workflow IDs, one per line, dropping the names for easy scripting. Feed the output into a loop that backs up or executes every workflow. Use --active=true or --active=false to restrict the list to published or unpublished workflows."
+    },
+    {
+      "id": 7182,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n list:workflow --active=true",
+      "desc": "List only published workflows",
+      "tooltip": "Filters the listing to workflows whose active flag is true, meaning their triggers run automatically. In n8n 2.0 the active flag corresponds to the published state. The --active flag accepts only true or false and rejects any other value."
+    },
+    {
+      "id": 7183,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n execute --id=123",
+      "desc": "Run a saved workflow once",
+      "tooltip": "Executes workflow 123 the same way a manual run would, starting from the first trigger node, and prints the full execution result as JSON. The workflow must already exist in the n8n database, so import it first when it came from a file. The --id flag is required; the old --file flag no longer works."
+    },
+    {
+      "id": 7184,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n execute --id=123 --rawOutput",
+      "desc": "Run a workflow and print only JSON",
+      "tooltip": "Executes workflow 123 and prints only the JSON execution data, with no surrounding status text, so piping into jq or another parser stays clean. Use the flag exactly as written, --rawOutput. Failed runs still exit with a non-zero code and log the error."
+    },
+    {
+      "id": 7185,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n execute-batch --ids=10,13,15 --concurrency=10",
+      "desc": "Run multiple workflows in parallel",
+      "tooltip": "Executes workflows 10, 13, and 15 once each, up to 10 at a time, and prints a JSON summary with the status of every run. The --ids flag also accepts a file path whose contents are comma-separated IDs. Omitting --ids runs every workflow in the instance, which can take a while."
+    },
+    {
+      "id": 7186,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n execute-batch --snapshot=/data/snapshots --shallow",
+      "desc": "Save execution snapshots for regression tests",
+      "tooltip": "Runs all workflows and writes one snapshot JSON file per workflow into the given directory, comparing only top-level output attributes when --shallow is set. Point --compare at the snapshot directory on a later run to diff current output against it. Deleted output fields are flagged as errors, new ones as warnings."
+    },
+    {
+      "id": 7187,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n execute-batch --compare=/data/snapshots --retries=2",
+      "desc": "Compare executions against saved snapshots",
+      "tooltip": "Runs every workflow and diffs each execution against the matching snapshot file in the directory, retrying failed or warning runs up to 2 extra times. Structural removals in the output are reported as errors and additions as warnings. Add --shortOutput to print only the summary instead of full execution data."
+    },
+    {
+      "id": 7188,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n publish:workflow --id=123",
+      "desc": "Publish the draft of a workflow",
+      "tooltip": "Makes the current draft of workflow 123 the published version, so its scheduled triggers fire and its webhooks become live. Publishing replaced the old active toggle in n8n 2.0, and there is deliberately no --all flag to prevent accidental bulk publishes. The change takes effect after an n8n restart."
+    },
+    {
+      "id": 7189,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n unpublish:workflow --id=123",
+      "desc": "Unpublish a workflow",
+      "tooltip": "Removes workflow 123 from the published state, stopping its scheduled triggers and webhook endpoints. Third-party services may still hit a webhook URL briefly while it deregisters. Restart n8n to be certain every trigger is fully stopped."
+    },
+    {
+      "id": 7190,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n unpublish:workflow --all",
+      "desc": "Unpublish every workflow",
+      "tooltip": "Takes all workflows offline at once, which is handy before a maintenance window or a full instance migration. This is a bulk action: every schedule and webhook stops firing. Prefer targeting individual IDs unless you genuinely mean everything."
+    },
+    {
+      "id": 7191,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --all",
+      "desc": "Export all workflows to stdout",
+      "tooltip": "Prints every workflow as a JSON array to the terminal, ready to redirect into a file with > or pipe into jq. Exactly one of --all, --id, or --projectId is required. The export is a bare array, so jq filters such as .[].name address workflows directly."
+    },
+    {
+      "id": 7192,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --all | jq '.[].name'",
+      "desc": "List workflow names from an export",
+      "tooltip": "Pipes the exported workflow array into jq and prints only the name field of each workflow. The export format is a plain JSON array, not an object with a workflows key, so the filter is .[] rather than .workflows[]. Add -r to strip the surrounding quotes."
+    },
+    {
+      "id": 7193,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --id=123 --output=workflow.json",
+      "desc": "Export one workflow to a file",
+      "tooltip": "Writes workflow 123 as JSON to workflow.json, with --output (short form -o) naming the file. The file holds a single workflow object with nodes, connections, and metadata, ready to import on another instance. The export keeps the workflow ID, so importing into an instance that already has ID 123 overwrites it."
+    },
+    {
+      "id": 7194,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --all --output=workflows.json",
+      "desc": "Export all workflows to one file",
+      "tooltip": "Dumps every workflow into a single JSON array at workflows.json, ideal for a quick full backup or a migration between instances. Import the same file back with n8n import:workflow --input=workflows.json. For per-file, versioned backups, prefer --separate or --backup."
+    },
+    {
+      "id": 7195,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --all --separate --output=backups/latest/",
+      "desc": "Export one JSON file per workflow",
+      "tooltip": "Writes each workflow to its own file named by ID inside backups/latest/, a layout that plays well with version control and single-workflow restores. The --output directory is created automatically if missing. Restore the whole set with n8n import:workflow --separate --input=backups/latest/."
+    },
+    {
+      "id": 7196,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --backup --output=backups/latest/",
+      "desc": "Export workflows in backup mode",
+      "tooltip": "Runs the backup convenience flag, shorthand for --all --pretty --separate: pretty-printed JSON, one file per workflow, into the given directory. This is the documented one-shot backup command for workflows. Restore with n8n import:workflow --separate --input=backups/latest/."
+    },
+    {
+      "id": 7197,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --id=123 --version=8f3a2c1e-5b7d-4e9a-9c2f-1d4b6a8e0f3a --output=workflow-v1.json",
+      "desc": "Export a historical workflow version",
+      "tooltip": "Writes the historical version whose version ID is 8f3a2c1e-5b7d-4e9a-9c2f-1d4b6a8e0f3a, not the current draft, to workflow-v1.json. Version IDs come from the workflow history and are listed in the editor's version panel. The --version flag cannot be combined with --all or --published."
+    },
+    {
+      "id": 7198,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --id=123 --published --output=published.json",
+      "desc": "Export the published version of a workflow",
+      "tooltip": "Writes the currently published version of workflow 123 to published.json instead of the draft. Exporting the published version captures exactly what production is running, including its version metadata. The --published and --version flags are mutually exclusive."
+    },
+    {
+      "id": 7199,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:workflow --projectId=Ox8O54VQrmBrb4qL --output=project-workflows.json",
+      "desc": "Export all workflows of one project",
+      "tooltip": "Exports every workflow belonging to project Ox8O54VQrmBrb4qL into a single file, handy for team-level backups. Exactly one of --all, --id, or --projectId must be given, making this the project-scoped selector. The same selector pattern exists on export:credentials."
+    },
+    {
+      "id": 7200,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --all",
+      "desc": "Export all credentials to stdout",
+      "tooltip": "Prints every credential as a JSON array with its metadata, keeping data fields encrypted so secrets stay unreadable. Use --decrypted only when you truly need the plain values. Note the plural command name, export:credentials."
+    },
+    {
+      "id": 7201,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --id=5 --output=credential.json",
+      "desc": "Export one credential to a file",
+      "tooltip": "Writes credential 5 to credential.json using its ID, which you can find in the credentials list in the editor. The data is still encrypted, so the file is only useful on an instance that can decrypt it. Restore with n8n import:credentials --input=credential.json."
+    },
+    {
+      "id": 7202,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --all --output=credentials.json",
+      "desc": "Export all credentials to one file",
+      "tooltip": "Saves every credential into a single JSON array at credentials.json, still encrypted. This pairs with n8n import:credentials for moving credentials between instances that share the same encryption key. For a plain-text migration, add --decrypted."
+    },
+    {
+      "id": 7203,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --all --decrypted --output=backups/decrypted.json",
+      "desc": "Export credentials in plain text",
+      "tooltip": "Writes every credential with its secrets in plain text, required when migrating to an instance with a different encryption key. Treat this file like a password vault, since anyone who reads it can use every stored API key and password. Delete it as soon as the migration finishes."
+    },
+    {
+      "id": 7204,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --backup --output=backups/latest/",
+      "desc": "Export credentials in backup mode",
+      "tooltip": "Combines --all --pretty --separate to write one pretty-printed, still-encrypted JSON file per credential into backups/latest/. This is the credentials counterpart of the workflow backup command. Restore with n8n import:credentials --separate --input=backups/latest/."
+    },
+    {
+      "id": 7205,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:credentials --projectId=Ox8O54VQrmBrb4qL --output=project-creds.json",
+      "desc": "Export all credentials of one project",
+      "tooltip": "Writes the credentials owned by project Ox8O54VQrmBrb4qL to project-creds.json, still encrypted. Useful before deleting a project or auditing what a team can access. Combine with the workflow project export for a complete team snapshot."
+    },
+    {
+      "id": 7206,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:workflow --input=workflows.json",
+      "desc": "Import workflows from a file",
+      "tooltip": "Loads workflows.json, accepting either a single workflow object or an array, and creates the workflows in the database. Imported workflows are deactivated by default so their triggers do not fire until you publish them. Workflows whose IDs already exist in the target instance are overwritten."
+    },
+    {
+      "id": 7207,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:workflow --separate --input=backups/latest/",
+      "desc": "Import workflows from a directory",
+      "tooltip": "Reads every .json file in backups/latest/ as one workflow each, matching the layout produced by --separate and --backup exports. Files without valid nodes and connections are skipped with a warning. Assign ownership with --userId or --projectId, but never both."
+    },
+    {
+      "id": 7208,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:workflow --separate --input=backups/latest/ --activeState=fromJson",
+      "desc": "Import workflows keeping their active state",
+      "tooltip": "Imports each workflow and honours the active field from its JSON instead of deactivating everything. The fromJson value only works in queue or multi-main mode, and a regular instance rejects the flag outright. On single-instance setups, import with the default and publish afterwards."
+    },
+    {
+      "id": 7209,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:workflow --input=workflows.json --projectId=Ox8O54VQrmBrb4qL",
+      "desc": "Import workflows into a project",
+      "tooltip": "Imports the workflows and assigns them to project Ox8O54VQrmBrb4qL, which is how multi-user instances restore backups into a team space. Combining --projectId with --userId is an error. Omitting both assigns the workflows to the instance owner."
+    },
+    {
+      "id": 7210,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:credentials --input=credentials.json",
+      "desc": "Import credentials from a file",
+      "tooltip": "Reads credentials.json, which may hold one credential or an array, and inserts them into the database, encrypting any plain-text data it finds. Credentials with the same ID as existing ones are overwritten, so rename or delete IDs first when merging exports. Ownership goes to the instance owner unless --userId or --projectId is passed."
+    },
+    {
+      "id": 7211,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:credentials --separate --input=backups/latest/",
+      "desc": "Import credentials from a directory",
+      "tooltip": "Loads every .json file from backups/latest/, one credential per file, as produced by the --separate or --backup export. The --input value must be a real directory, and the file names do not matter. Use --projectId to assign all imported credentials to one project."
+    },
+    {
+      "id": 7212,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:entities --outputDir=./outputs",
+      "desc": "Export all database entities",
+      "tooltip": "Dumps every n8n database entity, including users, projects, settings, and more, into ./outputs so you can migrate between database engines such as SQLite and Postgres. Execution history tables are excluded by default because they can be enormous. This is the CLI-level migration path, separate from the workflow and credential exports."
+    },
+    {
+      "id": 7213,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n export:entities --outputDir=./outputs --includeExecutionHistoryDataTables=true",
+      "desc": "Export entities including execution history",
+      "tooltip": "Adds the execution history data tables to the entity export, which the default omits to keep the dump small. Expect a much larger output directory on instances with heavy automation traffic. Import the result with n8n import:entities."
+    },
+    {
+      "id": 7214,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n import:entities --inputDir ./outputs --truncateTables true",
+      "desc": "Import database entities",
+      "tooltip": "Loads an entity export back into n8n, targeting a possibly different database engine than the export source. The target database should be empty, or pass --truncateTables true to wipe the tables first. Back up the destination instance before running this."
+    },
+    {
+      "id": 7215,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n user-management:reset",
+      "desc": "Reset user management to its initial state",
+      "tooltip": "Removes every user account and returns user management to the pre-setup state, the recovery path when you lose the owner password and have no SMTP for password resets. This deletes all accounts, so only run it when you have another way in. You will create the owner account again at the next login."
+    },
+    {
+      "id": 7216,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n mfa:disable --email=johndoe@example.com",
+      "desc": "Disable two-factor authentication for a user",
+      "tooltip": "Turns off MFA for the account with the given email, the escape hatch when a user lost their recovery codes and cannot log in. Only the named user is affected, and they can re-enable MFA from their profile afterwards. Works without the server running."
+    },
+    {
+      "id": 7217,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n ldap:reset",
+      "desc": "Clear LDAP configuration",
+      "tooltip": "Resets the LDAP settings so the instance falls back to its default authentication method, useful when a misconfigured LDAP server locks everyone out. User accounts are not deleted, but LDAP-managed users may need password resets. Reconfigure LDAP from the settings UI afterwards."
+    },
+    {
+      "id": 7218,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n license:info",
+      "desc": "Show license details",
+      "tooltip": "Prints the current license information, including plan and expiry date, the first thing to check when enterprise features stop working. It runs from the CLI without the server. Paid features such as projects and SSO unlock only with a valid license."
+    },
+    {
+      "id": 7219,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n license:clear",
+      "desc": "Remove the license from the database",
+      "tooltip": "Deletes the stored license and resets n8n to default community features, releasing any floating entitlements back to the pool. Enterprise-only features become unavailable immediately. Reinstall the license to restore them."
+    },
+    {
+      "id": 7220,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n audit",
+      "desc": "Run the security audit",
+      "tooltip": "Scans the instance for common security issues such as missing security settings, risky node configurations, and exposed files, then prints a report. The same audit is available in the settings UI. Fix the flagged items and re-run to confirm."
+    },
+    {
+      "id": 7221,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n community-node --uninstall --package n8n-nodes-evolution-api",
+      "desc": "Uninstall a community node",
+      "tooltip": "Removes the n8n-nodes-evolution-api package from the instance, the standard fix when a community node causes crashes or instability. The package name must match the npm package exactly. Workflows using its nodes will show errors until the nodes are removed or replaced."
+    },
+    {
+      "id": 7222,
+      "category": "n8n & Workflow Automation",
+      "cmd": "n8n community-node --uninstall --credential evolutionApi --userId 1234",
+      "desc": "Remove a community node credential",
+      "tooltip": "Deletes the evolutionApi credential owned by user 1234, cleaning up leftovers when uninstalling a community node. The credential name comes from the node's credentials definition file, not the display name. Use this when the normal uninstall leaves orphaned credentials behind."
+    },
+    {
+      "id": 7223,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_PORT=5679 n8n start",
+      "desc": "Run n8n on a custom port",
+      "tooltip": "Sets the HTTP port the editor and API listen on, overriding the default 5678. Useful when 5678 is taken or when running several instances side by side. The port and host are environment variables, not n8n start flags."
+    },
+    {
+      "id": 7224,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_HOST=n8n.example.com n8n start",
+      "desc": "Set the hostname n8n binds to",
+      "tooltip": "Tells n8n which hostname it is reachable at, which feeds into generated URLs and links. The default is localhost. Behind a reverse proxy, pair it with N8N_PROTOCOL and N8N_PROXY_HOPS so callback and webhook URLs come out right."
+    },
+    {
+      "id": 7225,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_PROTOCOL=https n8n start",
+      "desc": "Serve n8n over HTTPS",
+      "tooltip": "Declares that clients reach n8n over https, which matters for OAuth callbacks and webhook URLs even when a reverse proxy terminates TLS. Provide N8N_SSL_KEY and N8N_SSL_CERT if n8n itself terminates TLS. Set N8N_SECURE_COOKIE=false if a local HTTP setup breaks logins."
+    },
+    {
+      "id": 7226,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_WEBHOOK_URL=https://n8n.example.com/ n8n start",
+      "desc": "Set the public webhook base URL",
+      "tooltip": "Overrides the base URL used to build test and production webhook URLs, and is the successor to the deprecated WEBHOOK_URL variable. External services need this when n8n sits behind a reverse proxy or on a custom domain. Wrong values make webhook trigger links unreachable from the internet."
+    },
+    {
+      "id": 7227,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_EDITOR_BASE_URL=https://n8n.example.com n8n start",
+      "desc": "Set the public editor URL",
+      "tooltip": "Provides the public URL where users reach the editor, also used in emails n8n sends and as the SAML redirect URL. Set this when the editor is served through a proxy or on a different domain. It removes the guesswork from generated links."
+    },
+    {
+      "id": 7228,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_ENCRYPTION_KEY=0f3a9c2b8e4d6f1a7c5b3e9d2f8a1c4b n8n start",
+      "desc": "Pin the credential encryption key",
+      "tooltip": "Sets the key n8n uses to encrypt credentials in the database, instead of generating a random one on first launch. It must stay identical across restarts and replicas, or stored credentials become undecryptable. Changing it later requires the decrypted export and re-import migration path."
+    },
+    {
+      "id": 7229,
+      "category": "n8n & Workflow Automation",
+      "cmd": "GENERIC_TIMEZONE=Europe/Madrid n8n start",
+      "desc": "Set the default timezone for schedules",
+      "tooltip": "Configures the timezone used by schedule-based trigger nodes such as the Schedule Trigger, with the default being America/New_York. Individual workflows can override it, but this instance default covers everything else. Combine with the TZ variable in Docker to align the system clock too."
+    },
+    {
+      "id": 7230,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_LISTEN_ADDRESS=0.0.0.0 n8n start",
+      "desc": "Listen on all network interfaces",
+      "tooltip": "Binds the server to every interface instead of the default loopback, which Docker containers need to expose n8n outside the host. Only do this when the network is trusted, since the editor becomes reachable from any host that can route to it. Local development usually keeps the default."
+    },
+    {
+      "id": 7231,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_PROXY_HOPS=1 n8n start",
+      "desc": "Adjust for one reverse proxy in front",
+      "tooltip": "Tells n8n how many reverse proxies sit between it and clients so it can trust forwarded headers and build correct URLs. Set the number of proxy hops, not just 1, whenever more than one proxy is involved. Wrong values cause redirects and webhooks to use internal addresses."
+    },
+    {
+      "id": 7232,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_SSL_KEY=/etc/ssl/n8n.key N8N_SSL_CERT=/etc/ssl/n8n.crt N8N_PROTOCOL=https n8n start",
+      "desc": "Terminate TLS directly in n8n",
+      "tooltip": "Points n8n at an SSL key and certificate pair and enables the https protocol, so n8n itself terminates TLS without a reverse proxy. The certificate must cover the hostname users connect to. Many deployments prefer terminating TLS at the proxy and keeping n8n on plain http."
+    },
+    {
+      "id": 7233,
+      "category": "n8n & Workflow Automation",
+      "cmd": "EXECUTIONS_DATA_PRUNE=true EXECUTIONS_DATA_MAX_AGE=168 n8n start",
+      "desc": "Prune executions older than a week",
+      "tooltip": "Enables rolling deletion of finished executions, keeping only those younger than 168 hours (7 days). Pruning is on by default with a 336-hour age limit and a 10000 execution count cap, both overridable per workflow. Pruned data is soft-deleted first, then hard-deleted on a schedule."
+    },
+    {
+      "id": 7234,
+      "category": "n8n & Workflow Automation",
+      "cmd": "EXECUTIONS_DATA_SAVE_ON_ERROR=all EXECUTIONS_DATA_SAVE_ON_SUCCESS=none n8n start",
+      "desc": "Save only failed executions",
+      "tooltip": "Stores execution data for every failed run while discarding successful ones, the classic disk-saving setup for busy instances. The values are all or none, applied at instance level and overridable per workflow. Combined with pruning, this keeps the database lean."
+    },
+    {
+      "id": 7235,
+      "category": "n8n & Workflow Automation",
+      "cmd": "EXECUTIONS_MODE=queue n8n start",
+      "desc": "Run n8n in queue mode",
+      "tooltip": "Switches execution processing to queue mode, where a Redis-backed queue hands work to worker instances and enables horizontal scaling. Requires a Redis instance configured through the queue settings and at least one n8n worker process. Regular mode, the default, runs everything in one process."
+    },
+    {
+      "id": 7236,
+      "category": "n8n & Workflow Automation",
+      "cmd": "EXECUTIONS_TIMEOUT=300 n8n start",
+      "desc": "Cap how long executions may run",
+      "tooltip": "Forces any workflow execution to stop after 300 seconds, preventing runaway runs from consuming resources forever. The default is -1, meaning unlimited. Timed-out runs are marked as failed in the execution list."
+    },
+    {
+      "id": 7237,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_CONCURRENCY_PRODUCTION_LIMIT=10 n8n start",
+      "desc": "Limit concurrent production executions",
+      "tooltip": "Caps the number of production executions that run at the same time to 10, protecting downstream services from bursts of scheduled runs. The default -1 means unlimited. Manual test runs do not count against the limit."
+    },
+    {
+      "id": 7238,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_DIAGNOSTICS_ENABLED=false n8n start",
+      "desc": "Disable anonymous telemetry",
+      "tooltip": "Turns off the anonymous diagnostics data n8n shares with the vendor, which is enabled by default. Note that the Ask AI features in the Code node require diagnostics to stay on. Logs and error reporting are unaffected."
+    },
+    {
+      "id": 7239,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true n8n start",
+      "desc": "Lock down settings file permissions",
+      "tooltip": "Makes n8n check and enforce 0600 permissions on its settings file so only the owner can read it, protecting stored configuration secrets. This is the default behaviour in current versions and is also set in the official Docker instructions. Keep the file owned by the user n8n runs as."
+    },
+    {
+      "id": 7240,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_BLOCK_ENV_ACCESS_IN_NODE=true n8n start",
+      "desc": "Block nodes from reading environment variables",
+      "tooltip": "Prevents workflow expressions and the Code node from reading the host's environment variables, a hardening step for multi-user instances. The default false lets workflows see env vars, including secrets you may have exported. Enable it when untrusted users build workflows."
+    },
+    {
+      "id": 7241,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_TUNNEL_SUBDOMAIN=myinstance n8n start",
+      "desc": "Use a fixed tunnel subdomain",
+      "tooltip": "Requests a stable subdomain for n8n's built-in tunnel, which exposes a local instance to the internet via cloudflared for development. Without it, n8n generates a random subdomain on each run. The tunnel is development tooling only, not safe for production, and its implementation may change between versions."
+    },
+    {
+      "id": 7242,
+      "category": "n8n & Workflow Automation",
+      "cmd": "DB_TYPE=postgresdb DB_POSTGRESDB_DATABASE=n8n DB_POSTGRESDB_HOST=localhost DB_POSTGRESDB_USER=n8n DB_POSTGRESDB_PASSWORD=secret n8n start",
+      "desc": "Use PostgreSQL as the database",
+      "tooltip": "Switches n8n from its default SQLite file to a PostgreSQL database on localhost, with the database, user, and password given. Every DB_POSTGRESDB_* variable must match a real Postgres setup, and the database must exist before startup. Postgres is the recommended database for production and queue mode."
+    },
+    {
+      "id": 7243,
+      "category": "n8n & Workflow Automation",
+      "cmd": "N8N_PATH=/n8n n8n start",
+      "desc": "Serve n8n under a URL path",
+      "tooltip": "Deploys the editor and API under the /n8n path prefix instead of the root, which some corporate proxies require. Combining N8N_PATH with a reverse proxy can break folder navigation, so prefer a subdomain such as n8n.example.com when possible."
+    },
+    {
+      "id": 7244,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker volume create n8n_data",
+      "desc": "Create the n8n data volume",
+      "tooltip": "Creates the named Docker volume that persists n8n's .n8n folder, which holds the SQLite database, encryption key, and settings. The official install flow creates this volume first, then mounts it into the container. Without it, every container recreation wipes your workflows and credentials."
+    },
+    {
+      "id": 7245,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker run -d --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Start the n8n Docker container",
+      "tooltip": "Launches the official n8n image detached, mapping host port 5678 to the container and mounting the n8n_data volume over /home/node/.n8n so data survives restarts. The image comes from docker.n8n.io/n8nio/n8n, the registry the docs use. Open http://localhost:5678 afterwards to reach the editor."
+    },
+    {
+      "id": 7246,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker pull docker.n8n.io/n8nio/n8n",
+      "desc": "Pull the latest stable n8n image",
+      "tooltip": "Downloads the newest stable n8n image from the official registry, the first step of upgrading a containerized instance. Pin a version such as docker.n8n.io/n8nio/n8n:1.81.0 for reproducible deploys, or use the :next tag for unstable builds. Restart the container after pulling to apply the update."
+    },
+    {
+      "id": 7247,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker stop n8n && docker rm n8n",
+      "desc": "Stop and remove the n8n container",
+      "tooltip": "Stops the running n8n container and deletes it, which is the documented upgrade flow before starting a fresh one from a new image. The named volume is untouched, so workflows and credentials survive. Start the replacement with the same docker run command afterwards."
+    },
+    {
+      "id": 7248,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker run -d --name n8n -p 5678:5678 -e GENERIC_TIMEZONE=Europe/Madrid -e TZ=Europe/Madrid -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Run n8n with timezone settings",
+      "tooltip": "Starts n8n with GENERIC_TIMEZONE for schedule nodes and TZ for the container system clock, both set to Europe/Madrid. The official Docker instructions recommend setting both, alongside N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true. Scheduled workflows then fire at the right local time."
+    },
+    {
+      "id": 7249,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker run -d --name n8n -p 5678:5678 -e DB_TYPE=postgresdb -e DB_POSTGRESDB_DATABASE=n8n -e DB_POSTGRESDB_HOST=postgres -e DB_POSTGRESDB_USER=n8n -e DB_POSTGRESDB_PASSWORD=secret -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n",
+      "desc": "Run n8n against a Postgres database",
+      "tooltip": "Connects the container to a PostgreSQL database named n8n on host postgres, how production deployments separate the database from the app container. The database, user, and password must already exist in Postgres. Keep the volume mounted anyway for encryption keys and logs."
+    },
+    {
+      "id": 7250,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker exec -u node -it n8n n8n export:workflow --all",
+      "desc": "Run n8n CLI inside the container",
+      "tooltip": "Executes an n8n CLI command inside the running container as the node user, the documented way to use server CLI commands with a Docker install. The -u node flag makes files get created with the container's owning user. Swap export:workflow --all for any other CLI command."
+    },
+    {
+      "id": 7251,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker compose exec n8n n8n list:workflow",
+      "desc": "List workflows in a Compose deployment",
+      "tooltip": "Runs the n8n CLI inside the n8n service of a Docker Compose stack, assuming the service is named n8n. This inspects a compose-based install without opening a shell first. Combine with export and import commands for in-place backups."
+    },
+    {
+      "id": 7252,
+      "category": "n8n & Workflow Automation",
+      "cmd": "docker compose logs -f n8n",
+      "desc": "Follow n8n service logs in Compose",
+      "tooltip": "Streams the logs of the n8n service, filtering out other services such as Postgres and Redis in a compose stack. Great for watching startup errors or webhook traffic live. Press Ctrl+C to stop following without stopping the services."
     }
   ],
-  "total": 6921
+  "total": 7205
 }
