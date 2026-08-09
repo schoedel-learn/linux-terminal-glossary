@@ -4,17 +4,20 @@
     "Administration",
     "Archiving & Compression",
     "Bash Scripting",
+    "Cloudflare",
     "Cron & Scheduling",
     "Docker",
     "Dokploy",
     "Environment & Config",
     "File Operations",
     "File Viewing & Editing",
+    "Firebase & Firestore",
     "Gemini CLI",
     "Git - Advanced",
     "Git - Core",
     "GitHub CLI",
     "GitHub Copilot",
+    "Google Cloud & Workspace",
     "I/O Redirection & Pipes",
     "Navigation & Directory",
     "Networking",
@@ -23208,7 +23211,2723 @@
       "cmd": "fastlane run release",
       "desc": "Run a named Fastlane lane",
       "tooltip": "A lane is a named sequence of actions defined in the Fastfile. This executes the 'release' lane — whatever build, signing, and upload steps you defined there. List lanes with fastlane lanes."
+    },
+    {
+      "id": 3312,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler login",
+      "desc": "Authenticate wrangler with your Cloudflare account",
+      "tooltip": "Opens your browser for OAuth and stores the token locally so wrangler can act as you. Run this once per machine before deploying or managing resources. For headless or CI environments, skip it and export CLOUDFLARE_API_TOKEN instead. Pair with `npx wrangler whoami` to confirm the session works."
+    },
+    {
+      "id": 3313,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler logout",
+      "desc": "Revoke wrangler's Cloudflare OAuth access",
+      "tooltip": "Invalidates the OAuth token and deletes stored credentials from this machine. Any scripts relying on the session will need to log in again. Does not delete your Cloudflare account or its resources, only the local authorization."
+    },
+    {
+      "id": 3314,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler whoami",
+      "desc": "Show the authenticated Cloudflare user and accounts",
+      "tooltip": "Prints your email, account memberships, and token permissions, which makes it the first command to run when auth fails. Non-zero exit and an error message mean you are not logged in. See also `npx wrangler auth token` to inspect the credential itself."
+    },
+    {
+      "id": 3315,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler whoami --json",
+      "desc": "Show authenticated user info as JSON",
+      "tooltip": "Returns account and identity details machine-readable for scripts and CI checks. Exits with a non-zero status when not authenticated, so it doubles as an auth assertion. The plain `npx wrangler whoami` output is easier to read by eye."
+    },
+    {
+      "id": 3316,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler auth token",
+      "desc": "Print the current Cloudflare auth token",
+      "tooltip": "Prints whichever credential wrangler resolves first: the CLOUDFLARE_API_TOKEN environment variable, an API key and email pair, or the OAuth token from `wrangler login`. Useful for feeding other tools and scripts. Add `--json` to also get the token type and to retrieve API key credentials."
+    },
+    {
+      "id": 3317,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler auth token --json",
+      "desc": "Print auth token with type metadata",
+      "tooltip": "Returns JSON with the token and its type: api_token, oauth, or api_key. The api_key type (email plus key pair) is only available with this flag, since it is two values rather than one. Refresh happens automatically for expired OAuth tokens."
+    },
+    {
+      "id": 3318,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler init my-worker",
+      "desc": "Scaffold a new Workers project directory",
+      "tooltip": "Creates a folder named my-worker with a Worker template, wrangler config, and package.json via the create-cloudflare CLI. Prompts you to pick a language and framework unless flags are given. A Worker is serverless JavaScript that runs at Cloudflare's edge, so there is no server to provision."
+    },
+    {
+      "id": 3319,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler init --yes",
+      "desc": "Scaffold a project accepting default answers",
+      "tooltip": "Answers yes to every interactive prompt, so the scaffold completes without input. Good for scripts and quick experiments. Uses the current directory name as the project name when NAME is omitted, as in `npx wrangler init --yes` from inside an empty folder."
+    },
+    {
+      "id": 3320,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler init --from-dash my-worker",
+      "desc": "Download an existing Worker from the dashboard",
+      "tooltip": "Fetches a Worker you already created in the Cloudflare dashboard into a local my-worker folder. Edits made in the dashboard after this snapshot are not synced back, so treat the CLI as the source of truth going forward."
+    },
+    {
+      "id": 3321,
+      "category": "Cloudflare",
+      "cmd": "npm create cloudflare@latest my-worker",
+      "desc": "Create a Worker with the C3 scaffolding tool",
+      "tooltip": "Runs C3, the create-cloudflare CLI, which asks which framework and template to use and optionally deploys immediately. npm create is shorthand that fetches the latest package each run, so you always get current templates. `npx wrangler init` delegates to this same tool."
+    },
+    {
+      "id": 3322,
+      "category": "Cloudflare",
+      "cmd": "npm create cloudflare@latest -- --template cloudflare/templates/hello-world",
+      "desc": "Scaffold a Worker from a GitHub template",
+      "tooltip": "The --template flag takes any GitHub repo in owner/repo form, so you can start from cloudflare/templates examples or your own private template. The extra `--` separates npm's own flags from the ones passed to C3. Plain `npm create cloudflare@latest my-worker` uses the built-in template list instead."
+    },
+    {
+      "id": 3323,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler types",
+      "desc": "Generate TypeScript types for your Worker",
+      "tooltip": "Writes worker-configuration.d.ts with an Env interface derived from your bindings plus Workers runtime types for your compatibility date. Bindings are the config lines that connect your Worker to KV, D1, R2, and other resources. This replaced the old cf-typegen command. Re-run it after editing wrangler.toml."
+    },
+    {
+      "id": 3324,
+      "category": "Cloudflare",
+      "cmd": "CLOUDFLARE_API_TOKEN=cfat_9f2a1c8e npx wrangler whoami",
+      "desc": "Authenticate wrangler via an API token env var",
+      "tooltip": "Lets wrangler authenticate without a browser, which is the standard pattern for CI, containers, and remote machines. Tokens starting with cfat_ are account-scoped API tokens; scopes decide what commands may run, so a DNS-only token fails on Workers operations. CLOUDFLARE_API_KEY plus CLOUDFLARE_EMAIL works as an alternative pair."
+    },
+    {
+      "id": 3325,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler docs",
+      "desc": "Open the wrangler documentation in a browser",
+      "tooltip": "Launches developers.cloudflare.com/workers/wrangler in your default browser for full command and configuration reference. Handy when a --help output is not enough. The docs cover config file options, bindings, and CI/CD auth setup."
+    },
+    {
+      "id": 3326,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev",
+      "desc": "Run your Worker locally in a dev server",
+      "tooltip": "Starts a local server on http://localhost:8787 that runs your Worker with the Miniflare simulator, with hot reload on save. Local state (KV, D1, R2) persists under .wrangler by default. Add --remote to use real production bindings instead."
+    },
+    {
+      "id": 3327,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev --port 3000",
+      "desc": "Run the dev server on a custom port",
+      "tooltip": "Overrides the default port 8787 when it is taken or when you want a specific URL. Useful when several workers run at once on different ports. The value can also live in the wrangler config file."
+    },
+    {
+      "id": 3328,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev --ip 0.0.0.0",
+      "desc": "Expose the dev server on all network interfaces",
+      "tooltip": "Binds the dev server beyond localhost so other machines, phone browsers, or containers on the network can reach it. The default binds to localhost only, which is safer. Pair with --port to pick the listening port, as in `npx wrangler dev --ip 0.0.0.0 --port 3000`."
+    },
+    {
+      "id": 3329,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev --remote",
+      "desc": "Run the dev server against remote resources",
+      "tooltip": "Runs your Worker on Cloudflare's network using your real KV, D1, R2, and other bindings instead of local mocks. This is the closest preview of production behavior but touches live data, so avoid destructive code paths while testing. Plain `npx wrangler dev` stays fully local."
+    },
+    {
+      "id": 3330,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev --test-scheduled",
+      "desc": "Trigger scheduled handlers from the dev server",
+      "tooltip": "Adds a /__scheduled route that fires your Worker's scheduled event handler (a cron trigger) so you can test it locally. Append a cron pattern to simulate timing, like /__scheduled?cron=*+*+*+*+*. Without this flag, scheduled events never fire in local dev."
+    },
+    {
+      "id": 3331,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler dev --tunnel",
+      "desc": "Share your local dev server over a public tunnel",
+      "tooltip": "Creates a Cloudflare Tunnel that gives you a public trycloudflare.com URL pointing at your local dev server. Great for testing webhooks or showing work in progress. The URL dies when the dev process stops; use a named tunnel with --tunnel-name for a stable one."
+    },
+    {
+      "id": 3332,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler deploy",
+      "desc": "Deploy your Worker to production",
+      "tooltip": "Bundles your code and uploads it as a new production deployment of the Worker named in wrangler.toml. The previous version stays available for rollback. Add --dry-run first to preview the bundle without publishing. Cron triggers and routes from config deploy with it."
+    },
+    {
+      "id": 3333,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler deploy --dry-run",
+      "desc": "Preview the deploy bundle without uploading",
+      "tooltip": "Builds the Worker exactly as deploy would and reports the bundle size and assets, then stops without publishing anything. Perfect for CI checks and for confirming config changes compile. When output looks right, drop --dry-run to ship it."
+    },
+    {
+      "id": 3334,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler deploy --minify",
+      "desc": "Deploy with minified JavaScript",
+      "tooltip": "Minifies the bundled Worker before upload, shrinking the artifact and often improving cold-start times. Runtime behavior stays identical, but stack traces reference mangled names, which complicates debugging. Combine with --outdir to keep the minified output for inspection."
+    },
+    {
+      "id": 3335,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler deploy --outdir dist",
+      "desc": "Write the deploy bundle into a directory",
+      "tooltip": "Saves the bundled output to dist/ instead of only uploading it, so you can inspect or commit the exact artifact that shipped. Useful with --minify to review the minified code. The directory is written before the deploy step runs."
+    },
+    {
+      "id": 3336,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler delete my-worker",
+      "desc": "Delete a Worker and its resources",
+      "tooltip": "Permanently removes the Worker script, routes, cron triggers, and associated developer platform resources. There is no undo, and any domains pointing at it start failing. Add --dry-run to preview what would be deleted. Version history and deployments go with it."
+    },
+    {
+      "id": 3337,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler versions upload",
+      "desc": "Upload a Worker version without deploying",
+      "tooltip": "Creates a new version of your Worker on Cloudflare but leaves the current deployment untouched, so traffic keeps running the old code. Versions are immutable snapshots you can later promote with `wrangler versions deploy`. Attach --tag or --message to label the version."
+    },
+    {
+      "id": 3338,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler versions upload --tag release-2026-08-01",
+      "desc": "Upload a Worker version with a tag",
+      "tooltip": "Tags the uploaded version so you can target it later by name instead of by opaque version ID, e.g. `wrangler versions deploy release-2026-08-01`. Tags are a naming layer over immutable versions. --message works the same way for a free-text note."
+    },
+    {
+      "id": 3339,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler versions deploy 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d",
+      "desc": "Deploy a previously uploaded Worker version",
+      "tooltip": "Promotes an uploaded version to become the active deployment immediately. The version ID comes from `wrangler versions list`. Because versions are immutable, this is the safe path for canaries: upload, test, then deploy. Add @percentage for gradual traffic shift, like 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d@25."
+    },
+    {
+      "id": 3340,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler versions deploy 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d@25",
+      "desc": "Gradually shift traffic to a new Worker version",
+      "tooltip": "Starts a gradual deployment where 25 percent of requests hit the new version and 75 percent stay on the current one, letting you watch metrics before going fully live. The percentage shorthand is version-id@percent. Follow up with a full deploy at @100 once the rollout looks healthy."
+    },
+    {
+      "id": 3341,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler versions list",
+      "desc": "List the 10 most recent Worker versions",
+      "tooltip": "Shows recent version IDs, authors, creation times, and any tags or messages attached at upload time. Version IDs feed `wrangler versions deploy` and `wrangler rollback`. Add --json for script-friendly output."
+    },
+    {
+      "id": 3342,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler deployments list",
+      "desc": "List the 10 most recent deployments",
+      "tooltip": "Shows the deployment history of your Worker: what version went live, when, and who deployed it. A deployment is a version plus when it became active. Use this to find what is currently serving traffic before rolling back. Supports --json."
+    },
+    {
+      "id": 3343,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler rollback",
+      "desc": "Roll back to the previous Worker version",
+      "tooltip": "Immediately creates a new deployment of the version uploaded before the current one, across all routes and domains. This is a live production change, so expect a brief traffic shift while it propagates. Local dev is unaffected. Pass a version ID positionally to roll back further, as in `npx wrangler rollback 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d`."
+    },
+    {
+      "id": 3344,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler rollback 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d",
+      "desc": "Roll back to a specific Worker version",
+      "tooltip": "Deploys the given version ID as the new active deployment, useful when the previous version is not the one you want. Grab the ID from `wrangler versions list`. Same caution as plain rollback: it changes production immediately, so confirm the ID first."
+    },
+    {
+      "id": 3345,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler triggers deploy",
+      "desc": "Deploy cron triggers defined in the config",
+      "tooltip": "Syncs the cron triggers from your wrangler config to the deployed Worker, so scheduled handlers fire at the configured intervals. A cron trigger is a schedule like every 10 minutes that invokes your Worker's scheduled handler. Run it after adding or editing schedules in wrangler.toml."
+    },
+    {
+      "id": 3346,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler tail my-worker",
+      "desc": "Stream live logs from a deployed Worker",
+      "tooltip": "Opens a live feed of console.log messages, exceptions, and request metadata for the deployed Worker named my-worker. Useful for debugging production without touching the dashboard. On high-traffic workers the feed may sample, dropping some entries. Stop with Ctrl+C."
+    },
+    {
+      "id": 3347,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler tail my-worker --format json",
+      "desc": "Tail Worker logs as JSON lines",
+      "tooltip": "Emits each log entry as a JSON object instead of pretty-printed text, which pipes cleanly into jq or log pipelines. The plain --format pretty default is easier to read in a terminal. Other filters like --status and --search work the same way in both formats."
+    },
+    {
+      "id": 3348,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler tail my-worker --status error",
+      "desc": "Tail only failed Worker invocations",
+      "tooltip": "Filters the live log stream to invocations that ended with an error, cutting through noise when hunting a production bug. Accepts ok, error, or canceled. Combine with --search to match text inside console.log messages."
+    },
+    {
+      "id": 3349,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler tail my-worker --search \"DB_TIMEOUT\"",
+      "desc": "Tail logs matching a text pattern",
+      "tooltip": "Shows only log entries whose console.log messages contain DB_TIMEOUT, handy when you know the failing code path. Combine with --status error to see just failed requests, or --method GET to filter by HTTP verb. Quote the pattern so the shell passes it as one argument."
+    },
+    {
+      "id": 3350,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler secret put API_KEY",
+      "desc": "Create or update a Worker secret",
+      "tooltip": "Prompts for a value and stores it as an encrypted secret bound to your Worker's runtime, so code reads it from the environment without the value ever appearing in source or the dashboard. Each put creates a new version and deploys it immediately. Secrets are the right home for API keys and tokens."
+    },
+    {
+      "id": 3351,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler secret put API_KEY --name my-worker",
+      "desc": "Set a secret on a specific Worker by name",
+      "tooltip": "Targets the Worker named my-worker instead of reading the name from wrangler.toml, which is what you need when running outside the project directory. Useful in scripts that manage several workers. The --name flag appears on most secret commands."
+    },
+    {
+      "id": 3352,
+      "category": "Cloudflare",
+      "cmd": "echo \"sk-live-9f2a\" | npx wrangler secret put API_KEY",
+      "desc": "Set a secret from piped input",
+      "tooltip": "Feeds the secret value through stdin so the put runs non-interactively, the standard pattern for CI pipelines and scripts. The trailing newline from echo is stripped. For many secrets at once, prefer `npx wrangler secret bulk secrets.json`."
+    },
+    {
+      "id": 3353,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler secret list",
+      "desc": "List secret names on a Worker",
+      "tooltip": "Prints the names of all secrets configured for the Worker in the current project. Values are never shown, only names, because secrets are write-only by design. Use this before deleting to confirm what exists."
+    },
+    {
+      "id": 3354,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler secret delete API_KEY",
+      "desc": "Delete a secret from a Worker",
+      "tooltip": "Removes the secret and immediately deploys a new version without it, so code reading the variable gets undefined. Any feature depending on the secret breaks until a new value is set with `wrangler secret put`. There is no confirmation prompt, so be sure."
+    },
+    {
+      "id": 3355,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler secret bulk secrets.json",
+      "desc": "Set or delete many secrets in one request",
+      "tooltip": "Reads a JSON file like {\"API_KEY\":\"abc\",\"WEBHOOK_URL\":\"https://x\"} and writes up to 100 secrets in a single call. A null value deletes that key. An .env file with KEY=VALUE lines also works, but deletion is not supported from .env. Without a file argument it reads stdin."
+    },
+    {
+      "id": 3356,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv namespace create GREETINGS",
+      "desc": "Create a new KV namespace",
+      "tooltip": "KV is Cloudflare's global key-value store for Workers, and a namespace is the container that groups keys. The command prints a namespace ID you must copy into wrangler.toml as a binding before code can use it. Run `npx wrangler kv namespace create GREETINGS --binding GREETINGS` to have wrangler update the config for you."
+    },
+    {
+      "id": 3357,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv namespace create GREETINGS --binding GREETINGS",
+      "desc": "Create a KV namespace and bind it in the config",
+      "tooltip": "Creates the namespace and automatically adds the binding to wrangler.toml, skipping the copy-paste step. A binding is the name your Worker code uses to reach the store, e.g. env.GREETINGS. Re-run `npx wrangler types` afterward to refresh the Env type."
+    },
+    {
+      "id": 3358,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv namespace list",
+      "desc": "List KV namespaces in your account",
+      "tooltip": "Shows every namespace with its ID and title, which is how you find the --namespace-id value for key commands when no binding exists. The ID is a long hex string, not the friendly name. Pipe through grep to filter by project."
+    },
+    {
+      "id": 3359,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv namespace delete GREETINGS --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Delete a KV namespace",
+      "tooltip": "Permanently deletes the namespace and every key inside it, with no recovery. This is the most destructive KV command, so confirm the ID is the right namespace first. Pass --skip-confirmation to bypass the prompt in scripts. Deleting is not the same as removing keys individually with `wrangler kv key delete`."
+    },
+    {
+      "id": 3360,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key put greeting \"Hello world\" --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Write a key-value pair to KV",
+      "tooltip": "Stores the value Hello world under the key greeting in the namespace. The key and value are positional; the value can be any string up to 25 MiB. Keys propagate to Cloudflare's global edge within seconds. For file contents as the value, use --path instead."
+    },
+    {
+      "id": 3361,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key put config.json --path ./config.json --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Write a file's contents as a KV value",
+      "tooltip": "Reads the value from ./config.json instead of the command line, which keeps large or multi-line payloads out of your shell history. The key is still positional, here config.json. Use --ttl or --expiration to make the entry expire, or --metadata to attach JSON metadata."
+    },
+    {
+      "id": 3362,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key put coupon \"SAVE20\" --ttl 86400 --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Write a KV key with a time to live",
+      "tooltip": "Stores the key with --ttl 86400, meaning it auto-expires 86400 seconds (one day) after being written. --expiration works the same but takes an absolute Unix timestamp. Useful for sessions, coupons, and cache-like data. Expired keys simply read as missing."
+    },
+    {
+      "id": 3363,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key get greeting --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Read a value from KV by key",
+      "tooltip": "Fetches and prints the value stored under greeting. A missing key reports an error rather than an empty value. Output is base64-encoded by default for binary safety; add --text to print raw text directly. See `wrangler kv key list` to discover available keys."
+    },
+    {
+      "id": 3364,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key get greeting --text --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Read a KV value as plain text",
+      "tooltip": "Same as the plain get but prints the value decoded as UTF-8 text, which is what you want for JSON, HTML, and normal strings. Without --text, values come back base64-encoded, so binary-safe but not human-readable. Pairs with `wrangler kv key put` for round-tripping."
+    },
+    {
+      "id": 3365,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key delete greeting --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Delete a key from KV",
+      "tooltip": "Permanently removes the greeting key and its value from the namespace. There is no undo, though the global cache may still serve a stale copy for a short window. Deleting a key that does not exist is not an error. For many keys at once, use `wrangler kv bulk delete`."
+    },
+    {
+      "id": 3366,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv key list --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "List all keys in a KV namespace",
+      "tooltip": "Prints every key in the namespace along with metadata such as size and expiration, and paginates automatically for large stores. Useful for auditing what is stored and for building a delete list for `wrangler kv bulk delete`. Values are not shown, only keys."
+    },
+    {
+      "id": 3367,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv bulk put ./kv-seeds.json --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Upload many KV pairs from a JSON file",
+      "tooltip": "Reads a JSON array like [{\"key\":\"a\",\"value\":\"1\"},{\"key\":\"b\",\"value\":\"2\"}] and writes every pair in one command, far faster than looping key put calls. Each entry can add expiration_ttl or expiration for per-key lifetimes. Handy for seeding data or migrating stores."
+    },
+    {
+      "id": 3368,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv bulk delete ./kv-keys.json --namespace-id 2f1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "desc": "Delete many KV keys from a JSON list",
+      "tooltip": "Takes a JSON array of key strings, like [\"a\",\"b\",\"c\"], and deletes them all in one call. Destructive with no undo, so generate the list from `wrangler kv key list` and review it before running. Compare with `wrangler kv bulk put` for the upload counterpart."
+    },
+    {
+      "id": 3369,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler kv namespace rename GREETINGS --new-name GREETINGS_V2",
+      "desc": "Rename a KV namespace",
+      "tooltip": "Changes the namespace title to GREETINGS_V2 while keeping the same ID and all stored keys, so existing bindings keep working. The old name is the positional argument. Confirm the change with `npx wrangler kv namespace list` afterward."
+    },
+    {
+      "id": 3370,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 create my-db",
+      "desc": "Create a new D1 database",
+      "tooltip": "D1 is Cloudflare's serverless SQLite database, and this provisions an empty one named my-db. The output includes a database_id you must add to wrangler.toml as a binding before your Worker can query it. Then create tables with `wrangler d1 execute my-db --file ./schema.sql`."
+    },
+    {
+      "id": 3371,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 create my-db --location weur",
+      "desc": "Create a D1 database in a specific region",
+      "tooltip": "Pins the primary location with a location hint such as weur (Western Europe), wnam, enam, eaur, or apac, reducing latency for regional users. D1 replicates data globally regardless, but the hint sets the home region. Omit it to let Cloudflare choose."
+    },
+    {
+      "id": 3372,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 list",
+      "desc": "List D1 databases in your account",
+      "tooltip": "Prints every D1 database with its name, ID, and version, which is how you confirm a database exists and find its exact name. Add --json for machine-readable output. Names feed every other `wrangler d1` command."
+    },
+    {
+      "id": 3373,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 info my-db",
+      "desc": "Show D1 database size and state",
+      "tooltip": "Reports the database's current size, number of tables, and health state, useful before deciding to back up or restore. Add --json for script consumption. Size creeping up is a sign to prune old rows."
+    },
+    {
+      "id": 3374,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 execute my-db --command \"SELECT * FROM users LIMIT 10\"",
+      "desc": "Run SQL against a D1 database",
+      "tooltip": "Executes the quoted SQL against the local D1 database by default, printing the rows as a table. You must supply either --command or --file. Add --remote to hit the production database, and --json to get results as JSON instead of a table."
+    },
+    {
+      "id": 3375,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 execute my-db --file ./schema.sql",
+      "desc": "Run a SQL file against D1",
+      "tooltip": "Executes every statement in schema.sql, the usual way to create tables and indexes or apply ad-hoc changes. Multiple statements run in one call, which is handy for seeding. For tracked, versioned schema changes, prefer migrations: `npx wrangler d1 migrations apply my-db`."
+    },
+    {
+      "id": 3376,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 execute my-db --remote --command \"DELETE FROM sessions\"",
+      "desc": "Run SQL against the production D1 database",
+      "tooltip": "The --remote flag targets the live production database instead of the local copy, so statements like DELETE FROM sessions take effect immediately. Destructive SQL here is irreversible without a restore, so test against local first. Consider `wrangler d1 time-travel restore` as your safety net."
+    },
+    {
+      "id": 3377,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 migrations create my-db add-users-table",
+      "desc": "Create a new D1 migration file",
+      "tooltip": "Generates a timestamped SQL file in the migrations folder named for your change, e.g. 0001_add-users-table.sql, ready for you to edit. Migrations are versioned schema changes that D1 tracks as applied. Name them as a description of the change; the description is what makes history readable."
+    },
+    {
+      "id": 3378,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 migrations list my-db",
+      "desc": "List unapplied D1 migrations",
+      "tooltip": "Shows which migration files exist and which have not been applied yet, so you know what `wrangler d1 migrations apply` is about to run. Applied migrations are recorded in a migrations table inside the database. Run this before applying to review pending changes."
+    },
+    {
+      "id": 3379,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 migrations apply my-db",
+      "desc": "Apply pending D1 migrations locally",
+      "tooltip": "Runs every unapplied migration file against the local D1 database and prompts for confirmation first. A backup is taken automatically before applying, so you can recover. For production, use `wrangler d1 migrations apply my-db --remote`."
+    },
+    {
+      "id": 3380,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 migrations apply my-db --remote",
+      "desc": "Apply pending D1 migrations to production",
+      "tooltip": "Applies the pending migration files to the live remote database, the real deployment step for schema changes. A backup is created automatically before applying, which you can restore via `wrangler d1 time-travel restore`. Review `d1 migrations list` first, since production data is at stake."
+    },
+    {
+      "id": 3381,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 export my-db --remote --output backup.sql",
+      "desc": "Export a D1 database to a SQL file",
+      "tooltip": "Dumps the schema and data of the remote database into backup.sql, the standard way to take a portable snapshot or migrate off Cloudflare. --local exports the local copy instead, and --no-schema or --no-data narrows the dump. Restore it later by running the file with `wrangler d1 execute`."
+    },
+    {
+      "id": 3382,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 time-travel info my-db",
+      "desc": "Show available D1 restore points",
+      "tooltip": "Lists the point-in-time restore bookmarks D1 keeps for your database, driven by automatic backups taken on migrations and writes. This is the recovery menu: pick a bookmark, then restore with `wrangler d1 time-travel restore`. Older points fall out of retention, so back up early for critical data."
+    },
+    {
+      "id": 3383,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 time-travel restore my-db --timestamp 2026-08-01T12:00:00Z",
+      "desc": "Restore a D1 database to a point in time",
+      "tooltip": "Rewinds the database to the state it had at the given timestamp, overwriting everything written since. Destructive to current data, so confirm the timestamp with `wrangler d1 time-travel info` first and export a snapshot if you need the newer data. Prefer --bookmark over --timestamp for exact restore points."
+    },
+    {
+      "id": 3384,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler d1 delete my-db",
+      "desc": "Delete a D1 database",
+      "tooltip": "Permanently removes the database and all its data, including backups, with a confirmation prompt. Add --skip-confirmation to bypass it in scripts. Export first with `wrangler d1 export` if there is any chance you need the data again. This cannot be undone."
+    },
+    {
+      "id": 3385,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 bucket create my-assets",
+      "desc": "Create a new R2 bucket",
+      "tooltip": "R2 is Cloudflare's S3-compatible object storage, and a bucket is its container for files. Creating my-assets gives you a place to store images, uploads, or backups with no egress fees. The command prints a binding hint for wrangler.toml, or pass --binding to have it added automatically."
+    },
+    {
+      "id": 3386,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 bucket create my-assets --location WNAM",
+      "desc": "Create an R2 bucket in a specific region",
+      "tooltip": "Pins the bucket's storage region, where WNAM means Western North America; other values include ENAM, WEUR, EEUR, APAC, and OC. Region choice affects latency and pricing, so pick the one closest to your users. Buckets cannot move regions later, so decide before creating."
+    },
+    {
+      "id": 3387,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 bucket list",
+      "desc": "List R2 buckets in your account",
+      "tooltip": "Prints every bucket with its creation date and storage class, giving you an inventory of object storage across the account. Useful before deleting anything. The CLI has no object-listing command, so to see contents use `wrangler r2 bucket info` or the REST API."
+    },
+    {
+      "id": 3388,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 bucket info my-assets",
+      "desc": "Show R2 bucket details",
+      "tooltip": "Reports the bucket's region, creation time, and object count, a quick health check before uploads or deletions. Add --json for script-friendly output. For per-object detail you must use the API, since the CLI offers no object list command."
+    },
+    {
+      "id": 3389,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 bucket delete my-assets",
+      "desc": "Delete an R2 bucket",
+      "tooltip": "Permanently removes the bucket, but only if it is empty; R2 refuses to delete a bucket that still holds objects. Delete the contents first with `wrangler r2 object delete` or the API, then run this. There is no recycle bin, so export anything valuable first."
+    },
+    {
+      "id": 3390,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 object put my-assets/logo.png --file ./logo.png",
+      "desc": "Upload a file to an R2 bucket",
+      "tooltip": "Uploads ./logo.png into the bucket as the object key logo.png. The object path is bucket/key, so my-assets/logo.png targets the my-assets bucket. Set --content-type to control the MIME type served to browsers; omit it and R2 guesses from the extension."
+    },
+    {
+      "id": 3391,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 object put my-assets/report.pdf --file ./report.pdf --content-type application/pdf",
+      "desc": "Upload a file with an explicit content type",
+      "tooltip": "Same upload as the plain put but pins the Content-Type header to application/pdf, which matters when R2's guess would be wrong or when serving files directly to users. Other header flags like --cache-control and --expires control edge caching. --force skips the data catalog validation prompt."
+    },
+    {
+      "id": 3392,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 object get my-assets/logo.png --file ./logo.png",
+      "desc": "Download an object from R2 to a file",
+      "tooltip": "Fetches the object at my-assets/logo.png and writes it to ./logo.png on disk. Without --file, output goes to stdout, which suits text but not binaries. Object paths always start with the bucket name. This is the CLI counterpart to `wrangler r2 object put`."
+    },
+    {
+      "id": 3393,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler r2 object delete my-assets/logo.png",
+      "desc": "Delete an object from R2",
+      "tooltip": "Permanently removes the object at my-assets/logo.png. There is no undo and no versioning by default, so a deleted asset breaks any URL or Worker serving it. --force skips the confirmation prompt for scripts. Double-check the bucket and key before running."
+    },
+    {
+      "id": 3394,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues create my-queue",
+      "desc": "Create a new Queue",
+      "tooltip": "A Queue buffers messages between Workers so producers and consumers run independently. This creates an empty queue named my-queue. Tune --message-retention-period-secs to keep messages longer before they expire, and --delivery-delay-secs to hold them before first delivery."
+    },
+    {
+      "id": 3395,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues list",
+      "desc": "List queues in your account",
+      "tooltip": "Prints every queue with its name and ID, useful for finding the exact queue name for other commands. Messages are not listed, only queues. --page paginates large accounts. See `npx wrangler queues info my-queue` for per-queue detail."
+    },
+    {
+      "id": 3396,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues info my-queue",
+      "desc": "Show queue details and stats",
+      "tooltip": "Reports the queue's retention settings, delivery delay, and consumer configuration, helping you confirm settings before changing them. Messages are delivered to a consumer Worker in batches, and this shows how that pipeline is wired."
+    },
+    {
+      "id": 3397,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues consumer add my-queue my-worker",
+      "desc": "Attach a Worker as a queue consumer",
+      "tooltip": "Wires my-worker to consume messages from my-queue in batches. The consumer Worker's queue() handler processes each batch; without a consumer, messages pile up until retention expires. --batch-size and --batch-timeout control batch shape, and --message-retries sets retry count on failure."
+    },
+    {
+      "id": 3398,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues consumer add my-queue my-worker --batch-size 10 --message-retries 3",
+      "desc": "Configure batch size and retries for a consumer",
+      "tooltip": "Adds the consumer with batches of up to 10 messages and 3 retries per message before it is considered failed, tuning throughput and reliability together. A failed message can be routed to a dead-letter queue via --dead-letter-queue instead of being dropped. Adjust retries carefully: too many delays processing."
+    },
+    {
+      "id": 3399,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues purge my-queue",
+      "desc": "Drop all messages in a queue",
+      "tooltip": "Deletes every message currently waiting in the queue, which is destructive: anything not yet consumed is gone forever. Pass --force to skip the confirmation prompt in scripts. Use it to clear a poisoned queue or discard a bad batch, not as routine cleanup."
+    },
+    {
+      "id": 3400,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler queues delete my-queue",
+      "desc": "Delete a queue",
+      "tooltip": "Permanently removes the queue, its pending messages, and its consumer bindings. Producers sending to it start failing until the binding is removed from their config. Confirm no worker still references it before deleting. This cannot be undone."
+    },
+    {
+      "id": 3401,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages project create my-site",
+      "desc": "Create a Cloudflare Pages project",
+      "tooltip": "Pages is Cloudflare's static hosting platform, and a project groups deployments of one site. In wrangler 4.x you must create the project before the first `wrangler pages deploy`; older versions auto-created it. The command prints the project's pages.dev URL."
+    },
+    {
+      "id": 3402,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages project create my-site --production-branch main",
+      "desc": "Create a Pages project with a production branch",
+      "tooltip": "Sets which branch counts as production, so deployments from main update the live site while other branches get preview URLs. If you use git flow with a main branch, pass this explicitly; the default may surprise you. Preview URLs make every PR testable before merge."
+    },
+    {
+      "id": 3403,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages project list",
+      "desc": "List your Pages projects",
+      "tooltip": "Prints every Pages project with its name, subdomain, and latest deployment, a quick inventory of what is hosted. Add --json for scripting. Project names feed `wrangler pages deploy --project-name` and the REST APIs."
+    },
+    {
+      "id": 3404,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages project delete my-site",
+      "desc": "Delete a Pages project",
+      "tooltip": "Permanently removes the project, all its deployments, and its custom domains, taking the site offline. There is no undo. Export or redeploy anything you still need first. Custom domain DNS records should be removed separately in the dashboard."
+    },
+    {
+      "id": 3405,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deploy ./dist",
+      "desc": "Deploy a static build to Pages",
+      "tooltip": "Uploads everything in ./dist as a new deployment of the Pages project, which defaults to the project name from config or an interactive prompt. The command prints the production and preview URLs. Requires the project to exist first: run `npx wrangler pages project create my-site` once."
+    },
+    {
+      "id": 3406,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deploy ./dist --project-name my-site",
+      "desc": "Deploy to a named Pages project",
+      "tooltip": "Explicitly targets the my-site project, which is required when you are outside the project directory or when the folder name does not match. Every deploy creates a new immutable deployment, so previous ones remain available in the dashboard for rollback."
+    },
+    {
+      "id": 3407,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deploy ./dist --branch staging",
+      "desc": "Deploy to a non-production branch",
+      "tooltip": "Creates a preview deployment tied to the staging branch, reachable at a preview URL, without touching the live production site. Branch-based deploys mirror how git flow works when connected to a repo. Promote later by deploying the same build to the production branch."
+    },
+    {
+      "id": 3408,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages dev ./dist",
+      "desc": "Run a Pages site locally",
+      "tooltip": "Serves the ./dist directory locally with Pages Functions support, so you can test static assets and serverless functions together before deploying. Defaults to a localhost port; pass --port to change it. Functions run with the local runtime rather than hitting production."
+    },
+    {
+      "id": 3409,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deployment list --project-name my-site",
+      "desc": "List Pages deployments",
+      "tooltip": "Shows every deployment for the project with its environment, branch, and URL, which is how you find a specific deployment ID or rollback target. Add --json for scripting, or --environment to filter production versus preview. Each entry is immutable."
+    },
+    {
+      "id": 3410,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deployment tail --project-name my-site",
+      "desc": "Stream live logs from a Pages deployment",
+      "tooltip": "Livestreams console logs and errors from the project's Functions, defaulting to the latest production deployment. Pass a deployment ID or URL positionally to tail a specific one, and --environment preview for the preview alias. Useful when a function misbehaves only in production."
+    },
+    {
+      "id": 3411,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages deployment delete 4d9c2b1af3e84a6d9b7c1e2f3a4b5c6d",
+      "desc": "Delete a Pages deployment",
+      "tooltip": "Permanently removes one deployment from the project, typically a broken preview. Deleting the current production deployment takes the site offline, so verify the ID from `wrangler pages deployment list` first. This cannot be undone."
+    },
+    {
+      "id": 3412,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages secret put API_KEY",
+      "desc": "Set a secret for a Pages project",
+      "tooltip": "Prompts for a value and stores it as an encrypted secret the project's Functions can read from the environment, without exposing it in source control. Same write-only model as Worker secrets. List names with `wrangler pages secret list` and remove with `wrangler pages secret delete`."
+    },
+    {
+      "id": 3413,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages functions build ./functions",
+      "desc": "Compile Pages Functions into a single Worker",
+      "tooltip": "Bundles the ./functions directory into one Worker file for inspection or deployment elsewhere, mirroring what Pages does automatically at deploy time. Pages Functions let you add serverless endpoints to a static site using file-based routing. Mainly a debugging and CI tool."
+    },
+    {
+      "id": 3414,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler pages download config my-site",
+      "desc": "Download a Pages project's config",
+      "tooltip": "Fetches the project's current configuration from Cloudflare into a local wrangler config, including compatibility settings and bindings. Useful when adopting an existing project that has no local config yet. Edit it and re-deploy to change behavior."
+    },
+    {
+      "id": 3415,
+      "category": "Cloudflare",
+      "cmd": "curl https://api.cloudflare.com/client/v4/user/tokens/verify -H 'Authorization: Bearer $CF_API_TOKEN' | jq",
+      "desc": "Verify a Cloudflare API token",
+      "tooltip": "Asks the API whether the token in $CF_API_TOKEN is valid and what it can do. Caveat: zone-scoped tokens can report invalid here even when they work fine on DNS endpoints, so treat a failure as a signal to test the real endpoint instead of assuming the token is dead. Every REST call below needs this Bearer header."
+    },
+    {
+      "id": 3416,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/zones?name=example.com\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[0].id'",
+      "desc": "Look up a zone ID by domain name",
+      "tooltip": "A zone is Cloudflare's representation of a domain you manage, and most DNS and cache API calls need its ID. This filters zones by name and extracts the ID with jq. Once you have ZONE_ID, export it and reuse it across the record and cache commands."
+    },
+    {
+      "id": 3417,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/zones\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[].name'",
+      "desc": "List all zone names on the account",
+      "tooltip": "Returns every domain in the account as a plain list of names via jq, handy for inventory or feeding a loop. The unfiltered endpoint paginates at 50 zones per page; add ?per_page=50 or page parameters for larger accounts. Zone names are domain names like example.com."
+    },
+    {
+      "id": 3418,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[] | {name, type, content}'",
+      "desc": "List DNS records for a zone",
+      "tooltip": "Prints every DNS record in the zone with its name, type, and content, the first step before editing records. The record ID you need for updates and deletes is in .result[].id, not shown by this jq filter. DNS records map hostnames to IPs, mail servers, or text values."
+    },
+    {
+      "id": 3419,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[].name'",
+      "desc": "List DNS records filtered by record type",
+      "tooltip": "Narrows the zone's records to one type, here A records that point hostnames at IPv4 addresses, and lists just their names. Swap type for CNAME, MX, TXT, or AAAA to audit other kinds. Useful before creating a record to check for conflicts."
+    },
+    {
+      "id": 3420,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"type\":\"A\",\"name\":\"www\",\"content\":\"1.2.3.4\",\"ttl\":1,\"proxied\":true}'",
+      "desc": "Create a DNS record via the API",
+      "tooltip": "Adds an A record pointing www.example.com at 1.2.3.4. ttl 1 means automatic, and proxied true turns on the orange cloud, hiding the origin IP behind Cloudflare's proxy. Set proxied false for mail and verification records, which must not be proxied. The response contains the new record's ID."
+    },
+    {
+      "id": 3421,
+      "category": "Cloudflare",
+      "cmd": "curl -X PATCH \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"content\":\"5.6.7.8\"}'",
+      "desc": "Update an existing DNS record",
+      "tooltip": "Changes just the fields you send, here repointing the record to 5.6.7.8 while keeping its type, name, and proxied status. RECORD_ID comes from the list command's .result[].id. Propagation is near-instant through Cloudflare, so verify with a lookup right after."
+    },
+    {
+      "id": 3422,
+      "category": "Cloudflare",
+      "cmd": "curl -X DELETE \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID\" -H 'Authorization: Bearer $CF_API_TOKEN'",
+      "desc": "Delete a DNS record",
+      "tooltip": "Permanently removes the record, so anything resolving through it stops working, including email if you delete an MX record by mistake. There is no undo; recreate it with the POST command if needed. Confirm RECORD_ID against `wrangler`-free list output before deleting."
+    },
+    {
+      "id": 3423,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"purge_everything\":true}'",
+      "desc": "Purge the entire cache for a zone",
+      "tooltip": "Wipes every cached asset for the zone, forcing Cloudflare's edge to refetch from your origin on the next request. Use it after origin content changes that bypass normal cache invalidation. It causes a short origin load spike as the cache refills. Prefer targeted purges when only a few files changed."
+    },
+    {
+      "id": 3424,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"files\":[\"https://example.com/css/app.css\"]}'",
+      "desc": "Purge specific files from the cache",
+      "tooltip": "Removes only the listed URLs from Cloudflare's cache, leaving everything else intact, which is cheaper for the origin than a full purge. The files array takes full URLs, not paths. Cache tags and hostname-based purges are also supported for bigger rollouts."
+    },
+    {
+      "id": 3425,
+      "category": "Cloudflare",
+      "cmd": "curl -X PATCH \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/settings/ssl\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"value\":\"full\"}'",
+      "desc": "Switch the SSL mode for a zone",
+      "tooltip": "Sets how Cloudflare encrypts the hop to your origin: flexible (origin over HTTP), full, or full strict (origin cert must match). The value full fixes 525 handshake errors with origins that have valid but self-signed or mismatched certificates. Mode changes propagate across the edge in about 30 seconds."
+    },
+    {
+      "id": 3426,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/accounts\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[].name'",
+      "desc": "List accounts the token can access",
+      "tooltip": "Returns the Cloudflare accounts your token is scoped to, which gives you the ACCOUNT_ID required by the Workers, R2, and Pages endpoints. Account IDs are 32-character hex strings. If this returns nothing, the token lacks account-level access and will also fail on account APIs."
+    },
+    {
+      "id": 3427,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/workers/scripts\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result[].id'",
+      "desc": "List Workers scripts via the API",
+      "tooltip": "Lists every Worker script in the account, which the wrangler CLI does not offer in one flat view. The script IDs are the Worker names. A token scoped only to zone DNS fails here with an auth error, since Workers are an account-level resource."
+    },
+    {
+      "id": 3428,
+      "category": "Cloudflare",
+      "cmd": "curl \"https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/r2/buckets/$BUCKET_NAME/objects\" -H 'Authorization: Bearer $CF_API_TOKEN' | jq '.result.objects[].key'",
+      "desc": "List R2 objects via the API",
+      "tooltip": "The wrangler CLI has no r2 object list command, so this REST call is the way to enumerate a bucket's contents. It returns object metadata including key, size, and last-modified; the jq filter extracts keys. Paginate with the cursor field for large buckets. Requires an R2 read-capable token."
+    },
+    {
+      "id": 3429,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/my-site/domains\" -H 'Authorization: Bearer $CF_API_TOKEN' -H 'Content-Type: application/json' -d '{\"name\":\"docs.example.com\"}'",
+      "desc": "Add a custom domain to a Pages project",
+      "tooltip": "Attaches docs.example.com to the my-site Pages project, which is needed because wrangler 4.x dropped the pages domain add command. After adding, create the matching CNAME record in DNS pointing to the project's pages.dev host. The domain activates once validation completes."
+    },
+    {
+      "id": 3430,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/my-site/purge_build_cache\" -H 'Authorization: Bearer $CF_API_TOKEN'",
+      "desc": "Purge a Pages project's build cache",
+      "tooltip": "Clears the cached build artifacts for the Pages project, forcing the next deployment to rebuild from scratch. Use it when a build is stuck on stale cache or produces inexplicable output. The cache rebuilds automatically on the next deploy, so this is safe but slightly slower."
+    },
+    {
+      "id": 3431,
+      "category": "Cloudflare",
+      "cmd": "curl -X POST \"https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache\" -H 'X-Auth-Email: admin@example.com' -H 'X-Auth-Key: cfk_8f3a2b9c1d4e5f6a7b8c9d0e1f2a3b4c'",
+      "desc": "Authenticate with a Global API Key",
+      "tooltip": "Legacy auth for scripts that predates API tokens: X-Auth-Email plus X-Auth-Key instead of a Bearer token. Global API Keys, which start with cfk_, carry full account access, so guard them like passwords and prefer scoped tokens. Sending a cfk_ key as a Bearer token returns an auth error."
+    },
+    {
+      "id": 3432,
+      "category": "Cloudflare",
+      "cmd": "cloudflared tunnel --url http://localhost:3000",
+      "desc": "Expose a local server via a quick tunnel",
+      "tooltip": "cloudflared is Cloudflare's tunnel client, and this one-liner creates an instant public URL on trycloudflare.com pointing at your local server on port 3000, with no account or config required. The URL dies when the process stops. For persistent tunnels, use `cloudflared tunnel create` and `cloudflared tunnel run` instead."
+    },
+    {
+      "id": 3433,
+      "category": "Cloudflare",
+      "cmd": "npx wrangler check startup",
+      "desc": "Analyze your Worker's startup performance",
+      "tooltip": "Runs the Worker locally and reports bundle size plus a startup CPU profile, helping you find slow initialization before it hurts users. Output shows gzipped bundle size, active CPU time, and garbage collection overhead. Run it after changes to confirm startup stays fast."
+    },
+    {
+      "id": 3434,
+      "category": "Firebase & Firestore",
+      "cmd": "npm install -g firebase-tools",
+      "desc": "Install the Firebase CLI globally",
+      "tooltip": "Installs firebase-tools, the official Firebase command-line tool, as a global npm package so the firebase command works anywhere. Requires Node.js and npm. Run firebase --version afterward to confirm the install, then firebase login to authenticate."
+    },
+    {
+      "id": 3435,
+      "category": "Firebase & Firestore",
+      "cmd": "curl -sL https://firebase.tools | bash",
+      "desc": "Install the Firebase CLI via install script",
+      "tooltip": "Downloads and runs Firebase's official install script, which detects your operating system and sets up the firebase command without needing Node.js or npm. Piping a remote script into bash always carries risk, so review the script at firebase.tools first. On macOS, curl -sL https://firebase.tools | upgrade=true bash updates an existing install."
+    },
+    {
+      "id": 3436,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase --version",
+      "desc": "Show the Firebase CLI version",
+      "tooltip": "Prints the installed firebase-tools version number, which is handy for bug reports and for checking whether you are on a recent release. Firebase CLI v13 and later are the current generation; older major versions drop deprecated commands. Update with npm install -g firebase-tools@latest."
+    },
+    {
+      "id": 3437,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase login",
+      "desc": "Log in to Firebase with a Google account",
+      "tooltip": "Opens a browser to authenticate the CLI with your Google account and grants access to your Firebase projects. Your credentials are cached locally, so later commands run without re-authenticating. Run firebase projects:list afterward to confirm the login worked. Use firebase login --reauth to force a fresh sign-in."
+    },
+    {
+      "id": 3438,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase login --reauth",
+      "desc": "Force a fresh Firebase authentication",
+      "tooltip": "Starts the browser sign-in flow again even though the CLI already has cached credentials. Use it when switching Google accounts, after a password change, or when commands start failing with authorization errors. The existing token is replaced once you complete the new login."
+    },
+    {
+      "id": 3439,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase login --no-localhost",
+      "desc": "Log in without a local callback server",
+      "tooltip": "Authenticates on machines without a usable localhost, such as remote servers and some CI runners. The CLI prints a URL to open on any device with a browser, then asks you to paste back the authorization code. Use firebase login:ci instead when you need a token for headless automation."
+    },
+    {
+      "id": 3440,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase login:ci",
+      "desc": "Generate an access token for CI systems",
+      "tooltip": "Produces a refresh token that lets firebase commands run without interactive login, typically stored as the FIREBASE_TOKEN environment variable in CI pipelines. Run it once on a machine with a browser and treat the printed token like a password — anyone holding it can access your projects. Google now recommends Application Default Credentials over tokens for CI."
+    },
+    {
+      "id": 3441,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase logout",
+      "desc": "Sign out of Firebase",
+      "tooltip": "Removes the cached Google credentials from your machine, so the next firebase command that needs auth will prompt you to log in again. Useful on shared machines or when you suspect your stored token was compromised. Pass an email address, like firebase logout me@example.com, to sign out a specific account."
+    },
+    {
+      "id": 3442,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase projects:list",
+      "desc": "List all Firebase projects you can access",
+      "tooltip": "Prints every Firebase project available to the logged-in account, each with its project ID and display name. Run this right after firebase login as a sanity check. Use the project ID from the list with firebase use or the -P flag to target a specific project."
+    },
+    {
+      "id": 3443,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase projects:create my-app",
+      "desc": "Create a new Firebase project",
+      "tooltip": "Creates a Google Cloud project and adds Firebase to it in one step, using my-app as the project ID. Add -n \"My App\" to set a display name, or -o ORGANIZATION_ID to create it under a Google Cloud organization. The interactive prompts ask for a display name; run it inside a project directory to use the new project immediately."
+    },
+    {
+      "id": 3444,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase use my-app",
+      "desc": "Set the active Firebase project",
+      "tooltip": "Makes my-app the active project for the current directory, so commands like firebase deploy target it without extra flags. The choice is recorded in the .firebaserc file and affects only this directory. Run firebase use with no arguments to see the current alias list, or pass -P my-app on any command to override per-invocation."
+    },
+    {
+      "id": 3445,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase use --add",
+      "desc": "Add a project alias interactively",
+      "tooltip": "Prompts you to pick another Firebase project and assign it an alias, then stores the mapping in the .firebaserc file of the current directory. Aliases let you switch between environments, for example staging and prod, with firebase use staging. Commit .firebaserc to share the aliases with your team."
+    },
+    {
+      "id": 3446,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase use --clear",
+      "desc": "Clear the active project selection",
+      "tooltip": "Removes the active project from the current directory, so commands that need a project will error until you run firebase use PROJECT_ID again. Handy when you are about to switch context or when a directory should not implicitly target any project."
+    },
+    {
+      "id": 3447,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase use my-app --alias staging",
+      "desc": "Alias a project for quick switching",
+      "tooltip": "Associates the alias staging with the project my-app in the current directory's .firebaserc file, without the interactive prompts of firebase use --add. Later commands like firebase use staging or firebase deploy -P staging resolve to my-app. Remove an alias later with firebase use --unalias staging."
+    },
+    {
+      "id": 3448,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase use --unalias staging",
+      "desc": "Remove a project alias",
+      "tooltip": "Deletes the alias staging from the current directory's .firebaserc file, leaving the underlying Firebase project untouched. The alias no longer resolves, so any command that referenced it will fail until you pick a new project. This only edits local configuration, never the Firebase project itself."
+    },
+    {
+      "id": 3449,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init",
+      "desc": "Initialize Firebase in the current directory",
+      "tooltip": "Walks you through choosing a Firebase project and the products to configure, then writes firebase.json and .firebaserc into the directory. It also generates product scaffolding such as functions/index.js and firestore.rules. Re-run it later to add more products, or restrict it with a feature argument like firebase init hosting."
+    },
+    {
+      "id": 3450,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init --project my-app",
+      "desc": "Initialize using a specific Firebase project",
+      "tooltip": "Skips the project-selection prompt and wires the current directory to the my-app project, which is useful in scripts and CI. You still pick which products to set up interactively. The chosen project becomes the default alias written to .firebaserc."
+    },
+    {
+      "id": 3451,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init hosting",
+      "desc": "Initialize only Firebase Hosting",
+      "tooltip": "Sets up Firebase Hosting in the current directory: it asks for a public directory (commonly public) and creates a hosting block in firebase.json plus an index.html starter. The rest of your Firebase products remain untouched. Deploy the result with firebase deploy --only hosting."
+    },
+    {
+      "id": 3452,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init functions",
+      "desc": "Initialize only Cloud Functions",
+      "tooltip": "Scaffolds the functions/ directory with a package.json and an index.js or index.ts entry point, and asks whether to use TypeScript, ESLint, and npm dependencies. It also registers the functions codebase in firebase.json. Deploy the resulting code with firebase deploy --only functions."
+    },
+    {
+      "id": 3453,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init firestore",
+      "desc": "Initialize Firestore rules and indexes",
+      "tooltip": "Creates firestore.rules and firestore.indexes.json in the current directory, ready to hold your security rules and composite index definitions. The CLI may also offer to deploy them immediately. Push changes later with firebase deploy --only firestore:rules or firebase deploy --only firestore:indexes."
+    },
+    {
+      "id": 3454,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase init emulators",
+      "desc": "Configure the Local Emulator Suite",
+      "tooltip": "Adds an emulators block to firebase.json defining ports for each local emulator (for example Firestore on 8080 and Auth on 9099), and can download the emulator binaries. The emulators let you run your backend entirely on your machine without touching production. Start them with firebase emulators:start."
+    },
+    {
+      "id": 3455,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase target",
+      "desc": "List configured deploy targets",
+      "tooltip": "Shows the deploy targets defined for the current project, such as a hosting target grouping several sites under one name. Targets are created with firebase target:apply and let firebase deploy --only target-name push to multiple resources at once."
+    },
+    {
+      "id": 3456,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase target:apply hosting my-site my-site-id",
+      "desc": "Map a deploy target to resources",
+      "tooltip": "Binds the target name my-site to the Hosting site my-site-id for the active project, then writes the mapping to .firebaserc. Afterward, firebase deploy --only hosting:my-site deploys to that site. Run firebase target hosting to verify the mapping."
+    },
+    {
+      "id": 3457,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase open",
+      "desc": "Open project pages in the browser",
+      "tooltip": "Launches your browser at the Firebase console pages for the active project, with a menu of destinations such as Hosting, Functions logs, and Database. Pass a link name like firebase open hosting:site to jump straight to a destination non-interactively."
+    },
+    {
+      "id": 3458,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy",
+      "desc": "Deploy all configured resources",
+      "tooltip": "Pushes every deployable resource in your firebase.json to the active project: Hosting content, Cloud Functions, Firestore and Storage rules, Firestore indexes, and more. It must run from a directory containing firebase.json. Use --only or --except to narrow the deploy, and add -m \"message\" to attach a release note."
+    },
+    {
+      "id": 3459,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only hosting",
+      "desc": "Deploy only Hosting content",
+      "tooltip": "Uploads just the Hosting site (the static files from your public directory) and leaves functions, rules, and indexes alone. Faster than a full firebase deploy when you only changed frontend files. Target a single site in multi-site setups with --only hosting:site-name."
+    },
+    {
+      "id": 3460,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only hosting:my-site",
+      "desc": "Deploy a specific Hosting site",
+      "tooltip": "Deploys only the Hosting site named my-site, which matters when firebase.json configures multiple sites and you do not want to touch the others. Site names come from firebase hosting:sites:list. Combine with -m to add a release message shown in the console."
+    },
+    {
+      "id": 3461,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only functions",
+      "desc": "Deploy only Cloud Functions",
+      "tooltip": "Uploads all your Cloud Functions code without touching Hosting, rules, or indexes. Use it when you only changed backend code, since a full deploy rebuilds everything. Narrow further to individual functions with --only functions:functionName."
+    },
+    {
+      "id": 3462,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only functions:sendWelcomeEmail",
+      "desc": "Deploy a single Cloud Function",
+      "tooltip": "Deploys only the function named sendWelcomeEmail, which is ideal for iterating on one endpoint without waiting for the rest to build. The function name must match an export in your functions source. Related commands: firebase deploy --only functions deploys all functions, and firebase functions:delete removes one."
+    },
+    {
+      "id": 3463,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only firestore:rules",
+      "desc": "Deploy Firestore security rules",
+      "tooltip": "Pushes your local firestore.rules file to the active project, replacing the published rules immediately. Rules changes apply to new requests without redeploying functions, but a mistake can lock clients out, so test with the Firestore emulator first. Related: firebase deploy --only firestore:indexes for indexes."
+    },
+    {
+      "id": 3464,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only firestore:indexes",
+      "desc": "Deploy Firestore composite indexes",
+      "tooltip": "Uploads the index definitions from firestore.indexes.json to the project. Composite indexes are required for queries that combine multiple fields or range filters. Indexes build asynchronously; watch firestore:operations:list or the console to see when they are ready. Related: firebase firestore:indexes lists deployed indexes."
+    },
+    {
+      "id": 3465,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only storage",
+      "desc": "Deploy Cloud Storage security rules",
+      "tooltip": "Uploads your storage.rules file, which controls who can read and write objects in Cloud Storage buckets. Rules changes take effect immediately and can break uploads if written incorrectly, so review them carefully. Related commands: firebase deploy --only database deploys Realtime Database rules."
+    },
+    {
+      "id": 3466,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only database",
+      "desc": "Deploy Realtime Database security rules",
+      "tooltip": "Pushes database.rules.json to the active Realtime Database instance, updating access control for that database. Bad rules can instantly deny all clients, so test locally first. Related: firebase deploy --only firestore:rules covers Cloud Firestore rules instead."
+    },
+    {
+      "id": 3467,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --only hosting,functions",
+      "desc": "Deploy multiple targets at once",
+      "tooltip": "Deploys only the listed targets — here Hosting and Cloud Functions — while skipping rules and indexes. The --only flag accepts a comma-separated list of any deployable target. This is the fastest way to ship frontend plus backend changes together."
+    },
+    {
+      "id": 3468,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --dry-run",
+      "desc": "Validate a deploy without shipping",
+      "tooltip": "Builds your code and validates configuration exactly as a real deploy would, but uploads nothing to the project. It may still enable required APIs on the target project to give accurate validation. Run it before release deploys in CI to catch build errors early."
+    },
+    {
+      "id": 3469,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy -m \"v1.2.0 release\"",
+      "desc": "Deploy with an attached release message",
+      "tooltip": "Attaches the message v1.2.0 release to the deployment, which is displayed on the Hosting page of the Firebase console and in deployment history. The -m flag is short for --message. It helps teams see what each deploy contains when reviewing release timelines."
+    },
+    {
+      "id": 3470,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy --except functions",
+      "desc": "Deploy everything except one target",
+      "tooltip": "Deploys all configured resources except Cloud Functions, which is the inverse of --only. It is handy when a functions deploy would be slow or risky but you still want rules and Hosting shipped. The flag accepts a comma-separated list, for example --except functions,storage."
+    },
+    {
+      "id": 3471,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase deploy -P staging",
+      "desc": "Deploy to a specific project",
+      "tooltip": "Runs the deploy against the staging project regardless of the active project set with firebase use. The -P flag (short for --project) works on nearly every firebase command and accepts a project ID or an alias. Use it to promote the same codebase to production with firebase deploy -P prod."
+    },
+    {
+      "id": 3472,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start",
+      "desc": "Start all configured emulators",
+      "tooltip": "Boots every emulator defined in the emulators block of firebase.json — commonly Firestore, Auth, Functions, and Hosting — so your app runs entirely on localhost. An emulator is a local simulation of the real service, so no production data is touched. Stop them with Ctrl+C; capture state first with firebase emulators:export."
+    },
+    {
+      "id": 3473,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start --only auth,firestore",
+      "desc": "Start only specific emulators",
+      "tooltip": "Starts just the Auth and Firestore emulators from your emulator configuration, which is faster and uses less memory than starting everything. The --only flag takes a comma-separated list of emulator names such as auth, firestore, functions, database, storage, or hosting. Useful for frontend-only work that needs a mock backend."
+    },
+    {
+      "id": 3474,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start --only functions",
+      "desc": "Start only the Functions emulator",
+      "tooltip": "Runs the Cloud Functions emulator, which executes your deployed function code locally on port 5001 by default. Requests are served as if the functions were live, making it great for testing HTTP triggers and callable functions. Pair it with the Firestore emulator (--only functions,firestore) when functions read or write data."
+    },
+    {
+      "id": 3475,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:exec 'npm test'",
+      "desc": "Run a test script against emulators",
+      "tooltip": "Starts the emulators, runs the quoted command (here npm test), then shuts the emulators down — ideal for CI and one-off test runs. Test code can point at localhost ports without any cleanup steps. Add --only to limit which emulators boot, and --ui to also launch the Emulator UI."
+    },
+    {
+      "id": 3476,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:export ./backup-dir",
+      "desc": "Export emulator data to a directory",
+      "tooltip": "Saves the current state of running emulators — Firestore documents, Auth users, and more — into ./backup-dir so you can restore it later. Use --only auth,firestore to limit what is exported, and -f to overwrite an existing directory. Restore the data with firebase emulators:start --import ./backup-dir."
+    },
+    {
+      "id": 3477,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start --import ./backup-dir",
+      "desc": "Start emulators with previously exported data",
+      "tooltip": "Boots the emulators and loads the data previously saved by firebase emulators:export from ./backup-dir, giving you a reproducible starting state such as seeded users or documents. The directory contains the firebase-export.json manifest plus per-emulator data folders. Related: --export-on-exit saves state automatically when you quit."
+    },
+    {
+      "id": 3478,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start --export-on-exit ./backup-dir",
+      "desc": "Auto-export emulator data on exit",
+      "tooltip": "Runs the emulators normally but automatically writes their state to ./backup-dir whenever they shut down cleanly with Ctrl+C. It pairs naturally with --import ./backup-dir to keep a persistent local dataset across sessions. Omit the directory to reuse whatever --import provided."
+    },
+    {
+      "id": 3479,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase emulators:start --inspect-functions",
+      "desc": "Debug emulated functions with the Node inspector",
+      "tooltip": "Starts the Functions emulator in debug mode so you can attach a debugger, such as Chrome DevTools or VS Code, to the Node inspector on port 9229. Set breakpoints in function code and step through requests locally. Related: firebase functions:shell gives a REPL for calling functions directly."
+    },
+    {
+      "id": 3480,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase setup:emulators:firestore",
+      "desc": "Download the Firestore emulator binary",
+      "tooltip": "Fetches the Firestore emulator jar so firebase emulators:start can run it locally. The emulator is a Java-based simulation of Cloud Firestore used for offline development and testing. The first emulators:start normally downloads it for you; this command does so explicitly, which helps in restricted network environments."
+    },
+    {
+      "id": 3481,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase setup:emulators:ui",
+      "desc": "Download the Emulator Suite UI",
+      "tooltip": "Downloads the Emulator UI, a local web dashboard (default port 4000) that shows emulator status, lets you inspect Firestore documents, and view Auth users. The UI is bundled separately from the emulators themselves. Launch it with firebase emulators:start --ui or by enabling ui in the emulators config."
+    },
+    {
+      "id": 3482,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:delete users/ada",
+      "desc": "Delete a Firestore document",
+      "tooltip": "Deletes the document at the path users/ada from the default Firestore database and asks for confirmation first. Without the -r flag it refuses to touch subcollections under that document, which protects you from accidental data loss. Add -f to skip the confirmation prompt in scripts."
+    },
+    {
+      "id": 3483,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:delete users/ada -r",
+      "desc": "Recursively delete a document and subcollections",
+      "tooltip": "Deletes the document users/ada plus every document in all of its subcollections — a powerful and irreversible operation, so the CLI still asks for confirmation unless you add -f. The -r flag (short for --recursive) cannot be combined with --shallow. For wiping an entire collection, prefer firestore:bulkdelete."
+    },
+    {
+      "id": 3484,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:delete users --shallow",
+      "desc": "Delete only top-level documents in a collection",
+      "tooltip": "Deletes the documents directly under the users collection but ignores any subcollections, which can orphan nested documents that still reference deleted parents. It is the opposite of -r, and the two flags are mutually exclusive. Use it to clear a collection level while preserving deeper data."
+    },
+    {
+      "id": 3485,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:delete --all-collections -f",
+      "desc": "Wipe all data from the Firestore database",
+      "tooltip": "Deletes every collection and document in the default Firestore database, returning it to an empty state. This is extremely destructive and cannot be undone, and -f skips all confirmation prompts, so double-check the project with firebase use before running it. Consider firestore:export-style backups first."
+    },
+    {
+      "id": 3486,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:indexes",
+      "desc": "List Firestore indexes as JSON",
+      "tooltip": "Prints the composite and single-field indexes defined in your project in the JSON specification format, matching what firestore.indexes.json expects. Add --pretty for a readable table layout. Deploy new index definitions with firebase deploy --only firestore:indexes."
+    },
+    {
+      "id": 3487,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:indexes --pretty",
+      "desc": "List Firestore indexes in a readable table",
+      "tooltip": "Displays the project's deployed Firestore indexes as a formatted table with collection, fields, and query scope columns instead of raw JSON. The data is the same as plain firebase firestore:indexes, just easier to scan. Useful when deciding whether a slow query needs a new composite index."
+    },
+    {
+      "id": 3488,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:locations",
+      "desc": "List available Firestore locations",
+      "tooltip": "Prints the Google Cloud regions where you can create a Firestore database, such as nam5 (multi-region US) and europe-west3. The list feeds into commands like firestore:databases:create and backup tooling that take a --location argument. Locations also determine data residency for compliance."
+    },
+    {
+      "id": 3489,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:bulkdelete --collection-ids posts,comments",
+      "desc": "Bulk-delete Firestore collection groups",
+      "tooltip": "Uses Firestore's managed bulk delete service to remove all documents in the posts and comments collection groups — every collection with that name across the database. It is safer and more efficient than firestore:delete for large datasets, and it pauses when no documents match. Confirm the collection IDs carefully since this is irreversible."
+    },
+    {
+      "id": 3490,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:databases:list",
+      "desc": "List Firestore databases in the project",
+      "tooltip": "Shows every Cloud Firestore database in the active project, including the default database and any named databases like ecommerce. Projects can host multiple databases, each with independent rules and indexes. Create another with firebase firestore:databases:create."
+    },
+    {
+      "id": 3491,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:databases:create ecommerce",
+      "desc": "Create a named Firestore database",
+      "tooltip": "Creates a new Cloud Firestore database called ecommerce in the default location, separate from the (default) database. Named databases suit multi-tenant or environment-separated designs, and each needs its own rules and indexes configured in firebase.json. Delete one with firestore:databases:delete."
+    },
+    {
+      "id": 3492,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:databases:get ecommerce",
+      "desc": "Show details of a Firestore database",
+      "tooltip": "Prints metadata about the ecommerce database: its type (native or Datastore mode), location, and state. It is a quick way to confirm a named database exists and where it lives before running operations against it. List all databases with firebase firestore:databases:list."
+    },
+    {
+      "id": 3493,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:databases:delete ecommerce",
+      "desc": "Delete a named Firestore database",
+      "tooltip": "Permanently removes the ecommerce database and all of its data, with a confirmation prompt unless you pass -f. Deleting the (default) database is not supported this way. Consider backups via firestore:backups first, since this operation cannot be undone."
+    },
+    {
+      "id": 3494,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:backups:list -l nam5",
+      "desc": "List Firestore database backups",
+      "tooltip": "Lists the managed backups available for Firestore databases in the nam5 location, showing each backup's database, creation time, and size. Pass -l to filter by region, or omit it for all locations. Backups are created by schedules you define with firestore:backups:schedules:create."
+    },
+    {
+      "id": 3495,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase firestore:operations:list",
+      "desc": "List pending Firestore admin operations",
+      "tooltip": "Shows long-running administrative operations such as index builds and bulk deletes, with their status and progress. It is the CLI window into work Firestore is doing in the background, for example after deploying new composite indexes. Limit the result count with --limit, or scope to a database with --database."
+    },
+    {
+      "id": 3496,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:shell",
+      "desc": "Test functions in a Node REPL",
+      "tooltip": "Launches the Functions emulator and drops you into an interactive Node shell where you can call your functions directly with test data, including onCall functions and background triggers. It is the fastest way to poke at function behavior without writing an HTTP client. Type the function name plus arguments to invoke it; exit with Ctrl+C or .exit."
+    },
+    {
+      "id": 3497,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:log",
+      "desc": "Read logs from deployed functions",
+      "tooltip": "Fetches the latest log entries from your deployed Cloud Functions, which is the first stop when a production function fails or returns unexpected results. Logs come from Cloud Logging, so anything your function writes with console.log appears here. Limit the volume with -n 50, or filter to one function with --only."
+    },
+    {
+      "id": 3498,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:log --only sendWelcomeEmail",
+      "desc": "Read logs for a single function",
+      "tooltip": "Shows only the log lines produced by the sendWelcomeEmail function, cutting through noise from other functions. The --only flag takes a comma-separated list of function names. Combine with -n to cap how many lines are fetched. Related: firebase functions:list shows all deployed function names."
+    },
+    {
+      "id": 3499,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:log -n 50",
+      "desc": "Read the last 50 log lines",
+      "tooltip": "Limits the fetched logs to the 50 most recent entries instead of the default batch, which keeps output manageable for frequently called functions. The -n flag is short for --lines. Add --only functionName to scope the lines to one function."
+    },
+    {
+      "id": 3500,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:list",
+      "desc": "List all deployed Cloud Functions",
+      "tooltip": "Prints every function deployed in the active project along with its region and runtime. It is the authoritative inventory of your backend, handy before a functions:delete or when auditing which endpoints exist. Filters and regions are shown so you can copy exact names into --only deploy filters."
+    },
+    {
+      "id": 3501,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:delete sendWelcomeEmail",
+      "desc": "Delete a deployed Cloud Function",
+      "tooltip": "Removes the sendWelcomeEmail function from the project after a confirmation prompt; add -f to skip it. Deleting a function that other code calls will break those callers, so check dependencies first. Pass multiple names or use --region to disambiguate functions with the same name in different regions."
+    },
+    {
+      "id": 3502,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:delete sendWelcomeEmail --region europe-west1",
+      "desc": "Delete a function in a specific region",
+      "tooltip": "Deletes the sendWelcomeEmail function only from the europe-west1 region. This matters when the same function name is deployed to several regions — without --region, matching functions in all regions get deleted. Confirm the region list with firebase functions:list."
+    },
+    {
+      "id": 3503,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:set STRIPE_API_KEY",
+      "desc": "Create or update a functions secret",
+      "tooltip": "Creates or rotates the secret STRIPE_API_KEY in Cloud Secret Manager for use by Cloud Functions, prompting for the value or reading it from --data-file. Reference it in code with the functions SDK instead of hardcoding credentials. Secrets are versioned, so rotation creates a new version; access the value with functions:secrets:access."
+    },
+    {
+      "id": 3504,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:set STRIPE_API_KEY --data-file ./key.txt",
+      "desc": "Set a secret from a file",
+      "tooltip": "Stores the contents of ./key.txt as the value of the STRIPE_API_KEY secret, which avoids typing sensitive values into your shell history. The CLI prompts to redeploy functions that use the secret unless you pass -f. Related: functions:secrets:get shows metadata and versions for the secret."
+    },
+    {
+      "id": 3505,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:get STRIPE_API_KEY",
+      "desc": "Show metadata for a functions secret",
+      "tooltip": "Prints the metadata for STRIPE_API_KEY, including creation time and every version currently stored, without revealing the secret values themselves. Use it to audit when a secret was rotated and which versions still exist. Access the actual value with functions:secrets:access."
+    },
+    {
+      "id": 3506,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:access STRIPE_API_KEY",
+      "desc": "Print a secret's value",
+      "tooltip": "Outputs the latest value of STRIPE_API_KEY (or a specific version with KEY@2 syntax), which is occasionally needed for debugging or manual setup. Anyone with CLI access to the project can read this, so avoid printing secrets in shared logs. Related: functions:secrets:get lists versions first."
+    },
+    {
+      "id": 3507,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:destroy STRIPE_API_KEY",
+      "desc": "Destroy a functions secret version",
+      "tooltip": "Permanently deletes STRIPE_API_KEY (or a specific version with KEY@2 syntax) from Secret Manager after a confirmation prompt. Destroyed secrets cannot be recovered, and functions still referencing the destroyed version will fail, so check functions:secrets:get first. Related: functions:secrets:prune cleans up unused secrets."
+    },
+    {
+      "id": 3508,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:secrets:prune",
+      "desc": "Destroy secrets no longer in use",
+      "tooltip": "Deletes secret versions that no deployed function references, cleaning up credentials left behind by rotations and deletions. It prompts before destroying anything unless you pass -f. Run functions:secrets:get first to review what is about to go. This is the safe way to keep your secret inventory tidy."
+    },
+    {
+      "id": 3509,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:config:get stripe.key",
+      "desc": "Read legacy environment config",
+      "tooltip": "Fetches the value stored at the stripe.key path in the old functions config system and prints it as JSON. Google recommends migrating this config to Secret Manager, and functions:config:export automates that move. New projects should use functions:secrets:set instead."
+    },
+    {
+      "id": 3510,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:config:clone --from my-app-staging",
+      "desc": "Clone function config from another project",
+      "tooltip": "Copies the environment config from the my-app-staging project into the active project, which is useful when promoting code from staging to production. Add --only key1,key2 to copy a subset, or --except to skip keys. The legacy config system is being replaced by Secret Manager, so prefer functions:config:export for new setups."
+    },
+    {
+      "id": 3511,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase functions:config:export",
+      "desc": "Export function config to Secret Manager",
+      "tooltip": "Migrates your legacy functions config (functions:config) into Cloud Secret Manager as a single secret, defaulting to the name FUNCTIONS_CONFIG_EXPORT unless you pass --secret NAME. Afterward, functions read the values via the secrets API instead of config. This is the recommended path off the deprecated config system."
+    },
+    {
+      "id": 3512,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:deploy preview1",
+      "desc": "Deploy Hosting to a preview channel",
+      "tooltip": "Deploys your Hosting content to the preview channel named preview1, creating the channel if needed, and prints a unique preview URL like preview1--project-id.web.app. Preview channels are ephemeral environments for sharing work-in-progress with reviewers. The channel expires after 7 days by default; extend or shorten it with --expires."
+    },
+    {
+      "id": 3513,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:deploy preview1 --expires 30d",
+      "desc": "Deploy a preview channel with a custom lifetime",
+      "tooltip": "Deploys to the preview1 channel and keeps it alive for 30 days before Firebase deletes it automatically. The --expires flag accepts durations like 12h or 30d with a maximum of 30d; the default is 7d. Useful for long-running feature reviews. Clean up channels early with hosting:channel:delete."
+    },
+    {
+      "id": 3514,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:deploy preview1 --open",
+      "desc": "Deploy a preview channel and open it",
+      "tooltip": "Deploys to the preview1 channel and immediately opens the preview URL in your default browser. It is a handy end-to-end check after shipping a change, saving you from copying the URL out of the deploy output. The channel still expires per --expires, defaulting to 7 days."
+    },
+    {
+      "id": 3515,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:list",
+      "desc": "List Hosting channels for the project",
+      "tooltip": "Shows every channel of the default Hosting site, including the permanent live channel and any preview channels, each with its URL and expiration date. Add --site site-name to list channels of a different site. Related: hosting:channel:delete removes a preview channel."
+    },
+    {
+      "id": 3516,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:open preview1",
+      "desc": "Open a preview channel in the browser",
+      "tooltip": "Opens the URL of the preview1 channel in your default browser, or prints the URL when a browser is unavailable. It is the quick way to revisit a preview channel you deployed earlier. Add --site site-name if the channel belongs to a non-default site."
+    },
+    {
+      "id": 3517,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:delete preview1",
+      "desc": "Delete a Hosting preview channel",
+      "tooltip": "Removes the preview1 channel and its deployed version after a confirmation prompt; pass -f to skip it. The live channel cannot be deleted, only preview channels can. Do this to clean up stale preview URLs and stop them from being served."
+    },
+    {
+      "id": 3518,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:channel:create preview1",
+      "desc": "Create a Hosting channel without deploying",
+      "tooltip": "Creates the preview1 channel ahead of time without deploying any content to it, so the channel exists with an empty version. This is a stepping stone for workflows that create channels and deploy later, or for reserving a URL. Deploy to it with firebase hosting:channel:deploy preview1."
+    },
+    {
+      "id": 3519,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:clone my-site:preview1 my-site:live",
+      "desc": "Promote a preview channel to live",
+      "tooltip": "Copies the most recently deployed version from the my-site:preview1 channel to the live channel of my-site, effectively promoting a reviewed preview to production without rebuilding. It also works across sites, for example siteA:preview1 siteB:live. Run a quick sanity check on the preview URL before cloning."
+    },
+    {
+      "id": 3520,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:disable",
+      "desc": "Take the Hosting site offline",
+      "tooltip": "Stops serving web traffic for the default Hosting site, showing a temporary maintenance page instead, after a confirmation prompt unless you pass -f. It does not delete the site or its content. Re-enable hosting by deploying again or in the console. Use -s site-name to target a specific site."
+    },
+    {
+      "id": 3521,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:sites:list",
+      "desc": "List Hosting sites in the project",
+      "tooltip": "Prints every Firebase Hosting site in the active project with its ID, default domain, and creation date. Projects can hold multiple sites, for example one per environment or brand. Create additional sites with hosting:sites:create."
+    },
+    {
+      "id": 3522,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:sites:create my-site",
+      "desc": "Create a new Hosting site",
+      "tooltip": "Creates a Firebase Hosting site named my-site and gives it a default domain, without deploying any content. Sites are independent containers for Hosting versions, useful for multi-site architectures. Deploy to it with firebase deploy --only hosting:my-site after adding it to firebase.json."
+    },
+    {
+      "id": 3523,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:sites:get my-site",
+      "desc": "Show details of a Hosting site",
+      "tooltip": "Prints metadata about the my-site Hosting site, such as its ID, default URL, and creation time. It is a quick lookup before managing the site or configuring custom domains. List all sites with firebase hosting:sites:list."
+    },
+    {
+      "id": 3524,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase hosting:sites:delete my-site",
+      "desc": "Delete a Hosting site",
+      "tooltip": "Permanently removes the my-site Hosting site and its deployed versions after a confirmation prompt; -f skips the prompt. Any custom domains pointing at the site stop resolving, so migrate traffic first. Deleting the default site is not allowed."
+    },
+    {
+      "id": 3525,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase auth:export users.json",
+      "desc": "Export Auth users to a JSON file",
+      "tooltip": "Downloads every user account from Firebase Authentication into users.json, including UIDs, emails, provider info, and password hashes. The export is the standard way to back up or migrate users. Add --format csv to write comma-separated data instead, and import the file later with firebase auth:import."
+    },
+    {
+      "id": 3526,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase auth:export users.csv",
+      "desc": "Export Auth users to a CSV file",
+      "tooltip": "Writes all Authentication users to users.csv in comma-separated format, which opens directly in spreadsheets for audits or bulk edits. The file extension selects the format automatically; the --format flag only matters when the filename is ambiguous. Re-import the file with firebase auth:import."
+    },
+    {
+      "id": 3527,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase auth:import users.json",
+      "desc": "Import users from a JSON file",
+      "tooltip": "Loads user accounts from users.json into Firebase Authentication, creating or updating them in bulk. If the accounts use password hashes from another system, you must pass the matching hash flags, for example --hash-algo bcrypt. This is the primary tool for migrating users between projects or from a legacy backend."
+    },
+    {
+      "id": 3528,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase auth:import users.json --hash-algo bcrypt",
+      "desc": "Import users hashed with bcrypt",
+      "tooltip": "Imports users.json and tells Firebase their passwords were hashed with bcrypt, so it can verify logins against the imported hashes. Different algorithms need different flags — scrypt needs --rounds and --mem-cost, SHA256 needs --hash-key. Test one account's login after importing to confirm the hash parameters match."
+    },
+    {
+      "id": 3529,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase auth:import users.json --hash-algo scrypt --rounds 8 --mem-cost 14",
+      "desc": "Import users hashed with scrypt",
+      "tooltip": "Imports users whose passwords were hashed with scrypt, declaring the exact scrypt parameters used by the source system: 8 rounds and memory cost 14. Firebase must know these values to reproduce the hashes at login time. Getting a parameter wrong makes imported passwords unverifiable, so keep the source settings handy."
+    },
+    {
+      "id": 3530,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:get /users",
+      "desc": "Fetch Realtime Database data as JSON",
+      "tooltip": "Reads the data at the /users path of the active Realtime Database and prints it as JSON. Add --pretty for readable formatting, or -o filename to save to a file. Query options like --order-by and --limit-to-first refine large datasets. Data is served from the live database, so results reflect production state."
+    },
+    {
+      "id": 3531,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:get /users --pretty",
+      "desc": "Fetch database data with readable formatting",
+      "tooltip": "Prints the /users path with indented, colorized JSON instead of a compact single line. Handy when inspecting nested records by eye. The data itself is identical to the plain form. Save the formatted output with -o filename if you want to keep it."
+    },
+    {
+      "id": 3532,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:get /users/ada -o ada.json",
+      "desc": "Save database data to a file",
+      "tooltip": "Fetches the data at /users/ada and writes it to ada.json instead of printing to the terminal. The -o flag is short for --output. Useful for backing up a subtree or feeding the file into other tools. Related: database:set reads JSON back in from a file."
+    },
+    {
+      "id": 3533,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:set /users/ada -d '{\"name\": \"Ada\"}'",
+      "desc": "Replace data at a database path",
+      "tooltip": "Replaces everything at /users/ada with the inline JSON provided by -d, after a confirmation prompt unless you pass -f. Any existing children not present in the new data are deleted, so this is destructive to that path. For merging fields instead, use database:update."
+    },
+    {
+      "id": 3534,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:set /users/ada users.json",
+      "desc": "Set database data from a JSON file",
+      "tooltip": "Replaces the data at /users/ada with the contents of users.json, which is convenient for seeding or restoring a subtree. The file argument can also be stdin. Add -f to skip the confirmation prompt, and --disable-triggers to prevent Cloud Functions from firing on the write."
+    },
+    {
+      "id": 3535,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:push /messages -d '{\"text\": \"hello\"}'",
+      "desc": "Append data to a database list",
+      "tooltip": "Adds the JSON object to the /messages list and lets Realtime Database generate a unique push key for it, producing /messages/-NxyzABC. Use push for chat-style append-only lists where you need unique IDs. Related: database:set replaces data at an exact path instead."
+    },
+    {
+      "id": 3536,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:update /users/ada -d '{\"age\": 36}'",
+      "desc": "Merge fields into an existing record",
+      "tooltip": "Merges the provided JSON into /users/ada, adding or updating only those keys while leaving all other children untouched. This is the safe counterpart to database:set, which replaces the entire path. The -d flag supplies inline JSON; you can also pass a file path."
+    },
+    {
+      "id": 3537,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:remove /users/ada",
+      "desc": "Delete data at a database path",
+      "tooltip": "Removes everything stored at /users/ada, including all nested children, after a confirmation prompt unless you pass -f. There is no undo, so double-check the path — removing / wipes the whole database. Related: database:set can restore data afterward if you have a backup."
+    },
+    {
+      "id": 3538,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:import / backup.json",
+      "desc": "Import a JSON file into the database",
+      "tooltip": "Loads the contents of backup.json into the Realtime Database at the specified path, here the root /, writing records non-atomically in chunks. Unlike database:set it does not first delete existing data at the target, so it is suitable for merging large backups. Tune throughput with --chunk-size and --concurrency."
+    },
+    {
+      "id": 3539,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:profile",
+      "desc": "Profile Realtime Database usage",
+      "tooltip": "Streams live operation data from the Realtime Database and produces a usage report showing read, write, and latency statistics per path. Run it while traffic flows to find hot spots and slow queries. Set a collection window with -d 30 for 30 seconds, or analyze a saved log with -i filename."
+    },
+    {
+      "id": 3540,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:profile -d 30",
+      "desc": "Profile the database for 30 seconds",
+      "tooltip": "Collects Realtime Database usage statistics for 30 seconds, then prints a report of read/write volume and latency grouped by path. The -d flag sets the duration in seconds. Useful for capturing a bounded sample during a load test. Save the report with -o filename."
+    },
+    {
+      "id": 3541,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:instances:list",
+      "desc": "List Realtime Database instances",
+      "tooltip": "Shows every Realtime Database instance in the project with its name and location. A project can hold multiple named instances beyond the default, each with independent data and rules. Filter by region with -l europe-west1. Create new instances with database:instances:create."
+    },
+    {
+      "id": 3542,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:instances:create my-app-eu -l europe-west1",
+      "desc": "Create a Realtime Database instance",
+      "tooltip": "Creates a new Realtime Database instance named my-app-eu in the europe-west1 region, useful for geographic data residency or separating workloads. Without -l it defaults to us-central1. The instance gets its own rules and data, managed via the --instance flag on other database commands."
+    },
+    {
+      "id": 3543,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:settings:get defaultWriteSizeLimit",
+      "desc": "Read a Realtime Database setting",
+      "tooltip": "Prints the current value of the defaultWriteSizeLimit setting, which caps how large a single write can be before it is rejected. It is the CLI way to inspect database-level settings. Change the value with database:settings:set."
+    },
+    {
+      "id": 3544,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase database:settings:set defaultWriteSizeLimit unlimited",
+      "desc": "Change a Realtime Database setting",
+      "tooltip": "Sets the defaultWriteSizeLimit setting to unlimited, removing the size cap on individual writes to the database. Other accepted values are small, medium, and large. Raising the limit lets bigger payloads through but can increase cost and latency, so prefer the smallest value your app needs."
+    },
+    {
+      "id": 3545,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:list",
+      "desc": "List apps registered in the project",
+      "tooltip": "Shows every app registered in the active Firebase project — web, Android, and iOS — with its platform, display name, and app ID. App IDs look like 1:123456789:android:abc123 and are required by many other commands. Filter the list by passing a platform such as ANDROID."
+    },
+    {
+      "id": 3546,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:list ANDROID",
+      "desc": "List only Android apps in the project",
+      "tooltip": "Filters the project's apps down to the Android platform, showing each app's package name and app ID. The platform argument is case-insensitive and also accepts IOS or WEB. The app ID output feeds directly into apps:sdkconfig and appdistribution:distribute."
+    },
+    {
+      "id": 3547,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:sdkconfig ANDROID 1:123456789:android:abc123",
+      "desc": "Print the Android config file contents",
+      "tooltip": "Prints the google-services.json contents for the Android app with ID 1:123456789:android:abc123, which apps embed to connect to Firebase. Add -o google-services.json to write it straight to a file. This is how you fetch app config without opening the console. WEB apps get a config snippet instead."
+    },
+    {
+      "id": 3548,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:sdkconfig WEB 1:123456789:web:def456 -o firebase-config.js",
+      "desc": "Save the web app config to a file",
+      "tooltip": "Writes the Firebase web config for app 1:123456789:web:def456 to firebase-config.js instead of printing it. The config contains the apiKey, projectId, and other values you pass to initializeApp. Download it after creating a new web app to wire up the frontend."
+    },
+    {
+      "id": 3549,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:create ANDROID MyApp --package-name com.example.myapp",
+      "desc": "Register a new Android app",
+      "tooltip": "Registers an Android app named MyApp with the package name com.example.myapp in the active project and prints its new app ID. The --package-name flag is required for Android apps; iOS uses --bundle-id instead. After registering, fetch config with apps:sdkconfig."
+    },
+    {
+      "id": 3550,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:create WEB MyWebApp",
+      "desc": "Register a new web app",
+      "tooltip": "Creates a web app named MyWebApp in the active project and prints its app ID plus the config snippet to paste into your JavaScript. Web apps need no extra identifier, unlike Android and iOS apps. Pull the config again anytime with apps:sdkconfig WEB."
+    },
+    {
+      "id": 3551,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apps:init ANDROID 1:123456789:android:abc123",
+      "desc": "Download config for an existing app",
+      "tooltip": "Downloads the google-services.json for the Android app 1:123456789:android:abc123 and saves it into the current directory, or wherever -o points. It is a quick way to bootstrap a new checkout without hunting through the console. Related: apps:sdkconfig prints the same config to stdout."
+    },
+    {
+      "id": 3552,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123",
+      "desc": "Upload a build to App Distribution",
+      "tooltip": "Uploads app-release.apk to Firebase App Distribution for the app 1:123456789:android:abc123, making it available to testers you select. Add --release-notes \"message\" to describe the build, and --testers or --groups to send invites immediately. App Distribution is Google's channel for handing pre-release builds to testers."
+    },
+    {
+      "id": 3553,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123 --release-notes \"Bug fixes and polish\"",
+      "desc": "Upload a release with release notes",
+      "tooltip": "Uploads app-release.apk and attaches the note Bug fixes and polish, which testers see on their install page and in the invite email. Release notes default to empty, so set them for any build that goes to a team. Related: --release-notes-file reads the note from a file."
+    },
+    {
+      "id": 3554,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123 --testers alice@example.com,bob@example.com",
+      "desc": "Distribute a build to specific testers",
+      "tooltip": "Uploads app-release.apk and immediately invites the listed email addresses to test it, so testers get an install link without you using the console. Emails are comma-separated; use --testers-file with a text file for long lists. Group-based distribution uses --groups instead."
+    },
+    {
+      "id": 3555,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:testers:add alice@example.com",
+      "desc": "Add a tester to the project",
+      "tooltip": "Registers alice@example.com as a tester in App Distribution so she can be invited to future releases. Add --group-alias qa to also place her in the qa group, or --file testers.txt to bulk-add from a list. Manage the roster with appdistribution:testers:list and testers:remove."
+    },
+    {
+      "id": 3556,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:testers:list",
+      "desc": "List App Distribution testers",
+      "tooltip": "Shows every tester registered in the project, optionally filtered to one group by passing the group alias. Testers are the people who receive your pre-release builds. Related: appdistribution:testers:add invites new ones and appdistribution:testers:remove revokes access."
+    },
+    {
+      "id": 3557,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:testers:remove alice@example.com",
+      "desc": "Remove a tester from the project",
+      "tooltip": "Revokes alice@example.com's access to future App Distribution releases; existing installed builds keep working but she no longer receives new ones. Pass --group-alias to remove her from a group instead of the whole project. Check who is registered with appdistribution:testers:list first."
+    },
+    {
+      "id": 3558,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase appdistribution:groups:create \"QA Team\" qa",
+      "desc": "Create an App Distribution group",
+      "tooltip": "Creates a tester group named QA Team with the alias qa, which you can then pass to --groups on appdistribution:distribute to send builds to the whole team at once. The alias must be unique in the project. Add members with appdistribution:testers:add --group-alias qa."
+    },
+    {
+      "id": 3559,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase crashlytics:symbols:upload ./build/symbols --app 1:123456789:android:abc123",
+      "desc": "Upload native symbols for Crashlytics",
+      "tooltip": "Uploads native debug symbols from ./build/symbols so Crashlytics can symbolicate (turn memory addresses into readable function names) for crashes in native code like C++ or Flutter engine code. The --app flag names the target app and --generator picks the symbol format. Run it as part of your release build."
+    },
+    {
+      "id": 3560,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase crashlytics:mappingfile:upload ./mapping.txt --app 1:123456789:android:abc123",
+      "desc": "Upload the ProGuard mapping file",
+      "tooltip": "Uploads the R8/ProGuard mapping.txt so Crashlytics can deobfuscate stack traces from release Android builds, where class and method names are stripped. Upload the mapping that shipped with each release version, or crashes stay unreadable. The companion crashlytics:mappingfile:generateid creates the mapping file ID resource."
+    },
+    {
+      "id": 3561,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase ext:install firebase/storage-resize-images",
+      "desc": "Install a Firebase extension",
+      "tooltip": "Adds the storage-resize-images extension to the project: it configures the extension's parameters interactively, registers it in firebase.json, and can deploy it immediately. Extensions are packaged backend features you install without writing code. Manage them with ext:list, ext:update, and ext:uninstall."
+    },
+    {
+      "id": 3562,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase ext:update storage-resize-images",
+      "desc": "Update an installed extension",
+      "tooltip": "Updates the storage-resize-images extension instance to the latest version, or to a specific version if you pass one after the instance ID. Extensions ship fixes and new features as new versions. Check the current version with ext:list before updating."
+    },
+    {
+      "id": 3563,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase ext:list",
+      "desc": "List installed extensions",
+      "tooltip": "Shows every extension installed in the active project, with its instance ID, extension reference, and version. Instance IDs are what ext:update and ext:uninstall expect as arguments. Browse the marketplace at firebase.google.com/products/extensions before installing new ones."
+    },
+    {
+      "id": 3564,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase ext:uninstall storage-resize-images",
+      "desc": "Uninstall a Firebase extension",
+      "tooltip": "Removes the storage-resize-images extension instance from the project, including the resources it created, after a confirmation prompt unless you pass -f. Uninstalling can delete data the extension produced, like resized images, so back up anything you need first."
+    },
+    {
+      "id": 3565,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase experiments:enable webframeworks",
+      "desc": "Enable a Firebase CLI experiment",
+      "tooltip": "Turns on the webframeworks experiment for this machine, which unlocks beta CLI behavior such as deploying Next.js and Angular apps to Hosting. Experiments are unstable features that can change without notice. List what is available with experiments:list and switch it off with experiments:disable."
+    },
+    {
+      "id": 3566,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase experiments:disable webframeworks",
+      "desc": "Disable a Firebase CLI experiment",
+      "tooltip": "Turns off the webframeworks experiment on this machine, restoring default CLI behavior. Disable an experiment when a beta feature causes deploy or build problems. See the current state of all experiments with experiments:list."
+    },
+    {
+      "id": 3567,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase experiments:list",
+      "desc": "List CLI experiments and their state",
+      "tooltip": "Prints every available CLI experiment with a short description and whether it is currently enabled on this machine. Experiments gate beta features that are not stable enough for defaults. Toggle them with experiments:enable and experiments:disable."
+    },
+    {
+      "id": 3568,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase remoteconfig:get",
+      "desc": "Fetch the Remote Config template",
+      "tooltip": "Downloads the active Remote Config template as JSON, showing all parameters, conditions, and the version number. Remote Config lets you change app behavior without shipping a new build. Fetch a specific historical version with -v VERSION and save to a file with -o."
+    },
+    {
+      "id": 3569,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase remoteconfig:versions:list --limit 5",
+      "desc": "List recent Remote Config versions",
+      "tooltip": "Shows the five most recent published versions of the Remote Config template with timestamps and update sources. Pass --limit 0 to list every version ever published. Version numbers from this list feed remoteconfig:rollback -v."
+    },
+    {
+      "id": 3570,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase remoteconfig:rollback -v 42",
+      "desc": "Roll back Remote Config to a version",
+      "tooltip": "Reverts the published Remote Config template to version 42, after a confirmation prompt unless you pass -f. Rollbacks are themselves new versions, so they appear in versions:list. Use this when a bad parameter change broke clients. Omit -v to roll back one version."
+    },
+    {
+      "id": 3571,
+      "category": "Firebase & Firestore",
+      "cmd": "firebase apphosting:backends:list",
+      "desc": "List App Hosting backends",
+      "tooltip": "Shows every Firebase App Hosting backend in the project, which are the server-rendered deployment targets for frameworks like Next.js. Each backend ties a Git repository and build to a live URL. Create one with apphosting:backends:create after firebase init apphosting."
+    },
+    {
+      "id": 3572,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth login",
+      "desc": "Sign in with your Google account",
+      "tooltip": "Opens a browser window to authenticate gcloud with your Google account, storing OAuth credentials locally in ~/.config/gcloud. Required once per machine before most gcloud commands work. Use gcloud auth list to see which accounts are active, and gcloud auth revoke to sign out."
+    },
+    {
+      "id": 3573,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth login --no-launch-browser",
+      "desc": "Sign in without automatically opening a browser",
+      "tooltip": "Prints a verification URL and code to paste into a browser on any device, handy for headless servers or SSH sessions with no display. After authorizing in the browser, paste the returned code back into the terminal. Works like plain gcloud auth login but never tries to launch a local browser."
+    },
+    {
+      "id": 3574,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth application-default login",
+      "desc": "Set up Application Default Credentials",
+      "tooltip": "Stores credentials that code libraries (Python, Node, Go SDKs) pick up automatically, separate from the gcloud CLI's own login. Use it when a local script needs to call Google APIs without embedding a service account key. The credentials land in ~/.config/gcloud/application_default_credentials.json and are removed with gcloud auth application-default revoke."
+    },
+    {
+      "id": 3575,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth list",
+      "desc": "Show accounts with active credentials",
+      "tooltip": "Prints every Google account that has stored gcloud credentials, marking the currently active one with an asterisk. Use gcloud auth login to add accounts and gcloud config set account to switch between them. Add --filter=status:ACTIVE to hide expired credentials."
+    },
+    {
+      "id": 3576,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth revoke alex@example.com",
+      "desc": "Revoke stored credentials for an account",
+      "tooltip": "Deletes the locally saved OAuth credentials for the given account, forcing the next gcloud auth login to re-authenticate. Useful when an account should no longer be usable from this machine or its credentials look compromised. Run gcloud auth revoke --all to clear every saved account at once."
+    },
+    {
+      "id": 3577,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth activate-service-account --key-file=key.json",
+      "desc": "Activate a service account from a key file",
+      "tooltip": "Makes gcloud act as a service account instead of a personal login, reading its private key from a JSON file downloaded from IAM. Service accounts are non-human identities meant for automation and CI pipelines. Generate the key file with gcloud iam service-accounts keys create, then confirm the switch with gcloud auth list."
+    },
+    {
+      "id": 3578,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud auth configure-docker",
+      "desc": "Configure Docker to push to Google registries",
+      "tooltip": "Registers gcloud as a credential helper so docker push and docker pull work against gcr.io, us.gcr.io and similar registries using your current gcloud login. Run it once after installing Docker or after re-authenticating. Afterwards you can push images with docker push gcr.io/my-project-123456/web-app:v1."
+    },
+    {
+      "id": 3579,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config set project my-project-123456",
+      "desc": "Set the default project for all commands",
+      "tooltip": "Points every gcloud command at the given project ID so you rarely need to pass --project. A project is the top-level container that holds all your Google Cloud resources and bills their usage. Confirm the value with gcloud config get-value project or override per command with --project."
+    },
+    {
+      "id": 3580,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config list",
+      "desc": "Show all active gcloud configuration settings",
+      "tooltip": "Prints the current project, account, compute region and zone plus any other properties set in the active configuration. Each property can be overridden per command with flags like --project or --region. Run gcloud config list --all to include defaults that are not explicitly set."
+    },
+    {
+      "id": 3581,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config set compute/region us-central1",
+      "desc": "Set the default Compute Engine region",
+      "tooltip": "Makes us-central1 the region gcloud uses for new resources when you omit --region, saving typing and preventing mistakes. A region is a geographic area, here Iowa, that contains several zones. Related: gcloud config set compute/zone pins a specific zone inside the region."
+    },
+    {
+      "id": 3582,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config set compute/zone us-central1-a",
+      "desc": "Set the default Compute Engine zone",
+      "tooltip": "Pins gcloud to one zone, us-central1-a, an availability zone in Iowa, so instance commands work without repeating --zone. Choose a zone close to your users and spread redundant instances across zones. See gcloud compute zones list for all options."
+    },
+    {
+      "id": 3583,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config get-value project",
+      "desc": "Print the currently configured project ID",
+      "tooltip": "Outputs just the project ID string, making it easy to embed in scripts or verify which project you are about to touch. Run it before destructive commands to confirm you are working in the right project. Related: gcloud config list shows every setting at once."
+    },
+    {
+      "id": 3584,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config configurations create work",
+      "desc": "Create a named gcloud configuration profile",
+      "tooltip": "Saves a fresh, empty configuration called work that can hold its own project, account and region settings. Switch between profiles with gcloud config configurations activate to move between work and personal projects without re-editing properties. List profiles with gcloud config configurations list."
+    },
+    {
+      "id": 3585,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud config configurations activate work",
+      "desc": "Switch to a named gcloud configuration",
+      "tooltip": "Makes the work configuration active so its project, account and region defaults apply to all commands. Each configuration is an independent set of settings, ideal for keeping separate Google accounts or projects isolated. Create profiles first with gcloud config configurations create."
+    },
+    {
+      "id": 3586,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud info",
+      "desc": "Show SDK installation and environment details",
+      "tooltip": "Prints where gcloud is installed, its version, the active account and project, plus environment variables like CLOUDSDK_CONFIG that alter its behaviour. Useful when debugging why gcloud behaves unexpectedly on a machine. A healthy install also reports the bundled Python interpreter and proxy settings."
+    },
+    {
+      "id": 3587,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud components update",
+      "desc": "Update gcloud and all components to the latest version",
+      "tooltip": "Downloads and installs newer versions of the gcloud CLI and its optional components such as kubectl and the alpha/beta command groups. Requires write access to the SDK directory, so run with sudo if gcloud lives under /usr/lib. Check what is installed first with gcloud components list."
+    },
+    {
+      "id": 3588,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud components list",
+      "desc": "List installed and available gcloud components",
+      "tooltip": "Shows every SDK component with its current version, state (Installed, Update Available, Not Installed) and size. Use it to see which optional tools like kubectl or gke-gcloud-auth-plugin are present. Install or remove components with gcloud components install and gcloud components remove."
+    },
+    {
+      "id": 3589,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud version",
+      "desc": "Show gcloud version and component versions",
+      "tooltip": "Prints the SDK version number plus the versions of each installed component, which is the first thing support asks for when troubleshooting. Also reports the bundled Python version gcloud relies on. Compare against the current release with gcloud components update."
+    },
+    {
+      "id": 3590,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud init",
+      "desc": "Run the first-time gcloud setup wizard",
+      "tooltip": "Interactive walkthrough that authenticates your Google account, picks a default project and sets the compute region and zone in one go. The fastest way to configure a fresh machine, though each step can be done individually with gcloud auth login and gcloud config set. It can also create a brand new project for you."
+    },
+    {
+      "id": 3591,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud projects list",
+      "desc": "List all projects you can access",
+      "tooltip": "Prints every Google Cloud project visible to your account with its ID, name and project number. Project IDs are globally unique and appear in commands and URLs, while names are just human-friendly labels. Filter with --filter=name:my or reshape the table with --format."
+    },
+    {
+      "id": 3592,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud projects create my-project-123456 --name \"My Project\"",
+      "desc": "Create a new Google Cloud project",
+      "tooltip": "Provisions a brand new project with the given ID, which must be globally unique across all of Google Cloud and follow DNS-style lowercase naming. The --name flag sets the friendly label shown in the console. New projects start empty, so enable the APIs you need with gcloud services enable."
+    },
+    {
+      "id": 3593,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud projects describe my-project-123456",
+      "desc": "Show details for a single project",
+      "tooltip": "Prints metadata for one project including its ID, number, name and the resource parent (an organization or folder). Useful in scripts to fetch the project number, which some IAM policies require. Related: gcloud projects list shows all projects at once."
+    },
+    {
+      "id": 3594,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud projects delete my-project-123456",
+      "desc": "Delete a project and all its resources",
+      "tooltip": "Permanently removes the project and every resource inside it, including VMs, buckets, databases and billing history, with no trash bin. Google keeps the project ID locked for 30 days after deletion, so it cannot be reused immediately. Run gcloud projects list first to be certain you are deleting the right project."
+    },
+    {
+      "id": 3595,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud services enable compute.googleapis.com",
+      "desc": "Enable an API for the current project",
+      "tooltip": "Turns on a Google Cloud service, here Compute Engine, for the active project, which is required before you can create its resources. API names follow the pattern service.googleapis.com, browseable with gcloud services list --available. Enabling compute.googleapis.com unlocks commands like gcloud compute instances create."
+    },
+    {
+      "id": 3596,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud services list --enabled",
+      "desc": "List APIs currently enabled for the project",
+      "tooltip": "Shows every API active in the current project, each identified by its service name like compute.googleapis.com. Use it to confirm a service is on before calling its commands, since disabled APIs return permission errors. Browse everything Google offers with gcloud services list --available."
+    },
+    {
+      "id": 3597,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud services disable compute.googleapis.com",
+      "desc": "Disable an API for the current project",
+      "tooltip": "Switches off a Google Cloud service so its resources can no longer be created or managed, which can break running workloads that depend on it. Only disable services you are sure nothing uses. Re-enable anytime with gcloud services enable."
+    },
+    {
+      "id": 3598,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances list",
+      "desc": "List all VM instances in the project",
+      "tooltip": "Prints every Compute Engine virtual machine across all zones with its name, zone, machine type, internal and external IPs and status. Add --filter=status:RUNNING to see only running VMs, or --format='table(name,zone,status)' to trim columns. Instances that are stopped but not deleted still appear in this list."
+    },
+    {
+      "id": 3599,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances create web-server --zone us-central1-a --machine-type e2-micro",
+      "desc": "Create a minimal VM instance",
+      "tooltip": "Provisions a virtual machine named web-server in zone us-central1-a using the cheap e2-micro shared-core machine type. Without --image-family it defaults to a recent Debian image. Add --tags http-server now so firewall rules can target this VM later."
+    },
+    {
+      "id": 3600,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances create db-server --zone us-central1-a --machine-type e2-standard-2 --image-family ubuntu-2404-lts --image-project ubuntu-os-cloud",
+      "desc": "Create an Ubuntu VM with more vCPUs and RAM",
+      "tooltip": "Builds a db-server VM with 2 vCPUs and 8 GB RAM running Ubuntu 24.04 LTS, selected via --image-family and --image-project ubuntu-os-cloud. The e2-standard-2 tier suits small databases and general workloads. See gcloud compute images list for other families like debian-12 or rocky-linux-9."
+    },
+    {
+      "id": 3601,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances describe web-server --zone us-central1-a",
+      "desc": "Show detailed information about a VM",
+      "tooltip": "Prints a full description of one instance: machine type, disks, network interfaces, tags, metadata and scheduling policy. Add --format='value(networkInterfaces[0].accessConfigs[0].natIP)' to extract just the external IP. Related: gcloud compute instances list for a compact table."
+    },
+    {
+      "id": 3602,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances start web-server --zone us-central1-a",
+      "desc": "Start a stopped VM instance",
+      "tooltip": "Boots a previously stopped instance back up, restoring its disks and IP configuration. Billing for the instance only runs while it is in the RUNNING state. Pair with gcloud compute instances stop for simple on/off cost control."
+    },
+    {
+      "id": 3603,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances stop web-server --zone us-central1-a",
+      "desc": "Stop a running VM instance",
+      "tooltip": "Shuts the VM down cleanly so you stop paying for compute time, while persistent disks and static IPs are kept and billed separately. The instance remains in the project and can be restarted with gcloud compute instances start. Data on standard persistent disks survives a stop."
+    },
+    {
+      "id": 3604,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute instances delete web-server --zone us-central1-a",
+      "desc": "Delete a VM instance permanently",
+      "tooltip": "Removes the instance and, by default, its attached boot disk, destroying all data on it with no recovery. Add --keep-disks=boot to preserve the disk or --delete-disks=all to also wipe extra data disks. Snapshot important disks first with gcloud compute disks snapshot."
+    },
+    {
+      "id": 3605,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute ssh web-server --zone us-central1-a",
+      "desc": "Open an SSH session to a VM instance",
+      "tooltip": "Connects to the instance over SSH using your Google account, generating and uploading an SSH key on first use so no manual key setup is needed. Requires the instance to have a public IP or IAP tunnel access. Exit with Ctrl-D, or run a single command instead with the --command flag."
+    },
+    {
+      "id": 3606,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute ssh web-server --zone us-central1-a --command 'uptime'",
+      "desc": "Run one command on a VM over SSH",
+      "tooltip": "Executes the quoted command on the instance and prints the output, then closes the connection, which makes it perfect for scripts and one-off checks. Chain several steps with && inside the quotes. Interactive sessions without --command are covered by plain gcloud compute ssh."
+    },
+    {
+      "id": 3607,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute scp deploy.sh web-server:/home/alex/ --zone us-central1-a",
+      "desc": "Copy a file to a VM instance",
+      "tooltip": "Securely copies a local file to the instance using the same key handling as gcloud compute ssh, so no separate scp setup is needed. The destination takes the form USER@INSTANCE:REMOTE_PATH, where /home/alex/ is the home of the connecting user. Copy whole directories by adding --recurse."
+    },
+    {
+      "id": 3608,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute scp --recurse build/ web-server:/home/alex/app/ --zone us-central1-a",
+      "desc": "Copy a directory tree to a VM recursively",
+      "tooltip": "Uploads the entire build/ folder and all its contents into /home/alex/app/ on the instance. Without --recurse, scp only copies files at the top level and skips subdirectories. Reverse the argument order, remote first, to download files from the VM."
+    },
+    {
+      "id": 3609,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute addresses list",
+      "desc": "List reserved static external IP addresses",
+      "tooltip": "Shows every reserved static IP with its name, regional or global scope, address and status (RESERVED or IN_USE). Static IPs stay assigned to your project even when no VM uses them, and they keep billing while reserved. Reserve a new one with gcloud compute addresses reserve."
+    },
+    {
+      "id": 3610,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute addresses reserve web-ip --region us-central1",
+      "desc": "Reserve a static external IP address",
+      "tooltip": "Claims a permanent public IPv4 address named web-ip in the us-central1 region so it survives VM restarts and deletions. Regional addresses attach to instances in that region, while global ones (--global) are used by load balancers. You pay for reserved addresses even while unused, so release them with gcloud compute addresses delete when done."
+    },
+    {
+      "id": 3611,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute addresses delete web-ip --region us-central1",
+      "desc": "Release a reserved static IP address",
+      "tooltip": "Returns the reserved IP to Google's pool, permanently losing that address, which can break DNS records or firewall allowlists pointing at it. You stop paying the reservation fee once released. Check what references the address first with gcloud compute addresses list."
+    },
+    {
+      "id": 3612,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute firewall-rules list",
+      "desc": "List VPC firewall rules",
+      "tooltip": "Prints all firewall rules in the project with their direction, allowed protocols and ports, target tags, source ranges and enforcement status. Rules are stateful and apply at the network level, not inside the instance OS. See gcloud compute firewall-rules describe for the full JSON of one rule."
+    },
+    {
+      "id": 3613,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute firewall-rules create allow-http --allow tcp:80,tcp:443 --target-tags http-server",
+      "desc": "Create a firewall rule allowing web traffic",
+      "tooltip": "Opens inbound TCP ports 80 and 443 for every VM carrying the http-server network tag, which you set with --tags when creating instances. Without --target-tags the rule applies to all instances in the network, so tags keep exposure narrow. Delete it with gcloud compute firewall-rules delete, and remember the OS-level firewall must also permit the port."
+    },
+    {
+      "id": 3614,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute firewall-rules delete allow-http",
+      "desc": "Delete a firewall rule",
+      "tooltip": "Permanently removes the rule, immediately blocking whatever traffic it allowed, which can take down websites or APIs that depended on it. Check which instances rely on the rule with gcloud compute firewall-rules describe first. Recreate it later with gcloud compute firewall-rules create."
+    },
+    {
+      "id": 3615,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute disks list",
+      "desc": "List persistent disks in the project",
+      "tooltip": "Shows every persistent disk with its zone, size, type (pd-standard, pd-balanced, pd-ssd) and the instance it is attached to, if any. Disks exist independently of VMs, so they survive instance deletion unless you choose to delete them. Filter by zone with --filter=zone:us-central1-a."
+    },
+    {
+      "id": 3616,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute disks snapshot web-disk --snapshot-names web-disk-snap-20260801 --zone us-central1-a",
+      "desc": "Snapshot a persistent disk for backup",
+      "tooltip": "Captures a point-in-time backup of the web-disk disk named web-disk-snap-20260801, stored redundantly in Cloud Storage. Snapshots are incremental, so repeated snapshots only cost the changed data. Restore one by creating a new disk with --source-snapshot or use it to clone the disk into another zone."
+    },
+    {
+      "id": 3617,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute disks delete data-disk --zone us-central1-a",
+      "desc": "Delete a persistent disk",
+      "tooltip": "Permanently erases the disk and all data on it, which fails if the disk is still attached to a running instance unless you add --force. Take a snapshot with gcloud compute disks snapshot before deleting anything important. Deleting a disk frees its storage cost but removes all recovery options."
+    },
+    {
+      "id": 3618,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute snapshots list",
+      "desc": "List all disk snapshots",
+      "tooltip": "Prints every snapshot in the project with its source disk, size and creation time. Snapshots are the standard backup mechanism for Compute Engine disks and can restore data to any zone. Create them with gcloud compute disks snapshot."
+    },
+    {
+      "id": 3619,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute images list",
+      "desc": "List available public VM images",
+      "tooltip": "Shows the OS images you can boot VMs from, including Debian, Ubuntu, Rocky Linux and Windows families, with their projects and architectures. Use values from the IMAGE column with --image and --image-project when creating instances. Add --filter=family:ubuntu-2404 to narrow the list."
+    },
+    {
+      "id": 3620,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud compute regions list",
+      "desc": "List Compute Engine regions and statuses",
+      "tooltip": "Prints every region where you can create resources, like us-central1 (Iowa) and europe-west1 (Belgium), along with whether each is UP. Each region contains several zones for distributing workloads. Zones inside a region are listed by gcloud compute zones list."
+    },
+    {
+      "id": 3621,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil ls",
+      "desc": "List Cloud Storage buckets in the project",
+      "tooltip": "Prints the gs:// URLs of every bucket in your default project. Buckets are the top-level containers for objects, the files of Cloud Storage, and their names must be globally unique. Drill into a bucket's contents with gsutil ls gs://bucket-name/."
+    },
+    {
+      "id": 3622,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil ls gs://my-bucket/",
+      "desc": "List objects inside a bucket",
+      "tooltip": "Shows all objects, the files of Cloud Storage, stored at the top level of my-bucket. Add -r to recurse into prefixes or a wildcard like gs://my-bucket/*.log to filter by name. Object paths look like folders but are flat keys in Cloud Storage."
+    },
+    {
+      "id": 3623,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil ls -l gs://my-bucket/",
+      "desc": "List objects with size and timestamps",
+      "tooltip": "Adds the object size in bytes, creation time and storage class to each listed entry, handy for spotting large files. Combine with -r to scan the whole bucket recursively. For total bucket size, use gsutil du -sh gs://my-bucket/."
+    },
+    {
+      "id": 3624,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil cp report.pdf gs://my-bucket/",
+      "desc": "Upload a file to a bucket",
+      "tooltip": "Copies the local file report.pdf into my-bucket, where it becomes an object addressable at gs://my-bucket/report.pdf. The file keeps its base name unless you give a different destination name. Copy whole directories with the -r flag, or use -m for parallel speed on many files."
+    },
+    {
+      "id": 3625,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil cp gs://my-bucket/report.pdf .",
+      "desc": "Download an object from a bucket",
+      "tooltip": "Fetches report.pdf from my-bucket into the current directory. The destination can be any local path, or another bucket to copy between buckets. Larger transfers benefit from the parallel flag: gsutil -m cp."
+    },
+    {
+      "id": 3626,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil cp -r build/ gs://my-bucket/site/",
+      "desc": "Upload a directory recursively",
+      "tooltip": "Copies the entire build/ directory tree, including subfolders, into the site/ prefix of the bucket. Without -r, gsutil skips directories entirely and only uploads top-level files. Folders appear as prefixes in the bucket, not real directories."
+    },
+    {
+      "id": 3627,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil -m cp -r build/ gs://my-bucket/site/",
+      "desc": "Upload a directory using parallel threads",
+      "tooltip": "Same recursive copy as plain cp -r but splits the work across multiple threads and connections, which is dramatically faster for many or large files. The -m flag must come before the subcommand, as in gsutil -m cp. Expect higher network usage, and on huge jobs occasional transient rate-limit errors."
+    },
+    {
+      "id": 3628,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil rsync -r -d build/ gs://my-bucket/site/",
+      "desc": "Mirror a local directory to a bucket",
+      "tooltip": "Makes the bucket's site/ prefix exactly match the local build/ folder, uploading new and changed files and removing objects that no longer exist locally. The -d flag deletes extras in the destination, so test with -n first to preview changes. Ideal for deploying static websites."
+    },
+    {
+      "id": 3629,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil mb gs://my-bucket",
+      "desc": "Create a new Cloud Storage bucket",
+      "tooltip": "Makes a bucket named my-bucket in the default project and location. Bucket names must be globally unique across all of Google Cloud, lowercase, and 3-63 characters long. Set a region with -l us-central1 and a storage class with -c nearline for cheaper cold data."
+    },
+    {
+      "id": 3630,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil du -sh gs://my-bucket/",
+      "desc": "Show total size of a bucket",
+      "tooltip": "Prints the combined size of all objects in my-bucket in human-readable form, useful for tracking storage costs. Add -a to include non-current object versions when versioning is on. A per-object listing is available via gsutil ls -l."
+    },
+    {
+      "id": 3631,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil rm gs://my-bucket/old.log",
+      "desc": "Delete a single object from a bucket",
+      "tooltip": "Permanently removes the old.log object; Cloud Storage gives no undo, though versioned buckets keep older copies accessible. Deleting the last object under a prefix makes that prefix disappear from listings. Delete entire buckets with gsutil rm -r gs://bucket-name."
+    },
+    {
+      "id": 3632,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil rm -r gs://my-bucket/",
+      "desc": "Delete a bucket and all its contents",
+      "tooltip": "Recursively deletes every object in my-bucket and then the bucket itself, destroying all data with no recovery path. This is one of the most destructive commands in the glossary, so double-check the bucket name and consider enabling versioning first. Add -m to parallelize deletion of large buckets."
+    },
+    {
+      "id": 3633,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil acl ch -u user:alex@example.com:R gs://my-bucket/report.pdf",
+      "desc": "Grant a user read access to an object",
+      "tooltip": "Applies a legacy ACL granting the user alex@example.com read permission (R) on the object; W means write and FC full control. ACLs are the older permission model, while IAM roles are preferred for buckets and projects. Remove the grant by repeating the command with -d in place of -u."
+    },
+    {
+      "id": 3634,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil iam ch user:alex@example.com:objectViewer gs://my-bucket",
+      "desc": "Grant a user an IAM role on a bucket",
+      "tooltip": "Gives alex@example.com the objectViewer IAM role on my-bucket, letting them list and read objects there; common roles are objectViewer, objectAdmin and storageAdmin. IAM is the modern access-control system and is more flexible than legacy ACLs. Revoke with gsutil iam ch -d user:alex@example.com:objectViewer gs://my-bucket."
+    },
+    {
+      "id": 3635,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil versioning set on gs://my-bucket",
+      "desc": "Enable object versioning on a bucket",
+      "tooltip": "Turns on versioning so overwritten and deleted objects keep a previous version, protecting against accidental data loss and enabling easy rollback. Older versions still cost storage, so pair this with a lifecycle policy to prune them. List versions with gsutil ls -a gs://my-bucket/."
+    },
+    {
+      "id": 3636,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil cat gs://my-bucket/notes.txt",
+      "desc": "Print an object's contents to stdout",
+      "tooltip": "Streams the contents of notes.txt to the terminal without downloading a file, handy for quick peeks at logs or config blobs. Larger files can be piped into less or head to page the output. Related: gsutil cp downloads the object for local use."
+    },
+    {
+      "id": 3637,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gsutil mv gs://my-bucket/old.txt gs://my-bucket/archive/old.txt",
+      "desc": "Move or rename an object in a bucket",
+      "tooltip": "Renames or relocates old.txt within the bucket; moving between buckets also copies across locations and deletes the source. It performs a copy plus delete under the hood, so a failure mid-way can leave both copies. Use gsutil cp then gsutil rm when you need more control."
+    },
+    {
+      "id": 3638,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud storage cp report.pdf gs://my-bucket/",
+      "desc": "Copy a file with the unified gcloud storage tool",
+      "tooltip": "Uploads report.pdf using the newer gcloud storage command family, which offers the same operations as gsutil with better performance and progress reporting. Flags like -r and -m are supported, and gcloud storage ls, rsync and rm cover the rest of the workflow. Prefer this on fresh projects; gsutil still works everywhere."
+    },
+    {
+      "id": 3639,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud storage ls gs://my-bucket/",
+      "desc": "List bucket contents with gcloud storage",
+      "tooltip": "Prints the objects in my-bucket using the unified storage client, with cleaner formatting and faster listing than gsutil on large buckets. Add -r to recurse and -l for sizes and timestamps. This command lives inside the gcloud CLI, so no separate gsutil install is needed."
+    },
+    {
+      "id": 3640,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud storage rsync -r -d build/ gs://my-bucket/site/",
+      "desc": "Sync a directory to a bucket with gcloud storage",
+      "tooltip": "Mirrors build/ into the site/ prefix of my-bucket, uploading changes and, with -d, deleting destination objects that are not in the source. Run with -n first to dry-run and review exactly what would change. It behaves like gsutil rsync but with faster parallel transfers."
+    },
+    {
+      "id": 3641,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud storage buckets create gs://my-bucket --location us-central1",
+      "desc": "Create a bucket with gcloud storage",
+      "tooltip": "Provisions my-bucket in the us-central1 region using the unified tool; bucket names must be globally unique across Google Cloud. Add --public-access-prevention to block accidental public exposure, or -c nearline for colder storage. Equivalent to gsutil mb."
+    },
+    {
+      "id": 3642,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions deploy hello-world --runtime python312 --trigger-http --allow-unauthenticated --region us-central1",
+      "desc": "Deploy an HTTP-triggered Cloud Function",
+      "tooltip": "Publishes the current directory's function as hello-world, running Python 3.12 and invoked by HTTPS requests. --allow-unauthenticated lets anyone on the internet call it, so omit it to require an identity token instead. The code must match the runtime; see gcloud functions runtimes list for supported versions."
+    },
+    {
+      "id": 3643,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions deploy process-uploads --runtime python312 --trigger-topic new-uploads --region us-central1",
+      "desc": "Deploy a Pub/Sub-triggered Cloud Function",
+      "tooltip": "Deploys process-uploads so it runs whenever a message lands on the new-uploads Pub/Sub topic, with the message payload passed to the function. Pub/Sub is Google's message queue service for decoupling services. Remove it with gcloud functions delete process-uploads --region us-central1."
+    },
+    {
+      "id": 3644,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions list --region us-central1",
+      "desc": "List deployed Cloud Functions",
+      "tooltip": "Shows every function in the region with its runtime, trigger type, state and update time. Add --filter=state:ACTIVE to hide failed deployments. Function names must be unique within the region and project."
+    },
+    {
+      "id": 3645,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions describe hello-world --region us-central1",
+      "desc": "Show details of a Cloud Function",
+      "tooltip": "Prints the full configuration of hello-world: runtime, entry point, trigger, environment variables, timeout and the HTTPS trigger URL. Grab the URL from the httpsTrigger.url field to call the function. Related: gcloud functions logs read shows its runtime logs."
+    },
+    {
+      "id": 3646,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions call hello-world --data '{\"message\":\"Hi\"}' --region us-central1",
+      "desc": "Invoke a Cloud Function with JSON payload",
+      "tooltip": "Sends a synchronous test request to the function with the given JSON body and returns the function's response in the terminal. Works for HTTP-triggered functions; pass the expected event shape in --data for background triggers. This is the quickest way to smoke-test a deploy."
+    },
+    {
+      "id": 3647,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions delete hello-world --region us-central1",
+      "desc": "Delete a Cloud Function",
+      "tooltip": "Permanently removes the function and its cloud resources, so any URLs or subscribers that called it start failing immediately. There is no undo, though redeploying from the same source restores it. List what exists first with gcloud functions list."
+    },
+    {
+      "id": 3648,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud functions logs read hello-world --region us-central1",
+      "desc": "Read recent logs from a Cloud Function",
+      "tooltip": "Pulls the latest log entries for hello-world, including print output, errors and invocation timestamps. Add --limit=100 to control volume or --filter=severity>=ERROR to see only failures. Logs live in Cloud Logging, queryable later with gcloud logging read."
+    },
+    {
+      "id": 3649,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run deploy web-app --image gcr.io/my-project-123456/web-app:v1 --region us-central1 --allow-unauthenticated",
+      "desc": "Deploy a container to Cloud Run",
+      "tooltip": "Pushes the container image gcr.io/my-project-123456/web-app:v1 live as a serverless service that scales to zero when idle. --allow-unauthenticated makes the service reachable by anyone with the URL; drop it to require Google identity. Each deploy creates a new revision and shifts traffic to it."
+    },
+    {
+      "id": 3650,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run services list --region us-central1",
+      "desc": "List Cloud Run services",
+      "tooltip": "Prints every service in the region with its URL, latest revision and conditions such as Ready. Cloud Run services handle HTTP requests, while jobs (gcloud run jobs list) run batch workloads. Filter by service name with --filter=metadata.name:web."
+    },
+    {
+      "id": 3651,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run services describe web-app --region us-central1",
+      "desc": "Show Cloud Run service configuration",
+      "tooltip": "Outputs the service's full spec as YAML: container image, CPU and memory limits, concurrency, environment variables and traffic split. The status.url field is the public endpoint. Related: gcloud run services update changes settings on a running service."
+    },
+    {
+      "id": 3652,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run services update web-app --image gcr.io/my-project-123456/web-app:v2 --region us-central1",
+      "desc": "Deploy a new image to an existing service",
+      "tooltip": "Creates a new revision of web-app from the v2 image and routes all traffic to it, the standard way to ship an update. Revisions keep the old image available for instant rollback. Roll back with gcloud run services update-traffic --to-revisions=web-app-00001=100."
+    },
+    {
+      "id": 3653,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run services update-traffic web-app --to-latest --region us-central1",
+      "desc": "Send all traffic to the latest revision",
+      "tooltip": "Moves 100% of requests to the most recently deployed revision, useful after testing a canary or recovering from a bad rollout. Use --to-revisions=NAME=PERCENT to split traffic between revisions deliberately. Check the current split with gcloud run services describe."
+    },
+    {
+      "id": 3654,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run services delete web-app --region us-central1",
+      "desc": "Delete a Cloud Run service",
+      "tooltip": "Removes the service and all its revisions, taking the public URL offline permanently; container images in Artifact Registry are not deleted. There is no undo, so export the YAML first with gcloud run services describe --format=yaml if you may redeploy. Related: gcloud run jobs delete removes batch jobs."
+    },
+    {
+      "id": 3655,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run jobs create nightly-cleanup --image gcr.io/my-project-123456/cleanup:v1 --region us-central1",
+      "desc": "Create a Cloud Run batch job",
+      "tooltip": "Defines a job named nightly-cleanup that runs the cleanup container to completion instead of serving HTTP requests. Jobs are for batch work like ETL or maintenance and can run on a schedule. Execute it with gcloud run jobs execute nightly-cleanup --region us-central1."
+    },
+    {
+      "id": 3656,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run jobs execute nightly-cleanup --region us-central1",
+      "desc": "Run a Cloud Run job once",
+      "tooltip": "Starts a single execution of nightly-cleanup and reports the execution ID, which you can follow in Cloud Logging. The job's container runs to completion with retries per its configuration. Schedule recurring runs with Cloud Scheduler or pass --execute-now at creation time."
+    },
+    {
+      "id": 3657,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run jobs list --region us-central1",
+      "desc": "List Cloud Run jobs",
+      "tooltip": "Shows every job in the region with its creation time and latest execution status. Unlike services, jobs do not hold traffic; they exist to be executed on demand or by schedule. Inspect one job with gcloud run jobs describe."
+    },
+    {
+      "id": 3658,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud run jobs delete nightly-cleanup --region us-central1",
+      "desc": "Delete a Cloud Run job",
+      "tooltip": "Permanently removes the job and its execution history; any scheduled triggers referencing it will fail afterwards. Deleting a job does not delete its container image. Recreate it anytime with gcloud run jobs create."
+    },
+    {
+      "id": 3659,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud logging read 'resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"web-app\"' --limit 50",
+      "desc": "Read Cloud Run logs with a filter",
+      "tooltip": "Queries Cloud Logging for the last 50 entries from web-app's revisions, filtering on the resource type cloud_run_revision. Filters use the Logging query language, so add AND severity>=ERROR for failures only. Stream live entries instead with gcloud logging tail."
+    },
+    {
+      "id": 3660,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud logging tail 'resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"web-app\"'",
+      "desc": "Stream Cloud Run logs live",
+      "tooltip": "Follows new log entries from the web-app service in real time, like tail -f but for Google Cloud logs. Press Ctrl-C to stop streaming. Useful while deploying or load-testing; historical queries use gcloud logging read."
+    },
+    {
+      "id": 3661,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql instances list",
+      "desc": "List Cloud SQL instances",
+      "tooltip": "Prints every managed database instance in the project with its database version (PostgreSQL, MySQL, SQL Server), region, tier and state. Cloud SQL is Google's fully managed relational database service. Instances in state RUNNABLE accept connections."
+    },
+    {
+      "id": 3662,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql instances create my-db --database-version POSTGRES_15 --tier db-f1-micro --region us-central1",
+      "desc": "Create a small PostgreSQL instance",
+      "tooltip": "Provisions a managed PostgreSQL 15 database named my-db on the free-tier-eligible db-f1-micro machine in us-central1. The instance starts empty, so create databases inside it with gcloud sql databases create. Cloud SQL handles backups, patching and replication for you."
+    },
+    {
+      "id": 3663,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql instances describe my-db",
+      "desc": "Show Cloud SQL instance details",
+      "tooltip": "Prints the instance's connection name, IP address, SSL settings, backup configuration and machine tier as JSON. The connection name (project:region:instance) is what client libraries and gcloud sql connect use. Related: gcloud sql instances list for a compact view."
+    },
+    {
+      "id": 3664,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql connect my-db --user postgres",
+      "desc": "Open a psql session to a Cloud SQL instance",
+      "tooltip": "Starts an interactive PostgreSQL shell against my-db as the postgres user, using the Cloud SQL Auth Proxy under the hood so no public IP or manual SSL setup is needed. Exit with \\q. If the psql client is missing, gcloud prompts to install it."
+    },
+    {
+      "id": 3665,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql instances delete my-db",
+      "desc": "Delete a Cloud SQL instance",
+      "tooltip": "Permanently removes the instance, its databases and its automatic backups with no recovery, so export critical data first with gcloud sql export sql. Instances with deletion protection enabled refuse the operation until you disable it with gcloud sql instances patch my-db --deletion-protection=false. Verify the instance name with gcloud sql instances list before running."
+    },
+    {
+      "id": 3666,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql backups list --instance my-db",
+      "desc": "List backups for a Cloud SQL instance",
+      "tooltip": "Shows every automated and on-demand backup for my-db with its ID, type, status and window. Automated backups run daily per the instance's backup configuration. Restore one with gcloud sql backups restore BACKUP_ID --restore-instance my-db."
+    },
+    {
+      "id": 3667,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql export sql my-db gs://my-bucket/dump.sql.gz --database appdb",
+      "desc": "Export a database to Cloud Storage",
+      "tooltip": "Dumps the appdb database from my-db into a compressed SQL file in my-bucket, a portable way to back up or migrate data. The instance's service account needs the storage.objectAdmin role on the bucket. Import the file into another instance with gcloud sql import sql."
+    },
+    {
+      "id": 3668,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql import sql my-db gs://my-bucket/dump.sql.gz --database appdb",
+      "desc": "Import a SQL dump into a database",
+      "tooltip": "Loads the SQL dump from the bucket into the appdb database on my-db, replacing its contents. The dump must come from a compatible engine version. Use it to restore backups or seed a fresh instance; create the dump with gcloud sql export sql."
+    },
+    {
+      "id": 3669,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud sql databases list --instance my-db",
+      "desc": "List databases on a Cloud SQL instance",
+      "tooltip": "Prints every database inside my-db, which starts with the default postgres database on PostgreSQL instances. Create another with gcloud sql databases create appdb --instance my-db. Each database holds its own tables and users."
+    },
+    {
+      "id": 3670,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud iam service-accounts create deploy-bot --display-name \"Deploy bot\"",
+      "desc": "Create a service account",
+      "tooltip": "Provisions a non-human identity named deploy-bot that applications and CI pipelines use to call Google APIs without a person's login. The account gets an email like deploy-bot@my-project-123456.iam.gserviceaccount.com. Grant it roles with gcloud projects add-iam-policy-binding."
+    },
+    {
+      "id": 3671,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud iam service-accounts list",
+      "desc": "List service accounts in the project",
+      "tooltip": "Shows every service account with its email, display name and whether it is disabled. The default Compute Engine service account appears here too. Add --filter=disabled:false to see only usable accounts."
+    },
+    {
+      "id": 3672,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud iam service-accounts keys create key.json --iam-account deploy-bot@my-project-123456.iam.gserviceaccount.com",
+      "desc": "Create a service account key file",
+      "tooltip": "Generates a JSON private key for the service account and writes it to key.json, a long-lived credential anyone with the file can use. Treat key files like passwords, store them in a secret manager, and prefer Workload Identity Federation where possible. Delete unused keys with gcloud iam service-accounts keys delete."
+    },
+    {
+      "id": 3673,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud iam service-accounts keys list --iam-account deploy-bot@my-project-123456.iam.gserviceaccount.com",
+      "desc": "List keys for a service account",
+      "tooltip": "Prints every key attached to deploy-bot with its ID, type and creation time, letting you spot stale or unexpected credentials. Old keys never expire by default, so audit this list periodically. Remove unused keys with gcloud iam service-accounts keys delete."
+    },
+    {
+      "id": 3674,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud iam roles list",
+      "desc": "List IAM roles",
+      "tooltip": "Shows the built-in IAM roles like roles/storage.objectViewer and roles/compute.admin that control who can do what on Google Cloud resources. Custom roles created in your project appear here too. See what a role permits with gcloud iam roles describe roles/storage.objectViewer."
+    },
+    {
+      "id": 3675,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud projects add-iam-policy-binding my-project-123456 --member serviceAccount:deploy-bot@my-project-123456.iam.gserviceaccount.com --role roles/storage.objectAdmin",
+      "desc": "Grant an IAM role to a service account",
+      "tooltip": "Gives deploy-bot the storage.objectAdmin role on the whole project, letting it manage buckets and objects everywhere in my-project-123456. Members can also be users (user:email) or groups (group:email), and --condition can scope the grant further. Remove the grant with gcloud projects remove-iam-policy-binding."
+    },
+    {
+      "id": 3676,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud secrets create my-api-key --replication-policy automatic",
+      "desc": "Create a new Secret Manager secret",
+      "tooltip": "Creates a secret named my-api-key that will hold a value like an API key or password, replicated automatically across regions for availability. The secret starts with no versions, so add the first value with gcloud secrets versions add. Read the value later with gcloud secrets versions access."
+    },
+    {
+      "id": 3677,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud secrets versions access latest --secret my-api-key",
+      "desc": "Print the latest secret value",
+      "tooltip": "Outputs the newest version's value of my-api-key to the terminal, which is how scripts read secrets at runtime. Anyone holding the roles/secretmanager.secretAccessor role can do this, so keep output out of logs. List all versions with gcloud secrets versions list."
+    },
+    {
+      "id": 3678,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud secrets versions add my-api-key --data-file=key.txt",
+      "desc": "Add a new version to a secret",
+      "tooltip": "Stores the contents of key.txt as the newest version of my-api-key, replacing what latest points to. Old versions remain accessible by their version number, enabling instant rollback. Use --data-file=- to read the value from stdin."
+    },
+    {
+      "id": 3679,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud secrets versions list my-api-key",
+      "desc": "List versions of a secret",
+      "tooltip": "Shows every version of my-api-key with its state (ENABLED, DISABLED, DESTROYED) and creation time. Destroy a version with gcloud secrets versions destroy to make it unrecoverable. Access a specific version by number instead of latest when you need an old value."
+    },
+    {
+      "id": 3680,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud secrets delete my-api-key",
+      "desc": "Delete a secret and all its versions",
+      "tooltip": "Schedules the secret for deletion with a 30-day grace period, during which it can be restored with gcloud secrets undelete. Applications reading the secret fail once deletion completes, so update them first. There is no undo after the grace period ends."
+    },
+    {
+      "id": 3681,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud builds submit --tag gcr.io/my-project-123456/web-app:v1 .",
+      "desc": "Build and push a container image with Cloud Build",
+      "tooltip": "Uploads the current directory to Cloud Build, which builds the Dockerfile into an image and pushes it to the registry as gcr.io/my-project-123456/web-app:v1. Requires Cloud Build enabled and registry auth set up via gcloud auth configure-docker. The resulting image feeds gcloud run deploy or other container-based services."
+    },
+    {
+      "id": 3682,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gcloud builds list",
+      "desc": "List Cloud Build jobs",
+      "tooltip": "Prints recent build submissions with their ID, status (SUCCESS, FAILURE, WORKING) and the source or tag built. Watch a specific build live with gcloud builds log BUILD_ID. Related: gcloud builds submit starts a new build."
+    },
+    {
+      "id": 3683,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam oauth create",
+      "desc": "Authorize GAM for a Google Workspace domain",
+      "tooltip": "First-time setup that opens Google's consent screen to authorize GAM with a Workspace super admin account, storing credentials in oauth2.txt inside the GAM directory. Run once per domain; afterwards GAM commands act with the admin's privileges. Check the authorized account with gam oauth info."
+    },
+    {
+      "id": 3684,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam print users",
+      "desc": "List all users in the domain",
+      "tooltip": "Outputs every user in the Workspace directory as CSV rows of primary email, first name, last name and status. Pipe the output to a file to build user lists, or add fields to widen the columns. Filter the set with the query option, as in gam print users query \"isSuspended=False\"."
+    },
+    {
+      "id": 3685,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam print users query \"isSuspended=False\"",
+      "desc": "List users matching a directory query",
+      "tooltip": "Prints only the users satisfying the query string, here everyone not suspended. Queries use the Admin SDK syntax, so orgUnitPath='/Staff' narrows to an organizational unit and isArchived=False filters archived accounts. See gam print users for the unfiltered list."
+    },
+    {
+      "id": 3686,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam info user alex@example.com",
+      "desc": "Show details for one user",
+      "tooltip": "Displays a user's profile: name, primary email, aliases, organizational unit, recovery options, licenses and group memberships. Use it to verify changes made with gam update user. Add formatjson for a machine-readable dump."
+    },
+    {
+      "id": 3687,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam create user alex@example.com firstname \"Alex\" lastname \"Rivera\" password \"TempPass123!\"",
+      "desc": "Create a new Workspace user",
+      "tooltip": "Provisions a new account with the given email, display name and temporary password, ready to sign in immediately. Add ou '/Staff' to place the user in an organizational unit and notify email@address to mail the credentials. Force a password change at first login with changepasswordatnextlogin true."
+    },
+    {
+      "id": 3688,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam update user alex@example.com organization department \"Engineering\" primary",
+      "desc": "Update a user's department field",
+      "tooltip": "Sets the department on the user's organization entry to Engineering; the primary flag marks this organization record as the main one. Other organization attributes like title and costcenter can be set the same way. Verify with gam info user alex@example.com."
+    },
+    {
+      "id": 3689,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam update user alex@example.com recoveryemail alex.private@gmail.com",
+      "desc": "Set a user's recovery email",
+      "tooltip": "Assigns a backup email address used for account recovery and security alerts when the primary address is unavailable. Works the same way with recoveryphone for a phone number. Check the current value with gam info user."
+    },
+    {
+      "id": 3690,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam suspend user alex@example.com",
+      "desc": "Suspend a user account",
+      "tooltip": "Blocks the user from signing in while keeping the account, mailbox and Drive data intact, the standard first step in offboarding. Suspended users keep their licenses unless you remove them separately. Reinstate with gam unsuspend user alex@example.com."
+    },
+    {
+      "id": 3691,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam delete user alex@example.com",
+      "desc": "Delete a user account",
+      "tooltip": "Permanently removes the account and its Workspace data; the primary email stays reserved for a short window during which a super admin can restore the account with gam undelete user. Transfer Drive and mail ownership to a colleague first with gam user alex@example.com transfer drive. There is no undo after the reservation window closes."
+    },
+    {
+      "id": 3692,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam print groups",
+      "desc": "List all groups in the domain",
+      "tooltip": "Outputs every Google Group with its email, name, description and member counts. Add fields to widen the columns or pipe into a CSV for offline review. Drill into one group's members with gam print group-members group eng-team@example.com."
+    },
+    {
+      "id": 3693,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam info group eng-team@example.com",
+      "desc": "Show details for one group",
+      "tooltip": "Displays a group's settings: name, description, who can post, who can join, and its owners, managers and members. Handy before changing membership to see who is affected. Membership changes go through gam update group."
+    },
+    {
+      "id": 3694,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam create group eng-team@example.com name \"Engineering Team\" description \"All engineers\"",
+      "desc": "Create a new Google Group",
+      "tooltip": "Provisions a group with the given email address, display name and description, ready to receive members. Add members with gam update group eng-team@example.com add member user@example.com. The owner option can name an initial owner other than the admin."
+    },
+    {
+      "id": 3695,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam update group eng-team@example.com add member alex@example.com",
+      "desc": "Add a member to a group",
+      "tooltip": "Adds alex@example.com as a regular member of eng-team@example.com; use manager or owner instead of member to grant moderation powers. Members can be users, groups or external addresses. Remove someone with the remove member form of this command."
+    },
+    {
+      "id": 3696,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam update group eng-team@example.com remove member alex@example.com",
+      "desc": "Remove a member from a group",
+      "tooltip": "Takes alex@example.com out of eng-team@example.com, so they stop receiving the group's mail and lose access to resources shared through it. Use delete in place of remove for the same effect. Verify membership with gam info group eng-team@example.com."
+    },
+    {
+      "id": 3697,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam delete group eng-team@example.com",
+      "desc": "Delete a Google Group",
+      "tooltip": "Permanently removes the group, its settings and membership, and the group address starts bouncing mail. There is no undo, so export members first with gam print group-members group eng-team@example.com. Recreating the group later requires a fresh setup."
+    },
+    {
+      "id": 3698,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam print group-members group eng-team@example.com",
+      "desc": "List members of a group",
+      "tooltip": "Outputs every member of eng-team@example.com with their role (OWNER, MANAGER, MEMBER), type and status. Add recursive to include members of nested subgroups. This is the fastest way to audit who can reach a group's mail."
+    },
+    {
+      "id": 3699,
+      "category": "Google Cloud & Workspace",
+      "cmd": "gam calendar alex@example.com add event start 2026-09-01T10:00:00-07:00 end 2026-09-01T11:00:00-07:00 summary \"Project kickoff\"",
+      "desc": "Add an event to a user's calendar",
+      "tooltip": "Creates a one-hour event on alex@example.com's primary calendar starting at the given timestamp, with the summary as the event title. Times use ISO 8601 format with an offset like -07:00 for the timezone. Attach attendees by repeating the attendee option with each email."
     }
   ],
-  "total": 3311
+  "total": 3699
 }

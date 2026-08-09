@@ -1,0 +1,695 @@
+{
+  "category": "Firebase & Firestore",
+  "commands": [
+    {
+      "cmd": "npm install -g firebase-tools",
+      "desc": "Install the Firebase CLI globally",
+      "tooltip": "Installs firebase-tools, the official Firebase command-line tool, as a global npm package so the firebase command works anywhere. Requires Node.js and npm. Run firebase --version afterward to confirm the install, then firebase login to authenticate."
+    },
+    {
+      "cmd": "curl -sL https://firebase.tools | bash",
+      "desc": "Install the Firebase CLI via install script",
+      "tooltip": "Downloads and runs Firebase's official install script, which detects your operating system and sets up the firebase command without needing Node.js or npm. Piping a remote script into bash always carries risk, so review the script at firebase.tools first. On macOS, curl -sL https://firebase.tools | upgrade=true bash updates an existing install."
+    },
+    {
+      "cmd": "firebase --version",
+      "desc": "Show the Firebase CLI version",
+      "tooltip": "Prints the installed firebase-tools version number, which is handy for bug reports and for checking whether you are on a recent release. Firebase CLI v13 and later are the current generation; older major versions drop deprecated commands. Update with npm install -g firebase-tools@latest."
+    },
+    {
+      "cmd": "firebase login",
+      "desc": "Log in to Firebase with a Google account",
+      "tooltip": "Opens a browser to authenticate the CLI with your Google account and grants access to your Firebase projects. Your credentials are cached locally, so later commands run without re-authenticating. Run firebase projects:list afterward to confirm the login worked. Use firebase login --reauth to force a fresh sign-in."
+    },
+    {
+      "cmd": "firebase login --reauth",
+      "desc": "Force a fresh Firebase authentication",
+      "tooltip": "Starts the browser sign-in flow again even though the CLI already has cached credentials. Use it when switching Google accounts, after a password change, or when commands start failing with authorization errors. The existing token is replaced once you complete the new login."
+    },
+    {
+      "cmd": "firebase login --no-localhost",
+      "desc": "Log in without a local callback server",
+      "tooltip": "Authenticates on machines without a usable localhost, such as remote servers and some CI runners. The CLI prints a URL to open on any device with a browser, then asks you to paste back the authorization code. Use firebase login:ci instead when you need a token for headless automation."
+    },
+    {
+      "cmd": "firebase login:ci",
+      "desc": "Generate an access token for CI systems",
+      "tooltip": "Produces a refresh token that lets firebase commands run without interactive login, typically stored as the FIREBASE_TOKEN environment variable in CI pipelines. Run it once on a machine with a browser and treat the printed token like a password — anyone holding it can access your projects. Google now recommends Application Default Credentials over tokens for CI."
+    },
+    {
+      "cmd": "firebase logout",
+      "desc": "Sign out of Firebase",
+      "tooltip": "Removes the cached Google credentials from your machine, so the next firebase command that needs auth will prompt you to log in again. Useful on shared machines or when you suspect your stored token was compromised. Pass an email address, like firebase logout me@example.com, to sign out a specific account."
+    },
+    {
+      "cmd": "firebase projects:list",
+      "desc": "List all Firebase projects you can access",
+      "tooltip": "Prints every Firebase project available to the logged-in account, each with its project ID and display name. Run this right after firebase login as a sanity check. Use the project ID from the list with firebase use or the -P flag to target a specific project."
+    },
+    {
+      "cmd": "firebase projects:create my-app",
+      "desc": "Create a new Firebase project",
+      "tooltip": "Creates a Google Cloud project and adds Firebase to it in one step, using my-app as the project ID. Add -n \"My App\" to set a display name, or -o ORGANIZATION_ID to create it under a Google Cloud organization. The interactive prompts ask for a display name; run it inside a project directory to use the new project immediately."
+    },
+    {
+      "cmd": "firebase use my-app",
+      "desc": "Set the active Firebase project",
+      "tooltip": "Makes my-app the active project for the current directory, so commands like firebase deploy target it without extra flags. The choice is recorded in the .firebaserc file and affects only this directory. Run firebase use with no arguments to see the current alias list, or pass -P my-app on any command to override per-invocation."
+    },
+    {
+      "cmd": "firebase use --add",
+      "desc": "Add a project alias interactively",
+      "tooltip": "Prompts you to pick another Firebase project and assign it an alias, then stores the mapping in the .firebaserc file of the current directory. Aliases let you switch between environments, for example staging and prod, with firebase use staging. Commit .firebaserc to share the aliases with your team."
+    },
+    {
+      "cmd": "firebase use --clear",
+      "desc": "Clear the active project selection",
+      "tooltip": "Removes the active project from the current directory, so commands that need a project will error until you run firebase use PROJECT_ID again. Handy when you are about to switch context or when a directory should not implicitly target any project."
+    },
+    {
+      "cmd": "firebase use my-app --alias staging",
+      "desc": "Alias a project for quick switching",
+      "tooltip": "Associates the alias staging with the project my-app in the current directory's .firebaserc file, without the interactive prompts of firebase use --add. Later commands like firebase use staging or firebase deploy -P staging resolve to my-app. Remove an alias later with firebase use --unalias staging."
+    },
+    {
+      "cmd": "firebase use --unalias staging",
+      "desc": "Remove a project alias",
+      "tooltip": "Deletes the alias staging from the current directory's .firebaserc file, leaving the underlying Firebase project untouched. The alias no longer resolves, so any command that referenced it will fail until you pick a new project. This only edits local configuration, never the Firebase project itself."
+    },
+    {
+      "cmd": "firebase init",
+      "desc": "Initialize Firebase in the current directory",
+      "tooltip": "Walks you through choosing a Firebase project and the products to configure, then writes firebase.json and .firebaserc into the directory. It also generates product scaffolding such as functions/index.js and firestore.rules. Re-run it later to add more products, or restrict it with a feature argument like firebase init hosting."
+    },
+    {
+      "cmd": "firebase init --project my-app",
+      "desc": "Initialize using a specific Firebase project",
+      "tooltip": "Skips the project-selection prompt and wires the current directory to the my-app project, which is useful in scripts and CI. You still pick which products to set up interactively. The chosen project becomes the default alias written to .firebaserc."
+    },
+    {
+      "cmd": "firebase init hosting",
+      "desc": "Initialize only Firebase Hosting",
+      "tooltip": "Sets up Firebase Hosting in the current directory: it asks for a public directory (commonly public) and creates a hosting block in firebase.json plus an index.html starter. The rest of your Firebase products remain untouched. Deploy the result with firebase deploy --only hosting."
+    },
+    {
+      "cmd": "firebase init functions",
+      "desc": "Initialize only Cloud Functions",
+      "tooltip": "Scaffolds the functions/ directory with a package.json and an index.js or index.ts entry point, and asks whether to use TypeScript, ESLint, and npm dependencies. It also registers the functions codebase in firebase.json. Deploy the resulting code with firebase deploy --only functions."
+    },
+    {
+      "cmd": "firebase init firestore",
+      "desc": "Initialize Firestore rules and indexes",
+      "tooltip": "Creates firestore.rules and firestore.indexes.json in the current directory, ready to hold your security rules and composite index definitions. The CLI may also offer to deploy them immediately. Push changes later with firebase deploy --only firestore:rules or firebase deploy --only firestore:indexes."
+    },
+    {
+      "cmd": "firebase init emulators",
+      "desc": "Configure the Local Emulator Suite",
+      "tooltip": "Adds an emulators block to firebase.json defining ports for each local emulator (for example Firestore on 8080 and Auth on 9099), and can download the emulator binaries. The emulators let you run your backend entirely on your machine without touching production. Start them with firebase emulators:start."
+    },
+    {
+      "cmd": "firebase target",
+      "desc": "List configured deploy targets",
+      "tooltip": "Shows the deploy targets defined for the current project, such as a hosting target grouping several sites under one name. Targets are created with firebase target:apply and let firebase deploy --only target-name push to multiple resources at once."
+    },
+    {
+      "cmd": "firebase target:apply hosting my-site my-site-id",
+      "desc": "Map a deploy target to resources",
+      "tooltip": "Binds the target name my-site to the Hosting site my-site-id for the active project, then writes the mapping to .firebaserc. Afterward, firebase deploy --only hosting:my-site deploys to that site. Run firebase target hosting to verify the mapping."
+    },
+    {
+      "cmd": "firebase open",
+      "desc": "Open project pages in the browser",
+      "tooltip": "Launches your browser at the Firebase console pages for the active project, with a menu of destinations such as Hosting, Functions logs, and Database. Pass a link name like firebase open hosting:site to jump straight to a destination non-interactively."
+    },
+    {
+      "cmd": "firebase deploy",
+      "desc": "Deploy all configured resources",
+      "tooltip": "Pushes every deployable resource in your firebase.json to the active project: Hosting content, Cloud Functions, Firestore and Storage rules, Firestore indexes, and more. It must run from a directory containing firebase.json. Use --only or --except to narrow the deploy, and add -m \"message\" to attach a release note."
+    },
+    {
+      "cmd": "firebase deploy --only hosting",
+      "desc": "Deploy only Hosting content",
+      "tooltip": "Uploads just the Hosting site (the static files from your public directory) and leaves functions, rules, and indexes alone. Faster than a full firebase deploy when you only changed frontend files. Target a single site in multi-site setups with --only hosting:site-name."
+    },
+    {
+      "cmd": "firebase deploy --only hosting:my-site",
+      "desc": "Deploy a specific Hosting site",
+      "tooltip": "Deploys only the Hosting site named my-site, which matters when firebase.json configures multiple sites and you do not want to touch the others. Site names come from firebase hosting:sites:list. Combine with -m to add a release message shown in the console."
+    },
+    {
+      "cmd": "firebase deploy --only functions",
+      "desc": "Deploy only Cloud Functions",
+      "tooltip": "Uploads all your Cloud Functions code without touching Hosting, rules, or indexes. Use it when you only changed backend code, since a full deploy rebuilds everything. Narrow further to individual functions with --only functions:functionName."
+    },
+    {
+      "cmd": "firebase deploy --only functions:sendWelcomeEmail",
+      "desc": "Deploy a single Cloud Function",
+      "tooltip": "Deploys only the function named sendWelcomeEmail, which is ideal for iterating on one endpoint without waiting for the rest to build. The function name must match an export in your functions source. Related commands: firebase deploy --only functions deploys all functions, and firebase functions:delete removes one."
+    },
+    {
+      "cmd": "firebase deploy --only firestore:rules",
+      "desc": "Deploy Firestore security rules",
+      "tooltip": "Pushes your local firestore.rules file to the active project, replacing the published rules immediately. Rules changes apply to new requests without redeploying functions, but a mistake can lock clients out, so test with the Firestore emulator first. Related: firebase deploy --only firestore:indexes for indexes."
+    },
+    {
+      "cmd": "firebase deploy --only firestore:indexes",
+      "desc": "Deploy Firestore composite indexes",
+      "tooltip": "Uploads the index definitions from firestore.indexes.json to the project. Composite indexes are required for queries that combine multiple fields or range filters. Indexes build asynchronously; watch firestore:operations:list or the console to see when they are ready. Related: firebase firestore:indexes lists deployed indexes."
+    },
+    {
+      "cmd": "firebase deploy --only storage",
+      "desc": "Deploy Cloud Storage security rules",
+      "tooltip": "Uploads your storage.rules file, which controls who can read and write objects in Cloud Storage buckets. Rules changes take effect immediately and can break uploads if written incorrectly, so review them carefully. Related commands: firebase deploy --only database deploys Realtime Database rules."
+    },
+    {
+      "cmd": "firebase deploy --only database",
+      "desc": "Deploy Realtime Database security rules",
+      "tooltip": "Pushes database.rules.json to the active Realtime Database instance, updating access control for that database. Bad rules can instantly deny all clients, so test locally first. Related: firebase deploy --only firestore:rules covers Cloud Firestore rules instead."
+    },
+    {
+      "cmd": "firebase deploy --only hosting,functions",
+      "desc": "Deploy multiple targets at once",
+      "tooltip": "Deploys only the listed targets — here Hosting and Cloud Functions — while skipping rules and indexes. The --only flag accepts a comma-separated list of any deployable target. This is the fastest way to ship frontend plus backend changes together."
+    },
+    {
+      "cmd": "firebase deploy --dry-run",
+      "desc": "Validate a deploy without shipping",
+      "tooltip": "Builds your code and validates configuration exactly as a real deploy would, but uploads nothing to the project. It may still enable required APIs on the target project to give accurate validation. Run it before release deploys in CI to catch build errors early."
+    },
+    {
+      "cmd": "firebase deploy -m \"v1.2.0 release\"",
+      "desc": "Deploy with an attached release message",
+      "tooltip": "Attaches the message v1.2.0 release to the deployment, which is displayed on the Hosting page of the Firebase console and in deployment history. The -m flag is short for --message. It helps teams see what each deploy contains when reviewing release timelines."
+    },
+    {
+      "cmd": "firebase deploy --except functions",
+      "desc": "Deploy everything except one target",
+      "tooltip": "Deploys all configured resources except Cloud Functions, which is the inverse of --only. It is handy when a functions deploy would be slow or risky but you still want rules and Hosting shipped. The flag accepts a comma-separated list, for example --except functions,storage."
+    },
+    {
+      "cmd": "firebase deploy -P staging",
+      "desc": "Deploy to a specific project",
+      "tooltip": "Runs the deploy against the staging project regardless of the active project set with firebase use. The -P flag (short for --project) works on nearly every firebase command and accepts a project ID or an alias. Use it to promote the same codebase to production with firebase deploy -P prod."
+    },
+    {
+      "cmd": "firebase emulators:start",
+      "desc": "Start all configured emulators",
+      "tooltip": "Boots every emulator defined in the emulators block of firebase.json — commonly Firestore, Auth, Functions, and Hosting — so your app runs entirely on localhost. An emulator is a local simulation of the real service, so no production data is touched. Stop them with Ctrl+C; capture state first with firebase emulators:export."
+    },
+    {
+      "cmd": "firebase emulators:start --only auth,firestore",
+      "desc": "Start only specific emulators",
+      "tooltip": "Starts just the Auth and Firestore emulators from your emulator configuration, which is faster and uses less memory than starting everything. The --only flag takes a comma-separated list of emulator names such as auth, firestore, functions, database, storage, or hosting. Useful for frontend-only work that needs a mock backend."
+    },
+    {
+      "cmd": "firebase emulators:start --only functions",
+      "desc": "Start only the Functions emulator",
+      "tooltip": "Runs the Cloud Functions emulator, which executes your deployed function code locally on port 5001 by default. Requests are served as if the functions were live, making it great for testing HTTP triggers and callable functions. Pair it with the Firestore emulator (--only functions,firestore) when functions read or write data."
+    },
+    {
+      "cmd": "firebase emulators:exec 'npm test'",
+      "desc": "Run a test script against emulators",
+      "tooltip": "Starts the emulators, runs the quoted command (here npm test), then shuts the emulators down — ideal for CI and one-off test runs. Test code can point at localhost ports without any cleanup steps. Add --only to limit which emulators boot, and --ui to also launch the Emulator UI."
+    },
+    {
+      "cmd": "firebase emulators:export ./backup-dir",
+      "desc": "Export emulator data to a directory",
+      "tooltip": "Saves the current state of running emulators — Firestore documents, Auth users, and more — into ./backup-dir so you can restore it later. Use --only auth,firestore to limit what is exported, and -f to overwrite an existing directory. Restore the data with firebase emulators:start --import ./backup-dir."
+    },
+    {
+      "cmd": "firebase emulators:start --import ./backup-dir",
+      "desc": "Start emulators with previously exported data",
+      "tooltip": "Boots the emulators and loads the data previously saved by firebase emulators:export from ./backup-dir, giving you a reproducible starting state such as seeded users or documents. The directory contains the firebase-export.json manifest plus per-emulator data folders. Related: --export-on-exit saves state automatically when you quit."
+    },
+    {
+      "cmd": "firebase emulators:start --export-on-exit ./backup-dir",
+      "desc": "Auto-export emulator data on exit",
+      "tooltip": "Runs the emulators normally but automatically writes their state to ./backup-dir whenever they shut down cleanly with Ctrl+C. It pairs naturally with --import ./backup-dir to keep a persistent local dataset across sessions. Omit the directory to reuse whatever --import provided."
+    },
+    {
+      "cmd": "firebase emulators:start --inspect-functions",
+      "desc": "Debug emulated functions with the Node inspector",
+      "tooltip": "Starts the Functions emulator in debug mode so you can attach a debugger, such as Chrome DevTools or VS Code, to the Node inspector on port 9229. Set breakpoints in function code and step through requests locally. Related: firebase functions:shell gives a REPL for calling functions directly."
+    },
+    {
+      "cmd": "firebase setup:emulators:firestore",
+      "desc": "Download the Firestore emulator binary",
+      "tooltip": "Fetches the Firestore emulator jar so firebase emulators:start can run it locally. The emulator is a Java-based simulation of Cloud Firestore used for offline development and testing. The first emulators:start normally downloads it for you; this command does so explicitly, which helps in restricted network environments."
+    },
+    {
+      "cmd": "firebase setup:emulators:ui",
+      "desc": "Download the Emulator Suite UI",
+      "tooltip": "Downloads the Emulator UI, a local web dashboard (default port 4000) that shows emulator status, lets you inspect Firestore documents, and view Auth users. The UI is bundled separately from the emulators themselves. Launch it with firebase emulators:start --ui or by enabling ui in the emulators config."
+    },
+    {
+      "cmd": "firebase firestore:delete users/ada",
+      "desc": "Delete a Firestore document",
+      "tooltip": "Deletes the document at the path users/ada from the default Firestore database and asks for confirmation first. Without the -r flag it refuses to touch subcollections under that document, which protects you from accidental data loss. Add -f to skip the confirmation prompt in scripts."
+    },
+    {
+      "cmd": "firebase firestore:delete users/ada -r",
+      "desc": "Recursively delete a document and subcollections",
+      "tooltip": "Deletes the document users/ada plus every document in all of its subcollections — a powerful and irreversible operation, so the CLI still asks for confirmation unless you add -f. The -r flag (short for --recursive) cannot be combined with --shallow. For wiping an entire collection, prefer firestore:bulkdelete."
+    },
+    {
+      "cmd": "firebase firestore:delete users --shallow",
+      "desc": "Delete only top-level documents in a collection",
+      "tooltip": "Deletes the documents directly under the users collection but ignores any subcollections, which can orphan nested documents that still reference deleted parents. It is the opposite of -r, and the two flags are mutually exclusive. Use it to clear a collection level while preserving deeper data."
+    },
+    {
+      "cmd": "firebase firestore:delete --all-collections -f",
+      "desc": "Wipe all data from the Firestore database",
+      "tooltip": "Deletes every collection and document in the default Firestore database, returning it to an empty state. This is extremely destructive and cannot be undone, and -f skips all confirmation prompts, so double-check the project with firebase use before running it. Consider firestore:export-style backups first."
+    },
+    {
+      "cmd": "firebase firestore:indexes",
+      "desc": "List Firestore indexes as JSON",
+      "tooltip": "Prints the composite and single-field indexes defined in your project in the JSON specification format, matching what firestore.indexes.json expects. Add --pretty for a readable table layout. Deploy new index definitions with firebase deploy --only firestore:indexes."
+    },
+    {
+      "cmd": "firebase firestore:indexes --pretty",
+      "desc": "List Firestore indexes in a readable table",
+      "tooltip": "Displays the project's deployed Firestore indexes as a formatted table with collection, fields, and query scope columns instead of raw JSON. The data is the same as plain firebase firestore:indexes, just easier to scan. Useful when deciding whether a slow query needs a new composite index."
+    },
+    {
+      "cmd": "firebase firestore:locations",
+      "desc": "List available Firestore locations",
+      "tooltip": "Prints the Google Cloud regions where you can create a Firestore database, such as nam5 (multi-region US) and europe-west3. The list feeds into commands like firestore:databases:create and backup tooling that take a --location argument. Locations also determine data residency for compliance."
+    },
+    {
+      "cmd": "firebase firestore:bulkdelete --collection-ids posts,comments",
+      "desc": "Bulk-delete Firestore collection groups",
+      "tooltip": "Uses Firestore's managed bulk delete service to remove all documents in the posts and comments collection groups — every collection with that name across the database. It is safer and more efficient than firestore:delete for large datasets, and it pauses when no documents match. Confirm the collection IDs carefully since this is irreversible."
+    },
+    {
+      "cmd": "firebase firestore:databases:list",
+      "desc": "List Firestore databases in the project",
+      "tooltip": "Shows every Cloud Firestore database in the active project, including the default database and any named databases like ecommerce. Projects can host multiple databases, each with independent rules and indexes. Create another with firebase firestore:databases:create."
+    },
+    {
+      "cmd": "firebase firestore:databases:create ecommerce",
+      "desc": "Create a named Firestore database",
+      "tooltip": "Creates a new Cloud Firestore database called ecommerce in the default location, separate from the (default) database. Named databases suit multi-tenant or environment-separated designs, and each needs its own rules and indexes configured in firebase.json. Delete one with firestore:databases:delete."
+    },
+    {
+      "cmd": "firebase firestore:databases:get ecommerce",
+      "desc": "Show details of a Firestore database",
+      "tooltip": "Prints metadata about the ecommerce database: its type (native or Datastore mode), location, and state. It is a quick way to confirm a named database exists and where it lives before running operations against it. List all databases with firebase firestore:databases:list."
+    },
+    {
+      "cmd": "firebase firestore:databases:delete ecommerce",
+      "desc": "Delete a named Firestore database",
+      "tooltip": "Permanently removes the ecommerce database and all of its data, with a confirmation prompt unless you pass -f. Deleting the (default) database is not supported this way. Consider backups via firestore:backups first, since this operation cannot be undone."
+    },
+    {
+      "cmd": "firebase firestore:backups:list -l nam5",
+      "desc": "List Firestore database backups",
+      "tooltip": "Lists the managed backups available for Firestore databases in the nam5 location, showing each backup's database, creation time, and size. Pass -l to filter by region, or omit it for all locations. Backups are created by schedules you define with firestore:backups:schedules:create."
+    },
+    {
+      "cmd": "firebase firestore:operations:list",
+      "desc": "List pending Firestore admin operations",
+      "tooltip": "Shows long-running administrative operations such as index builds and bulk deletes, with their status and progress. It is the CLI window into work Firestore is doing in the background, for example after deploying new composite indexes. Limit the result count with --limit, or scope to a database with --database."
+    },
+    {
+      "cmd": "firebase functions:shell",
+      "desc": "Test functions in a Node REPL",
+      "tooltip": "Launches the Functions emulator and drops you into an interactive Node shell where you can call your functions directly with test data, including onCall functions and background triggers. It is the fastest way to poke at function behavior without writing an HTTP client. Type the function name plus arguments to invoke it; exit with Ctrl+C or .exit."
+    },
+    {
+      "cmd": "firebase functions:log",
+      "desc": "Read logs from deployed functions",
+      "tooltip": "Fetches the latest log entries from your deployed Cloud Functions, which is the first stop when a production function fails or returns unexpected results. Logs come from Cloud Logging, so anything your function writes with console.log appears here. Limit the volume with -n 50, or filter to one function with --only."
+    },
+    {
+      "cmd": "firebase functions:log --only sendWelcomeEmail",
+      "desc": "Read logs for a single function",
+      "tooltip": "Shows only the log lines produced by the sendWelcomeEmail function, cutting through noise from other functions. The --only flag takes a comma-separated list of function names. Combine with -n to cap how many lines are fetched. Related: firebase functions:list shows all deployed function names."
+    },
+    {
+      "cmd": "firebase functions:log -n 50",
+      "desc": "Read the last 50 log lines",
+      "tooltip": "Limits the fetched logs to the 50 most recent entries instead of the default batch, which keeps output manageable for frequently called functions. The -n flag is short for --lines. Add --only functionName to scope the lines to one function."
+    },
+    {
+      "cmd": "firebase functions:list",
+      "desc": "List all deployed Cloud Functions",
+      "tooltip": "Prints every function deployed in the active project along with its region and runtime. It is the authoritative inventory of your backend, handy before a functions:delete or when auditing which endpoints exist. Filters and regions are shown so you can copy exact names into --only deploy filters."
+    },
+    {
+      "cmd": "firebase functions:delete sendWelcomeEmail",
+      "desc": "Delete a deployed Cloud Function",
+      "tooltip": "Removes the sendWelcomeEmail function from the project after a confirmation prompt; add -f to skip it. Deleting a function that other code calls will break those callers, so check dependencies first. Pass multiple names or use --region to disambiguate functions with the same name in different regions."
+    },
+    {
+      "cmd": "firebase functions:delete sendWelcomeEmail --region europe-west1",
+      "desc": "Delete a function in a specific region",
+      "tooltip": "Deletes the sendWelcomeEmail function only from the europe-west1 region. This matters when the same function name is deployed to several regions — without --region, matching functions in all regions get deleted. Confirm the region list with firebase functions:list."
+    },
+    {
+      "cmd": "firebase functions:secrets:set STRIPE_API_KEY",
+      "desc": "Create or update a functions secret",
+      "tooltip": "Creates or rotates the secret STRIPE_API_KEY in Cloud Secret Manager for use by Cloud Functions, prompting for the value or reading it from --data-file. Reference it in code with the functions SDK instead of hardcoding credentials. Secrets are versioned, so rotation creates a new version; access the value with functions:secrets:access."
+    },
+    {
+      "cmd": "firebase functions:secrets:set STRIPE_API_KEY --data-file ./key.txt",
+      "desc": "Set a secret from a file",
+      "tooltip": "Stores the contents of ./key.txt as the value of the STRIPE_API_KEY secret, which avoids typing sensitive values into your shell history. The CLI prompts to redeploy functions that use the secret unless you pass -f. Related: functions:secrets:get shows metadata and versions for the secret."
+    },
+    {
+      "cmd": "firebase functions:secrets:get STRIPE_API_KEY",
+      "desc": "Show metadata for a functions secret",
+      "tooltip": "Prints the metadata for STRIPE_API_KEY, including creation time and every version currently stored, without revealing the secret values themselves. Use it to audit when a secret was rotated and which versions still exist. Access the actual value with functions:secrets:access."
+    },
+    {
+      "cmd": "firebase functions:secrets:access STRIPE_API_KEY",
+      "desc": "Print a secret's value",
+      "tooltip": "Outputs the latest value of STRIPE_API_KEY (or a specific version with KEY@2 syntax), which is occasionally needed for debugging or manual setup. Anyone with CLI access to the project can read this, so avoid printing secrets in shared logs. Related: functions:secrets:get lists versions first."
+    },
+    {
+      "cmd": "firebase functions:secrets:destroy STRIPE_API_KEY",
+      "desc": "Destroy a functions secret version",
+      "tooltip": "Permanently deletes STRIPE_API_KEY (or a specific version with KEY@2 syntax) from Secret Manager after a confirmation prompt. Destroyed secrets cannot be recovered, and functions still referencing the destroyed version will fail, so check functions:secrets:get first. Related: functions:secrets:prune cleans up unused secrets."
+    },
+    {
+      "cmd": "firebase functions:secrets:prune",
+      "desc": "Destroy secrets no longer in use",
+      "tooltip": "Deletes secret versions that no deployed function references, cleaning up credentials left behind by rotations and deletions. It prompts before destroying anything unless you pass -f. Run functions:secrets:get first to review what is about to go. This is the safe way to keep your secret inventory tidy."
+    },
+    {
+      "cmd": "firebase functions:config:get stripe.key",
+      "desc": "Read legacy environment config",
+      "tooltip": "Fetches the value stored at the stripe.key path in the old functions config system and prints it as JSON. Google recommends migrating this config to Secret Manager, and functions:config:export automates that move. New projects should use functions:secrets:set instead."
+    },
+    {
+      "cmd": "firebase functions:config:clone --from my-app-staging",
+      "desc": "Clone function config from another project",
+      "tooltip": "Copies the environment config from the my-app-staging project into the active project, which is useful when promoting code from staging to production. Add --only key1,key2 to copy a subset, or --except to skip keys. The legacy config system is being replaced by Secret Manager, so prefer functions:config:export for new setups."
+    },
+    {
+      "cmd": "firebase functions:config:export",
+      "desc": "Export function config to Secret Manager",
+      "tooltip": "Migrates your legacy functions config (functions:config) into Cloud Secret Manager as a single secret, defaulting to the name FUNCTIONS_CONFIG_EXPORT unless you pass --secret NAME. Afterward, functions read the values via the secrets API instead of config. This is the recommended path off the deprecated config system."
+    },
+    {
+      "cmd": "firebase hosting:channel:deploy preview1",
+      "desc": "Deploy Hosting to a preview channel",
+      "tooltip": "Deploys your Hosting content to the preview channel named preview1, creating the channel if needed, and prints a unique preview URL like preview1--project-id.web.app. Preview channels are ephemeral environments for sharing work-in-progress with reviewers. The channel expires after 7 days by default; extend or shorten it with --expires."
+    },
+    {
+      "cmd": "firebase hosting:channel:deploy preview1 --expires 30d",
+      "desc": "Deploy a preview channel with a custom lifetime",
+      "tooltip": "Deploys to the preview1 channel and keeps it alive for 30 days before Firebase deletes it automatically. The --expires flag accepts durations like 12h or 30d with a maximum of 30d; the default is 7d. Useful for long-running feature reviews. Clean up channels early with hosting:channel:delete."
+    },
+    {
+      "cmd": "firebase hosting:channel:deploy preview1 --open",
+      "desc": "Deploy a preview channel and open it",
+      "tooltip": "Deploys to the preview1 channel and immediately opens the preview URL in your default browser. It is a handy end-to-end check after shipping a change, saving you from copying the URL out of the deploy output. The channel still expires per --expires, defaulting to 7 days."
+    },
+    {
+      "cmd": "firebase hosting:channel:list",
+      "desc": "List Hosting channels for the project",
+      "tooltip": "Shows every channel of the default Hosting site, including the permanent live channel and any preview channels, each with its URL and expiration date. Add --site site-name to list channels of a different site. Related: hosting:channel:delete removes a preview channel."
+    },
+    {
+      "cmd": "firebase hosting:channel:open preview1",
+      "desc": "Open a preview channel in the browser",
+      "tooltip": "Opens the URL of the preview1 channel in your default browser, or prints the URL when a browser is unavailable. It is the quick way to revisit a preview channel you deployed earlier. Add --site site-name if the channel belongs to a non-default site."
+    },
+    {
+      "cmd": "firebase hosting:channel:delete preview1",
+      "desc": "Delete a Hosting preview channel",
+      "tooltip": "Removes the preview1 channel and its deployed version after a confirmation prompt; pass -f to skip it. The live channel cannot be deleted, only preview channels can. Do this to clean up stale preview URLs and stop them from being served."
+    },
+    {
+      "cmd": "firebase hosting:channel:create preview1",
+      "desc": "Create a Hosting channel without deploying",
+      "tooltip": "Creates the preview1 channel ahead of time without deploying any content to it, so the channel exists with an empty version. This is a stepping stone for workflows that create channels and deploy later, or for reserving a URL. Deploy to it with firebase hosting:channel:deploy preview1."
+    },
+    {
+      "cmd": "firebase hosting:clone my-site:preview1 my-site:live",
+      "desc": "Promote a preview channel to live",
+      "tooltip": "Copies the most recently deployed version from the my-site:preview1 channel to the live channel of my-site, effectively promoting a reviewed preview to production without rebuilding. It also works across sites, for example siteA:preview1 siteB:live. Run a quick sanity check on the preview URL before cloning."
+    },
+    {
+      "cmd": "firebase hosting:disable",
+      "desc": "Take the Hosting site offline",
+      "tooltip": "Stops serving web traffic for the default Hosting site, showing a temporary maintenance page instead, after a confirmation prompt unless you pass -f. It does not delete the site or its content. Re-enable hosting by deploying again or in the console. Use -s site-name to target a specific site."
+    },
+    {
+      "cmd": "firebase hosting:sites:list",
+      "desc": "List Hosting sites in the project",
+      "tooltip": "Prints every Firebase Hosting site in the active project with its ID, default domain, and creation date. Projects can hold multiple sites, for example one per environment or brand. Create additional sites with hosting:sites:create."
+    },
+    {
+      "cmd": "firebase hosting:sites:create my-site",
+      "desc": "Create a new Hosting site",
+      "tooltip": "Creates a Firebase Hosting site named my-site and gives it a default domain, without deploying any content. Sites are independent containers for Hosting versions, useful for multi-site architectures. Deploy to it with firebase deploy --only hosting:my-site after adding it to firebase.json."
+    },
+    {
+      "cmd": "firebase hosting:sites:get my-site",
+      "desc": "Show details of a Hosting site",
+      "tooltip": "Prints metadata about the my-site Hosting site, such as its ID, default URL, and creation time. It is a quick lookup before managing the site or configuring custom domains. List all sites with firebase hosting:sites:list."
+    },
+    {
+      "cmd": "firebase hosting:sites:delete my-site",
+      "desc": "Delete a Hosting site",
+      "tooltip": "Permanently removes the my-site Hosting site and its deployed versions after a confirmation prompt; -f skips the prompt. Any custom domains pointing at the site stop resolving, so migrate traffic first. Deleting the default site is not allowed."
+    },
+    {
+      "cmd": "firebase auth:export users.json",
+      "desc": "Export Auth users to a JSON file",
+      "tooltip": "Downloads every user account from Firebase Authentication into users.json, including UIDs, emails, provider info, and password hashes. The export is the standard way to back up or migrate users. Add --format csv to write comma-separated data instead, and import the file later with firebase auth:import."
+    },
+    {
+      "cmd": "firebase auth:export users.csv",
+      "desc": "Export Auth users to a CSV file",
+      "tooltip": "Writes all Authentication users to users.csv in comma-separated format, which opens directly in spreadsheets for audits or bulk edits. The file extension selects the format automatically; the --format flag only matters when the filename is ambiguous. Re-import the file with firebase auth:import."
+    },
+    {
+      "cmd": "firebase auth:import users.json",
+      "desc": "Import users from a JSON file",
+      "tooltip": "Loads user accounts from users.json into Firebase Authentication, creating or updating them in bulk. If the accounts use password hashes from another system, you must pass the matching hash flags, for example --hash-algo bcrypt. This is the primary tool for migrating users between projects or from a legacy backend."
+    },
+    {
+      "cmd": "firebase auth:import users.json --hash-algo bcrypt",
+      "desc": "Import users hashed with bcrypt",
+      "tooltip": "Imports users.json and tells Firebase their passwords were hashed with bcrypt, so it can verify logins against the imported hashes. Different algorithms need different flags — scrypt needs --rounds and --mem-cost, SHA256 needs --hash-key. Test one account's login after importing to confirm the hash parameters match."
+    },
+    {
+      "cmd": "firebase auth:import users.json --hash-algo scrypt --rounds 8 --mem-cost 14",
+      "desc": "Import users hashed with scrypt",
+      "tooltip": "Imports users whose passwords were hashed with scrypt, declaring the exact scrypt parameters used by the source system: 8 rounds and memory cost 14. Firebase must know these values to reproduce the hashes at login time. Getting a parameter wrong makes imported passwords unverifiable, so keep the source settings handy."
+    },
+    {
+      "cmd": "firebase database:get /users",
+      "desc": "Fetch Realtime Database data as JSON",
+      "tooltip": "Reads the data at the /users path of the active Realtime Database and prints it as JSON. Add --pretty for readable formatting, or -o filename to save to a file. Query options like --order-by and --limit-to-first refine large datasets. Data is served from the live database, so results reflect production state."
+    },
+    {
+      "cmd": "firebase database:get /users --pretty",
+      "desc": "Fetch database data with readable formatting",
+      "tooltip": "Prints the /users path with indented, colorized JSON instead of a compact single line. Handy when inspecting nested records by eye. The data itself is identical to the plain form. Save the formatted output with -o filename if you want to keep it."
+    },
+    {
+      "cmd": "firebase database:get /users/ada -o ada.json",
+      "desc": "Save database data to a file",
+      "tooltip": "Fetches the data at /users/ada and writes it to ada.json instead of printing to the terminal. The -o flag is short for --output. Useful for backing up a subtree or feeding the file into other tools. Related: database:set reads JSON back in from a file."
+    },
+    {
+      "cmd": "firebase database:set /users/ada -d '{\"name\": \"Ada\"}'",
+      "desc": "Replace data at a database path",
+      "tooltip": "Replaces everything at /users/ada with the inline JSON provided by -d, after a confirmation prompt unless you pass -f. Any existing children not present in the new data are deleted, so this is destructive to that path. For merging fields instead, use database:update."
+    },
+    {
+      "cmd": "firebase database:set /users/ada users.json",
+      "desc": "Set database data from a JSON file",
+      "tooltip": "Replaces the data at /users/ada with the contents of users.json, which is convenient for seeding or restoring a subtree. The file argument can also be stdin. Add -f to skip the confirmation prompt, and --disable-triggers to prevent Cloud Functions from firing on the write."
+    },
+    {
+      "cmd": "firebase database:push /messages -d '{\"text\": \"hello\"}'",
+      "desc": "Append data to a database list",
+      "tooltip": "Adds the JSON object to the /messages list and lets Realtime Database generate a unique push key for it, producing /messages/-NxyzABC. Use push for chat-style append-only lists where you need unique IDs. Related: database:set replaces data at an exact path instead."
+    },
+    {
+      "cmd": "firebase database:update /users/ada -d '{\"age\": 36}'",
+      "desc": "Merge fields into an existing record",
+      "tooltip": "Merges the provided JSON into /users/ada, adding or updating only those keys while leaving all other children untouched. This is the safe counterpart to database:set, which replaces the entire path. The -d flag supplies inline JSON; you can also pass a file path."
+    },
+    {
+      "cmd": "firebase database:remove /users/ada",
+      "desc": "Delete data at a database path",
+      "tooltip": "Removes everything stored at /users/ada, including all nested children, after a confirmation prompt unless you pass -f. There is no undo, so double-check the path — removing / wipes the whole database. Related: database:set can restore data afterward if you have a backup."
+    },
+    {
+      "cmd": "firebase database:import / backup.json",
+      "desc": "Import a JSON file into the database",
+      "tooltip": "Loads the contents of backup.json into the Realtime Database at the specified path, here the root /, writing records non-atomically in chunks. Unlike database:set it does not first delete existing data at the target, so it is suitable for merging large backups. Tune throughput with --chunk-size and --concurrency."
+    },
+    {
+      "cmd": "firebase database:profile",
+      "desc": "Profile Realtime Database usage",
+      "tooltip": "Streams live operation data from the Realtime Database and produces a usage report showing read, write, and latency statistics per path. Run it while traffic flows to find hot spots and slow queries. Set a collection window with -d 30 for 30 seconds, or analyze a saved log with -i filename."
+    },
+    {
+      "cmd": "firebase database:profile -d 30",
+      "desc": "Profile the database for 30 seconds",
+      "tooltip": "Collects Realtime Database usage statistics for 30 seconds, then prints a report of read/write volume and latency grouped by path. The -d flag sets the duration in seconds. Useful for capturing a bounded sample during a load test. Save the report with -o filename."
+    },
+    {
+      "cmd": "firebase database:instances:list",
+      "desc": "List Realtime Database instances",
+      "tooltip": "Shows every Realtime Database instance in the project with its name and location. A project can hold multiple named instances beyond the default, each with independent data and rules. Filter by region with -l europe-west1. Create new instances with database:instances:create."
+    },
+    {
+      "cmd": "firebase database:instances:create my-app-eu -l europe-west1",
+      "desc": "Create a Realtime Database instance",
+      "tooltip": "Creates a new Realtime Database instance named my-app-eu in the europe-west1 region, useful for geographic data residency or separating workloads. Without -l it defaults to us-central1. The instance gets its own rules and data, managed via the --instance flag on other database commands."
+    },
+    {
+      "cmd": "firebase database:settings:get defaultWriteSizeLimit",
+      "desc": "Read a Realtime Database setting",
+      "tooltip": "Prints the current value of the defaultWriteSizeLimit setting, which caps how large a single write can be before it is rejected. It is the CLI way to inspect database-level settings. Change the value with database:settings:set."
+    },
+    {
+      "cmd": "firebase database:settings:set defaultWriteSizeLimit unlimited",
+      "desc": "Change a Realtime Database setting",
+      "tooltip": "Sets the defaultWriteSizeLimit setting to unlimited, removing the size cap on individual writes to the database. Other accepted values are small, medium, and large. Raising the limit lets bigger payloads through but can increase cost and latency, so prefer the smallest value your app needs."
+    },
+    {
+      "cmd": "firebase apps:list",
+      "desc": "List apps registered in the project",
+      "tooltip": "Shows every app registered in the active Firebase project — web, Android, and iOS — with its platform, display name, and app ID. App IDs look like 1:123456789:android:abc123 and are required by many other commands. Filter the list by passing a platform such as ANDROID."
+    },
+    {
+      "cmd": "firebase apps:list ANDROID",
+      "desc": "List only Android apps in the project",
+      "tooltip": "Filters the project's apps down to the Android platform, showing each app's package name and app ID. The platform argument is case-insensitive and also accepts IOS or WEB. The app ID output feeds directly into apps:sdkconfig and appdistribution:distribute."
+    },
+    {
+      "cmd": "firebase apps:sdkconfig ANDROID 1:123456789:android:abc123",
+      "desc": "Print the Android config file contents",
+      "tooltip": "Prints the google-services.json contents for the Android app with ID 1:123456789:android:abc123, which apps embed to connect to Firebase. Add -o google-services.json to write it straight to a file. This is how you fetch app config without opening the console. WEB apps get a config snippet instead."
+    },
+    {
+      "cmd": "firebase apps:sdkconfig WEB 1:123456789:web:def456 -o firebase-config.js",
+      "desc": "Save the web app config to a file",
+      "tooltip": "Writes the Firebase web config for app 1:123456789:web:def456 to firebase-config.js instead of printing it. The config contains the apiKey, projectId, and other values you pass to initializeApp. Download it after creating a new web app to wire up the frontend."
+    },
+    {
+      "cmd": "firebase apps:create ANDROID MyApp --package-name com.example.myapp",
+      "desc": "Register a new Android app",
+      "tooltip": "Registers an Android app named MyApp with the package name com.example.myapp in the active project and prints its new app ID. The --package-name flag is required for Android apps; iOS uses --bundle-id instead. After registering, fetch config with apps:sdkconfig."
+    },
+    {
+      "cmd": "firebase apps:create WEB MyWebApp",
+      "desc": "Register a new web app",
+      "tooltip": "Creates a web app named MyWebApp in the active project and prints its app ID plus the config snippet to paste into your JavaScript. Web apps need no extra identifier, unlike Android and iOS apps. Pull the config again anytime with apps:sdkconfig WEB."
+    },
+    {
+      "cmd": "firebase apps:init ANDROID 1:123456789:android:abc123",
+      "desc": "Download config for an existing app",
+      "tooltip": "Downloads the google-services.json for the Android app 1:123456789:android:abc123 and saves it into the current directory, or wherever -o points. It is a quick way to bootstrap a new checkout without hunting through the console. Related: apps:sdkconfig prints the same config to stdout."
+    },
+    {
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123",
+      "desc": "Upload a build to App Distribution",
+      "tooltip": "Uploads app-release.apk to Firebase App Distribution for the app 1:123456789:android:abc123, making it available to testers you select. Add --release-notes \"message\" to describe the build, and --testers or --groups to send invites immediately. App Distribution is Google's channel for handing pre-release builds to testers."
+    },
+    {
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123 --release-notes \"Bug fixes and polish\"",
+      "desc": "Upload a release with release notes",
+      "tooltip": "Uploads app-release.apk and attaches the note Bug fixes and polish, which testers see on their install page and in the invite email. Release notes default to empty, so set them for any build that goes to a team. Related: --release-notes-file reads the note from a file."
+    },
+    {
+      "cmd": "firebase appdistribution:distribute app-release.apk --app 1:123456789:android:abc123 --testers alice@example.com,bob@example.com",
+      "desc": "Distribute a build to specific testers",
+      "tooltip": "Uploads app-release.apk and immediately invites the listed email addresses to test it, so testers get an install link without you using the console. Emails are comma-separated; use --testers-file with a text file for long lists. Group-based distribution uses --groups instead."
+    },
+    {
+      "cmd": "firebase appdistribution:testers:add alice@example.com",
+      "desc": "Add a tester to the project",
+      "tooltip": "Registers alice@example.com as a tester in App Distribution so she can be invited to future releases. Add --group-alias qa to also place her in the qa group, or --file testers.txt to bulk-add from a list. Manage the roster with appdistribution:testers:list and testers:remove."
+    },
+    {
+      "cmd": "firebase appdistribution:testers:list",
+      "desc": "List App Distribution testers",
+      "tooltip": "Shows every tester registered in the project, optionally filtered to one group by passing the group alias. Testers are the people who receive your pre-release builds. Related: appdistribution:testers:add invites new ones and appdistribution:testers:remove revokes access."
+    },
+    {
+      "cmd": "firebase appdistribution:testers:remove alice@example.com",
+      "desc": "Remove a tester from the project",
+      "tooltip": "Revokes alice@example.com's access to future App Distribution releases; existing installed builds keep working but she no longer receives new ones. Pass --group-alias to remove her from a group instead of the whole project. Check who is registered with appdistribution:testers:list first."
+    },
+    {
+      "cmd": "firebase appdistribution:groups:create \"QA Team\" qa",
+      "desc": "Create an App Distribution group",
+      "tooltip": "Creates a tester group named QA Team with the alias qa, which you can then pass to --groups on appdistribution:distribute to send builds to the whole team at once. The alias must be unique in the project. Add members with appdistribution:testers:add --group-alias qa."
+    },
+    {
+      "cmd": "firebase crashlytics:symbols:upload ./build/symbols --app 1:123456789:android:abc123",
+      "desc": "Upload native symbols for Crashlytics",
+      "tooltip": "Uploads native debug symbols from ./build/symbols so Crashlytics can symbolicate (turn memory addresses into readable function names) for crashes in native code like C++ or Flutter engine code. The --app flag names the target app and --generator picks the symbol format. Run it as part of your release build."
+    },
+    {
+      "cmd": "firebase crashlytics:mappingfile:upload ./mapping.txt --app 1:123456789:android:abc123",
+      "desc": "Upload the ProGuard mapping file",
+      "tooltip": "Uploads the R8/ProGuard mapping.txt so Crashlytics can deobfuscate stack traces from release Android builds, where class and method names are stripped. Upload the mapping that shipped with each release version, or crashes stay unreadable. The companion crashlytics:mappingfile:generateid creates the mapping file ID resource."
+    },
+    {
+      "cmd": "firebase ext:install firebase/storage-resize-images",
+      "desc": "Install a Firebase extension",
+      "tooltip": "Adds the storage-resize-images extension to the project: it configures the extension's parameters interactively, registers it in firebase.json, and can deploy it immediately. Extensions are packaged backend features you install without writing code. Manage them with ext:list, ext:update, and ext:uninstall."
+    },
+    {
+      "cmd": "firebase ext:update storage-resize-images",
+      "desc": "Update an installed extension",
+      "tooltip": "Updates the storage-resize-images extension instance to the latest version, or to a specific version if you pass one after the instance ID. Extensions ship fixes and new features as new versions. Check the current version with ext:list before updating."
+    },
+    {
+      "cmd": "firebase ext:list",
+      "desc": "List installed extensions",
+      "tooltip": "Shows every extension installed in the active project, with its instance ID, extension reference, and version. Instance IDs are what ext:update and ext:uninstall expect as arguments. Browse the marketplace at firebase.google.com/products/extensions before installing new ones."
+    },
+    {
+      "cmd": "firebase ext:uninstall storage-resize-images",
+      "desc": "Uninstall a Firebase extension",
+      "tooltip": "Removes the storage-resize-images extension instance from the project, including the resources it created, after a confirmation prompt unless you pass -f. Uninstalling can delete data the extension produced, like resized images, so back up anything you need first."
+    },
+    {
+      "cmd": "firebase experiments:enable webframeworks",
+      "desc": "Enable a Firebase CLI experiment",
+      "tooltip": "Turns on the webframeworks experiment for this machine, which unlocks beta CLI behavior such as deploying Next.js and Angular apps to Hosting. Experiments are unstable features that can change without notice. List what is available with experiments:list and switch it off with experiments:disable."
+    },
+    {
+      "cmd": "firebase experiments:disable webframeworks",
+      "desc": "Disable a Firebase CLI experiment",
+      "tooltip": "Turns off the webframeworks experiment on this machine, restoring default CLI behavior. Disable an experiment when a beta feature causes deploy or build problems. See the current state of all experiments with experiments:list."
+    },
+    {
+      "cmd": "firebase experiments:list",
+      "desc": "List CLI experiments and their state",
+      "tooltip": "Prints every available CLI experiment with a short description and whether it is currently enabled on this machine. Experiments gate beta features that are not stable enough for defaults. Toggle them with experiments:enable and experiments:disable."
+    },
+    {
+      "cmd": "firebase remoteconfig:get",
+      "desc": "Fetch the Remote Config template",
+      "tooltip": "Downloads the active Remote Config template as JSON, showing all parameters, conditions, and the version number. Remote Config lets you change app behavior without shipping a new build. Fetch a specific historical version with -v VERSION and save to a file with -o."
+    },
+    {
+      "cmd": "firebase remoteconfig:versions:list --limit 5",
+      "desc": "List recent Remote Config versions",
+      "tooltip": "Shows the five most recent published versions of the Remote Config template with timestamps and update sources. Pass --limit 0 to list every version ever published. Version numbers from this list feed remoteconfig:rollback -v."
+    },
+    {
+      "cmd": "firebase remoteconfig:rollback -v 42",
+      "desc": "Roll back Remote Config to a version",
+      "tooltip": "Reverts the published Remote Config template to version 42, after a confirmation prompt unless you pass -f. Rollbacks are themselves new versions, so they appear in versions:list. Use this when a bad parameter change broke clients. Omit -v to roll back one version."
+    },
+    {
+      "cmd": "firebase apphosting:backends:list",
+      "desc": "List App Hosting backends",
+      "tooltip": "Shows every Firebase App Hosting backend in the project, which are the server-rendered deployment targets for frameworks like Next.js. Each backend ties a Git repository and build to a live URL. Create one with apphosting:backends:create after firebase init apphosting."
+    }
+  ]
+}
