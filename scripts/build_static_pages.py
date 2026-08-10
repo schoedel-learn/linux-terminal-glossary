@@ -87,13 +87,15 @@ def page(title: str, description: str, body: str, canonical_path: str,
 <meta name="description" content="{esc(description)}">
 <link rel="canonical" href="{canonical}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Linux Terminal Glossary">
+<meta property="og:site_name" content="Schoedel Design">
 <meta property="og:title" content="{esc(og_title)}">
 <meta property="og:description" content="{esc(description)}">
 <meta property="og:url" content="{canonical}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://schoedeldesign.ai/wp-content/uploads/2025/09/schoedel-design-ai.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(og_title)}">
 <meta name="twitter:description" content="{esc(description)}">
+<meta name="twitter:image" content="https://schoedeldesign.ai/wp-content/uploads/2025/09/schoedel-design-ai.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
