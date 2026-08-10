@@ -38,3 +38,9 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: Ping IndexNow (Bing/Seznam/Yandex)
+        run: |
+          KEY=$(cat ${KEY_FILE})
+          curl -s "https://api.indexnow.org/indexnow?url=https%3A%2F%2Flinux.schoedeldesign.ai%2Fsitemap.xml&key=${KEY}" || true
+        env:
+          KEY_FILE: ${{ github.workspace }}/${INDEXNOW_KEY}.txt
