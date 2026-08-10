@@ -81,6 +81,7 @@ def page(title: str, description: str, body: str, canonical_path: str,
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://schoedeldesign.ai/wp-content/uploads/2025/08/cropped-Schoedel-Design-640-x-264-px-1-32x32.png" sizes="32x32">
 <script defer data-domain="schoedeldesign.ai" src="https://analytics.schoedeldesign.ai/js/script.js"></script>
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(description)}">
