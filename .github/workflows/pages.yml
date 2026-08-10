@@ -28,7 +28,7 @@ jobs:
           python3 scripts/build_static_pages.py "${{ vars.GLOSSARY_SITE_URL || 'https://schoedel-learn.github.io/linux-terminal-glossary' }}"
       - name: Stage site files
         run: |
-          cp index.html commands.json search_index.json search_vectors.json site/
+          cp index.html commands.json search_index.json search_vectors.json "${INDEXNOW_KEY}.txt" site/
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload site
@@ -40,7 +40,6 @@ jobs:
         uses: actions/deploy-pages@v5
       - name: Ping IndexNow (Bing/Seznam/Yandex)
         run: |
-          KEY=$(cat ${KEY_FILE})
-          curl -s "https://api.indexnow.org/indexnow?url=https%3A%2F%2Flinux.schoedeldesign.ai%2Fsitemap.xml&key=${KEY}" || true
+          curl -s "https://api.indexnow.org/indexnow?url=https%3A%2F%2Flinux.schoedeldesign.ai%2Fsitemap.xml&key=${INDEXNOW_KEY}" || true
         env:
-          KEY_FILE: ${{ github.workspace }}/${INDEXNOW_KEY}.txt
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
