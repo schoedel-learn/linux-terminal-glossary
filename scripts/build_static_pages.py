@@ -33,6 +33,7 @@ BRAND_LINKS = f"""
   <div class="footer-inner">
     <p class="footer-brand">Built by <a href="https://schoedeldesign.ai" rel="noopener">Schoedel Design</a> — AI-native design &amp; development</p>
     <p class="footer-tag">Also by Schoedel Design: <a href="https://proset.ai" rel="noopener">Proset AI</a> — bilingual AI transcription &amp; productivity for students and professionals</p>
+    <p class="footer-tag">Also by Schoedel Design: <a href="https://training.schoedeldesign.ai" rel="noopener">Tech &amp; Infra Training for SMBs</a> — practical, self-hosted infrastructure &amp; AI training</p>
     <p class="footer-back"><a href="{SITE_URL}/">← Back to the searchable glossary</a></p>
   </div>
 </footer>
